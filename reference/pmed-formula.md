@@ -120,8 +120,8 @@ print(result_boot)
 #> P_med: Probability of Mediated Shift
 #> ====================================
 #> 
-#> Estimate: 0.277 
-#> 95% CI: [ 0.231 ,  0.329 ]
+#> Estimate: 0.278 
+#> 95% CI: [ 0.233 ,  0.331 ]
 #> 
 #> Inference: parametric_bootstrap 
 #> Bootstrap samples: 200 
@@ -129,7 +129,7 @@ print(result_boot)
 #> Treatment contrast: X = 1 vs. X* = 0 
 #> 
 #> Interpretation:
-#>   P(Y_{X*, M_X} > Y_{X, M_X}) = 0.277 
+#>   P(Y_{X*, M_X} > Y_{X, M_X}) = 0.278 
 #> 
 # }
 ```
