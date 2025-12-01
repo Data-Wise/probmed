@@ -38,25 +38,7 @@ home:
     with lavaan and mediation packages.
 
   sidebar:
-    structure: [links, license, community, citation, authors, dev]
-    components:
-      community: |
-        ## Getting Help
-
-        - 📚 Browse the [function reference](reference/index.html)
-        - 📖 Read the [introduction vignette](articles/introduction.html)
-        - 🐛 [Report bugs](https://github.com/data-wise/probmed/issues)
-        - 💬 [Discuss on GitHub](https://github.com/data-wise/probmed/discussions)
-
-      citation: |
-        ## Citation
-
-        If you use probmed in your research, please cite:
-
-        ```
-        Tofighi, D. et al. (2025). P_med: A scale-free effect size
-        for mediation analysis. Psychological Methods.
-        ```
+    structure: [links, license, citation, authors, dev]
 
   links:
   - text: "<i class='fab fa-github'></i> Browse Source"
