@@ -12,6 +12,9 @@ home:
   description: >
     Compute P_med, a scale-free probabilistic effect size for
     causal mediation analysis.
+  links:
+  - text: Browse source code
+    href: https://github.com/data-wise/probmed
 
 navbar:
   title: "probmed"
