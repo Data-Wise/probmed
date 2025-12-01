@@ -1,0 +1,6 @@
+# introduction
+
+``` r
+
+library(probmed)
+```

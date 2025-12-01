@@ -1,0 +1,165 @@
+# probmed
+
+The goal of `probmed` is to provide a robust and flexible framework for
+computing **P_med**, a scale-free probabilistic effect size for causal
+mediation analysis. Unlike traditional effect sizes, P_med offers an
+intuitive interpretation of the mediation effect in terms of
+probability, making it applicable across various model types (linear,
+GLM, etc.).
+
+## Features
+
+- **Scale-Free Effect Size**: Computes P_med, which is interpretable
+  regardless of the scale of the variables.
+- **Flexible Modeling**: Supports both linear and generalized linear
+  models (GLMs) for mediator and outcome.
+- **Modern Architecture**: Built using the **S7** object-oriented system
+  for robustness and extensibility.
+- **Inference Methods**: Includes parametric bootstrap, nonparametric
+  bootstrap, and plug-in estimators.
+
+## Installation
+
+You can install the development version of probmed from
+[GitHub](https://github.com/) with:
+
+``` r
+
+# install.packages("devtools")
+devtools::install_github("dtofighi/probmed")
+```
+
+## Quick Example
+
+Here is a basic example showing how to simulate data and compute P_med
+using a parametric bootstrap approach:
+
+``` r
+
+library(probmed)
+
+# 1. Simulate data
+set.seed(123)
+n <- 300
+data <- data.frame(X = rnorm(n), C = rnorm(n))
+# Mediator model: M ~ X + C
+data$M <- 0.5 * data$X + 0.3 * data$C + rnorm(n)
+# Outcome model: Y ~ M + X + C
+data$Y <- 0.4 * data$M + 0.2 * data$X + 0.2 * data$C + rnorm(n)
+
+# 2. Compute P_med
+# We specify the outcome model formula (first arg) and the mediator model formula.
+result <- pmed(
+  Y ~ X + M + C,
+  formula_m = M ~ X + C,
+  data = data,
+  treatment = "X",
+  mediator = "M",
+  method = "parametric_bootstrap",
+  n_boot = 1000,
+  seed = 42
+)
+
+# 3. View Results
+print(result)
+#> <probmed::PmedResult>
+#>  @ estimate      : num 0
+#>  @ ci_lower      : Named num 0
+#>  .. - attr(*, "names")= chr "2.5%"
+#>  @ ci_upper      : Named num 0
+#>  .. - attr(*, "names")= chr "97.5%"
+#>  @ ci_level      : num 0.95
+#>  @ method        : chr "parametric_bootstrap"
+#>  @ n_boot        : int 1000
+#>  @ boot_estimates: num [1:1000] 0 0 0 0 0 0 0 0 0 0 ...
+#>  @ x_ref         : num 0
+#>  @ x_value       : num 1
+#>  @ source_extract: <probmed::MediationExtract>
+#>  .. @ estimates          : Named num [1:7] 0.0188 0.4478 0.2553 0.0244 0.2045 ...
+#>  .. .. - attr(*, "names")= chr [1:7] "(Intercept)" "X" "C" "(Intercept)" ...
+#>  .. @ mediator_predictors: chr [1:3] "(Intercept)" "X" "C"
+#>  .. @ outcome_predictors : chr [1:4] "(Intercept)" "X" "M" "C"
+#>  .. @ a_path             : num 0.448
+#>  .. @ b_path             : num 0.446
+#>  .. @ c_prime            : num 0.204
+#>  .. @ vcov               : num [1:7, 1:7] 3.58e-03 -1.41e-04 -4.15e-05 0.00 0.00 ...
+#>  .. @ data               :'data.frame':  300 obs. of  4 variables:
+#>  .. .. $ X: num  -0.5605 -0.2302 1.5587 0.0705 0.1293 ...
+#>  .. .. $ C: num  -0.715 -0.753 -0.939 -1.053 -0.437 ...
+#>  .. .. $ M: num  0.579 -0.368 0.464 -1.797 0.724 ...
+#>  .. .. $ Y: num  -1.038 -1.135 0.609 0.724 1.313 ...
+#>  .. @ n_obs              : int 300
+#>  .. @ source_package     : chr "stats"
+#>  .. @ converged          : logi TRUE
+#>  .. @ treatment          : chr "X"
+#>  .. @ mediator           : chr "M"
+#>  .. @ outcome            : chr "Y"
+#>  @ converged     : logi TRUE
+#>  @ call          : language `method(pmed, new_S3_class("formula"))`(object = Y ~ X + M + C, formula_m = ..1,      data = ..2, treatment = "X"| __truncated__ ...
+summary(result)
+#>              Length              Class1              Class2                Mode 
+#>                   1 probmed::PmedResult           S7_object              object
+```
+
+## Advanced Usage
+
+`probmed` allows you to specify different families for GLMs (e.g.,
+binomial for binary outcomes) and customize the reference values for the
+treatment effect.
+
+``` r
+
+# Example with binary outcome (not run)
+# result_bin <- pmed(
+#   Y ~ X + M + C,
+#   formula_m = M ~ X + C,
+#   data = data_bin,
+#   family_y = binomial(),
+#   treatment = "X",
+#   mediator = "M"
+# )
+```
+
+# Package index
+
+## Core Functions
+
+Main user-facing functions for computing P_med and extracting mediation
+structures from fitted models.
+
+- [`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md) :
+  Compute P_med
+- [`pmed-formula`](https://data-wise.github.io/probmed/reference/pmed-formula.md)
+  : Compute P_med from Formula
+- [`pmed-MediationExtract`](https://data-wise.github.io/probmed/reference/pmed-MediationExtract.md)
+  : Compute P_med from MediationExtract
+- [`extract_mediation()`](https://data-wise.github.io/probmed/reference/extract_mediation.md)
+  : Extract Mediation Structure
+- [`extract_mediation-lm`](https://data-wise.github.io/probmed/reference/extract_mediation-lm.md)
+  : Extract from GLM/LM
+
+## S7 Classes
+
+S7 class definitions for type-safe mediation analysis.
+
+- [`MediationExtract()`](https://data-wise.github.io/probmed/reference/MediationExtract.md)
+  : Mediation Extract Base Class
+- [`PmedResult()`](https://data-wise.github.io/probmed/reference/PmedResult.md)
+  : P_med Result Class
+
+## Methods
+
+Methods for S7 objects (print, summary, plot).
+
+- [`print-PmedResult`](https://data-wise.github.io/probmed/reference/print-PmedResult.md)
+  : Print PmedResult
+- [`summary-PmedResult`](https://data-wise.github.io/probmed/reference/summary-PmedResult.md)
+  : Summary Method
+- [`plot-PmedResult`](https://data-wise.github.io/probmed/reference/plot-PmedResult.md)
+  : Plot Bootstrap Distribution
+
+# Articles
+
+### Getting Started
+
+- [introduction](https://data-wise.github.io/probmed/articles/introduction.md):

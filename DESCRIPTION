@@ -9,10 +9,13 @@ Authors@R: person("Davood", "Tofighi",
 Description: Compute P_med, a scale-free probabilistic effect size for
     causal mediation analysis.
 License: MIT + file LICENSE
+URL: https://data-wise.github.io/probmed, https://github.com/data-wise/probmed
+BugReports: https://github.com/data-wise/probmed/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
-Suggests: 
+Suggests:
+    alabama,
     knitr,
     lavaan,
     MASS,
@@ -20,8 +23,7 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-Imports: 
-    alabama,
+Imports:
     methods,
     S7 (>= 0.2.1),
     stats

@@ -1,0 +1,73 @@
+url: https://data-wise.github.io/probmed
+template:
+  bootstrap: 5
+  bootswatch: flatly
+  bslib:
+    primary: "#0054AD"
+    border-radius: 0.5rem
+    btn-border-radius: 0.25rem
+
+home:
+  title: "probmed: Probabilistic Effect Sizes for Mediation"
+  description: >
+    Compute P_med, a scale-free probabilistic effect size for
+    causal mediation analysis.
+
+navbar:
+  title: "probmed"
+  left:
+    - icon: fa-home
+      href: index.html
+    - text: "Reference"
+      href: reference/index.html
+    - text: "Articles"
+      menu:
+        - text: "Introduction to probmed"
+          href: articles/introduction.html
+    - text: "News"
+      href: news/index.html
+  right:
+    - icon: fa-github
+      href: https://github.com/data-wise/probmed
+      aria-label: GitHub
+
+reference:
+  - title: "Core Functions"
+    desc: >
+      Main user-facing functions for computing P_med and extracting
+      mediation structures from fitted models.
+    contents:
+      - pmed
+      - pmed-formula
+      - pmed-MediationExtract
+      - extract_mediation
+      - extract_mediation-lm
+
+  - title: "S7 Classes"
+    desc: >
+      S7 class definitions for type-safe mediation analysis.
+    contents:
+      - MediationExtract
+      - PmedResult
+
+  - title: "Methods"
+    desc: >
+      Methods for S7 objects (print, summary, plot).
+    contents:
+      - starts_with("print")
+      - starts_with("summary")
+      - starts_with("plot")
+
+articles:
+  - title: "Getting Started"
+    navbar: ~
+    contents:
+      - introduction
+
+development:
+  mode: auto
+  version_label: default
+
+authors:
+  Davood Tofighi:
+    href: "https://orcid.org/0000-0001-8523-7776"
