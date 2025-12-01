@@ -1,1 +1,4 @@
 ^LICENSE\.md$
+^README\.Rmd$
+^README\.qmd$
+^probmed\.code-workspace$

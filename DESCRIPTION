@@ -1,11 +1,28 @@
 Package: probmed
-Title: What the Package Does (One Line, Title Case)
+Title: Probabilistic Effect Sizes for Causal Mediation Analysis
 Version: 0.0.0.9000
-Authors@R: 
-    person("Davood", "Tofighi", , "dtofighi@gmail.com", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0001-8523-7776"))
-Description: What the package does (one paragraph).
+Authors@R: person("Davood", "Tofighi",
+        email = "dtofighi@gmail.com",
+        role = c("aut", "cre"),
+        comment= c(ORCID= "0000-0001-8523-7776")
+        )
+Description: Compute P_med, a scale-free probabilistic effect size for
+    causal mediation analysis.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
+Suggests: 
+    knitr,
+    lavaan,
+    MASS,
+    mediation,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Imports: 
+    alabama,
+    methods,
+    S7 (>= 0.2.1),
+    stats
+VignetteBuilder: knitr

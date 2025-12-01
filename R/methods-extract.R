@@ -1,0 +1,67 @@
+#' Extract from GLM/LM
+#'
+#' @export
+S7::method(extract_mediation, stats::lm) <- function(object,
+                                                     treatment,
+                                                     mediator,
+                                                     model_y = NULL,
+                                                     data = NULL,
+                                                     ...) {
+  
+  # Validate inputs
+  if (is.null(model_y)) {
+    stop(
+      "For lm/glm objects, provide both models:\n",
+      "  model_m: mediator model (M ~ X + C)\n",
+      "  model_y: outcome model (Y ~ X + M + C)\n",
+      "Use: extract_mediation(model_m, model_y = model_y, ...)"
+    )
+  }
+  
+  # Extract from models (object is model_m)
+  model_m <- object
+  
+  # Get data
+  if (is.null(data)) {
+    data <- model_m$model
+  }
+  
+  # Extract coefficients
+  coefs_m <- stats::coef(model_m)
+  coefs_y <- stats::coef(model_y)
+  
+  # Get path coefficients
+  a_path <- coefs_m[treatment]
+  b_path <- coefs_y[mediator]
+  c_prime <- coefs_y[treatment]
+  
+  # Combined parameter vector
+  estimates <- c(coefs_m, coefs_y)
+  
+  # Combined vcov (block diagonal)
+  vcov_m <- stats::vcov(model_m)
+  vcov_y <- stats::vcov(model_y)
+  n_m <- length(coefs_m)
+  n_y <- length(coefs_y)
+  vcov_combined <- matrix(0, n_m + n_y, n_m + n_y)
+  vcov_combined[1:n_m, 1:n_m] <- vcov_m
+  vcov_combined[(n_m + 1):(n_m + n_y), (n_m + 1):(n_m + n_y)] <- vcov_y
+  
+  # Create MediationExtract
+  MediationExtract(
+    estimates = estimates,
+    mediator_predictors = names(coefs_m),
+    outcome_predictors = names(coefs_y),
+    a_path = unname(a_path),
+    b_path = unname(b_path),
+    c_prime = unname(c_prime),
+    vcov = vcov_combined,
+    data = data,
+    n_obs = stats::nobs(model_m),
+    source_package = "stats",
+    converged = model_m$converged %||% TRUE,
+    treatment = treatment,
+    mediator = mediator,
+    outcome = all.vars(stats::formula(model_y))[1]
+  )
+}

@@ -1,0 +1,56 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.qmd. Please edit that file -->
+
+```{r}
+#| include: false
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# probmed
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of probmed is to ...
+
+# probmed: Probabilistic Effect Sizes for Mediation Analysis
+
+Compute P_med, a scale-free probabilistic effect size for causal mediation.
+
+
+## Quick Example
+
+```r
+library(probmed)
+
+# Simulate data
+set.seed(123)
+n <- 300
+data <- data.frame(X = rnorm(n), C = rnorm(n))
+data$M <- 0.5 * data$X + 0.3 * data$C + rnorm(n)
+data$Y <- 0.4 * data$M + 0.2 * data$X + 0.2 * data$C + rnorm(n)
+
+# Compute P_med
+result <- pmed(
+  Y ~ X + M + C,
+  formula_m = M ~ X + C,
+  data = data,
+  treatment = "X",
+  mediator = "M",
+  method = "parametric_bootstrap",
+  n_boot = 1000
+)
+
+print(result)
+summary(result)
+plot(result)
+```
