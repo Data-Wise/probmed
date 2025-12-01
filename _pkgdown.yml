@@ -4,23 +4,126 @@ template:
   bootstrap: 5
   bootswatch: flatly
   bslib:
-    primary: "#0054AD"
-    secondary: "#00A0E3"
-    success: "#28A745"
-    info: "#17A2B8"
-    warning: "#FFC107"
-    danger: "#DC3545"
+    primary: "#3498db"
+    secondary: "#95a5a6"
+    success: "#2ecc71"
+    info: "#3498db"
+    warning: "#f39c12"
+    danger: "#e74c3c"
     base_font:
       google: "Inter"
     code_font:
-      google: "JetBrains Mono"
+      google: "Fira Code"
     heading_font:
-      google: "Inter"
+      google: "Poppins"
+    font_scale: 1.05
     border-radius: 0.5rem
-    btn-border-radius: 0.25rem
+    btn-border-radius: 0.5rem
+    navbar-fg: "#2c3e50"
   includes:
     in_header: |
       <link rel="stylesheet" href="extra.css">
+      <style>
+        /* Modern navbar styling */
+        .navbar {
+          background: transparent !important;
+          box-shadow: none;
+          padding: 1rem 0;
+        }
+        
+        /* Navbar links - high contrast for readability */
+        .navbar .nav-link,
+        .navbar .navbar-nav .nav-link {
+          color: #1a1a1a !important;
+          font-weight: 500;
+        }
+        
+        .navbar .nav-link:hover,
+        .navbar .navbar-nav .nav-link:hover {
+          color: #3498db !important;
+        }
+        
+        .navbar .navbar-brand {
+          color: #1a1a1a !important;
+          font-weight: 600;
+        }
+        
+        /* Logo styling for white background */
+        .navbar-brand img {
+          padding: 4px;
+          background: white;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Smooth transitions */
+        a {
+          transition: color 0.2s ease;
+        }
+        
+        /* Card styling */
+        .card {
+          border: none;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        }
+        
+        /* Code blocks */
+        pre {
+          border-radius: 0.5rem;
+          border: 1px solid #e9ecef;
+        }
+        
+        /* Headings */
+        h1, h2, h3, h4, h5, h6 {
+          font-weight: 600;
+          color: #2c3e50;
+          background: transparent !important;
+        }
+        
+        /* Main page title - no background */
+        .page-header h1,
+        .title h1,
+        h1.title {
+          background: transparent !important;
+          background-color: transparent !important;
+        }
+        
+        /* Links */
+        a {
+          color: #3498db;
+        }
+        
+        a:hover {
+          color: #2980b9;
+        }
+        
+        /* Footer - improved readability */
+        footer {
+          background: #2c3e50;
+          color: #ffffff;
+          border-top: none;
+          margin-top: 4rem;
+          padding: 2rem 0;
+        }
+        
+        footer a {
+          color: #3498db;
+        }
+        
+        footer a:hover {
+          color: #5dade2;
+        }
+        
+        footer p {
+          color: #ecf0f1;
+        }
+      </style>
   opengraph:
     image:
       src: man/figures/logo.png
@@ -41,11 +144,11 @@ home:
     structure: [links, license, citation, authors, dev]
 
   links:
-  - text: "<i class='fab fa-github'></i> Browse Source"
+  - text: "Source Code"
     href: https://github.com/data-wise/probmed
-  - text: "<i class='fas fa-bug'></i> Report Bug"
+  - text: "Report Issues"
     href: https://github.com/data-wise/probmed/issues
-  - text: "<i class='fas fa-lightbulb'></i> Request Feature"
+  - text: "Request Feature"
     href: https://github.com/data-wise/probmed/issues/new
 
 navbar:
@@ -55,38 +158,33 @@ navbar:
 
   components:
     home:
-      icon: fas fa-home
+      text: Home
       href: index.html
-      aria-label: Home
 
     reference:
-      icon: fas fa-book
       text: Reference
       href: reference/index.html
-      aria-label: Function Reference
 
     articles:
-      icon: fas fa-graduation-cap
-      text: Articles
+      text: Vignettes
       menu:
       - text: "Introduction to probmed"
         href: articles/introduction.html
 
     news:
-      icon: fas fa-newspaper
-      text: Changelog
+      text: News
       href: news/index.html
 
     github:
       icon: fab fa-github
       href: https://github.com/data-wise/probmed
-      aria-label: GitHub Repository
+      aria-label: GitHub
 
 reference:
-  - title: "⚡ Core Functions"
+  - title: "Core Functions"
     desc: >
-      Main user-facing functions for computing P_med and extracting
-      mediation structures from fitted models.
+      Primary functions for computing P_med and extracting mediation
+      structures from fitted statistical models.
     contents:
       - pmed
       - pmed-formula
@@ -94,28 +192,28 @@ reference:
       - extract_mediation
       - extract_mediation-lm
 
-  - title: "🏗️ S7 Classes"
+  - title: "S7 Class Definitions"
     desc: >
-      S7 class definitions for type-safe, modern mediation analysis.
-      These classes provide the foundation for the package's object-oriented architecture.
+      Formal class structures for mediation analysis objects.
+      These classes define the object-oriented architecture of the package.
     contents:
       - MediationExtract
       - PmedResult
 
-  - title: "🔧 Methods & Utilities"
+  - title: "Methods and Utilities"
     desc: >
-      S7 methods for printing, summarizing, and visualizing results.
-      These make working with probmed objects intuitive and informative.
+      Generic methods for working with probmed objects, including
+      print, summary, and visualization functions.
     contents:
       - has_keyword("methods")
       - starts_with("print")
       - starts_with("summary")
       - starts_with("plot")
 
-  - title: "🔬 Internal Functions"
+  - title: "Internal Functions"
     desc: >
-      Internal computation functions. These are exported for transparency
-      but most users won't need to call them directly.
+      Low-level computational functions. These functions are exported
+      for transparency but are not intended for direct use by end users.
     contents:
       - starts_with(".")
       - has_keyword("internal")
@@ -141,9 +239,8 @@ footer:
     left: [developed_by, built_with]
     right: [package_version]
   components:
-    package_version: "Version {version} • Updated {last_updated}"
+    package_version: "Version {version}"
     developed_by: |
       Developed by [Davood Tofighi](https://orcid.org/0000-0001-8523-7776)
     built_with: |
-      Built with [pkgdown](https://pkgdown.r-lib.org/) •
-      Themed with ❤️ for science
+      Built with [pkgdown](https://pkgdown.r-lib.org/)

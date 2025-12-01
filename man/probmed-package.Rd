@@ -6,6 +6,8 @@
 \alias{probmed}
 \title{probmed: Probabilistic Effect Sizes for Causal Mediation Analysis}
 \description{
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 Compute P_med, a scale-free probabilistic effect size for causal mediation analysis.
 
 Compute P_med, a scale-free probabilistic effect size for causal mediation
@@ -13,7 +15,34 @@ analysis. P_med = P(Y_\{x*,M_x\} > Y_\{x,M_x\}) represents the probability that
 the outcome under treatment with the mediator at its control level exceeds
 the outcome under control.
 
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 Compute P_med, a scale-free probabilistic effect size for causal mediation analysis.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://data-wise.github.io/probmed}
+  \item \url{https://github.com/data-wise/probmed}
+  \item Report bugs at \url{https://github.com/data-wise/probmed/issues}
+}
+
+
+Useful links:
+\itemize{
+  \item \url{https://data-wise.github.io/probmed}
+  \item \url{https://github.com/data-wise/probmed}
+  \item Report bugs at \url{https://github.com/data-wise/probmed/issues}
+}
+
+
+Useful links:
+\itemize{
+  \item \url{https://data-wise.github.io/probmed}
+  \item \url{https://github.com/data-wise/probmed}
+  \item Report bugs at \url{https://github.com/data-wise/probmed/issues}
+}
+
 }
 \author{
 \strong{Maintainer}: Davood Tofighi \email{dtofighi@gmail.com} (\href{https://orcid.org/0000-0001-8523-7776}{ORCID})

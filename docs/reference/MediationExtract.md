@@ -15,20 +15,8 @@ MediationExtract(
   vcov = NULL,
   sigma_m = integer(0),
   sigma_y = integer(0),
-  data = (function (.data = list(), row.names = NULL) 
- {
-     if (is.null(row.names)) {
-
-            list2DF(.data)
-     }
-     else {
-         out <- list2DF(.data,
-    length(row.names))
-attr(out, "row.names") <- row.names
-         out
-     }
-
-    })(),
+  data = structure(list(), names = character(0), row.names = integer(0), class =
+    "data.frame"),
   n_obs = integer(0),
   source_package = character(0),
   converged = logical(0),

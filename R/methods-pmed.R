@@ -19,26 +19,41 @@
 #' @return PmedResult object
 #'
 #' @examples
-#' \dontrun{
-#' # Simulate data
+#' # Toy example: Simple mediation model
+#' # Generate data where X affects Y through M
 #' set.seed(123)
-#' n <- 300
+#' n <- 100
 #' data <- data.frame(
 #'   X = rnorm(n),
 #'   C = rnorm(n)
 #' )
-#' data$M <- 0.5 * data$X + 0.3 * data$C + rnorm(n)
-#' data$Y <- 0.4 * data$M + 0.2 * data$X + 0.2 * data$C + rnorm(n)
+#' data$M <- 0.5 * data$X + 0.3 * data$C + rnorm(n, sd = 0.5)
+#' data$Y <- 0.4 * data$M + 0.2 * data$X + 0.2 * data$C + rnorm(n, sd = 0.5)
 #'
-#' # Compute P_med
-#' result <- pmed(
+#' # Compute P_med using plugin estimator (fast, no CI)
+#' result_plugin <- pmed(
 #'   Y ~ X + M + C,
 #'   formula_m = M ~ X + C,
 #'   data = data,
 #'   treatment = "X",
-#'   mediator = "M"
+#'   mediator = "M",
+#'   method = "plugin"
 #' )
-#' print(result)
+#' print(result_plugin)
+#'
+#' \donttest{
+#' # With parametric bootstrap for confidence intervals
+#' result_boot <- pmed(
+#'   Y ~ X + M + C,
+#'   formula_m = M ~ X + C,
+#'   data = data,
+#'   treatment = "X",
+#'   mediator = "M",
+#'   method = "parametric_bootstrap",
+#'   n_boot = 200,  # Use more (e.g., 1000+) in practice
+#'   seed = 456
+#' )
+#' print(result_boot)
 #' }
 S7::method(pmed, S7::class_formula) <- function(object,  # formula_y
                                                 formula_m,

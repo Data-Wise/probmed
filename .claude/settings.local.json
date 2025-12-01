@@ -3,7 +3,20 @@
     "allow": [
       "Bash(cat:*)",
       "Bash(gh:*)",
-      "Bash(git add -A)"
+      "Bash(git add -A)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nImplement Phase 1 core functionality for probmed package\n\nAdd S7-based architecture for computing P_med, a scale-free probabilistic effect size for causal mediation analysis. Includes formula interface, GLM extraction, parametric/nonparametric bootstrap inference, and basic visualization methods.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push -u origin main)",
+      "Bash(cd:*)",
+      "Bash(R -e \"library(S7); ls(''''package:S7'''') |> grep -i ''''class''''\")",
+      "Bash(R -e:*)",
+      "Bash(quarto render:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git fetch:*)",
+      "Bash(git rm:*)",
+      "Bash(xargs:*)",
+      "Bash(open /Users/dt/Library/CloudStorage/GoogleDrive-dtofighi@gmail.com/My Drive/packages/probmed/docs/index.html)"
     ],
     "deny": [],
     "ask": []

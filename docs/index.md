@@ -62,43 +62,7 @@ result <- pmed(
 
 # 3. View Results
 print(result)
-#> <probmed::PmedResult>
-#>  @ estimate      : num 0
-#>  @ ci_lower      : Named num 0
-#>  .. - attr(*, "names")= chr "2.5%"
-#>  @ ci_upper      : Named num 0
-#>  .. - attr(*, "names")= chr "97.5%"
-#>  @ ci_level      : num 0.95
-#>  @ method        : chr "parametric_bootstrap"
-#>  @ n_boot        : int 1000
-#>  @ boot_estimates: num [1:1000] 0 0 0 0 0 0 0 0 0 0 ...
-#>  @ x_ref         : num 0
-#>  @ x_value       : num 1
-#>  @ source_extract: <probmed::MediationExtract>
-#>  .. @ estimates          : Named num [1:7] 0.0188 0.4478 0.2553 0.0244 0.2045 ...
-#>  .. .. - attr(*, "names")= chr [1:7] "(Intercept)" "X" "C" "(Intercept)" ...
-#>  .. @ mediator_predictors: chr [1:3] "(Intercept)" "X" "C"
-#>  .. @ outcome_predictors : chr [1:4] "(Intercept)" "X" "M" "C"
-#>  .. @ a_path             : num 0.448
-#>  .. @ b_path             : num 0.446
-#>  .. @ c_prime            : num 0.204
-#>  .. @ vcov               : num [1:7, 1:7] 3.58e-03 -1.41e-04 -4.15e-05 0.00 0.00 ...
-#>  .. @ data               :'data.frame':  300 obs. of  4 variables:
-#>  .. .. $ X: num  -0.5605 -0.2302 1.5587 0.0705 0.1293 ...
-#>  .. .. $ C: num  -0.715 -0.753 -0.939 -1.053 -0.437 ...
-#>  .. .. $ M: num  0.579 -0.368 0.464 -1.797 0.724 ...
-#>  .. .. $ Y: num  -1.038 -1.135 0.609 0.724 1.313 ...
-#>  .. @ n_obs              : int 300
-#>  .. @ source_package     : chr "stats"
-#>  .. @ converged          : logi TRUE
-#>  .. @ treatment          : chr "X"
-#>  .. @ mediator           : chr "M"
-#>  .. @ outcome            : chr "Y"
-#>  @ converged     : logi TRUE
-#>  @ call          : language `method(pmed, new_S3_class("formula"))`(object = Y ~ X + M + C, formula_m = ..1,      data = ..2, treatment = "X"| __truncated__ ...
 summary(result)
-#>              Length              Class1              Class2                Mode 
-#>                   1 probmed::PmedResult           S7_object              object
 ```
 
 ## Advanced Usage

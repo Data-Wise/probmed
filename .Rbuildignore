@@ -1,6 +1,7 @@
 ^LICENSE\.md$
 ^README\.Rmd$
 ^README\.qmd$
+^README\.html$
 ^probmed\.code-workspace$
 ^planning$
 ^\.claude$

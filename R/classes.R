@@ -56,7 +56,10 @@ MediationExtract <- S7::new_class(
     sigma_y = S7::class_numeric,
 
     # Data
-    data = S7::class_data.frame,
+    data = S7::new_property(
+      class = S7::class_data.frame,
+      default = data.frame()
+    ),
     n_obs = S7::class_integer,
 
     # Metadata
