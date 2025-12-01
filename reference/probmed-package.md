@@ -11,6 +11,32 @@ control level exceeds the outcome under control.
 Compute P_med, a scale-free probabilistic effect size for causal
 mediation analysis.
 
+## See also
+
+Useful links:
+
+- <https://data-wise.github.io/probmed>
+
+- <https://github.com/data-wise/probmed>
+
+- Report bugs at <https://github.com/data-wise/probmed/issues>
+
+Useful links:
+
+- <https://data-wise.github.io/probmed>
+
+- <https://github.com/data-wise/probmed>
+
+- Report bugs at <https://github.com/data-wise/probmed/issues>
+
+Useful links:
+
+- <https://data-wise.github.io/probmed>
+
+- <https://github.com/data-wise/probmed>
+
+- Report bugs at <https://github.com/data-wise/probmed/issues>
+
 ## Author
 
 **Maintainer**: Davood Tofighi <dtofighi@gmail.com>

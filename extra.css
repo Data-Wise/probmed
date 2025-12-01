@@ -1,273 +1,274 @@
-/* Custom CSS for probmed package website - Professional yet Artsy */
+/* Custom CSS for probmed package website - Academic Professional Style */
 
 /* ============================================================================
-   Typography & Visual Hierarchy
+   Typography - Traditional Academic Style
    ============================================================================ */
 
-/* Import modern font for headers */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Merriweather:wght@400;700;900&family=Source+Code+Pro:wght@400;600&display=swap');
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Lora', Georgia, 'Times New Roman', serif;
   font-size: 16px;
-  line-height: 1.7;
+  line-height: 1.8;
+  color: #2c3e50;
+  background-color: #ffffff;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Merriweather', Georgia, serif;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  color: #2c3e50;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
 }
 
 h1 {
-  background: linear-gradient(135deg, #0054AD 0%, #00A0E3 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 800;
-  font-size: 2.5rem;
+  font-size: 2.25rem;
+  font-weight: 900;
+  border-bottom: 3px solid #2c3e50;
+  padding-bottom: 0.5rem;
   margin-bottom: 1.5rem;
 }
 
 h2 {
-  color: #0054AD;
-  border-bottom: 3px solid #0054AD20;
-  padding-bottom: 0.5rem;
+  font-size: 1.75rem;
+  border-bottom: 2px solid #7f8c8d;
+  padding-bottom: 0.4rem;
   margin-top: 2rem;
-  margin-bottom: 1rem;
 }
 
+h3 {
+  font-size: 1.35rem;
+  color: #34495e;
+}
+
+h4 {
+  font-size: 1.15rem;
+  color: #34495e;
+  font-weight: 600;
+}
+
+/* ============================================================================
+   Code Styling - Traditional Monospace
+   ============================================================================ */
+
 code {
-  font-family: 'JetBrains Mono', 'Courier New', monospace;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  font-family: 'Source Code Pro', 'Courier New', monospace;
+  background-color: #f8f9fa;
   padding: 0.2em 0.4em;
-  border-radius: 4px;
+  border-radius: 3px;
   font-size: 0.9em;
   border: 1px solid #dee2e6;
+  color: #2c3e50;
+}
+
+pre {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 1rem;
+  overflow-x: auto;
 }
 
 pre code {
-  background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
-  color: #d4d4d4;
-  border: 1px solid #404040;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.sourceCode {
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
 }
 
 /* ============================================================================
-   Navigation Bar Enhancements
+   Navigation Bar - Clean and Professional
    ============================================================================ */
 
 .navbar {
-  background: linear-gradient(135deg, #0054AD 0%, #003d82 100%) !important;
-  box-shadow: 0 2px 10px rgba(0, 84, 173, 0.3);
-  border-bottom: 3px solid #00A0E3;
+  background-color: #2c3e50 !important;
+  border-bottom: 1px solid #1a252f;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .navbar-brand {
-  font-weight: 800;
-  font-size: 1.5rem;
-  letter-spacing: -0.02em;
+  font-family: 'Merriweather', Georgia, serif;
+  font-weight: 700;
+  font-size: 1.35rem;
+  color: #ffffff !important;
 }
 
 .navbar-nav .nav-link {
-  font-weight: 600;
-  transition: all 0.3s ease;
-  position: relative;
+  font-family: 'Lora', Georgia, serif;
+  font-weight: 500;
+  color: #ecf0f1 !important;
+  padding: 0.5rem 1rem;
 }
 
 .navbar-nav .nav-link:hover {
-  transform: translateY(-2px);
-}
-
-.navbar-nav .nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 0;
-  height: 2px;
-  background: #00A0E3;
-  transition: all 0.3s ease;
-  transform: translateX(-50%);
-}
-
-.navbar-nav .nav-link:hover::after {
-  width: 80%;
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* ============================================================================
-   Home Page Hero Section
+   Page Header - Academic Style
    ============================================================================ */
 
 .page-header {
-  background: linear-gradient(135deg, #0054AD 0%, #00509E 50%, #003d82 100%);
-  color: white;
-  padding: 4rem 0;
-  margin-bottom: 3rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.page-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background:
-    radial-gradient(circle at 20% 50%, rgba(0, 160, 227, 0.2) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(0, 160, 227, 0.2) 0%, transparent 50%);
-  animation: pulse 8s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  background-color: #34495e;
+  color: #ffffff;
+  padding: 3rem 0 2rem 0;
+  margin-bottom: 2rem;
+  border-bottom: 3px solid #2c3e50;
 }
 
 .page-header h1 {
-  -webkit-text-fill-color: white;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-  position: relative;
-  z-index: 1;
+  color: #ffffff;
+  border-bottom: none;
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .page-header p.lead {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
+  color: #ecf0f1;
   font-weight: 400;
-  position: relative;
-  z-index: 1;
+  margin-bottom: 0;
 }
 
 /* ============================================================================
-   Badges & Status Indicators
+   Badges - Minimal and Clean
    ============================================================================ */
 
 .badge {
-  padding: 0.5em 1em;
-  border-radius: 20px;
-  font-weight: 600;
+  padding: 0.35em 0.65em;
+  border-radius: 3px;
+  font-weight: 500;
+  font-size: 0.875em;
   margin: 0.2em;
-  display: inline-block;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.badge:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 84, 173, 0.3);
 }
 
 /* ============================================================================
-   Cards & Content Blocks
+   Cards and Content Blocks
    ============================================================================ */
 
 .card {
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-  transition: all 0.3s ease;
-  background: white;
-}
-
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 24px rgba(0, 84, 173, 0.15);
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
+  margin-bottom: 1.5rem;
 }
 
 .card-header {
-  background: linear-gradient(135deg, #0054AD 0%, #00509E 100%);
-  color: white;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  font-family: 'Merriweather', Georgia, serif;
   font-weight: 700;
-  border-radius: 12px 12px 0 0 !important;
-  padding: 1rem 1.5rem;
+  color: #2c3e50;
+  padding: 0.75rem 1.25rem;
+}
+
+.card-body {
+  padding: 1.25rem;
 }
 
 /* ============================================================================
-   Sidebar Enhancements
+   Sidebar
    ============================================================================ */
 
 .sidebar {
-  background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
-  border-radius: 12px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
 }
 
 .sidebar h2 {
-  font-size: 1.25rem;
-  color: #0054AD;
-  border-bottom: 2px solid #0054AD;
+  font-size: 1.15rem;
+  color: #2c3e50;
+  border-bottom: 1px solid #dee2e6;
   padding-bottom: 0.5rem;
   margin-bottom: 1rem;
+  margin-top: 0;
+}
+
+.sidebar ul {
+  padding-left: 1.5rem;
+}
+
+.sidebar li {
+  margin-bottom: 0.5rem;
 }
 
 /* ============================================================================
    Reference Section
    ============================================================================ */
 
-.ref-index .ref-items {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+.ref-index h2 {
+  font-family: 'Merriweather', Georgia, serif;
+  font-weight: 700;
+  color: #2c3e50;
   margin-top: 2rem;
+  margin-bottom: 1rem;
 }
 
 .ref-index .ref-item {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border-radius: 12px;
-  padding: 1.5rem;
-  border-left: 4px solid #0054AD;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-left: 3px solid #2c3e50;
+  padding-left: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-.ref-index .ref-item:hover {
-  transform: translateX(5px);
-  box-shadow: 0 4px 12px rgba(0, 84, 173, 0.15);
-  border-left-color: #00A0E3;
+.ref-index .ref-item h3 {
+  font-size: 1.15rem;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
 }
 
-/* ============================================================================
-   Function Documentation
-   ============================================================================ */
-
-.ref-arguments table {
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.ref-arguments th {
-  background: linear-gradient(135deg, #0054AD 0%, #00509E 100%);
-  color: white;
-  font-weight: 600;
-  padding: 1rem;
-}
-
-.ref-arguments td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #e9ecef;
+.ref-index .ref-item p {
+  color: #555;
+  margin-bottom: 0.25rem;
 }
 
 /* ============================================================================
-   Buttons & Interactive Elements
+   Function Documentation Tables
    ============================================================================ */
 
-.btn-primary {
-  background: linear-gradient(135deg, #0054AD 0%, #00509E 100%);
-  border: none;
-  border-radius: 8px;
-  padding: 0.75rem 1.5rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0, 84, 173, 0.3);
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+  border: 1px solid #dee2e6;
 }
 
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 84, 173, 0.4);
-  background: linear-gradient(135deg, #003d82 0%, #002d5e 100%);
+table th {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  padding: 0.75rem;
+  text-align: left;
+  font-family: 'Merriweather', Georgia, serif;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+table td {
+  border: 1px solid #dee2e6;
+  padding: 0.75rem;
+  vertical-align: top;
+}
+
+table tbody tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+.ref-arguments table th:first-child,
+.ref-arguments table td:first-child {
+  font-family: 'Source Code Pro', monospace;
+  font-weight: 600;
+  color: #2c3e50;
 }
 
 /* ============================================================================
@@ -275,23 +276,40 @@ pre code {
    ============================================================================ */
 
 a {
-  color: #0054AD;
-  text-decoration: none;
-  transition: all 0.2s ease;
-  position: relative;
+  color: #2c3e50;
+  text-decoration: underline;
+  text-decoration-color: rgba(44, 62, 80, 0.3);
 }
 
 a:hover {
-  color: #003d82;
+  color: #1a252f;
+  text-decoration-color: rgba(44, 62, 80, 0.8);
 }
 
-.main a:not(.btn):not(.navbar-brand) {
-  border-bottom: 2px solid transparent;
-  transition: border-color 0.2s ease;
+.navbar a {
+  text-decoration: none;
 }
 
-.main a:not(.btn):not(.navbar-brand):hover {
-  border-bottom-color: #00A0E3;
+/* ============================================================================
+   Buttons
+   ============================================================================ */
+
+.btn {
+  border-radius: 3px;
+  font-family: 'Lora', Georgia, serif;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+}
+
+.btn-primary {
+  background-color: #2c3e50;
+  border: 1px solid #2c3e50;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #1a252f;
+  border-color: #1a252f;
 }
 
 /* ============================================================================
@@ -299,34 +317,70 @@ a:hover {
    ============================================================================ */
 
 footer {
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  color: #e9ecef;
+  background-color: #2c3e50;
+  color: #ecf0f1;
   padding: 2rem 0;
-  margin-top: 4rem;
-  border-top: 3px solid #0054AD;
+  margin-top: 3rem;
+  border-top: 3px solid #1a252f;
+  font-size: 0.9rem;
 }
 
 footer a {
-  color: #00A0E3;
+  color: #ffffff;
+  text-decoration: none;
 }
 
 footer a:hover {
-  color: #ffffff;
+  text-decoration: underline;
 }
 
 /* ============================================================================
-   Code Blocks & Syntax Highlighting
+   Main Content Area
    ============================================================================ */
 
-.sourceCode {
-  border-radius: 8px;
-  border: 1px solid #404040;
-  overflow: hidden;
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
 }
 
-.sourceCode pre {
-  margin: 0;
-  padding: 1.5rem;
+.contents {
+  margin-bottom: 2rem;
+}
+
+/* ============================================================================
+   Section Dividers
+   ============================================================================ */
+
+hr {
+  border: 0;
+  border-top: 1px solid #dee2e6;
+  margin: 2rem 0;
+}
+
+/* ============================================================================
+   Lists
+   ============================================================================ */
+
+ul, ol {
+  margin-bottom: 1rem;
+  line-height: 1.8;
+}
+
+li {
+  margin-bottom: 0.5rem;
+}
+
+/* ============================================================================
+   Blockquotes - Academic Citation Style
+   ============================================================================ */
+
+blockquote {
+  border-left: 4px solid #dee2e6;
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  color: #555;
+  font-style: italic;
 }
 
 /* ============================================================================
@@ -334,66 +388,92 @@ footer a:hover {
    ============================================================================ */
 
 .search-input {
-  border-radius: 25px;
-  border: 2px solid #e9ecef;
+  border: 1px solid #dee2e6;
+  border-radius: 3px;
   padding: 0.5rem 1rem;
-  transition: all 0.3s ease;
+  font-family: 'Lora', Georgia, serif;
 }
 
 .search-input:focus {
-  border-color: #0054AD;
-  box-shadow: 0 0 0 3px rgba(0, 84, 173, 0.1);
+  border-color: #2c3e50;
   outline: none;
+  box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.1);
 }
 
 /* ============================================================================
-   Animations
+   Figure Captions
    ============================================================================ */
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.figure {
+  margin: 1.5rem 0;
+  text-align: center;
 }
 
-.main > * {
-  animation: fadeIn 0.6s ease-out;
+.figure img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #dee2e6;
+}
+
+.figure-caption {
+  font-size: 0.9rem;
+  color: #555;
+  margin-top: 0.5rem;
+  font-style: italic;
 }
 
 /* ============================================================================
-   Responsive Enhancements
+   Responsive Design
    ============================================================================ */
 
 @media (max-width: 768px) {
-  .page-header {
-    padding: 2rem 0;
+  body {
+    font-size: 15px;
   }
 
   h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .page-header {
+    padding: 2rem 0 1.5rem 0;
+  }
+
+  .page-header h1 {
     font-size: 2rem;
   }
 
-  .ref-index .ref-items {
-    grid-template-columns: 1fr;
+  table {
+    font-size: 0.875rem;
   }
 }
 
 /* ============================================================================
-   Dark Mode Support (respects user preference)
+   Print Styles
    ============================================================================ */
 
-@media (prefers-color-scheme: dark) {
-  .card {
-    background: #2d2d2d;
-    color: #e9ecef;
+@media print {
+  .navbar,
+  footer,
+  .sidebar {
+    display: none;
   }
 
-  .sidebar {
-    background: linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%);
+  body {
+    font-size: 12pt;
+    color: #000;
+  }
+
+  a {
+    color: #000;
+    text-decoration: none;
+  }
+
+  h1, h2, h3 {
+    page-break-after: avoid;
   }
 }
