@@ -1,0 +1,399 @@
+/* Custom CSS for probmed package website - Professional yet Artsy */
+
+/* ============================================================================
+   Typography & Visual Hierarchy
+   ============================================================================ */
+
+/* Import modern font for headers */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  background: linear-gradient(135deg, #0054AD 0%, #00A0E3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  color: #0054AD;
+  border-bottom: 3px solid #0054AD20;
+  padding-bottom: 0.5rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+code {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+  border: 1px solid #dee2e6;
+}
+
+pre code {
+  background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+  color: #d4d4d4;
+  border: 1px solid #404040;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================================================
+   Navigation Bar Enhancements
+   ============================================================================ */
+
+.navbar {
+  background: linear-gradient(135deg, #0054AD 0%, #003d82 100%) !important;
+  box-shadow: 0 2px 10px rgba(0, 84, 173, 0.3);
+  border-bottom: 3px solid #00A0E3;
+}
+
+.navbar-brand {
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.navbar-nav .nav-link {
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.navbar-nav .nav-link:hover {
+  transform: translateY(-2px);
+}
+
+.navbar-nav .nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: #00A0E3;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.navbar-nav .nav-link:hover::after {
+  width: 80%;
+}
+
+/* ============================================================================
+   Home Page Hero Section
+   ============================================================================ */
+
+.page-header {
+  background: linear-gradient(135deg, #0054AD 0%, #00509E 50%, #003d82 100%);
+  color: white;
+  padding: 4rem 0;
+  margin-bottom: 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(0, 160, 227, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0, 160, 227, 0.2) 0%, transparent 50%);
+  animation: pulse 8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.page-header h1 {
+  -webkit-text-fill-color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 1;
+}
+
+.page-header p.lead {
+  font-size: 1.25rem;
+  font-weight: 400;
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================================
+   Badges & Status Indicators
+   ============================================================================ */
+
+.badge {
+  padding: 0.5em 1em;
+  border-radius: 20px;
+  font-weight: 600;
+  margin: 0.2em;
+  display: inline-block;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 84, 173, 0.3);
+}
+
+/* ============================================================================
+   Cards & Content Blocks
+   ============================================================================ */
+
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 84, 173, 0.15);
+}
+
+.card-header {
+  background: linear-gradient(135deg, #0054AD 0%, #00509E 100%);
+  color: white;
+  font-weight: 700;
+  border-radius: 12px 12px 0 0 !important;
+  padding: 1rem 1.5rem;
+}
+
+/* ============================================================================
+   Sidebar Enhancements
+   ============================================================================ */
+
+.sidebar {
+  background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar h2 {
+  font-size: 1.25rem;
+  color: #0054AD;
+  border-bottom: 2px solid #0054AD;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* ============================================================================
+   Reference Section
+   ============================================================================ */
+
+.ref-index .ref-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.ref-index .ref-item {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border-left: 4px solid #0054AD;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.ref-index .ref-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(0, 84, 173, 0.15);
+  border-left-color: #00A0E3;
+}
+
+/* ============================================================================
+   Function Documentation
+   ============================================================================ */
+
+.ref-arguments table {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.ref-arguments th {
+  background: linear-gradient(135deg, #0054AD 0%, #00509E 100%);
+  color: white;
+  font-weight: 600;
+  padding: 1rem;
+}
+
+.ref-arguments td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+/* ============================================================================
+   Buttons & Interactive Elements
+   ============================================================================ */
+
+.btn-primary {
+  background: linear-gradient(135deg, #0054AD 0%, #00509E 100%);
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 84, 173, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 84, 173, 0.4);
+  background: linear-gradient(135deg, #003d82 0%, #002d5e 100%);
+}
+
+/* ============================================================================
+   Links
+   ============================================================================ */
+
+a {
+  color: #0054AD;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+a:hover {
+  color: #003d82;
+}
+
+.main a:not(.btn):not(.navbar-brand) {
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.main a:not(.btn):not(.navbar-brand):hover {
+  border-bottom-color: #00A0E3;
+}
+
+/* ============================================================================
+   Footer
+   ============================================================================ */
+
+footer {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: #e9ecef;
+  padding: 2rem 0;
+  margin-top: 4rem;
+  border-top: 3px solid #0054AD;
+}
+
+footer a {
+  color: #00A0E3;
+}
+
+footer a:hover {
+  color: #ffffff;
+}
+
+/* ============================================================================
+   Code Blocks & Syntax Highlighting
+   ============================================================================ */
+
+.sourceCode {
+  border-radius: 8px;
+  border: 1px solid #404040;
+  overflow: hidden;
+}
+
+.sourceCode pre {
+  margin: 0;
+  padding: 1.5rem;
+}
+
+/* ============================================================================
+   Search
+   ============================================================================ */
+
+.search-input {
+  border-radius: 25px;
+  border: 2px solid #e9ecef;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #0054AD;
+  box-shadow: 0 0 0 3px rgba(0, 84, 173, 0.1);
+  outline: none;
+}
+
+/* ============================================================================
+   Animations
+   ============================================================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.main > * {
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* ============================================================================
+   Responsive Enhancements
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .page-header {
+    padding: 2rem 0;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .ref-index .ref-items {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================================
+   Dark Mode Support (respects user preference)
+   ============================================================================ */
+
+@media (prefers-color-scheme: dark) {
+  .card {
+    background: #2d2d2d;
+    color: #e9ecef;
+  }
+
+  .sidebar {
+    background: linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%);
+  }
+}
