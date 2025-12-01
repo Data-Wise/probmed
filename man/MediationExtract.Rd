@@ -14,8 +14,7 @@ MediationExtract(
   vcov = NULL,
   sigma_m = integer(0),
   sigma_y = integer(0),
-  data = structure(list(), names = character(0), row.names = integer(0), class =
-    "data.frame"),
+  data = NULL,
   n_obs = integer(0),
   source_package = character(0),
   converged = logical(0),

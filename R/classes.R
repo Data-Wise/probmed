@@ -9,6 +9,7 @@ lm_class <- S7::new_S3_class("lm")
 #' @keywords internal
 glm_class <- S7::new_S3_class("glm")
 
+
 #' Mediation Extract Base Class
 #'
 #' @description
@@ -57,8 +58,8 @@ MediationExtract <- S7::new_class(
 
     # Data
     data = S7::new_property(
-      class = S7::class_data.frame,
-      default = data.frame()
+      class = S7::class_any,
+      default = NULL
     ),
     n_obs = S7::class_integer,
 

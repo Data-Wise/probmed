@@ -65,6 +65,9 @@
   if (!is.null(seed)) set.seed(seed)
 
   data <- extract@data
+  if (is.null(data)) {
+    stop("Data is required for nonparametric bootstrap.")
+  }
   n <- nrow(data)
 
   boot_estimates <- numeric(n_boot)
