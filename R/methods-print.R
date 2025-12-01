@@ -1,6 +1,6 @@
 #' Print PmedResult
 #'
-#' @export
+#' @name print-PmedResult
 S7::method(print, PmedResult) <- function(x, digits = 3, ...) {
   cat("\n")
   cat("P_med: Probability of Mediated Shift\n")
@@ -30,7 +30,7 @@ S7::method(print, PmedResult) <- function(x, digits = 3, ...) {
 
 #' Summary Method
 #'
-#' @export
+#' @name summary-PmedResult
 S7::method(summary, PmedResult) <- function(object, ...) {
   print(object, ...)
   
@@ -48,7 +48,7 @@ S7::method(summary, PmedResult) <- function(object, ...) {
 
 #' Plot Bootstrap Distribution
 #'
-#' @export
+#' @name plot-PmedResult
 S7::method(plot, PmedResult) <- function(x, ...) {
   if (length(x@boot_estimates) == 0) {
     stop("No bootstrap distribution to plot. Use method = 'parametric_bootstrap' or 'nonparametric_bootstrap'")

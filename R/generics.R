@@ -2,13 +2,10 @@
 #'
 #' @description
 #' Generic function to extract mediation structure from fitted models.
+#' See method documentation for specific arguments.
 #'
 #' @param object Fitted model object
-#' @param treatment Character: treatment variable name
-#' @param mediator Character: mediator variable name
-#' @param outcome Character: outcome variable name (for SEM models)
-#' @param data Data frame (optional, some methods extract from model)
-#' @param ... Additional arguments
+#' @param ... Additional arguments passed to methods
 #'
 #' @return MediationExtract object
 #' @export

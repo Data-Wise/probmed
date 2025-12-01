@@ -1,13 +1,12 @@
 #' Extract from GLM/LM
 #'
-#' @export
-S7::method(extract_mediation, stats::lm) <- function(object,
-                                                     treatment,
-                                                     mediator,
-                                                     model_y = NULL,
-                                                     data = NULL,
-                                                     ...) {
-  
+#' @name extract_mediation-lm
+S7::method(extract_mediation, lm_class) <- function(object,
+                                                    treatment,
+                                                    mediator,
+                                                    model_y = NULL,
+                                                    data = NULL,
+                                                    ...) {
   # Validate inputs
   if (is.null(model_y)) {
     stop(
@@ -17,27 +16,27 @@ S7::method(extract_mediation, stats::lm) <- function(object,
       "Use: extract_mediation(model_m, model_y = model_y, ...)"
     )
   }
-  
+
   # Extract from models (object is model_m)
   model_m <- object
-  
+
   # Get data
   if (is.null(data)) {
     data <- model_m$model
   }
-  
+
   # Extract coefficients
   coefs_m <- stats::coef(model_m)
   coefs_y <- stats::coef(model_y)
-  
+
   # Get path coefficients
   a_path <- coefs_m[treatment]
   b_path <- coefs_y[mediator]
   c_prime <- coefs_y[treatment]
-  
+
   # Combined parameter vector
   estimates <- c(coefs_m, coefs_y)
-  
+
   # Combined vcov (block diagonal)
   vcov_m <- stats::vcov(model_m)
   vcov_y <- stats::vcov(model_y)
@@ -46,7 +45,11 @@ S7::method(extract_mediation, stats::lm) <- function(object,
   vcov_combined <- matrix(0, n_m + n_y, n_m + n_y)
   vcov_combined[1:n_m, 1:n_m] <- vcov_m
   vcov_combined[(n_m + 1):(n_m + n_y), (n_m + 1):(n_m + n_y)] <- vcov_y
-  
+
+  # Extract residual standard deviations
+  sigma_m <- stats::sigma(model_m)
+  sigma_y <- stats::sigma(model_y)
+
   # Create MediationExtract
   MediationExtract(
     estimates = estimates,
@@ -56,6 +59,8 @@ S7::method(extract_mediation, stats::lm) <- function(object,
     b_path = unname(b_path),
     c_prime = unname(c_prime),
     vcov = vcov_combined,
+    sigma_m = sigma_m,
+    sigma_y = sigma_y,
     data = data,
     n_obs = stats::nobs(model_m),
     source_package = "stats",

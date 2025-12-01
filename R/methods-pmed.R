@@ -1,5 +1,6 @@
 #' Compute P_med from Formula
 #'
+#' @name pmed-formula
 #' @param object Formula for outcome model (Y ~ X + M + C)
 #' @param formula_m Formula for mediator model (M ~ X + C)
 #' @param data Data frame
@@ -16,7 +17,6 @@
 #' @param ... Additional arguments
 #'
 #' @return PmedResult object
-#' @export
 #'
 #' @examples
 #' \dontrun{
@@ -95,7 +95,7 @@ S7::method(pmed, S7::class_formula) <- function(object,  # formula_y
 
 #' Compute P_med from MediationExtract
 #'
-#' @export
+#' @name pmed-MediationExtract
 S7::method(pmed, MediationExtract) <- function(object,
                                                 x_ref = 0,
                                                 x_value = 1,
