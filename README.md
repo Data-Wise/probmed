@@ -1,39 +1,36 @@
----
-output: github_document
----
 
 <!-- README.md is generated from README.qmd. Please edit that file -->
-
-```{r}
-#| include: false
-
-knitr::opts_chunk$set(
-    collapse = TRUE,
-    comment = "#>",
-    fig.path = "man/figures/README-",
-    out.width = "100%"
-)
-```
 
 # probmed
 
 <!-- badges: start -->
+
 [![R-CMD-check](https://github.com/data-wise/probmed/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/data-wise/probmed/actions/workflows/R-CMD-check.yaml)
 [![pkgdown](https://github.com/data-wise/probmed/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/data-wise/probmed/actions/workflows/pkgdown.yaml)
 <!-- badges: end -->
 
-The goal of `probmed` is to provide a robust and flexible framework for computing **P_med**, a scale-free probabilistic effect size for causal mediation analysis. Unlike traditional effect sizes, P_med offers an intuitive interpretation of the mediation effect in terms of probability, making it applicable across various model types (linear, GLM, etc.).
+The goal of `probmed` is to provide a robust and flexible framework for
+computing **P_med**, a scale-free probabilistic effect size for causal
+mediation analysis. Unlike traditional effect sizes, P_med offers an
+intuitive interpretation of the mediation effect in terms of
+probability, making it applicable across various model types (linear,
+GLM, etc.).
 
 ## Features
 
-*   **Scale-Free Effect Size**: Computes P_med, which is interpretable regardless of the scale of the variables.
-*   **Flexible Modeling**: Supports both linear and generalized linear models (GLMs) for mediator and outcome.
-*   **Modern Architecture**: Built using the **S7** object-oriented system for robustness and extensibility.
-*   **Inference Methods**: Includes parametric bootstrap, nonparametric bootstrap, and plug-in estimators.
+- **Scale-Free Effect Size**: Computes P_med, which is interpretable
+  regardless of the scale of the variables.
+- **Flexible Modeling**: Supports both linear and generalized linear
+  models (GLMs) for mediator and outcome.
+- **Modern Architecture**: Built using the **S7** object-oriented system
+  for robustness and extensibility.
+- **Inference Methods**: Includes parametric bootstrap, nonparametric
+  bootstrap, and plug-in estimators.
 
 ## Installation
 
-You can install the development version of probmed from [GitHub](https://github.com/) with:
+You can install the development version of probmed from
+[GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
@@ -42,9 +39,10 @@ devtools::install_github("dtofighi/probmed")
 
 ## Quick Example
 
-Here is a basic example showing how to simulate data and compute P_med using a parametric bootstrap approach:
+Here is a basic example showing how to simulate data and compute P_med
+using a parametric bootstrap approach:
 
-```r
+``` r
 library(probmed)
 
 # 1. Simulate data
@@ -76,9 +74,11 @@ summary(result)
 
 ## Advanced Usage
 
-`probmed` allows you to specify different families for GLMs (e.g., binomial for binary outcomes) and customize the reference values for the treatment effect.
+`probmed` allows you to specify different families for GLMs (e.g.,
+binomial for binary outcomes) and customize the reference values for the
+treatment effect.
 
-```r
+``` r
 # Example with binary outcome (not run)
 # result_bin <- pmed(
 #   Y ~ X + M + C,

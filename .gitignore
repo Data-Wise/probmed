@@ -6,3 +6,8 @@
 .quarto
 inst/doc
 probmed.code-workspace
+*.Rcheck/
+*.tar.gz
+README.html
+README_files/
+planning/

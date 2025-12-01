@@ -2,3 +2,11 @@
 ^README\.Rmd$
 ^README\.qmd$
 ^probmed\.code-workspace$
+^planning$
+^\.claude$
+^CLAUDE\.md$
+^README_files$
+^docs$
+^\.github$
+^_pkgdown\.yml$
+^pkgdown$
