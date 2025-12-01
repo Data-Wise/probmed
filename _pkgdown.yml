@@ -69,15 +69,8 @@ navbar:
       icon: fas fa-graduation-cap
       text: Articles
       menu:
-      - text: "Getting Started"
       - text: "Introduction to probmed"
         href: articles/introduction.html
-      - text: "-------"
-      - text: "Advanced Topics"
-      - text: "Bootstrap Methods"
-        href: articles/bootstrap.html
-      - text: "Multiple Mediators"
-        href: articles/multiple-mediators.html
 
     news:
       icon: fas fa-newspaper
@@ -129,15 +122,9 @@ reference:
 
 articles:
   - title: "Getting Started"
-    navbar: "Getting Started"
+    navbar: ~
     contents:
       - introduction
-
-  - title: "Advanced Topics"
-    desc: "Deep dives into specific features and use cases"
-    contents:
-      - bootstrap
-      - multiple-mediators
 
 development:
   mode: auto
