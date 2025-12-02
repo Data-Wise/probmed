@@ -15,7 +15,7 @@ mediation analysis.
 
 Useful links:
 
-- <https://data-wise.github.io/probmed>
+- <https://data-wise.github.io/probmed/>
 
 - <https://github.com/data-wise/probmed>
 
@@ -23,7 +23,7 @@ Useful links:
 
 Useful links:
 
-- <https://data-wise.github.io/probmed>
+- <https://data-wise.github.io/probmed/>
 
 - <https://github.com/data-wise/probmed>
 
@@ -31,7 +31,7 @@ Useful links:
 
 Useful links:
 
-- <https://data-wise.github.io/probmed>
+- <https://data-wise.github.io/probmed/>
 
 - <https://github.com/data-wise/probmed>
 
