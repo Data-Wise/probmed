@@ -2,128 +2,20 @@ url: https://data-wise.github.io/probmed
 
 template:
   bootstrap: 5
-  bootswatch: flatly
+  bootswatch: litera
   bslib:
-    primary: "#3498db"
-    secondary: "#95a5a6"
-    success: "#2ecc71"
-    info: "#3498db"
-    warning: "#f39c12"
-    danger: "#e74c3c"
-    base_font:
-      google: "Inter"
-    code_font:
-      google: "Fira Code"
-    heading_font:
-      google: "Poppins"
-    font_scale: 1.05
-    border-radius: 0.5rem
-    btn-border-radius: 0.5rem
-    navbar-fg: "#2c3e50"
-  includes:
-    in_header: |
-      <link rel="stylesheet" href="extra.css">
-      <style>
-        /* Modern navbar styling */
-        .navbar {
-          background: transparent !important;
-          box-shadow: none;
-          padding: 1rem 0;
-        }
-        
-        /* Navbar links - high contrast for readability */
-        .navbar .nav-link,
-        .navbar .navbar-nav .nav-link {
-          color: #1a1a1a !important;
-          font-weight: 500;
-        }
-        
-        .navbar .nav-link:hover,
-        .navbar .navbar-nav .nav-link:hover {
-          color: #3498db !important;
-        }
-        
-        .navbar .navbar-brand {
-          color: #1a1a1a !important;
-          font-weight: 600;
-        }
-        
-        /* Logo styling for white background */
-        .navbar-brand img {
-          padding: 4px;
-          background: white;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        /* Smooth transitions */
-        a {
-          transition: color 0.2s ease;
-        }
-        
-        /* Card styling */
-        .card {
-          border: none;
-          box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        
-        .card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-        }
-        
-        /* Code blocks */
-        pre {
-          border-radius: 0.5rem;
-          border: 1px solid #e9ecef;
-        }
-        
-        /* Headings */
-        h1, h2, h3, h4, h5, h6 {
-          font-weight: 600;
-          color: #2c3e50;
-          background: transparent !important;
-        }
-        
-        /* Main page title - no background */
-        .page-header h1,
-        .title h1,
-        h1.title {
-          background: transparent !important;
-          background-color: transparent !important;
-        }
-        
-        /* Links */
-        a {
-          color: #3498db;
-        }
-        
-        a:hover {
-          color: #2980b9;
-        }
-        
-        /* Footer - improved readability */
-        footer {
-          background: #2c3e50;
-          color: #ffffff;
-          border-top: none;
-          margin-top: 4rem;
-          padding: 2rem 0;
-        }
-        
-        footer a {
-          color: #3498db;
-        }
-        
-        footer a:hover {
-          color: #5dade2;
-        }
-        
-        footer p {
-          color: #ecf0f1;
-        }
-      </style>
+    # A deeper, more "academic" blue for primary actions
+    primary: "#0054AD"
+    # A slightly off-white background reduces eye strain compared to pure white
+    bg: "#ffffff"
+    fg: "#212529"
+    # Modern, readable fonts
+    base_font: { google: "Inter" }
+    heading_font: { google: "Montserrat" }
+    code_font: { google: "Fira Code" }
+    # Controls the global base font size (Default is 1rem)
+    font-size-base: 0.925rem
+
   opengraph:
     image:
       src: man/figures/logo.png
@@ -151,32 +43,35 @@ home:
   - text: "Request Feature"
     href: https://github.com/data-wise/probmed/issues/new
 
+# LOGO CONFIGURATION
+# best practice: keep your logo at man/figures/logo.png
+logo:
+  image: man/figures/logo.png
+  align: right
+  width: 350px
+
 navbar:
   structure:
-    left: [intro, reference, articles, news]
-    right: [search, github, lightswitch]
-
+    left:  [home, reference, articles, news]
+    right: [search, github]
   components:
     home:
-      text: Home
+      icon: fas fa-home fa-lg
       href: index.html
-
+      aria-label: Home
     reference:
       text: Reference
       href: reference/index.html
-
     articles:
       text: Vignettes
       menu:
       - text: "Introduction to probmed"
         href: articles/introduction.html
-
     news:
       text: News
       href: news/index.html
-
     github:
-      icon: fab fa-github
+      icon: fab fa-github fa-lg
       href: https://github.com/data-wise/probmed
       aria-label: GitHub
 
