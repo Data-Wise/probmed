@@ -1,3 +1,89 @@
+#' probmed: Probabilistic Effect Size for Mediation Analysis
+#'
+#' @description
+#' The `probmed` package provides a robust framework for computing \eqn{P_{med}},
+#' a scale-free probabilistic effect size for causal mediation analysis. Unlike
+#' traditional effect sizes, \eqn{P_{med}} quantifies the probability that the
+#' counterfactual outcome under treatment with the mediator at its control level
+#' exceeds the counterfactual outcome under control.
+#'
+#' @section Key Features:
+#' \itemize{
+#'   \item \strong{Scale-free interpretation}: \eqn{P_{med} \in [0, 1]} has clear
+#'         probabilistic meaning regardless of variable scales
+#'   \item \strong{Flexible estimation}: Works with GLMs, SEM (via lavaan), and
+#'         other fitted models
+#'   \item \strong{Comprehensive reporting}: Provides both \eqn{P_{med}} and traditional
+#'         Indirect Effect (\eqn{a \times b}) with bootstrap confidence intervals
+#'   \item \strong{Multiple mediators}: Supports parallel mediation structures
+#'   \item \strong{Bootstrap inference}: Parametric and nonparametric bootstrap
+#'         for confidence intervals
+#'   \item \strong{S7 OOP architecture}: Modern, type-safe object system for
+#'         extensibility
+#' }
+#'
+#' @section Main Functions:
+#' \itemize{
+#'   \item \code{\link{pmed}}: Compute \eqn{P_{med}} from formulas or extracted objects
+#'   \item \code{\link{extract_mediation}}: Extract mediation structure from fitted models
+#' }
+#'
+#' @section Supported Model Types:
+#' \itemize{
+#'   \item \strong{lm/glm}: Native support for linear and generalized linear models
+#'   \item \strong{lavaan}: Structural Equation Models with FIML and robust estimators
+#'   \item \strong{mediation}: Direct integration with mediate() objects
+#' }
+#'
+#' @section Getting Started:
+#' The basic workflow involves three steps:
+#'
+#' 1. Specify your mediation model (outcome and mediator formulas)
+#' 2. Choose an inference method (parametric bootstrap recommended)
+#' 3. Interpret results (both \eqn{P_{med}} and Indirect Effect)
+#'
+#' \preformatted{
+#' # Example workflow
+#' library(probmed)
+#'
+#' # Generate example data
+#' set.seed(123)
+#' n <- 200
+#' data <- data.frame(X = rnorm(n), C = rnorm(n))
+#' data$M <- 0.5 * data$X + 0.3 * data$C + rnorm(n)
+#' data$Y <- 0.4 * data$M + 0.2 * data$X + 0.2 * data$C + rnorm(n)
+#'
+#' # Compute P_med with bootstrap CI
+#' result <- pmed(
+#'   Y ~ X + M + C,
+#'   formula_m = M ~ X + C,
+#'   data = data,
+#'   treatment = "X",
+#'   mediator = "M",
+#'   method = "parametric_bootstrap",
+#'   n_boot = 1000
+#' )
+#'
+#' print(result)
+#' }
+#'
+#' @section Learn More:
+#' \itemize{
+#'   \item \href{https://data-wise.github.io/probmed/}{Package Website}
+#'   \item \code{vignette("introduction", package = "probmed")}
+#'   \item \code{vignette("lavaan-integration", package = "probmed")}
+#'   \item \code{vignette("mediation-integration", package = "probmed")}
+#' }
+#'
+#' @references
+#' Tofighi, D., et al. (In Press). Probabilistic Effect Sizes for Mediation Analysis.
+#'
+#' Imai, K., Keele, L., & Tingley, D. (2010). A general approach to causal
+#' mediation analysis. \emph{Psychological Methods}, 15(4), 309-334.
+#'
+#' MacKinnon, D. P. (2008). \emph{Introduction to Statistical Mediation Analysis}.
+#' Lawrence Erlbaum Associates.
+#'
 #' @keywords internal
 "_PACKAGE"
 

@@ -2,18 +2,76 @@
 % Please edit documentation in R/generics.R
 \name{pmed}
 \alias{pmed}
-\title{Compute P_med}
+\title{Compute P_med: Probabilistic Effect Size for Mediation}
 \usage{
 pmed(object, ...)
 }
 \arguments{
-\item{object}{Either a formula, MediationExtract, or fitted model}
+\item{object}{Either:
+\itemize{
+\item A \code{formula} for the outcome model (most common)
+\item A \code{MediationExtract} object from \code{extract_mediation()}
+}}
 
-\item{...}{Additional arguments passed to methods}
+\item{...}{Additional arguments passed to methods (see method documentation)}
 }
 \value{
-PmedResult object
+\code{PmedResult} object containing:
+\itemize{
+\item \code{estimate}: P_med point estimate
+\item \code{ci_lower}, \code{ci_upper}: Confidence interval bounds
+\item \code{ie_estimate}: Indirect Effect point estimate
+\item \code{ie_ci_lower}, \code{ie_ci_upper}: IE confidence interval
+\item \code{boot_estimates}: Bootstrap distribution (if applicable)
+\item \code{method}: Inference method used
+}
 }
 \description{
-Generic function to compute P_med from various inputs.
+Compute \eqn{P_{med}}, a scale-free probabilistic effect size for mediation
+analysis, along with the traditional Indirect Effect (\eqn{a \times b}).
+Provides point estimates and bootstrap confidence intervals.
+
+\eqn{P_{med}} represents \eqn{P(Y_{x^*, M_x} > Y_{x, M_x})}, the probability
+that the counterfactual outcome under control with mediator at treated level
+exceeds the outcome under treatment.
+}
+\section{Methods}{
+
+Available inference methods via \code{method} argument:
+\itemize{
+\item \code{"parametric_bootstrap"} (default): Fast, assumes normality
+\item \code{"nonparametric_bootstrap"}: Robust to assumptions, slower
+\item \code{"plugin"}: Point estimate only, no CI
+}
+}
+
+\examples{
+# Basic example with formula interface
+set.seed(123)
+n <- 200
+data <- data.frame(X = rnorm(n), C = rnorm(n))
+data$M <- 0.5 * data$X + 0.3 * data$C + rnorm(n)
+data$Y <- 0.4 * data$M + 0.2 * data$X + 0.2 * data$C + rnorm(n)
+
+# Compute with parametric bootstrap
+result <- pmed(
+  Y ~ X + M + C,
+  formula_m = M ~ X + C,
+  data = data,
+  treatment = "X",
+  mediator = "M",
+  method = "parametric_bootstrap",
+  n_boot = 500
+)
+print(result)
+
+# View bootstrap distribution
+\donttest{
+summary(result)
+plot(result)
+}
+
+}
+\seealso{
+\code{\link{extract_mediation}} for extracting from fitted models
 }

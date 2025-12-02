@@ -12,6 +12,10 @@ PmedResult(
   method = character(0),
   n_boot = NA_integer_,
   boot_estimates = numeric(0),
+  ie_estimate = NA_real_,
+  ie_ci_lower = NA_real_,
+  ie_ci_upper = NA_real_,
+  ie_boot_estimates = numeric(0),
   x_ref = integer(0),
   x_value = integer(0),
   source_extract = MediationExtract(),
@@ -33,6 +37,14 @@ PmedResult(
 \item{n_boot}{Integer: number of bootstrap samples (NA if not bootstrap)}
 
 \item{boot_estimates}{Numeric vector: bootstrap distribution (empty if not bootstrap)}
+
+\item{ie_estimate}{Numeric: Indirect Effect (NIE) point estimate}
+
+\item{ie_ci_lower}{Numeric: lower bound of NIE confidence interval}
+
+\item{ie_ci_upper}{Numeric: upper bound of NIE confidence interval}
+
+\item{ie_boot_estimates}{Numeric vector: bootstrap distribution of NIE}
 
 \item{x_ref}{Numeric: reference treatment value}
 

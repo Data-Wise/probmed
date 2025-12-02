@@ -37,7 +37,7 @@
 #' }
 #' }
 #'
-#' @export
+#' @name extract_mediation-mediate
 S7::method(extract_mediation, mediate_class) <- function(object, ...) {
     # Extract underlying models
     model_m <- object$model.m

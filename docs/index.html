@@ -52,6 +52,11 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
 <li><a class="dropdown-item" href="articles/introduction.html">Introduction to probmed</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>─────────────</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Integration Guides</h6></li>
+    <li><a class="dropdown-item" href="articles/lavaan-integration.html">lavaan Integration</a></li>
+    <li><a class="dropdown-item" href="articles/mediation-integration.html">mediation Package Integration</a></li>
+    <li><a class="dropdown-item" href="articles/package-comparison.html">Package Comparison</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">News</a></li>
@@ -181,6 +186,45 @@
 <span><span class="co">#   mediator = "M"</span></span>
 <span><span class="co"># )</span></span></code></pre></div>
 </div>
+<div class="section level3">
+<h3 id="integration-with-lavaan">Integration with lavaan<a class="anchor" aria-label="anchor" href="#integration-with-lavaan"></a>
+</h3>
+<p><code>probmed</code> integrates seamlessly with the <code>lavaan</code> package for SEM-based mediation analysis.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Define SEM model</span></span>
+<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="st">'</span></span>
+<span><span class="st">  M ~ a*X</span></span>
+<span><span class="st">  Y ~ b*M + cp*X</span></span>
+<span><span class="st">'</span></span>
+<span></span>
+<span><span class="co"># Fit model</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/sem.html" class="external-link">sem</a></span><span class="op">(</span><span class="va">model</span>, data <span class="op">=</span> <span class="va">data</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Extract and compute P_med</span></span>
+<span><span class="va">extract</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/extract_mediation.html">extract_mediation</a></span><span class="op">(</span><span class="va">fit</span>, treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span><span class="op">)</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pmed.html">pmed</a></span><span class="op">(</span><span class="va">extract</span>, method <span class="op">=</span> <span class="st">"parametric_bootstrap"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="integration-with-mediation-package">Integration with mediation package<a class="anchor" aria-label="anchor" href="#integration-with-mediation-package"></a>
+</h3>
+<p>You can also use <code>probmed</code> with objects from the <code>mediation</code> package:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://imai.princeton.edu/projects/mechanisms.html" class="external-link">mediation</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Fit models</span></span>
+<span><span class="va">model_m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>, data <span class="op">=</span> <span class="va">data</span><span class="op">)</span></span>
+<span><span class="va">model_y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="va">M</span> <span class="op">+</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>, data <span class="op">=</span> <span class="va">data</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Run mediate</span></span>
+<span><span class="va">med_out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mediation/man/mediate.html" class="external-link">mediate</a></span><span class="op">(</span><span class="va">model_m</span>, <span class="va">model_y</span>, treat <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Compute P_med</span></span>
+<span><span class="va">extract</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/extract_mediation.html">extract_mediation</a></span><span class="op">(</span><span class="va">med_out</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/pmed.html">pmed</a></span><span class="op">(</span><span class="va">extract</span><span class="op">)</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -233,7 +277,7 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://CRAN.R-project.org/package=probmed" class="external-link"><img src="https://www.r-pkg.org/badges/version/probmed" alt="CRAN status"></a></li>
+<li><a href="https://CRAN.R-project.org/package=probmed" class="external-link"><img src="https://www.r-pkg.org/badges/version/probmed.png" alt="CRAN status"></a></li>
 <li><a href="https://data-wise.github.io/probmed/"><img src="https://img.shields.io/website?url=https%3A%2F%2Fdata-wise.github.io%2Fprobmed%2F" alt="Website Status"></a></li>
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle: stable"></a></li>
 <li><a href="https://github.com/data-wise/probmed/actions/workflows/rhub.yaml" class="external-link"><img src="https://github.com/data-wise/probmed/actions/workflows/rhub.yaml/badge.svg" alt="R-hub"></a></li>

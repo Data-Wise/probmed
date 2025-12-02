@@ -67,6 +67,14 @@ navbar:
       menu:
       - text: "Introduction to probmed"
         href: articles/introduction.html
+      - text: "─────────────"
+      - text: "Integration Guides"
+      - text: "lavaan Integration"
+        href: articles/lavaan-integration.html
+      - text: "mediation Package Integration"
+        href: articles/mediation-integration.html
+      - text: "Package Comparison"
+        href: articles/package-comparison.html
     news:
       text: News
       href: news/index.html
@@ -118,6 +126,12 @@ articles:
     navbar: ~
     contents:
       - introduction
+  - title: "Integration Guides"
+    navbar: ~
+    contents:
+      - lavaan-integration
+      - mediation-integration
+      - package-comparison
 
 development:
   mode: auto

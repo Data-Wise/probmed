@@ -20,6 +20,11 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to probmed</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>─────────────</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Integration Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/lavaan-integration.html">lavaan Integration</a></li>
+    <li><a class="dropdown-item" href="../articles/mediation-integration.html">mediation Package Integration</a></li>
+    <li><a class="dropdown-item" href="../articles/package-comparison.html">Package Comparison</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -51,6 +56,10 @@
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  n_boot <span class="op">=</span> <span class="cn">NA_integer_</span>,</span>
 <span>  boot_estimates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  ie_estimate <span class="op">=</span> <span class="cn">NA_real_</span>,</span>
+<span>  ie_ci_lower <span class="op">=</span> <span class="cn">NA_real_</span>,</span>
+<span>  ie_ci_upper <span class="op">=</span> <span class="cn">NA_real_</span>,</span>
+<span>  ie_boot_estimates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  x_ref <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  x_value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  source_extract <span class="op">=</span> <span class="fu"><a href="MediationExtract.html">MediationExtract</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -89,6 +98,22 @@
 
 <dt id="arg-boot-estimates">boot_estimates<a class="anchor" aria-label="anchor" href="#arg-boot-estimates"></a></dt>
 <dd><p>Numeric vector: bootstrap distribution (empty if not bootstrap)</p></dd>
+
+
+<dt id="arg-ie-estimate">ie_estimate<a class="anchor" aria-label="anchor" href="#arg-ie-estimate"></a></dt>
+<dd><p>Numeric: Indirect Effect (NIE) point estimate</p></dd>
+
+
+<dt id="arg-ie-ci-lower">ie_ci_lower<a class="anchor" aria-label="anchor" href="#arg-ie-ci-lower"></a></dt>
+<dd><p>Numeric: lower bound of NIE confidence interval</p></dd>
+
+
+<dt id="arg-ie-ci-upper">ie_ci_upper<a class="anchor" aria-label="anchor" href="#arg-ie-ci-upper"></a></dt>
+<dd><p>Numeric: upper bound of NIE confidence interval</p></dd>
+
+
+<dt id="arg-ie-boot-estimates">ie_boot_estimates<a class="anchor" aria-label="anchor" href="#arg-ie-boot-estimates"></a></dt>
+<dd><p>Numeric vector: bootstrap distribution of NIE</p></dd>
 
 
 <dt id="arg-x-ref">x_ref<a class="anchor" aria-label="anchor" href="#arg-x-ref"></a></dt>
