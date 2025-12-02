@@ -6,7 +6,7 @@ Primary functions for computing P_med and extracting mediation
 structures from fitted statistical models.
 
 - [`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md) :
-  Compute P_med
+  Compute P_med: Probabilistic Effect Size for Mediation
 - [`pmed-formula`](https://data-wise.github.io/probmed/reference/pmed-formula.md)
   : Compute P_med from Formula
 - [`pmed-MediationExtract`](https://data-wise.github.io/probmed/reference/pmed-MediationExtract.md)
@@ -49,6 +49,8 @@ transparency but are not intended for direct use by end users.
   : P_med Result Class
 - [`extract_mediation-lm`](https://data-wise.github.io/probmed/reference/extract_mediation-lm.md)
   : Extract from GLM/LM
+- [`extract_mediation-mediate`](https://data-wise.github.io/probmed/reference/extract_mediation-mediate.md)
+  : Extract Mediation Structure from mediate Objects
 - [`extract_mediation()`](https://data-wise.github.io/probmed/reference/extract_mediation.md)
   : Extract Mediation Structure
 - [`plot-PmedResult`](https://data-wise.github.io/probmed/reference/plot-PmedResult.md)
@@ -58,7 +60,7 @@ transparency but are not intended for direct use by end users.
 - [`pmed-formula`](https://data-wise.github.io/probmed/reference/pmed-formula.md)
   : Compute P_med from Formula
 - [`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md) :
-  Compute P_med
+  Compute P_med: Probabilistic Effect Size for Mediation
 - [`print-PmedResult`](https://data-wise.github.io/probmed/reference/print-PmedResult.md)
   : Print PmedResult
 - [`summary-PmedResult`](https://data-wise.github.io/probmed/reference/summary-PmedResult.md)
@@ -73,6 +75,8 @@ transparency but are not intended for direct use by end users.
   : Parametric Bootstrap for P_med
 - [`.pmed_plugin()`](https://data-wise.github.io/probmed/reference/dot-pmed_plugin.md)
   : Plugin Estimator (Point Estimate Only)
+- [`extract_mediation_lavaan()`](https://data-wise.github.io/probmed/reference/extract_mediation_lavaan.md)
+  : Extract Mediation Structure from lavaan Objects
 - [`lm_class`](https://data-wise.github.io/probmed/reference/lm_class.md)
   : S3 Class Wrappers for S7
 - [`` `%||%` ``](https://data-wise.github.io/probmed/reference/null-coalesce.md)

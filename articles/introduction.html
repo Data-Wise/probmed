@@ -50,6 +50,11 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
 <li><a class="dropdown-item" href="../articles/introduction.html">Introduction to probmed</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>─────────────</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Integration Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/lavaan-integration.html">lavaan Integration</a></li>
+    <li><a class="dropdown-item" href="../articles/mediation-integration.html">mediation Package Integration</a></li>
+    <li><a class="dropdown-item" href="../articles/package-comparison.html">Package Comparison</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
@@ -162,25 +167,46 @@
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>The output shows the estimated <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> and its 95% confidence interval.</p>
+<p>The output shows both the estimated <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> and the traditional Indirect Effect with their 95% confidence intervals.</p>
+<p><strong>Understanding the Output:</strong></p>
 <ul>
 <li>
-<strong>Estimate</strong>: A value significantly greater than 0.50 indicates a positive mediation effect.</li>
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> Estimate</strong>: A value significantly greater than 0.50 indicates a positive mediation effect. For example, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><mo>=</mo><mn>0.56</mn></mrow><annotation encoding="application/x-tex">P_{med} = 0.56</annotation></semantics></math> means there’s a 56% probability that a treated individual has a higher outcome than a control individual through the indirect path.</li>
 <li>
-<strong>Confidence Interval</strong>: If the interval excludes 0.50, the effect is statistically significant.</li>
+<strong>Indirect Effect (IE)</strong>: The traditional product-of-coefficients (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>×</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">a \times b</annotation></semantics></math>) measure, useful for comparing with other mediation analyses.</li>
+<li>
+<strong>Confidence Intervals</strong>: If the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> CI excludes 0.50, or if the IE CI excludes 0, the mediation effect is statistically significant.</li>
 </ul>
-<p>You can also get a more detailed summary:</p>
+<p>Example output:</p>
+<pre><code>P_med: Probability of Mediated Shift
+====================================
+
+Estimate: 0.563
+95% CI: [0.520, 0.605]
+
+Indirect Effect (Product of Coefficients):
+Estimate: 0.198
+95% CI: [0.134, 0.268]
+
+Inference: parametric_bootstrap
+Bootstrap samples: 1000</code></pre>
+<p>You can also get a more detailed summary including bootstrap distribution statistics:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>And visualize the bootstrap distribution:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section></section><section class="level2"><h2 id="advanced-example-binary-outcome-glm">Advanced Example: Binary Outcome (GLM)<a class="anchor" aria-label="anchor" href="#advanced-example-binary-outcome-glm"></a>
 </h2>
-<p><code>probmed</code> shines when dealing with non-linear models where traditional coefficients (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>×</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">a \times b</annotation></semantics></math>) are hard to interpret. Let’s look at a case with a <strong>binary outcome</strong>.</p>
+<p><code>probmed</code> is particularly valuable when dealing with non-linear models where traditional coefficients are on different scales (e.g., logit scale for binary outcomes). <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> provides a scale-free interpretation, while the Indirect Effect gives the traditional measure for comparison. Let’s look at a case with a <strong>binary outcome</strong>.</p>
 <section class="level3"><h3 id="simulate-binary-data">1. Simulate Binary Data<a class="anchor" aria-label="anchor" href="#simulate-binary-data"></a>
 </h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">456</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">500</span></span>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
@@ -198,7 +224,7 @@
 </h3>
 <p>We simply specify <code>family_y = binomial()</code> to tell <code>probmed</code> that the outcome model is a logistic regression.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result_bin</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pmed.html">pmed</a></span><span class="op">(</span></span>
 <span>    <span class="va">Y_bin</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span>,</span>
 <span>    formula_m <span class="op">=</span> <span class="va">M</span> <span class="op">~</span> <span class="va">X</span>,</span>

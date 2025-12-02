@@ -3,7 +3,10 @@ pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   introduction: introduction.html
-last_built: 2025-12-02T03:52Z
+  lavaan-integration: lavaan-integration.html
+  mediation-integration: mediation-integration.html
+  package-comparison: package-comparison.html
+last_built: 2025-12-02T16:27Z
 urls:
   reference: https://data-wise.github.io/probmed/reference
   article: https://data-wise.github.io/probmed/articles

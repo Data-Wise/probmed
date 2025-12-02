@@ -106,25 +106,56 @@ We can print and summarize the results.
 print(result)
 ```
 
-The output shows the estimated $P_{med}$ and its 95% confidence
-interval.
+The output shows both the estimated $P_{med}$ and the traditional
+Indirect Effect with their 95% confidence intervals.
 
-- **Estimate**: A value significantly greater than 0.50 indicates a
-  positive mediation effect.
-- **Confidence Interval**: If the interval excludes 0.50, the effect is
-  statistically significant.
+**Understanding the Output:**
 
-You can also get a more detailed summary:
+- **$P_{med}$ Estimate**: A value significantly greater than 0.50
+  indicates a positive mediation effect. For example, $P_{med} = 0.56$
+  means there’s a 56% probability that a treated individual has a higher
+  outcome than a control individual through the indirect path.
+- **Indirect Effect (IE)**: The traditional product-of-coefficients
+  ($a \times b$) measure, useful for comparing with other mediation
+  analyses.
+- **Confidence Intervals**: If the $P_{med}$ CI excludes 0.50, or if the
+  IE CI excludes 0, the mediation effect is statistically significant.
+
+Example output:
+
+    P_med: Probability of Mediated Shift
+    ====================================
+
+    Estimate: 0.563
+    95% CI: [0.520, 0.605]
+
+    Indirect Effect (Product of Coefficients):
+    Estimate: 0.198
+    95% CI: [0.134, 0.268]
+
+    Inference: parametric_bootstrap
+    Bootstrap samples: 1000
+
+You can also get a more detailed summary including bootstrap
+distribution statistics:
 
 ``` r
 summary(result)
 ```
 
+And visualize the bootstrap distribution:
+
+``` r
+plot(result)
+```
+
 ## Advanced Example: Binary Outcome (GLM)
 
-`probmed` shines when dealing with non-linear models where traditional
-coefficients ($a \times b$) are hard to interpret. Let’s look at a case
-with a **binary outcome**.
+`probmed` is particularly valuable when dealing with non-linear models
+where traditional coefficients are on different scales (e.g., logit
+scale for binary outcomes). $P_{med}$ provides a scale-free
+interpretation, while the Indirect Effect gives the traditional measure
+for comparison. Let’s look at a case with a **binary outcome**.
 
 ### 1. Simulate Binary Data
 

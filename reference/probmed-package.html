@@ -5,15 +5,21 @@ Compute P_med, a scale-free probabilistic effect size for causal mediation
 analysis. P_med = P(Y_{x*,M_x} &amp;gt; Y_{x,M_x}) represents the probability that
 the outcome under treatment with the mediator at its control level exceeds
 the outcome under control.
-
-Compute P_med, a scale-free probabilistic effect size for causal mediation analysis."><meta property="og:description" content="
+The probmed package provides a robust framework for computing \(P_{med}\),
+a scale-free probabilistic effect size for causal mediation analysis. Unlike
+traditional effect sizes, \(P_{med}\) quantifies the probability that the
+counterfactual outcome under treatment with the mediator at its control level
+exceeds the counterfactual outcome under control."><meta property="og:description" content="
 Compute P_med, a scale-free probabilistic effect size for causal mediation analysis.
 Compute P_med, a scale-free probabilistic effect size for causal mediation
 analysis. P_med = P(Y_{x*,M_x} &amp;gt; Y_{x,M_x}) represents the probability that
 the outcome under treatment with the mediator at its control level exceeds
 the outcome under control.
-
-Compute P_med, a scale-free probabilistic effect size for causal mediation analysis."><meta property="og:image" content="https://data-wise.github.io/probmed/reference/figures/logo.png"><meta property="og:image:alt" content="probmed: Probabilistic Effect Sizes for Mediation Analysis"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@dtofighi"><meta name="twitter:site" content="@dtofighi"></head><body>
+The probmed package provides a robust framework for computing \(P_{med}\),
+a scale-free probabilistic effect size for causal mediation analysis. Unlike
+traditional effect sizes, \(P_{med}\) quantifies the probability that the
+counterfactual outcome under treatment with the mediator at its control level
+exceeds the counterfactual outcome under control."><meta property="og:image" content="https://data-wise.github.io/probmed/reference/figures/logo.png"><meta property="og:image:alt" content="probmed: Probabilistic Effect Sizes for Mediation Analysis"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:creator" content="@dtofighi"><meta name="twitter:site" content="@dtofighi"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -34,6 +40,11 @@ Compute P_med, a scale-free probabilistic effect size for causal mediation analy
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes"><li><a class="dropdown-item" href="../articles/introduction.html">Introduction to probmed</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>─────────────</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Integration Guides</h6></li>
+    <li><a class="dropdown-item" href="../articles/lavaan-integration.html">lavaan Integration</a></li>
+    <li><a class="dropdown-item" href="../articles/mediation-integration.html">mediation Package Integration</a></li>
+    <li><a class="dropdown-item" href="../articles/package-comparison.html">Package Comparison</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -58,11 +69,94 @@ Compute P_med, a scale-free probabilistic effect size for causal mediation analy
 analysis. P_med = P(Y_{x*,M_x} &gt; Y_{x,M_x}) represents the probability that
 the outcome under treatment with the mediator at its control level exceeds
 the outcome under control.</p>
-<p></p>
-<p>Compute P_med, a scale-free probabilistic effect size for causal mediation analysis.</p>
+<p>The <code>probmed</code> package provides a robust framework for computing \(P_{med}\),
+a scale-free probabilistic effect size for causal mediation analysis. Unlike
+traditional effect sizes, \(P_{med}\) quantifies the probability that the
+counterfactual outcome under treatment with the mediator at its control level
+exceeds the counterfactual outcome under control.</p>
     </div>
 
 
+    <div class="section level2">
+    <h2 id="key-features">Key Features<a class="anchor" aria-label="anchor" href="#key-features"></a></h2>
+
+
+<ul><li><p><strong>Scale-free interpretation</strong>: \(P_{med} \in [0, 1]\) has clear
+probabilistic meaning regardless of variable scales</p></li>
+<li><p><strong>Flexible estimation</strong>: Works with GLMs, SEM (via lavaan), and
+other fitted models</p></li>
+<li><p><strong>Comprehensive reporting</strong>: Provides both \(P_{med}\) and traditional
+Indirect Effect (\(a \times b\)) with bootstrap confidence intervals</p></li>
+<li><p><strong>Multiple mediators</strong>: Supports parallel mediation structures</p></li>
+<li><p><strong>Bootstrap inference</strong>: Parametric and nonparametric bootstrap
+for confidence intervals</p></li>
+<li><p><strong>S7 OOP architecture</strong>: Modern, type-safe object system for
+extensibility</p></li>
+</ul></div>
+    <div class="section level2">
+    <h2 id="main-functions">Main Functions<a class="anchor" aria-label="anchor" href="#main-functions"></a></h2>
+
+
+<ul><li><p><code><a href="pmed.html">pmed</a></code>: Compute \(P_{med}\) from formulas or extracted objects</p></li>
+<li><p><code><a href="extract_mediation.html">extract_mediation</a></code>: Extract mediation structure from fitted models</p></li>
+</ul></div>
+    <div class="section level2">
+    <h2 id="supported-model-types">Supported Model Types<a class="anchor" aria-label="anchor" href="#supported-model-types"></a></h2>
+
+
+<ul><li><p><strong>lm/glm</strong>: Native support for linear and generalized linear models</p></li>
+<li><p><strong>lavaan</strong>: Structural Equation Models with FIML and robust estimators</p></li>
+<li><p><strong>mediation</strong>: Direct integration with mediate() objects</p></li>
+</ul></div>
+    <div class="section level2">
+    <h2 id="getting-started">Getting Started<a class="anchor" aria-label="anchor" href="#getting-started"></a></h2>
+
+
+<p>The basic workflow involves three steps:</p><ol><li><p>Specify your mediation model (outcome and mediator formulas)</p></li>
+<li><p>Choose an inference method (parametric bootstrap recommended)</p></li>
+<li><p>Interpret results (both \(P_{med}\) and Indirect Effect)</p></li>
+</ol><div class="sourceCode"><pre><code><span></span>
+<span><span class="co"># Example workflow</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://data-wise.github.io/probmed/">probmed</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Generate example data</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
+<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, C <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">data</span><span class="op">$</span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">data</span><span class="op">$</span><span class="va">X</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">data</span><span class="op">$</span><span class="va">C</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
+<span><span class="va">data</span><span class="op">$</span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fl">0.4</span> <span class="op">*</span> <span class="va">data</span><span class="op">$</span><span class="va">M</span> <span class="op">+</span> <span class="fl">0.2</span> <span class="op">*</span> <span class="va">data</span><span class="op">$</span><span class="va">X</span> <span class="op">+</span> <span class="fl">0.2</span> <span class="op">*</span> <span class="va">data</span><span class="op">$</span><span class="va">C</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Compute P_med with bootstrap CI</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pmed.html">pmed</a></span><span class="op">(</span></span>
+<span>  <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>,</span>
+<span>  formula_m <span class="op">=</span> <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">data</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="st">"X"</span>,</span>
+<span>  mediator <span class="op">=</span> <span class="st">"M"</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"parametric_bootstrap"</span>,</span>
+<span>  n_boot <span class="op">=</span> <span class="fl">1000</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
+
+    </div>
+    <div class="section level2">
+    <h2 id="learn-more">Learn More<a class="anchor" aria-label="anchor" href="#learn-more"></a></h2>
+
+
+<ul><li><p><a href="https://data-wise.github.io/probmed/">Package Website</a></p></li>
+<li><p><code><a href="../articles/introduction.html">vignette("introduction", package = "probmed")</a></code></p></li>
+<li><p><code><a href="../articles/lavaan-integration.html">vignette("lavaan-integration", package = "probmed")</a></code></p></li>
+<li><p><code><a href="../articles/mediation-integration.html">vignette("mediation-integration", package = "probmed")</a></code></p></li>
+</ul></div>
+    <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    <p>Tofighi, D., et al. (In Press). Probabilistic Effect Sizes for Mediation Analysis.</p>
+<p>Imai, K., Keele, L., &amp; Tingley, D. (2010). A general approach to causal
+mediation analysis. <em>Psychological Methods</em>, 15(4), 309-334.</p>
+<p>MacKinnon, D. P. (2008). <em>Introduction to Statistical Mediation Analysis</em>.
+Lawrence Erlbaum Associates.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Useful links:</p><ul><li><p><a href="https://data-wise.github.io/probmed/">https://data-wise.github.io/probmed/</a></p></li>

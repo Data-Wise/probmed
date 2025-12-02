@@ -52,6 +52,11 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
 <li><a class="dropdown-item" href="articles/introduction.html">Introduction to probmed</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>─────────────</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Integration Guides</h6></li>
+    <li><a class="dropdown-item" href="articles/lavaan-integration.html">lavaan Integration</a></li>
+    <li><a class="dropdown-item" href="articles/mediation-integration.html">mediation Package Integration</a></li>
+    <li><a class="dropdown-item" href="articles/package-comparison.html">Package Comparison</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">News</a></li>
@@ -89,6 +94,8 @@
 <li>
 <strong>Flexible Modeling</strong>: Supports both <strong>Linear Models (LM)</strong> and <strong>Generalized Linear Models (GLM)</strong> (e.g., Logistic, Poisson) for the mediator and outcome.</li>
 <li>
+<strong>Comprehensive Effect Reporting</strong>: Provides both <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> (probabilistic effect size) and the traditional Indirect Effect (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>×</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">a \times b</annotation></semantics></math>) with bootstrap confidence intervals.</li>
+<li>
 <strong>Robust Inference</strong>: Implements multiple methods for constructing confidence intervals:
 <ul>
 <li>
@@ -102,7 +109,17 @@
 <li>
 <strong>Modern Architecture</strong>: Built on the <strong>S7</strong> object-oriented system, ensuring type safety, stability, and easy extensibility.</li>
 <li>
-<strong>Seamless Integration</strong>: Designed to work with standard R <code>formula</code> interfaces and <code>data.frame</code> inputs.</li>
+<strong>Ecosystem Integration</strong>: Works seamlessly with popular R packages:
+<ul>
+<li>
+<strong>lavaan</strong>: Extract from Structural Equation Models with FIML and robust estimators</li>
+<li>
+<strong>mediation</strong>: Direct integration with <code><a href="https://rdrr.io/pkg/mediation/man/mediate.html" class="external-link">mediate()</a></code> objects</li>
+<li>Standard <strong>lm/glm</strong>: Native support for regression models</li>
+</ul>
+</li>
+<li>
+<strong>User-Friendly Interface</strong>: Designed to work with standard R <code>formula</code> interfaces and <code>data.frame</code> inputs.</li>
 </ul>
 </div>
 <div class="section level2">
@@ -153,33 +170,138 @@
 <div class="section level3">
 <h3 id="id_3-view-results">3. View Results<a class="anchor" aria-label="anchor" href="#id_3-view-results"></a>
 </h3>
-<p>The results object provides a clear summary of the point estimate and confidence interval.</p>
+<p>The results object provides a clear summary of both <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> and the Indirect Effect with confidence intervals.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
-<span><span class="co">#&gt; P_med Estimate: 0.56 (Parametric Bootstrap)</span></span>
-<span><span class="co">#&gt; 95% CI: [0.52, 0.61]</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; P_med: Probability of Mediated Shift</span></span>
+<span><span class="co">#&gt; ====================================</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; Estimate: 0.563</span></span>
+<span><span class="co">#&gt; 95% CI: [0.520, 0.605]</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; Indirect Effect (Product of Coefficients):</span></span>
+<span><span class="co">#&gt; Estimate: 0.198</span></span>
+<span><span class="co">#&gt; 95% CI: [0.134, 0.268]</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; Inference: parametric_bootstrap</span></span>
+<span><span class="co">#&gt; Bootstrap samples: 1000</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; Treatment contrast: X = 1 vs. X* = 0</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; Interpretation:</span></span>
+<span><span class="co">#&gt;   P(Y_{X*, M_X} &gt; Y_{X, M_X}) = 0.563</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
-<p><strong>Interpretation</strong>: A <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> of 0.56 implies that, considering the indirect path, there is a 56% probability that a treated individual will have a higher outcome than a control individual. Since 0.50 represents “no effect” (random chance), this indicates a positive mediation effect.</p>
+<p><strong>Interpretation</strong>: - <strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> = 0.563</strong>: There is a 56.3% probability that a treated individual will have a higher outcome than a control individual through the indirect path. Since 0.50 represents “no effect” (random chance), this indicates a positive mediation effect. - <strong>Indirect Effect = 0.198</strong>: The traditional product-of-coefficients indirect effect (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>×</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">a \times b</annotation></semantics></math>) quantifies the average change in outcome due to the mediated path.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="advanced-usage">Advanced Usage<a class="anchor" aria-label="anchor" href="#advanced-usage"></a>
+<h2 id="workflow-options">Workflow Options<a class="anchor" aria-label="anchor" href="#workflow-options"></a>
+</h2>
+<p><code>probmed</code> offers three workflow approaches to suit your needs:</p>
+<div class="section level3">
+<h3 id="id_1-formula-interface-recommended-for-most-users">1. Formula Interface (Recommended for Most Users)<a class="anchor" aria-label="anchor" href="#id_1-formula-interface-recommended-for-most-users"></a>
+</h3>
+<p>Directly specify your models using R formulas:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pmed.html">pmed</a></span><span class="op">(</span></span>
+<span>  <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>,             <span class="co"># Outcome model</span></span>
+<span>  formula_m <span class="op">=</span> <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,     <span class="co"># Mediator model</span></span>
+<span>  data <span class="op">=</span> <span class="va">data</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="st">"X"</span>,</span>
+<span>  mediator <span class="op">=</span> <span class="st">"M"</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"parametric_bootstrap"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="id_2-integration-with-lavaan-for-sem-users">2. Integration with lavaan (For SEM Users)<a class="anchor" aria-label="anchor" href="#id_2-integration-with-lavaan-for-sem-users"></a>
+</h3>
+<p>Extract from fitted Structural Equation Models with full support for FIML, robust estimators, and standardized estimates:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Define SEM model</span></span>
+<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="st">'</span></span>
+<span><span class="st">  M ~ a*X + C</span></span>
+<span><span class="st">  Y ~ b*M + cp*X + C</span></span>
+<span><span class="st">'</span></span>
+<span></span>
+<span><span class="co"># Fit with FIML for missing data</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/sem.html" class="external-link">sem</a></span><span class="op">(</span><span class="va">model</span>, data <span class="op">=</span> <span class="va">data</span>, missing <span class="op">=</span> <span class="st">"fiml"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Extract and compute P_med</span></span>
+<span><span class="va">extract</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/extract_mediation.html">extract_mediation</a></span><span class="op">(</span><span class="va">fit</span>, treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span><span class="op">)</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pmed.html">pmed</a></span><span class="op">(</span><span class="va">extract</span>, method <span class="op">=</span> <span class="st">"parametric_bootstrap"</span>, n_boot <span class="op">=</span> <span class="fl">5000</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="id_3-integration-with-mediation-package">3. Integration with mediation Package<a class="anchor" aria-label="anchor" href="#id_3-integration-with-mediation-package"></a>
+</h3>
+<p>Seamlessly work with objects from the <code>mediation</code> package:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://imai.princeton.edu/projects/mechanisms.html" class="external-link">mediation</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Fit models</span></span>
+<span><span class="va">model_m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>, data <span class="op">=</span> <span class="va">data</span><span class="op">)</span></span>
+<span><span class="va">model_y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="va">M</span> <span class="op">+</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>, data <span class="op">=</span> <span class="va">data</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Run mediate</span></span>
+<span><span class="va">med_out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mediation/man/mediate.html" class="external-link">mediate</a></span><span class="op">(</span><span class="va">model_m</span>, <span class="va">model_y</span>, treat <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, boot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Compute P_med from mediate object</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pmed.html">pmed</a></span><span class="op">(</span><span class="fu"><a href="reference/extract_mediation.html">extract_mediation</a></span><span class="op">(</span><span class="va">med_out</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="advanced-features">Advanced Features<a class="anchor" aria-label="anchor" href="#advanced-features"></a>
 </h2>
 <div class="section level3">
 <h3 id="generalized-linear-models-glms">Generalized Linear Models (GLMs)<a class="anchor" aria-label="anchor" href="#generalized-linear-models-glms"></a>
 </h3>
-<p><code>probmed</code> supports GLMs for non-normal outcomes. For example, if your outcome <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> is binary:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Example with binary outcome (conceptual)</span></span>
-<span><span class="co"># result_bin &lt;- pmed(</span></span>
-<span><span class="co">#   Y ~ X + M + C,</span></span>
-<span><span class="co">#   formula_m = M ~ X + C,</span></span>
-<span><span class="co">#   data = data_bin,</span></span>
-<span><span class="co">#   family_y = binomial(),   # Specify the family for the outcome</span></span>
-<span><span class="co">#   treatment = "X",</span></span>
-<span><span class="co">#   mediator = "M"</span></span>
-<span><span class="co"># )</span></span></code></pre></div>
+<p><code>probmed</code> supports GLMs for non-normal outcomes. For example, with a binary outcome:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Binary outcome example</span></span>
+<span><span class="va">data_bin</span> <span class="op">&lt;-</span> <span class="va">data</span></span>
+<span><span class="va">data_bin</span><span class="op">$</span><span class="va">Y_binary</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html" class="external-link">plogis</a></span><span class="op">(</span><span class="fl">0.4</span> <span class="op">*</span> <span class="va">data</span><span class="op">$</span><span class="va">M</span> <span class="op">+</span> <span class="fl">0.2</span> <span class="op">*</span> <span class="va">data</span><span class="op">$</span><span class="va">X</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">result_bin</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pmed.html">pmed</a></span><span class="op">(</span></span>
+<span>  <span class="va">Y_binary</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>,</span>
+<span>  formula_m <span class="op">=</span> <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">data_bin</span>,</span>
+<span>  family_y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">binomial</a></span><span class="op">(</span><span class="op">)</span>,    <span class="co"># Logistic regression for binary outcome</span></span>
+<span>  treatment <span class="op">=</span> <span class="st">"X"</span>,</span>
+<span>  mediator <span class="op">=</span> <span class="st">"M"</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"parametric_bootstrap"</span>,</span>
+<span>  n_boot <span class="op">=</span> <span class="fl">1000</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result_bin</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="bootstrap-methods-comparison">Bootstrap Methods Comparison<a class="anchor" aria-label="anchor" href="#bootstrap-methods-comparison"></a>
+</h3>
+<p><strong>When to use each method:</strong></p>
+<ul>
+<li>
+<strong>Plugin</strong> (<code>method = "plugin"</code>): Fast point estimates only, no confidence intervals. Use for quick exploration.</li>
+<li>
+<strong>Parametric Bootstrap</strong> (<code>method = "parametric_bootstrap"</code>): Default choice. Fast and accurate when parameter estimates are approximately normally distributed.</li>
+<li>
+<strong>Nonparametric Bootstrap</strong> (<code>method = "nonparametric_bootstrap"</code>): More robust to distributional assumptions but computationally intensive. Use when parametric assumptions are questionable.</li>
+</ul>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Compare methods</span></span>
+<span><span class="va">result_plugin</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pmed.html">pmed</a></span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span>, formula_m <span class="op">=</span> <span class="va">M</span> <span class="op">~</span> <span class="va">X</span>, data <span class="op">=</span> <span class="va">data</span>,</span>
+<span>                      treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, method <span class="op">=</span> <span class="st">"plugin"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">result_param</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pmed.html">pmed</a></span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span>, formula_m <span class="op">=</span> <span class="va">M</span> <span class="op">~</span> <span class="va">X</span>, data <span class="op">=</span> <span class="va">data</span>,</span>
+<span>                     treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>,</span>
+<span>                     method <span class="op">=</span> <span class="st">"parametric_bootstrap"</span>, n_boot <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">result_nonparam</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pmed.html">pmed</a></span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span>, formula_m <span class="op">=</span> <span class="va">M</span> <span class="op">~</span> <span class="va">X</span>, data <span class="op">=</span> <span class="va">data</span>,</span>
+<span>                        treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>,</span>
+<span>                        method <span class="op">=</span> <span class="st">"nonparametric_bootstrap"</span>, n_boot <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -233,7 +355,7 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://CRAN.R-project.org/package=probmed" class="external-link"><img src="https://www.r-pkg.org/badges/version/probmed" alt="CRAN status"></a></li>
+<li><a href="https://CRAN.R-project.org/package=probmed" class="external-link"><img src="https://www.r-pkg.org/badges/version/probmed.png" alt="CRAN status"></a></li>
 <li><a href="https://data-wise.github.io/probmed/"><img src="https://img.shields.io/website?url=https%3A%2F%2Fdata-wise.github.io%2Fprobmed%2F" alt="Website Status"></a></li>
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle: stable"></a></li>
 <li><a href="https://github.com/data-wise/probmed/actions/workflows/rhub.yaml" class="external-link"><img src="https://github.com/data-wise/probmed/actions/workflows/rhub.yaml/badge.svg" alt="R-hub"></a></li>
