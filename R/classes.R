@@ -8,7 +8,11 @@ lm_class <- S7::new_S3_class("lm")
 
 #' @keywords internal
 glm_class <- S7::new_S3_class("glm")
+#' @keywords internal
+lavaan_class <- S7::new_S3_class("lavaan") # Placeholder if needed, but we use dynamic S4
 
+#' @keywords internal
+mediate_class <- S7::new_S3_class("mediate")
 
 
 #' Mediation Extract Base Class

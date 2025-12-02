@@ -164,6 +164,25 @@ result <- pmed(extract, method = "parametric_bootstrap")
 print(result)
 ```
 
+### Integration with mediation package
+
+You can also use `probmed` with objects from the `mediation` package:
+
+``` r
+library(mediation)
+
+# Fit models
+model_m <- lm(M ~ X + C, data = data)
+model_y <- lm(Y ~ M + X + C, data = data)
+
+# Run mediate
+med_out <- mediate(model_m, model_y, treat = "X", mediator = "M")
+
+# Compute P_med
+extract <- extract_mediation(med_out)
+pmed(extract)
+```
+
 ## References
 
 - Tofighi, D. (In Press). *Probabilistic Effect Sizes for Mediation
