@@ -121,8 +121,8 @@ extract_mediation <- S7::new_generic(
 #' )
 #' print(result)
 #'
+#' \dontrun{
 #' # View bootstrap distribution
-#' \donttest{
 #' summary(result)
 #' plot(result)
 #' }

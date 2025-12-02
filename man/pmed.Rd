@@ -65,8 +65,8 @@ result <- pmed(
 )
 print(result)
 
+\dontrun{
 # View bootstrap distribution
-\donttest{
 summary(result)
 plot(result)
 }
