@@ -46,9 +46,36 @@ S7::method(extract_mediation, lm_class) <- function(object,
   vcov_combined[1:n_m, 1:n_m] <- vcov_m
   vcov_combined[(n_m + 1):(n_m + n_y), (n_m + 1):(n_m + n_y)] <- vcov_y
 
-  # Extract residual standard deviations
-  sigma_m <- stats::sigma(model_m)
-  sigma_y <- stats::sigma(model_y)
+  # Extract residual standard deviations (only for Gaussian models)
+  # For GLMs with non-Gaussian families (binomial, poisson, etc.),
+  # residual variance is not meaningful in the same way
+
+  # Check mediator model family
+  family_m <- if (inherits(model_m, "glm")) {
+    model_m$family$family
+  } else {
+    "gaussian" # lm objects are Gaussian
+  }
+
+  # Check outcome model family
+  family_y <- if (inherits(model_y, "glm")) {
+    model_y$family$family
+  } else {
+    "gaussian"
+  }
+
+  # Extract sigma only for Gaussian families
+  sigma_m <- if (family_m == "gaussian") {
+    stats::sigma(model_m)
+  } else {
+    NA_real_ # Not applicable for non-Gaussian
+  }
+
+  sigma_y <- if (family_y == "gaussian") {
+    stats::sigma(model_y)
+  } else {
+    NA_real_
+  }
 
   # Create MediationExtract
   MediationExtract(
