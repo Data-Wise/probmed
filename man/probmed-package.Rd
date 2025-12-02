@@ -22,7 +22,7 @@ Compute P_med, a scale-free probabilistic effect size for causal mediation analy
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://data-wise.github.io/probmed}
+  \item \url{https://data-wise.github.io/probmed/}
   \item \url{https://github.com/data-wise/probmed}
   \item Report bugs at \url{https://github.com/data-wise/probmed/issues}
 }
@@ -30,7 +30,7 @@ Useful links:
 
 Useful links:
 \itemize{
-  \item \url{https://data-wise.github.io/probmed}
+  \item \url{https://data-wise.github.io/probmed/}
   \item \url{https://github.com/data-wise/probmed}
   \item Report bugs at \url{https://github.com/data-wise/probmed/issues}
 }
@@ -38,7 +38,7 @@ Useful links:
 
 Useful links:
 \itemize{
-  \item \url{https://data-wise.github.io/probmed}
+  \item \url{https://data-wise.github.io/probmed/}
   \item \url{https://github.com/data-wise/probmed}
   \item Report bugs at \url{https://github.com/data-wise/probmed/issues}
 }
