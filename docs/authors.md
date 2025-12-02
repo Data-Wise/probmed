@@ -14,12 +14,12 @@ Source:
 
 Tofighi D (2025). *probmed: Probabilistic Effect Sizes for Causal
 Mediation Analysis*. R package version 0.0.0.9000,
-<https://data-wise.github.io/probmed>.
+<https://data-wise.github.io/probmed/>.
 
     @Manual{,
       title = {probmed: Probabilistic Effect Sizes for Causal Mediation Analysis},
       author = {Davood Tofighi},
       year = {2025},
       note = {R package version 0.0.0.9000},
-      url = {https://data-wise.github.io/probmed},
+      url = {https://data-wise.github.io/probmed/},
     }

@@ -2,4 +2,5 @@
 
 ### Getting Started
 
-- [introduction](https://data-wise.github.io/probmed/articles/introduction.md):
+- [Introduction to
+  probmed](https://data-wise.github.io/probmed/articles/introduction.md):

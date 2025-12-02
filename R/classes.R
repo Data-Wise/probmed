@@ -10,6 +10,7 @@ lm_class <- S7::new_S3_class("lm")
 glm_class <- S7::new_S3_class("glm")
 
 
+
 #' Mediation Extract Base Class
 #'
 #' @description

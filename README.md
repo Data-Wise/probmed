@@ -1,4 +1,5 @@
 
+
 <!-- README.md is generated from README.qmd. Please edit that file -->
 
 # probmed <img src="man/figures/logo.png" align="right" height="139" />
@@ -6,7 +7,7 @@
 <!-- badges: start -->
 
 [![CRAN
-status](https://www.r-pkg.org/badges/version/probmed)](https://CRAN.R-project.org/package=probmed)
+status](https://www.r-pkg.org/badges/version/probmed.png)](https://CRAN.R-project.org/package=probmed)
 [![Website
 Status](https://img.shields.io/website?url=https%3A%2F%2Fdata-wise.github.io%2Fprobmed%2F)](https://data-wise.github.io/probmed/)
 [![Lifecycle:
@@ -138,6 +139,29 @@ outcome $Y$ is binary:
 #   treatment = "X",
 #   mediator = "M"
 # )
+```
+
+### Integration with lavaan
+
+`probmed` integrates seamlessly with the `lavaan` package for SEM-based
+mediation analysis.
+
+``` r
+library(lavaan)
+
+# Define SEM model
+model <- '
+  M ~ a*X
+  Y ~ b*M + cp*X
+'
+
+# Fit model
+fit <- sem(model, data = data)
+
+# Extract and compute P_med
+extract <- extract_mediation(fit, treatment = "X", mediator = "M")
+result <- pmed(extract, method = "parametric_bootstrap")
+print(result)
 ```
 
 ## References

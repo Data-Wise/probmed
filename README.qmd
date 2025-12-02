@@ -122,6 +122,28 @@ summary(result)
 # )
 ```
 
+### Integration with lavaan
+
+`probmed` integrates seamlessly with the `lavaan` package for SEM-based mediation analysis.
+
+```r
+library(lavaan)
+
+# Define SEM model
+model <- '
+  M ~ a*X
+  Y ~ b*M + cp*X
+'
+
+# Fit model
+fit <- sem(model, data = data)
+
+# Extract and compute P_med
+extract <- extract_mediation(fit, treatment = "X", mediator = "M")
+result <- pmed(extract, method = "parametric_bootstrap")
+print(result)
+```
+
 ## References
 
 *   Tofighi, D. (In Press). *Probabilistic Effect Sizes for Mediation Analysis*.
