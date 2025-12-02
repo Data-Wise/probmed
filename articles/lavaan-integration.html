@@ -99,9 +99,7 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://data-wise.github.io/probmed/">probmed</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; This is lavaan 0.6-20</span></span>
-<span><span class="co">#&gt; lavaan is FREE software! Please report any bugs.</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="simple-mediation-model">Simple Mediation Model<a class="anchor" aria-label="anchor" href="#simple-mediation-model"></a>
 </h2>
@@ -136,38 +134,7 @@
 <span><span class="st">'</span></span>
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/sem.html" class="external-link">sem</a></span><span class="op">(</span><span class="va">model</span>, data <span class="op">=</span> <span class="va">data</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; lavaan 0.6-20 ended normally after 1 iteration</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Estimator                                         ML</span></span>
-<span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
-<span><span class="co">#&gt;   Number of model parameters                         5</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Number of observations                           200</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Model Test User Model:</span></span>
-<span><span class="co">#&gt;                                                       </span></span>
-<span><span class="co">#&gt;   Test statistic                                 0.000</span></span>
-<span><span class="co">#&gt;   Degrees of freedom                                 0</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Parameter Estimates:</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Standard errors                             Standard</span></span>
-<span><span class="co">#&gt;   Information                                 Expected</span></span>
-<span><span class="co">#&gt;   Information saturated (h1) model          Structured</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Regressions:</span></span>
-<span><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
-<span><span class="co">#&gt;   M ~                                                 </span></span>
-<span><span class="co">#&gt;     X          (a)    0.471    0.075    6.307    0.000</span></span>
-<span><span class="co">#&gt;   Y ~                                                 </span></span>
-<span><span class="co">#&gt;     M          (b)    0.349    0.068    5.107    0.000</span></span>
-<span><span class="co">#&gt;     X         (cp)    0.193    0.079    2.440    0.015</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Variances:</span></span>
-<span><span class="co">#&gt;                    Estimate  Std.Err  z-value  P(&gt;|z|)</span></span>
-<span><span class="co">#&gt;    .M                 0.986    0.099   10.000    0.000</span></span>
-<span><span class="co">#&gt;    .Y                 0.923    0.092   10.000    0.000</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="extract-mediation-structure">3. Extract Mediation Structure<a class="anchor" aria-label="anchor" href="#extract-mediation-structure"></a>
 </h3>
@@ -175,31 +142,7 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">extract</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_mediation.html">extract_mediation</a></span><span class="op">(</span><span class="va">fit</span>, treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">extract</span><span class="op">)</span></span>
-<span><span class="co">#&gt; &lt;probmed::MediationExtract&gt;</span></span>
-<span><span class="co">#&gt;  @ estimates          : Named num [1:3] 0.471 0.349 0.193</span></span>
-<span><span class="co">#&gt;  .. - attr(*, "names")= chr [1:3] "a" "b" "cp"</span></span>
-<span><span class="co">#&gt;  @ mediator_predictors: chr "X"</span></span>
-<span><span class="co">#&gt;  @ outcome_predictors : chr [1:2] "M" "X"</span></span>
-<span><span class="co">#&gt;  @ a_path             : num 0.471</span></span>
-<span><span class="co">#&gt;  @ b_path             : num 0.349</span></span>
-<span><span class="co">#&gt;  @ c_prime            : num 0.193</span></span>
-<span><span class="co">#&gt;  @ vcov               : num [1:3, 1:3] 5.57e-03 -5.07e-19 -2.24e-19 -6.51e-19 4.68e-03 ...</span></span>
-<span><span class="co">#&gt;  .. - attr(*, "dimnames")=List of 2</span></span>
-<span><span class="co">#&gt;  ..  ..$ : chr [1:3] "a" "b" "cp"</span></span>
-<span><span class="co">#&gt;  ..  ..$ : chr [1:3] "a" "b" "cp"</span></span>
-<span><span class="co">#&gt;  @ sigma_m            : num 0.993</span></span>
-<span><span class="co">#&gt;  @ sigma_y            : num 0.961</span></span>
-<span><span class="co">#&gt;  @ data               :'data.frame': 200 obs. of  3 variables:</span></span>
-<span><span class="co">#&gt;  .. $ M: num  1.919 1.197 0.514 0.578 -0.35 ...</span></span>
-<span><span class="co">#&gt;  .. $ Y: num  0.582 -0.736 -0.117 0.217 0.557 ...</span></span>
-<span><span class="co">#&gt;  .. $ X: num  -0.5605 -0.2302 1.5587 0.0705 0.1293 ...</span></span>
-<span><span class="co">#&gt;  @ n_obs              : int 200</span></span>
-<span><span class="co">#&gt;  @ source_package     : chr "lavaan"</span></span>
-<span><span class="co">#&gt;  @ converged          : logi TRUE</span></span>
-<span><span class="co">#&gt;  @ treatment          : chr "X"</span></span>
-<span><span class="co">#&gt;  @ mediator           : chr "M"</span></span>
-<span><span class="co">#&gt;  @ outcome            : chr "Y"</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">extract</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="compute-p_med">4. Compute <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math><a class="anchor" aria-label="anchor" href="#compute-p_med"></a>
 </h3>
@@ -208,94 +151,10 @@
 <div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plugin estimator (fast, point estimate only)</span></span>
 <span><span class="fu"><a href="../reference/pmed.html">pmed</a></span><span class="op">(</span><span class="va">extract</span>, method <span class="op">=</span> <span class="st">"plugin"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; &lt;probmed::PmedResult&gt;</span></span>
-<span><span class="co">#&gt;  @ estimate         : num 0.441</span></span>
-<span><span class="co">#&gt;  @ ci_lower         : num NA</span></span>
-<span><span class="co">#&gt;  @ ci_upper         : num NA</span></span>
-<span><span class="co">#&gt;  @ ci_level         : num NA</span></span>
-<span><span class="co">#&gt;  @ method           : chr "plugin"</span></span>
-<span><span class="co">#&gt;  @ n_boot           : int NA</span></span>
-<span><span class="co">#&gt;  @ boot_estimates   : num(0) </span></span>
-<span><span class="co">#&gt;  @ ie_estimate      : num 0.164</span></span>
-<span><span class="co">#&gt;  @ ie_ci_lower      : num NA</span></span>
-<span><span class="co">#&gt;  @ ie_ci_upper      : num NA</span></span>
-<span><span class="co">#&gt;  @ ie_boot_estimates: num(0) </span></span>
-<span><span class="co">#&gt;  @ x_ref            : num 0</span></span>
-<span><span class="co">#&gt;  @ x_value          : num 1</span></span>
-<span><span class="co">#&gt;  @ source_extract   : &lt;probmed::MediationExtract&gt;</span></span>
-<span><span class="co">#&gt;  .. @ estimates          : Named num [1:3] 0.471 0.349 0.193</span></span>
-<span><span class="co">#&gt;  .. .. - attr(*, "names")= chr [1:3] "a" "b" "cp"</span></span>
-<span><span class="co">#&gt;  .. @ mediator_predictors: chr "X"</span></span>
-<span><span class="co">#&gt;  .. @ outcome_predictors : chr [1:2] "M" "X"</span></span>
-<span><span class="co">#&gt;  .. @ a_path             : num 0.471</span></span>
-<span><span class="co">#&gt;  .. @ b_path             : num 0.349</span></span>
-<span><span class="co">#&gt;  .. @ c_prime            : num 0.193</span></span>
-<span><span class="co">#&gt;  .. @ vcov               : num [1:3, 1:3] 5.57e-03 -5.07e-19 -2.24e-19 -6.51e-19 4.68e-03 ...</span></span>
-<span><span class="co">#&gt;  .. .. - attr(*, "dimnames")=List of 2</span></span>
-<span><span class="co">#&gt;  .. ..  ..$ : chr [1:3] "a" "b" "cp"</span></span>
-<span><span class="co">#&gt;  .. ..  ..$ : chr [1:3] "a" "b" "cp"</span></span>
-<span><span class="co">#&gt;  .. @ sigma_m            : num 0.993</span></span>
-<span><span class="co">#&gt;  .. @ sigma_y            : num 0.961</span></span>
-<span><span class="co">#&gt;  .. @ data               :'data.frame':  200 obs. of  3 variables:</span></span>
-<span><span class="co">#&gt;  .. .. $ M: num  1.919 1.197 0.514 0.578 -0.35 ...</span></span>
-<span><span class="co">#&gt;  .. .. $ Y: num  0.582 -0.736 -0.117 0.217 0.557 ...</span></span>
-<span><span class="co">#&gt;  .. .. $ X: num  -0.5605 -0.2302 1.5587 0.0705 0.1293 ...</span></span>
-<span><span class="co">#&gt;  .. @ n_obs              : int 200</span></span>
-<span><span class="co">#&gt;  .. @ source_package     : chr "lavaan"</span></span>
-<span><span class="co">#&gt;  .. @ converged          : logi TRUE</span></span>
-<span><span class="co">#&gt;  .. @ treatment          : chr "X"</span></span>
-<span><span class="co">#&gt;  .. @ mediator           : chr "M"</span></span>
-<span><span class="co">#&gt;  .. @ outcome            : chr "Y"</span></span>
-<span><span class="co">#&gt;  @ converged        : logi TRUE</span></span>
-<span><span class="co">#&gt;  @ call             : NULL</span></span>
 <span></span>
 <span><span class="co"># Parametric bootstrap (with confidence intervals)</span></span>
 <span><span class="co"># Note: Increase n_boot for production use</span></span>
-<span><span class="fu"><a href="../reference/pmed.html">pmed</a></span><span class="op">(</span><span class="va">extract</span>, method <span class="op">=</span> <span class="st">"parametric_bootstrap"</span>, n_boot <span class="op">=</span> <span class="fl">200</span>, seed <span class="op">=</span> <span class="fl">456</span><span class="op">)</span></span>
-<span><span class="co">#&gt; &lt;probmed::PmedResult&gt;</span></span>
-<span><span class="co">#&gt;  @ estimate         : num 0.445</span></span>
-<span><span class="co">#&gt;  @ ci_lower         : Named num 0.405</span></span>
-<span><span class="co">#&gt;  .. - attr(*, "names")= chr "2.5%"</span></span>
-<span><span class="co">#&gt;  @ ci_upper         : Named num 0.494</span></span>
-<span><span class="co">#&gt;  .. - attr(*, "names")= chr "97.5%"</span></span>
-<span><span class="co">#&gt;  @ ci_level         : num 0.95</span></span>
-<span><span class="co">#&gt;  @ method           : chr "parametric_bootstrap"</span></span>
-<span><span class="co">#&gt;  @ n_boot           : int 200</span></span>
-<span><span class="co">#&gt;  @ boot_estimates   : num [1:200] 0.478 0.415 0.429 0.465 0.454 ...</span></span>
-<span><span class="co">#&gt;  @ ie_estimate      : num 0.164</span></span>
-<span><span class="co">#&gt;  @ ie_ci_lower      : Named num 0.102</span></span>
-<span><span class="co">#&gt;  .. - attr(*, "names")= chr "2.5%"</span></span>
-<span><span class="co">#&gt;  @ ie_ci_upper      : Named num 0.251</span></span>
-<span><span class="co">#&gt;  .. - attr(*, "names")= chr "97.5%"</span></span>
-<span><span class="co">#&gt;  @ ie_boot_estimates: num [1:200] 0.19 0.185 0.146 0.203 0.179 ...</span></span>
-<span><span class="co">#&gt;  @ x_ref            : num 0</span></span>
-<span><span class="co">#&gt;  @ x_value          : num 1</span></span>
-<span><span class="co">#&gt;  @ source_extract   : &lt;probmed::MediationExtract&gt;</span></span>
-<span><span class="co">#&gt;  .. @ estimates          : Named num [1:3] 0.471 0.349 0.193</span></span>
-<span><span class="co">#&gt;  .. .. - attr(*, "names")= chr [1:3] "a" "b" "cp"</span></span>
-<span><span class="co">#&gt;  .. @ mediator_predictors: chr "X"</span></span>
-<span><span class="co">#&gt;  .. @ outcome_predictors : chr [1:2] "M" "X"</span></span>
-<span><span class="co">#&gt;  .. @ a_path             : num 0.471</span></span>
-<span><span class="co">#&gt;  .. @ b_path             : num 0.349</span></span>
-<span><span class="co">#&gt;  .. @ c_prime            : num 0.193</span></span>
-<span><span class="co">#&gt;  .. @ vcov               : num [1:3, 1:3] 5.57e-03 -5.07e-19 -2.24e-19 -6.51e-19 4.68e-03 ...</span></span>
-<span><span class="co">#&gt;  .. .. - attr(*, "dimnames")=List of 2</span></span>
-<span><span class="co">#&gt;  .. ..  ..$ : chr [1:3] "a" "b" "cp"</span></span>
-<span><span class="co">#&gt;  .. ..  ..$ : chr [1:3] "a" "b" "cp"</span></span>
-<span><span class="co">#&gt;  .. @ sigma_m            : num 0.993</span></span>
-<span><span class="co">#&gt;  .. @ sigma_y            : num 0.961</span></span>
-<span><span class="co">#&gt;  .. @ data               :'data.frame':  200 obs. of  3 variables:</span></span>
-<span><span class="co">#&gt;  .. .. $ M: num  1.919 1.197 0.514 0.578 -0.35 ...</span></span>
-<span><span class="co">#&gt;  .. .. $ Y: num  0.582 -0.736 -0.117 0.217 0.557 ...</span></span>
-<span><span class="co">#&gt;  .. .. $ X: num  -0.5605 -0.2302 1.5587 0.0705 0.1293 ...</span></span>
-<span><span class="co">#&gt;  .. @ n_obs              : int 200</span></span>
-<span><span class="co">#&gt;  .. @ source_package     : chr "lavaan"</span></span>
-<span><span class="co">#&gt;  .. @ converged          : logi TRUE</span></span>
-<span><span class="co">#&gt;  .. @ treatment          : chr "X"</span></span>
-<span><span class="co">#&gt;  .. @ mediator           : chr "M"</span></span>
-<span><span class="co">#&gt;  .. @ outcome            : chr "Y"</span></span>
-<span><span class="co">#&gt;  @ converged        : logi TRUE</span></span>
-<span><span class="co">#&gt;  @ call             : NULL</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/pmed.html">pmed</a></span><span class="op">(</span><span class="va">extract</span>, method <span class="op">=</span> <span class="st">"parametric_bootstrap"</span>, n_boot <span class="op">=</span> <span class="fl">200</span>, seed <span class="op">=</span> <span class="fl">456</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section></section><section class="level2"><h2 id="models-with-covariates">Models with Covariates<a class="anchor" aria-label="anchor" href="#models-with-covariates"></a>
 </h2>
@@ -319,49 +178,7 @@
 <span><span class="va">extract_cov</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_mediation.html">extract_mediation</a></span><span class="op">(</span><span class="va">fit_cov</span>, treatment <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Compute P_med</span></span>
-<span><span class="fu"><a href="../reference/pmed.html">pmed</a></span><span class="op">(</span><span class="va">extract_cov</span>, method <span class="op">=</span> <span class="st">"plugin"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; &lt;probmed::PmedResult&gt;</span></span>
-<span><span class="co">#&gt;  @ estimate         : num 0.443</span></span>
-<span><span class="co">#&gt;  @ ci_lower         : num NA</span></span>
-<span><span class="co">#&gt;  @ ci_upper         : num NA</span></span>
-<span><span class="co">#&gt;  @ ci_level         : num NA</span></span>
-<span><span class="co">#&gt;  @ method           : chr "plugin"</span></span>
-<span><span class="co">#&gt;  @ n_boot           : int NA</span></span>
-<span><span class="co">#&gt;  @ boot_estimates   : num(0) </span></span>
-<span><span class="co">#&gt;  @ ie_estimate      : num 0.162</span></span>
-<span><span class="co">#&gt;  @ ie_ci_lower      : num NA</span></span>
-<span><span class="co">#&gt;  @ ie_ci_upper      : num NA</span></span>
-<span><span class="co">#&gt;  @ ie_boot_estimates: num(0) </span></span>
-<span><span class="co">#&gt;  @ x_ref            : num 0</span></span>
-<span><span class="co">#&gt;  @ x_value          : num 1</span></span>
-<span><span class="co">#&gt;  @ source_extract   : &lt;probmed::MediationExtract&gt;</span></span>
-<span><span class="co">#&gt;  .. @ estimates          : Named num [1:3] 0.461 0.352 0.191</span></span>
-<span><span class="co">#&gt;  .. .. - attr(*, "names")= chr [1:3] "a" "b" "cp"</span></span>
-<span><span class="co">#&gt;  .. @ mediator_predictors: chr [1:3] "X" "C1" "C2"</span></span>
-<span><span class="co">#&gt;  .. @ outcome_predictors : chr [1:4] "M" "X" "C1" "C2"</span></span>
-<span><span class="co">#&gt;  .. @ a_path             : num 0.461</span></span>
-<span><span class="co">#&gt;  .. @ b_path             : num 0.352</span></span>
-<span><span class="co">#&gt;  .. @ c_prime            : num 0.191</span></span>
-<span><span class="co">#&gt;  .. @ vcov               : num [1:3, 1:3] 5.60e-03 -3.71e-18 2.75e-18 -3.45e-18 4.67e-03 ...</span></span>
-<span><span class="co">#&gt;  .. .. - attr(*, "dimnames")=List of 2</span></span>
-<span><span class="co">#&gt;  .. ..  ..$ : chr [1:3] "a" "b" "cp"</span></span>
-<span><span class="co">#&gt;  .. ..  ..$ : chr [1:3] "a" "b" "cp"</span></span>
-<span><span class="co">#&gt;  .. @ sigma_m            : num 0.989</span></span>
-<span><span class="co">#&gt;  .. @ sigma_y            : num 0.957</span></span>
-<span><span class="co">#&gt;  .. @ data               :'data.frame':  200 obs. of  5 variables:</span></span>
-<span><span class="co">#&gt;  .. .. $ M : num  1.919 1.197 0.514 0.578 -0.35 ...</span></span>
-<span><span class="co">#&gt;  .. .. $ Y : num  0.582 -0.736 -0.117 0.217 0.557 ...</span></span>
-<span><span class="co">#&gt;  .. .. $ X : num  -0.5605 -0.2302 1.5587 0.0705 0.1293 ...</span></span>
-<span><span class="co">#&gt;  .. .. $ C1: num  -0.832 1.716 0.916 -0.46 -1.405 ...</span></span>
-<span><span class="co">#&gt;  .. .. $ C2: num  -1.147 -0.441 -1.558 0.544 -0.233 ...</span></span>
-<span><span class="co">#&gt;  .. @ n_obs              : int 200</span></span>
-<span><span class="co">#&gt;  .. @ source_package     : chr "lavaan"</span></span>
-<span><span class="co">#&gt;  .. @ converged          : logi TRUE</span></span>
-<span><span class="co">#&gt;  .. @ treatment          : chr "X"</span></span>
-<span><span class="co">#&gt;  .. @ mediator           : chr "M"</span></span>
-<span><span class="co">#&gt;  .. @ outcome            : chr "Y"</span></span>
-<span><span class="co">#&gt;  @ converged        : logi TRUE</span></span>
-<span><span class="co">#&gt;  @ call             : NULL</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/pmed.html">pmed</a></span><span class="op">(</span><span class="va">extract_cov</span>, method <span class="op">=</span> <span class="st">"plugin"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="standardized-estimates">Standardized Estimates<a class="anchor" aria-label="anchor" href="#standardized-estimates"></a>
 </h2>
@@ -374,35 +191,8 @@
 <span>  mediator <span class="op">=</span> <span class="st">"M"</span>, </span>
 <span>  standardized <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in `method(extract_mediation, lavaan)`(object = new("lavaan", version =</span></span>
-<span><span class="co">#&gt; "0.6-20", : Variance-covariance matrix corresponds to unstandardized estimates.</span></span>
-<span><span class="co">#&gt; Standard errors for standardized estimates may be incorrect if used directly.</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">extract_std</span><span class="op">)</span></span>
-<span><span class="co">#&gt; &lt;probmed::MediationExtract&gt;</span></span>
-<span><span class="co">#&gt;  @ estimates          : Named num [1:3] 0.407 0.353 0.169</span></span>
-<span><span class="co">#&gt;  .. - attr(*, "names")= chr [1:3] "a" "b" "cp"</span></span>
-<span><span class="co">#&gt;  @ mediator_predictors: chr "X"</span></span>
-<span><span class="co">#&gt;  @ outcome_predictors : chr [1:2] "M" "X"</span></span>
-<span><span class="co">#&gt;  @ a_path             : num 0.407</span></span>
-<span><span class="co">#&gt;  @ b_path             : num 0.353</span></span>
-<span><span class="co">#&gt;  @ c_prime            : num 0.169</span></span>
-<span><span class="co">#&gt;  @ vcov               : num [1:3, 1:3] 5.57e-03 -5.07e-19 -2.24e-19 -6.51e-19 4.68e-03 ...</span></span>
-<span><span class="co">#&gt;  .. - attr(*, "dimnames")=List of 2</span></span>
-<span><span class="co">#&gt;  ..  ..$ : chr [1:3] "a" "b" "cp"</span></span>
-<span><span class="co">#&gt;  ..  ..$ : chr [1:3] "a" "b" "cp"</span></span>
-<span><span class="co">#&gt;  @ sigma_m            : num 0.913</span></span>
-<span><span class="co">#&gt;  @ sigma_y            : num 0.893</span></span>
-<span><span class="co">#&gt;  @ data               :'data.frame': 200 obs. of  3 variables:</span></span>
-<span><span class="co">#&gt;  .. $ M: num  1.919 1.197 0.514 0.578 -0.35 ...</span></span>
-<span><span class="co">#&gt;  .. $ Y: num  0.582 -0.736 -0.117 0.217 0.557 ...</span></span>
-<span><span class="co">#&gt;  .. $ X: num  -0.5605 -0.2302 1.5587 0.0705 0.1293 ...</span></span>
-<span><span class="co">#&gt;  @ n_obs              : int 200</span></span>
-<span><span class="co">#&gt;  @ source_package     : chr "lavaan"</span></span>
-<span><span class="co">#&gt;  @ converged          : logi TRUE</span></span>
-<span><span class="co">#&gt;  @ treatment          : chr "X"</span></span>
-<span><span class="co">#&gt;  @ mediator           : chr "M"</span></span>
-<span><span class="co">#&gt;  @ outcome            : chr "Y"</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">extract_std</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="troubleshooting">Troubleshooting<a class="anchor" aria-label="anchor" href="#troubleshooting"></a>
 </h2>

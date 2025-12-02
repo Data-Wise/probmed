@@ -99,13 +99,7 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://data-wise.github.io/probmed/">probmed</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://imai.princeton.edu/projects/mechanisms.html" class="external-link">mediation</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading required package: MASS</span></span>
-<span><span class="co">#&gt; Loading required package: Matrix</span></span>
-<span><span class="co">#&gt; Loading required package: mvtnorm</span></span>
-<span><span class="co">#&gt; Loading required package: sandwich</span></span>
-<span><span class="co">#&gt; mediation: Causal Mediation Analysis</span></span>
-<span><span class="co">#&gt; Version: 4.5.1</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://imai.princeton.edu/projects/mechanisms.html" class="external-link">mediation</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="basic-usage">Basic Usage<a class="anchor" aria-label="anchor" href="#basic-usage"></a>
 </h2>
@@ -129,120 +123,13 @@
 <span><span class="co"># We use boot=FALSE here for speed, but you can use bootstrap in mediate()</span></span>
 <span><span class="va">med_out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mediation/man/mediate.html" class="external-link">mediate</a></span><span class="op">(</span><span class="va">model_m</span>, <span class="va">model_y</span>, treat <span class="op">=</span> <span class="st">"X"</span>, mediator <span class="op">=</span> <span class="st">"M"</span>, boot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">med_out</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Causal Mediation Analysis </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Quasi-Bayesian Confidence Intervals</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                 Estimate 95% CI Lower 95% CI Upper p-value    </span></span>
-<span><span class="co">#&gt; ACME            0.124547     0.034003     0.242980  &lt;2e-16 ***</span></span>
-<span><span class="co">#&gt; ADE             0.173342    -0.054517     0.398832   0.152    </span></span>
-<span><span class="co">#&gt; Total Effect    0.297889     0.069188     0.528637   0.016 *  </span></span>
-<span><span class="co">#&gt; Prop. Mediated  0.402200     0.100021     1.401127   0.016 *  </span></span>
-<span><span class="co">#&gt; ---</span></span>
-<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Sample Size Used: 100 </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Simulations: 1000</span></span>
 <span></span>
 <span><span class="co"># 3. Extract mediation structure</span></span>
 <span><span class="va">extract</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_mediation.html">extract_mediation</a></span><span class="op">(</span><span class="va">med_out</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">extract</span><span class="op">)</span></span>
-<span><span class="co">#&gt; &lt;probmed::MediationExtract&gt;</span></span>
-<span><span class="co">#&gt;  @ estimates          : Named num [1:7] 0.1351 0.3668 0.3238 -0.0193 0.3426 ...</span></span>
-<span><span class="co">#&gt;  .. - attr(*, "names")= chr [1:7] "(Intercept)" "X" "C" "(Intercept)" ...</span></span>
-<span><span class="co">#&gt;  @ mediator_predictors: chr [1:3] "(Intercept)" "X" "C"</span></span>
-<span><span class="co">#&gt;  @ outcome_predictors : chr [1:4] "(Intercept)" "M" "X" "C"</span></span>
-<span><span class="co">#&gt;  @ a_path             : num 0.367</span></span>
-<span><span class="co">#&gt;  @ b_path             : num 0.343</span></span>
-<span><span class="co">#&gt;  @ c_prime            : num 0.173</span></span>
-<span><span class="co">#&gt;  @ vcov               : num [1:7, 1:7] 0.009243 -0.000939 0.001007 0 0 ...</span></span>
-<span><span class="co">#&gt;  @ sigma_m            : num 0.951</span></span>
-<span><span class="co">#&gt;  @ sigma_y            : num 1.05</span></span>
-<span><span class="co">#&gt;  @ data               :'data.frame': 100 obs. of  3 variables:</span></span>
-<span><span class="co">#&gt;  .. $ M: num  1.705 1.274 0.44 0.474 -0.635 ...</span></span>
-<span><span class="co">#&gt;  .. $ X: num  -0.5605 -0.2302 1.5587 0.0705 0.1293 ...</span></span>
-<span><span class="co">#&gt;  .. $ C: num  -0.71 0.257 -0.247 -0.348 -0.952 ...</span></span>
-<span><span class="co">#&gt;  .. - attr(*, "terms")=Classes 'terms', 'formula'  language M ~ X + C</span></span>
-<span><span class="co">#&gt;  ..  .. ..- attr(*, "variables")= language list(M, X, C)</span></span>
-<span><span class="co">#&gt;  ..  .. ..- attr(*, "factors")= int [1:3, 1:2] 0 1 0 0 0 1</span></span>
-<span><span class="co">#&gt;  ..  .. .. ..- attr(*, "dimnames")=List of 2</span></span>
-<span><span class="co">#&gt;  ..  .. .. .. ..$ : chr [1:3] "M" "X" "C"</span></span>
-<span><span class="co">#&gt;  ..  .. .. .. ..$ : chr [1:2] "X" "C"</span></span>
-<span><span class="co">#&gt;  ..  .. ..- attr(*, "term.labels")= chr [1:2] "X" "C"</span></span>
-<span><span class="co">#&gt;  ..  .. ..- attr(*, "order")= int [1:2] 1 1</span></span>
-<span><span class="co">#&gt;  ..  .. ..- attr(*, "intercept")= int 1</span></span>
-<span><span class="co">#&gt;  ..  .. ..- attr(*, "response")= int 1</span></span>
-<span><span class="co">#&gt;  ..  .. ..- attr(*, ".Environment")=&lt;environment: R_GlobalEnv&gt; </span></span>
-<span><span class="co">#&gt;  ..  .. ..- attr(*, "predvars")= language list(M, X, C)</span></span>
-<span><span class="co">#&gt;  ..  .. ..- attr(*, "dataClasses")= Named chr [1:3] "numeric" "numeric" "numeric"</span></span>
-<span><span class="co">#&gt;  ..  .. .. ..- attr(*, "names")= chr [1:3] "M" "X" "C"</span></span>
-<span><span class="co">#&gt;  @ n_obs              : int 100</span></span>
-<span><span class="co">#&gt;  @ source_package     : chr "stats"</span></span>
-<span><span class="co">#&gt;  @ converged          : logi TRUE</span></span>
-<span><span class="co">#&gt;  @ treatment          : chr "X"</span></span>
-<span><span class="co">#&gt;  @ mediator           : chr "M"</span></span>
-<span><span class="co">#&gt;  @ outcome            : chr "Y"</span></span>
 <span></span>
 <span><span class="co"># 4. Compute P_med</span></span>
-<span><span class="fu"><a href="../reference/pmed.html">pmed</a></span><span class="op">(</span><span class="va">extract</span>, method <span class="op">=</span> <span class="st">"parametric_bootstrap"</span>, n_boot <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
-<span><span class="co">#&gt; &lt;probmed::PmedResult&gt;</span></span>
-<span><span class="co">#&gt;  @ estimate         : num 0.456</span></span>
-<span><span class="co">#&gt;  @ ci_lower         : Named num 0.387</span></span>
-<span><span class="co">#&gt;  .. - attr(*, "names")= chr "2.5%"</span></span>
-<span><span class="co">#&gt;  @ ci_upper         : Named num 0.529</span></span>
-<span><span class="co">#&gt;  .. - attr(*, "names")= chr "97.5%"</span></span>
-<span><span class="co">#&gt;  @ ci_level         : num 0.95</span></span>
-<span><span class="co">#&gt;  @ method           : chr "parametric_bootstrap"</span></span>
-<span><span class="co">#&gt;  @ n_boot           : int 200</span></span>
-<span><span class="co">#&gt;  @ boot_estimates   : num [1:200] 0.469 0.434 0.454 0.469 0.457 ...</span></span>
-<span><span class="co">#&gt;  @ ie_estimate      : num 0.131</span></span>
-<span><span class="co">#&gt;  @ ie_ci_lower      : Named num 0.0353</span></span>
-<span><span class="co">#&gt;  .. - attr(*, "names")= chr "2.5%"</span></span>
-<span><span class="co">#&gt;  @ ie_ci_upper      : Named num 0.267</span></span>
-<span><span class="co">#&gt;  .. - attr(*, "names")= chr "97.5%"</span></span>
-<span><span class="co">#&gt;  @ ie_boot_estimates: num [1:200] 0.073 0.08 0.14 0.198 0.267 ...</span></span>
-<span><span class="co">#&gt;  @ x_ref            : num 0</span></span>
-<span><span class="co">#&gt;  @ x_value          : num 1</span></span>
-<span><span class="co">#&gt;  @ source_extract   : &lt;probmed::MediationExtract&gt;</span></span>
-<span><span class="co">#&gt;  .. @ estimates          : Named num [1:7] 0.1351 0.3668 0.3238 -0.0193 0.3426 ...</span></span>
-<span><span class="co">#&gt;  .. .. - attr(*, "names")= chr [1:7] "(Intercept)" "X" "C" "(Intercept)" ...</span></span>
-<span><span class="co">#&gt;  .. @ mediator_predictors: chr [1:3] "(Intercept)" "X" "C"</span></span>
-<span><span class="co">#&gt;  .. @ outcome_predictors : chr [1:4] "(Intercept)" "M" "X" "C"</span></span>
-<span><span class="co">#&gt;  .. @ a_path             : num 0.367</span></span>
-<span><span class="co">#&gt;  .. @ b_path             : num 0.343</span></span>
-<span><span class="co">#&gt;  .. @ c_prime            : num 0.173</span></span>
-<span><span class="co">#&gt;  .. @ vcov               : num [1:7, 1:7] 0.009243 -0.000939 0.001007 0 0 ...</span></span>
-<span><span class="co">#&gt;  .. @ sigma_m            : num 0.951</span></span>
-<span><span class="co">#&gt;  .. @ sigma_y            : num 1.05</span></span>
-<span><span class="co">#&gt;  .. @ data               :'data.frame':  100 obs. of  3 variables:</span></span>
-<span><span class="co">#&gt;  .. .. $ M: num  1.705 1.274 0.44 0.474 -0.635 ...</span></span>
-<span><span class="co">#&gt;  .. .. $ X: num  -0.5605 -0.2302 1.5587 0.0705 0.1293 ...</span></span>
-<span><span class="co">#&gt;  .. .. $ C: num  -0.71 0.257 -0.247 -0.348 -0.952 ...</span></span>
-<span><span class="co">#&gt;  .. .. - attr(*, "terms")=Classes 'terms', 'formula'  language M ~ X + C</span></span>
-<span><span class="co">#&gt;  .. ..  .. ..- attr(*, "variables")= language list(M, X, C)</span></span>
-<span><span class="co">#&gt;  .. ..  .. ..- attr(*, "factors")= int [1:3, 1:2] 0 1 0 0 0 1</span></span>
-<span><span class="co">#&gt;  .. ..  .. .. ..- attr(*, "dimnames")=List of 2</span></span>
-<span><span class="co">#&gt;  .. ..  .. .. .. ..$ : chr [1:3] "M" "X" "C"</span></span>
-<span><span class="co">#&gt;  .. ..  .. .. .. ..$ : chr [1:2] "X" "C"</span></span>
-<span><span class="co">#&gt;  .. ..  .. ..- attr(*, "term.labels")= chr [1:2] "X" "C"</span></span>
-<span><span class="co">#&gt;  .. ..  .. ..- attr(*, "order")= int [1:2] 1 1</span></span>
-<span><span class="co">#&gt;  .. ..  .. ..- attr(*, "intercept")= int 1</span></span>
-<span><span class="co">#&gt;  .. ..  .. ..- attr(*, "response")= int 1</span></span>
-<span><span class="co">#&gt;  .. ..  .. ..- attr(*, ".Environment")=&lt;environment: R_GlobalEnv&gt; </span></span>
-<span><span class="co">#&gt;  .. ..  .. ..- attr(*, "predvars")= language list(M, X, C)</span></span>
-<span><span class="co">#&gt;  .. ..  .. ..- attr(*, "dataClasses")= Named chr [1:3] "numeric" "numeric" "numeric"</span></span>
-<span><span class="co">#&gt;  .. ..  .. .. ..- attr(*, "names")= chr [1:3] "M" "X" "C"</span></span>
-<span><span class="co">#&gt;  .. @ n_obs              : int 100</span></span>
-<span><span class="co">#&gt;  .. @ source_package     : chr "stats"</span></span>
-<span><span class="co">#&gt;  .. @ converged          : logi TRUE</span></span>
-<span><span class="co">#&gt;  .. @ treatment          : chr "X"</span></span>
-<span><span class="co">#&gt;  .. @ mediator           : chr "M"</span></span>
-<span><span class="co">#&gt;  .. @ outcome            : chr "Y"</span></span>
-<span><span class="co">#&gt;  @ converged        : logi TRUE</span></span>
-<span><span class="co">#&gt;  @ call             : NULL</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/pmed.html">pmed</a></span><span class="op">(</span><span class="va">extract</span>, method <span class="op">=</span> <span class="st">"parametric_bootstrap"</span>, n_boot <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section></section><section class="level2"><h2 id="why-use-probmed-with-mediation">Why use probmed with mediation?<a class="anchor" aria-label="anchor" href="#why-use-probmed-with-mediation"></a>
 </h2>
@@ -268,62 +155,7 @@
 <span></span>
 <span><span class="co"># Extract and compute P_med</span></span>
 <span><span class="va">extract_bin</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_mediation.html">extract_mediation</a></span><span class="op">(</span><span class="va">med_out_bin</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/pmed.html">pmed</a></span><span class="op">(</span><span class="va">extract_bin</span>, method <span class="op">=</span> <span class="st">"parametric_bootstrap"</span>, n_boot <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
-<span><span class="co">#&gt; &lt;probmed::PmedResult&gt;</span></span>
-<span><span class="co">#&gt;  @ estimate         : num 0.065</span></span>
-<span><span class="co">#&gt;  @ ci_lower         : Named num 0</span></span>
-<span><span class="co">#&gt;  .. - attr(*, "names")= chr "2.5%"</span></span>
-<span><span class="co">#&gt;  @ ci_upper         : Named num 1</span></span>
-<span><span class="co">#&gt;  .. - attr(*, "names")= chr "97.5%"</span></span>
-<span><span class="co">#&gt;  @ ci_level         : num 0.95</span></span>
-<span><span class="co">#&gt;  @ method           : chr "parametric_bootstrap"</span></span>
-<span><span class="co">#&gt;  @ n_boot           : int 200</span></span>
-<span><span class="co">#&gt;  @ boot_estimates   : num [1:200] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
-<span><span class="co">#&gt;  @ ie_estimate      : num 0.0782</span></span>
-<span><span class="co">#&gt;  @ ie_ci_lower      : Named num -0.0643</span></span>
-<span><span class="co">#&gt;  .. - attr(*, "names")= chr "2.5%"</span></span>
-<span><span class="co">#&gt;  @ ie_ci_upper      : Named num 0.282</span></span>
-<span><span class="co">#&gt;  .. - attr(*, "names")= chr "97.5%"</span></span>
-<span><span class="co">#&gt;  @ ie_boot_estimates: num [1:200] 0.0659 0.0928 0.0873 0.0323 0.0554 ...</span></span>
-<span><span class="co">#&gt;  @ x_ref            : num 0</span></span>
-<span><span class="co">#&gt;  @ x_value          : num 1</span></span>
-<span><span class="co">#&gt;  @ source_extract   : &lt;probmed::MediationExtract&gt;</span></span>
-<span><span class="co">#&gt;  .. @ estimates          : Named num [1:7] 0.135 0.367 0.324 -0.11 0.235 ...</span></span>
-<span><span class="co">#&gt;  .. .. - attr(*, "names")= chr [1:7] "(Intercept)" "X" "C" "(Intercept)" ...</span></span>
-<span><span class="co">#&gt;  .. @ mediator_predictors: chr [1:3] "(Intercept)" "X" "C"</span></span>
-<span><span class="co">#&gt;  .. @ outcome_predictors : chr [1:4] "(Intercept)" "M" "X" "C"</span></span>
-<span><span class="co">#&gt;  .. @ a_path             : num 0.367</span></span>
-<span><span class="co">#&gt;  .. @ b_path             : num 0.235</span></span>
-<span><span class="co">#&gt;  .. @ c_prime            : num 0.369</span></span>
-<span><span class="co">#&gt;  .. @ vcov               : num [1:7, 1:7] 0.009243 -0.000939 0.001007 0 0 ...</span></span>
-<span><span class="co">#&gt;  .. @ sigma_m            : num 0.951</span></span>
-<span><span class="co">#&gt;  .. @ sigma_y            : num NA</span></span>
-<span><span class="co">#&gt;  .. @ data               :'data.frame':  100 obs. of  3 variables:</span></span>
-<span><span class="co">#&gt;  .. .. $ M: num  1.705 1.274 0.44 0.474 -0.635 ...</span></span>
-<span><span class="co">#&gt;  .. .. $ X: num  -0.5605 -0.2302 1.5587 0.0705 0.1293 ...</span></span>
-<span><span class="co">#&gt;  .. .. $ C: num  -0.71 0.257 -0.247 -0.348 -0.952 ...</span></span>
-<span><span class="co">#&gt;  .. .. - attr(*, "terms")=Classes 'terms', 'formula'  language M ~ X + C</span></span>
-<span><span class="co">#&gt;  .. ..  .. ..- attr(*, "variables")= language list(M, X, C)</span></span>
-<span><span class="co">#&gt;  .. ..  .. ..- attr(*, "factors")= int [1:3, 1:2] 0 1 0 0 0 1</span></span>
-<span><span class="co">#&gt;  .. ..  .. .. ..- attr(*, "dimnames")=List of 2</span></span>
-<span><span class="co">#&gt;  .. ..  .. .. .. ..$ : chr [1:3] "M" "X" "C"</span></span>
-<span><span class="co">#&gt;  .. ..  .. .. .. ..$ : chr [1:2] "X" "C"</span></span>
-<span><span class="co">#&gt;  .. ..  .. ..- attr(*, "term.labels")= chr [1:2] "X" "C"</span></span>
-<span><span class="co">#&gt;  .. ..  .. ..- attr(*, "order")= int [1:2] 1 1</span></span>
-<span><span class="co">#&gt;  .. ..  .. ..- attr(*, "intercept")= int 1</span></span>
-<span><span class="co">#&gt;  .. ..  .. ..- attr(*, "response")= int 1</span></span>
-<span><span class="co">#&gt;  .. ..  .. ..- attr(*, ".Environment")=&lt;environment: R_GlobalEnv&gt; </span></span>
-<span><span class="co">#&gt;  .. ..  .. ..- attr(*, "predvars")= language list(M, X, C)</span></span>
-<span><span class="co">#&gt;  .. ..  .. ..- attr(*, "dataClasses")= Named chr [1:3] "numeric" "numeric" "numeric"</span></span>
-<span><span class="co">#&gt;  .. ..  .. .. ..- attr(*, "names")= chr [1:3] "M" "X" "C"</span></span>
-<span><span class="co">#&gt;  .. @ n_obs              : int 100</span></span>
-<span><span class="co">#&gt;  .. @ source_package     : chr "stats"</span></span>
-<span><span class="co">#&gt;  .. @ converged          : logi TRUE</span></span>
-<span><span class="co">#&gt;  .. @ treatment          : chr "X"</span></span>
-<span><span class="co">#&gt;  .. @ mediator           : chr "M"</span></span>
-<span><span class="co">#&gt;  .. @ outcome            : chr "Y_bin"</span></span>
-<span><span class="co">#&gt;  @ converged        : logi TRUE</span></span>
-<span><span class="co">#&gt;  @ call             : NULL</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/pmed.html">pmed</a></span><span class="op">(</span><span class="va">extract_bin</span>, method <span class="op">=</span> <span class="st">"parametric_bootstrap"</span>, n_boot <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section></section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
