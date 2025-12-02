@@ -3,7 +3,7 @@ pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   introduction: introduction.html
-last_built: 2025-12-02T03:19Z
+last_built: 2025-12-02T03:31Z
 urls:
   reference: https://data-wise.github.io/probmed/reference
   article: https://data-wise.github.io/probmed/articles

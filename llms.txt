@@ -227,4 +227,5 @@ transparency but are not intended for direct use by end users.
 
 ### Getting Started
 
-- [introduction](https://data-wise.github.io/probmed/articles/introduction.md):
+- [Introduction to
+  probmed](https://data-wise.github.io/probmed/articles/introduction.md):
