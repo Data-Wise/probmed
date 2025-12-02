@@ -11,8 +11,12 @@
 *   **$P_{med}$ Calculation**: Implemented `pmed()` function to compute the probabilistic effect size $P_{med}$ for mediation analysis.
 *   **GLM Support**: Added support for Generalized Linear Models (e.g., logistic regression) for both mediator and outcome.
 *   **Bootstrap Inference**: Added parametric and nonparametric bootstrap methods for confidence intervals.
+*   **lavaan Integration**: Added `extract_mediation()` support for SEM models fitted with the `lavaan` package, including FIML and robust estimators.
+*   **mediation Integration**: Added support for extracting mediation structures directly from `mediation::mediate()` objects.
 
 ## Documentation
 
 *   **Expanded README**: Added detailed explanation of $P_{med}$, features, and examples.
 *   **New Vignette**: Added "Introduction to probmed" vignette demonstrating linear and binary outcome examples.
+*   **Integration Vignettes**: Added dedicated vignettes for `lavaan` and `mediation` package integrations.
+*   **Comparison Vignette**: Added "Comparing probmed Workflows" to guide users on choosing the best integration method.
