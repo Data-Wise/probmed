@@ -132,15 +132,6 @@
 <span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">M</span>, <span class="va">Y</span>, <span class="va">C</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>            X          M             Y           C
-1 -0.60189285 -1.4648878 -1.6394155324 -0.56047565
-2 -0.99369859 -1.6058576 -1.1943754836 -0.23017749
-3  1.02678506  0.9630248  0.0002105782  1.55870831
-4  0.75106130  0.2645080  0.8971858963  0.07050839
-5 -1.50916654 -3.2651397 -0.4616766212  0.12928774
-6 -0.09514745  1.5075192  3.0542047502  1.71506499</code></pre>
-</div>
 </div>
 </section><section class="level3"><h3 id="estimate-p_med">2. Estimate <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math><a class="anchor" aria-label="anchor" href="#estimate-p_med"></a>
 </h3>
@@ -152,7 +143,7 @@
 </ul>
 <p>We will use the <strong>parametric bootstrap</strong> method for inference, which is fast and accurate for standard models.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pmed.html">pmed</a></span><span class="op">(</span></span>
 <span>    <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>, <span class="co"># Outcome model</span></span>
 <span>    formula_m <span class="op">=</span> <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>, <span class="co"># Mediator model</span></span>
@@ -168,24 +159,8 @@
 </h3>
 <p>We can print and summarize the results.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-P_med: Probability of Mediated Shift
-====================================
-
-Estimate: 0.349
-95% CI: [ 0.327 ,  0.375 ]
-
-Inference: parametric_bootstrap
-Bootstrap samples: 1000
-
-Treatment contrast: X = 1 vs. X* = 0
-
-Interpretation:
-  P(Y_{X*, M_X} &gt; Y_{X, M_X}) = 0.349 </code></pre>
-</div>
 </div>
 <p>The output shows the estimated <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> and its 95% confidence interval.</p>
 <ul>
@@ -196,33 +171,8 @@ Interpretation:
 </ul>
 <p>You can also get a more detailed summary:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-P_med: Probability of Mediated Shift
-====================================
-
-Estimate: 0.349
-95% CI: [ 0.327 ,  0.375 ]
-
-Inference: parametric_bootstrap
-Bootstrap samples: 1000
-
-Treatment contrast: X = 1 vs. X* = 0
-
-Interpretation:
-  P(Y_{X*, M_X} &gt; Y_{X, M_X}) = 0.349
-
-Bootstrap Distribution:
-   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
- 0.3118  0.3398  0.3488  0.3491  0.3575  0.3886
-
-Standard Error: 0.01269885
-
-Source: stats
-Sample size: 500 </code></pre>
-</div>
 </div>
 </section></section><section class="level2"><h2 id="advanced-example-binary-outcome-glm">Advanced Example: Binary Outcome (GLM)<a class="anchor" aria-label="anchor" href="#advanced-example-binary-outcome-glm"></a>
 </h2>
@@ -230,7 +180,7 @@ Sample size: 500 </code></pre>
 <section class="level3"><h3 id="simulate-binary-data">1. Simulate Binary Data<a class="anchor" aria-label="anchor" href="#simulate-binary-data"></a>
 </h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">456</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">500</span></span>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
@@ -248,7 +198,7 @@ Sample size: 500 </code></pre>
 </h3>
 <p>We simply specify <code>family_y = binomial()</code> to tell <code>probmed</code> that the outcome model is a logistic regression.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result_bin</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pmed.html">pmed</a></span><span class="op">(</span></span>
 <span>    <span class="va">Y_bin</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span>,</span>
 <span>    formula_m <span class="op">=</span> <span class="va">M</span> <span class="op">~</span> <span class="va">X</span>,</span>
@@ -262,22 +212,6 @@ Sample size: 500 </code></pre>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result_bin</span><span class="op">)</span></span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-P_med: Probability of Mediated Shift
-====================================
-
-Estimate: 0.378
-95% CI: [ 0.352 ,  0.405 ]
-
-Inference: parametric_bootstrap
-Bootstrap samples: 1000
-
-Treatment contrast: X = 1 vs. X* = 0
-
-Interpretation:
-  P(Y_{X*, M_X} &gt; Y_{X, M_X}) = 0.378 </code></pre>
-</div>
 </div>
 <p>The interpretation remains the same: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> is the probability of the outcome being “better” (higher latent utility or probability class) due to mediation.</p>
 </section></section><section class="level2"><h2 id="conclusion">Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
