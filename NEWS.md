@@ -13,6 +13,7 @@
 *   **Bootstrap Inference**: Added parametric and nonparametric bootstrap methods for confidence intervals.
 *   **lavaan Integration**: Added `extract_mediation()` support for SEM models fitted with the `lavaan` package, including FIML and robust estimators.
 *   **mediation Integration**: Added support for extracting mediation structures directly from `mediation::mediate()` objects.
+*   **Indirect Effect Reporting**: `pmed()` now reports the Indirect Effect (product of coefficients) alongside $P_{med}$, including bootstrap confidence intervals.
 
 ## Documentation
 
