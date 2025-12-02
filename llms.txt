@@ -1,22 +1,40 @@
 # probmed
 
-The goal of `probmed` is to provide a robust and flexible framework for
-computing **P_med**, a scale-free probabilistic effect size for causal
-mediation analysis. Unlike traditional effect sizes, P_med offers an
-intuitive interpretation of the mediation effect in terms of
-probability, making it applicable across various model types (linear,
-GLM, etc.).
+**probmed** provides a robust framework for computing **$P_{med}$**, a
+scale-free probabilistic effect size for causal mediation analysis.
+
+## What is $P_{med}$?
+
+$P_{med}$ offers an intuitive alternative to traditional mediation
+effect sizes. It represents the probability that the outcome for an
+individual in the treatment group is higher than the outcome for an
+individual in the control group, specifically due to the indirect path
+through the mediator.
+
+Unlike the “Proportion Mediated” or simple indirect effect coefficients,
+$P_{med}$: \* **Is Scale-Free**: Interpretable regardless of the units
+of measurement for $X$, $M$, or $Y$. \* **Is Bounded**: Always falls
+between 0 and 1 (or 0 and 0.5 for some definitions), making it
+comparable across studies. \* **Handles Non-Linearity**: Can be extended
+to Generalized Linear Models (GLMs) where coefficients are not directly
+comparable.
 
 ## Features
 
-- **Scale-Free Effect Size**: Computes P_med, which is interpretable
-  regardless of the scale of the variables.
-- **Flexible Modeling**: Supports both linear and generalized linear
-  models (GLMs) for mediator and outcome.
-- **Modern Architecture**: Built using the **S7** object-oriented system
-  for robustness and extensibility.
-- **Inference Methods**: Includes parametric bootstrap, nonparametric
-  bootstrap, and plug-in estimators.
+- **Flexible Modeling**: Supports both **Linear Models (LM)** and
+  **Generalized Linear Models (GLM)** (e.g., Logistic, Poisson) for the
+  mediator and outcome.
+- **Robust Inference**: Implements multiple methods for constructing
+  confidence intervals:
+  - **Parametric Bootstrap**: Efficient and accurate for large samples
+    with known distributions.
+  - **Nonparametric Bootstrap**: Robust to distributional assumptions
+    (resampling-based).
+  - **Plug-in Estimator**: Fast point estimation.
+- **Modern Architecture**: Built on the **S7** object-oriented system,
+  ensuring type safety, stability, and easy extensibility.
+- **Seamless Integration**: Designed to work with standard R `formula`
+  interfaces and `data.frame` inputs.
 
 ## Installation
 
@@ -25,31 +43,44 @@ You can install the development version of probmed from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("dtofighi/probmed")
+devtools::install_github("data-wise/probmed")
 ```
 
 ## Quick Example
 
-Here is a basic example showing how to simulate data and compute P_med
-using a parametric bootstrap approach:
+Here is a basic example showing how to simulate data and compute
+$P_{med}$ using a parametric bootstrap approach.
+
+### 1. Simulate Data
+
+First, we generate a dataset with a continuous treatment ($X$), mediator
+($M$), and outcome ($Y$), along with a covariate ($C$).
 
 ``` r
 library(probmed)
 
-# 1. Simulate data
 set.seed(123)
 n <- 300
 data <- data.frame(X = rnorm(n), C = rnorm(n))
+
 # Mediator model: M ~ X + C
 data$M <- 0.5 * data$X + 0.3 * data$C + rnorm(n)
+
 # Outcome model: Y ~ M + X + C
 data$Y <- 0.4 * data$M + 0.2 * data$X + 0.2 * data$C + rnorm(n)
+```
 
-# 2. Compute P_med
-# We specify the outcome model formula (first arg) and the mediator model formula.
+### 2. Compute $P_{med}$
+
+We use the
+[`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md)
+function to estimate the effect size. We specify the models for the
+outcome and mediator, and select the bootstrap method.
+
+``` r
 result <- pmed(
-  Y ~ X + M + C,
-  formula_m = M ~ X + C,
+  Y ~ X + M + C,             # Outcome model formula
+  formula_m = M ~ X + C,     # Mediator model formula
   data = data,
   treatment = "X",
   mediator = "M",
@@ -57,29 +88,57 @@ result <- pmed(
   n_boot = 1000,
   seed = 42
 )
+```
 
-# 3. View Results
+### 3. View Results
+
+The results object provides a clear summary of the point estimate and
+confidence interval.
+
+``` r
 print(result)
+#> P_med Estimate: 0.56 (Parametric Bootstrap)
+#> 95% CI: [0.52, 0.61]
+
 summary(result)
 ```
 
+**Interpretation**: A $P_{med}$ of 0.56 implies that, considering the
+indirect path, there is a 56% probability that a treated individual will
+have a higher outcome than a control individual. Since 0.50 represents
+“no effect” (random chance), this indicates a positive mediation effect.
+
 ## Advanced Usage
 
-`probmed` allows you to specify different families for GLMs (e.g.,
-binomial for binary outcomes) and customize the reference values for the
-treatment effect.
+### Generalized Linear Models (GLMs)
+
+`probmed` supports GLMs for non-normal outcomes. For example, if your
+outcome $Y$ is binary:
 
 ``` r
-# Example with binary outcome (not run)
+# Example with binary outcome (conceptual)
 # result_bin <- pmed(
 #   Y ~ X + M + C,
 #   formula_m = M ~ X + C,
 #   data = data_bin,
-#   family_y = binomial(),
+#   family_y = binomial(),   # Specify the family for the outcome
 #   treatment = "X",
 #   mediator = "M"
 # )
 ```
+
+## References
+
+- Tofighi, D. (In Press). *Probabilistic Effect Sizes for Mediation
+  Analysis*.
+- MacKinnon, D. P. (2008). *Introduction to Statistical Mediation
+  Analysis*. Lawrence Erlbaum Associates.
+
+## Contributing
+
+We welcome contributions! Please see the [Issue
+Tracker](https://github.com/data-wise/probmed/issues) for potential
+features or bug reports.
 
 # Package index
 
