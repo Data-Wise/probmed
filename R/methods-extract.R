@@ -20,14 +20,46 @@ S7::method(extract_mediation, lm_class) <- function(object,
   # Extract from models (object is model_m)
   model_m <- object
 
+  # Extract coefficients early for validation
+  coefs_m <- stats::coef(model_m)
+  coefs_y <- stats::coef(model_y)
+
+  # Validate treatment variable exists in mediator model
+  if (!(treatment %in% names(coefs_m))) {
+    stop(
+      "Treatment variable '", treatment, "' not found in mediator model.\n",
+      "Available predictors: ", paste(names(coefs_m), collapse = ", ")
+    )
+  }
+
+  # Validate mediator variable exists in outcome model
+  if (!(mediator %in% names(coefs_y))) {
+    stop(
+      "Mediator variable '", mediator, "' not found in outcome model.\n",
+      "Available predictors: ", paste(names(coefs_y), collapse = ", ")
+    )
+  }
+
+  # Validate treatment variable exists in outcome model
+  if (!(treatment %in% names(coefs_y))) {
+    stop(
+      "Treatment variable '", treatment, "' not found in outcome model.\n",
+      "For mediation analysis, the outcome model should include both treatment and mediator.\n",
+      "Available predictors: ", paste(names(coefs_y), collapse = ", ")
+    )
+  }
+
   # Get data
   if (is.null(data)) {
     data <- model_m$model
+    if (is.null(data)) {
+      warning(
+        "No data available in model object. ",
+        "Bootstrap methods will not work. ",
+        "Provide data explicitly via the 'data' argument."
+      )
+    }
   }
-
-  # Extract coefficients
-  coefs_m <- stats::coef(model_m)
-  coefs_y <- stats::coef(model_y)
 
   # Get path coefficients
   a_path <- coefs_m[treatment]
