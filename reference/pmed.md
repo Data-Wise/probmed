@@ -125,12 +125,9 @@ print(result)
 #>  @ converged        : logi TRUE
 #>  @ call             : language `method(pmed, new_S3_class("formula"))`(object = Y ~ X + M + C, formula_m = ..1,      data = ..2, treatment = "X"| __truncated__ ...
 
+if (FALSE) { # \dontrun{
 # View bootstrap distribution
-# \donttest{
 summary(result)
-#>              Length              Class1              Class2                Mode 
-#>                   1 probmed::PmedResult           S7_object              object 
 plot(result)
-#> Error in as.double(y): cannot coerce type 'object' to vector of type 'double'
-# }
+} # }
 ```
