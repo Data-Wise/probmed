@@ -103,6 +103,10 @@ MediationExtract <- S7::new_class(
 #' @param method Character: inference method used
 #' @param n_boot Integer: number of bootstrap samples (NA if not bootstrap)
 #' @param boot_estimates Numeric vector: bootstrap distribution (empty if not bootstrap)
+#' @param ie_estimate Numeric: Indirect Effect (NIE) point estimate
+#' @param ie_ci_lower Numeric: lower bound of NIE confidence interval
+#' @param ie_ci_upper Numeric: upper bound of NIE confidence interval
+#' @param ie_boot_estimates Numeric vector: bootstrap distribution of NIE
 #' @param x_ref Numeric: reference treatment value
 #' @param x_value Numeric: treatment value for contrast
 #' @param source_extract MediationExtract object: source of the estimates
@@ -131,6 +135,15 @@ PmedResult <- S7::new_class(
 
     # Bootstrap distribution (if applicable)
     boot_estimates = S7::new_property(
+      class = S7::class_numeric,
+      default = numeric(0)
+    ),
+
+    # Indirect Effect (NIE)
+    ie_estimate = S7::new_property(class = S7::class_numeric, default = NA_real_),
+    ie_ci_lower = S7::new_property(class = S7::class_numeric, default = NA_real_),
+    ie_ci_upper = S7::new_property(class = S7::class_numeric, default = NA_real_),
+    ie_boot_estimates = S7::new_property(
       class = S7::class_numeric,
       default = numeric(0)
     ),

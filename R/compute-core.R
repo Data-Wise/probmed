@@ -38,6 +38,9 @@
     n_sim = n_sim
   )
 
+  # Compute Indirect Effect (a * b)
+  ie_est <- a * b
+
   PmedResult(
     estimate = pmed_est,
     ci_lower = NA_real_,
@@ -45,6 +48,9 @@
     ci_level = NA_real_,
     method = "plugin",
     n_boot = NA_integer_,
+    ie_estimate = ie_est,
+    ie_ci_lower = NA_real_,
+    ie_ci_upper = NA_real_,
     x_ref = x_ref,
     x_value = x_value,
     source_extract = extract,

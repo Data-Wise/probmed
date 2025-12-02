@@ -16,9 +16,10 @@
   )
 
   # Extract indices for a, b, c'
+  n_m <- length(extract@mediator_predictors)
   idx_a <- which(extract@mediator_predictors == extract@treatment)
-  idx_b <- which(extract@outcome_predictors == extract@mediator)
-  idx_c <- which(extract@outcome_predictors == extract@treatment)
+  idx_b <- n_m + which(extract@outcome_predictors == extract@mediator)
+  idx_c <- n_m + which(extract@outcome_predictors == extract@treatment)
 
   # Extract sigma values
   sigma_y <- extract@sigma_y
@@ -43,6 +44,10 @@
   alpha <- 1 - ci_level
   ci <- stats::quantile(boot_estimates, probs = c(alpha / 2, 1 - alpha / 2), na.rm = TRUE)
 
+  # Compute IE bootstrap estimates
+  ie_boot_estimates <- theta_star[, idx_a] * theta_star[, idx_b]
+  ie_ci <- stats::quantile(ie_boot_estimates, probs = c(alpha / 2, 1 - alpha / 2), na.rm = TRUE)
+
   PmedResult(
     estimate = mean(boot_estimates, na.rm = TRUE),
     ci_lower = ci[1],
@@ -51,6 +56,10 @@
     method = "parametric_bootstrap",
     n_boot = as.integer(n_boot),
     boot_estimates = boot_estimates,
+    ie_estimate = mean(ie_boot_estimates, na.rm = TRUE),
+    ie_ci_lower = ie_ci[1],
+    ie_ci_upper = ie_ci[2],
+    ie_boot_estimates = ie_boot_estimates,
     x_ref = x_ref,
     x_value = x_value,
     source_extract = extract,
@@ -71,6 +80,7 @@
   n <- nrow(data)
 
   boot_estimates <- numeric(n_boot)
+  ie_boot_estimates <- numeric(n_boot)
 
   for (i in seq_len(n_boot)) {
     # Resample data
@@ -78,14 +88,14 @@
     boot_data <- data[boot_indices, ]
 
     # Refit models
-    formula_m <- stats::reformulate(
-      extract@mediator_predictors,
-      response = extract@mediator
-    )
-    formula_y <- stats::reformulate(
-      extract@outcome_predictors,
-      response = extract@outcome
-    )
+    # Refit models
+    preds_m <- setdiff(extract@mediator_predictors, "(Intercept)")
+    if (length(preds_m) == 0) preds_m <- "1"
+    formula_m <- stats::reformulate(preds_m, response = extract@mediator)
+
+    preds_y <- setdiff(extract@outcome_predictors, "(Intercept)")
+    if (length(preds_y) == 0) preds_y <- "1"
+    formula_y <- stats::reformulate(preds_y, response = extract@outcome)
 
     fit_m_boot <- stats::glm(formula_m, data = boot_data)
     fit_y_boot <- stats::glm(formula_y, data = boot_data)
@@ -107,11 +117,17 @@
       sigma_y = sigma_y_boot,
       sigma_m = sigma_m_boot
     )
+
+    # Compute IE
+    ie_boot_estimates[i] <- a_boot * b_boot
   }
 
   # Compute confidence interval
   alpha <- 1 - ci_level
   ci <- stats::quantile(boot_estimates, probs = c(alpha / 2, 1 - alpha / 2), na.rm = TRUE)
+
+  # Compute IE CI
+  ie_ci <- stats::quantile(ie_boot_estimates, probs = c(alpha / 2, 1 - alpha / 2), na.rm = TRUE)
 
   PmedResult(
     estimate = mean(boot_estimates, na.rm = TRUE),
@@ -121,6 +137,10 @@
     method = "nonparametric_bootstrap",
     n_boot = as.integer(n_boot),
     boot_estimates = boot_estimates,
+    ie_estimate = mean(ie_boot_estimates, na.rm = TRUE),
+    ie_ci_lower = ie_ci[1],
+    ie_ci_upper = ie_ci[2],
+    ie_boot_estimates = ie_boot_estimates,
     x_ref = x_ref,
     x_value = x_value,
     source_extract = extract,
