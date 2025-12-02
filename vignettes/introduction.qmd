@@ -44,6 +44,7 @@ Let's demonstrate `probmed` with a simple linear mediation model. We will simula
 
 ```{r}
 #| label: setup
+#| eval: false
 library(probmed)
 
 set.seed(123)
@@ -79,6 +80,7 @@ We will use the **parametric bootstrap** method for inference, which is fast and
 
 ```{r}
 #| label: estimate
+#| eval: false
 result <- pmed(
     Y ~ X + M + C, # Outcome model
     formula_m = M ~ X + C, # Mediator model
@@ -97,6 +99,7 @@ We can print and summarize the results.
 
 ```{r}
 #| label: print
+#| eval: false
 print(result)
 ```
 
@@ -109,6 +112,7 @@ You can also get a more detailed summary:
 
 ```{r}
 #| label: summary
+#| eval: false
 summary(result)
 ```
 
@@ -120,6 +124,7 @@ summary(result)
 
 ```{r}
 #| label: sim-binary
+#| eval: false
 set.seed(456)
 n <- 500
 X <- rnorm(n)
@@ -140,6 +145,7 @@ We simply specify `family_y = binomial()` to tell `probmed` that the outcome mod
 
 ```{r}
 #| label: estimate-binary
+#| eval: false
 result_bin <- pmed(
     Y_bin ~ X + M,
     formula_m = M ~ X,
