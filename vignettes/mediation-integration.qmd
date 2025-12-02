@@ -30,6 +30,7 @@ install.packages("mediation")
 Load the packages:
 
 ```{r}
+#| eval: false
 library(probmed)
 library(mediation)
 ```

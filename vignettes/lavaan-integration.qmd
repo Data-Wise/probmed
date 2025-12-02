@@ -30,6 +30,7 @@ install.packages("lavaan")
 Load the packages:
 
 ```{r}
+#| eval: false
 library(probmed)
 library(lavaan)
 ```

@@ -37,6 +37,7 @@ The `probmed` package is designed to be flexible, allowing you to extract mediat
 This is the most direct method. You fit two separate models: one for the mediator and one for the outcome.
 
 ```{r}
+#| eval: false
 library(probmed)
 
 # Simulate data
