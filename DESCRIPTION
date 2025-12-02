@@ -1,15 +1,14 @@
 Package: probmed
 Title: Probabilistic Effect Sizes for Causal Mediation Analysis
 Version: 0.0.0.9000
-Authors@R: person("Davood", "Tofighi",
-        email = "dtofighi@gmail.com",
-        role = c("aut", "cre"),
-        comment= c(ORCID= "0000-0001-8523-7776")
-        )
+Authors@R: person(given = "Davood", family = "Tofighi",
+    email = "dtofighi@gmail.com",
+    role = c("aut", "cre"),
+    comment = c(ORCID = "0000-0001-8523-7776"))
 Description: Compute P_med, a scale-free probabilistic effect size for
     causal mediation analysis.
 License: MIT + file LICENSE
-URL: https://data-wise.github.io/probmed, https://github.com/data-wise/probmed
+URL: https://data-wise.github.io/probmed/, https://github.com/data-wise/probmed
 BugReports: https://github.com/data-wise/probmed/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
