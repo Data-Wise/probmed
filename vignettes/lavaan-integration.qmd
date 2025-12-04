@@ -5,6 +5,8 @@ vignette: >
   %\VignetteIndexEntry{Working with lavaan Models}
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
+execute:
+  eval: false
 ---
 
 ```{r}

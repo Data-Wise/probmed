@@ -13,3 +13,7 @@
 ^pkgdown$
 ^CODE_OF_CONDUCT\.md$
 ^vignettes/\.quarto$
+^vignettes/lavaan-integration\.qmd$
+^vignettes/lavaan-integration_files$
+^vignettes/mediation-integration\.qmd$
+^vignettes/mediation-integration_files$

@@ -24,7 +24,10 @@ Suggests:
     quarto
 Config/testthat/edition: 3
 Imports:
+    medfit,
     methods,
     S7 (>= 0.2.1),
     stats
+Remotes:
+    data-wise/medfit
 VignetteBuilder: knitr, quarto

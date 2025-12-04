@@ -1,69 +1,21 @@
-#' Extract Mediation Structure
+#' Re-export extract_mediation from medfit
 #'
 #' @description
-#' Generic function to extract mediation structure (a, b, c' paths and
-#' variance-covariance matrices) from fitted models. Supports multiple
-#' model types including lm/glm, lavaan SEM objects, and mediation package
-#' objects.
+#' Generic function to extract mediation structure from fitted models.
+#' This function is provided by the medfit package and re-exported here
+#' for convenience.
 #'
-#' @param object Fitted model object (lm, glm, lavaan, or mediate)
-#' @param ... Additional arguments passed to methods. Common arguments include:
-#'   \itemize{
-#'     \item \code{treatment}: Character name of treatment variable
-#'     \item \code{mediator}: Character name of mediator variable
-#'     \item \code{outcome}: Character name of outcome variable (auto-detected for lavaan)
-#'     \item \code{model_y}: Outcome model (for lm/glm methods)
-#'     \item \code{data}: Data frame (for lm/glm methods)
-#'   }
+#' @param object Fitted model object
+#' @param ... Additional arguments passed to methods
 #'
-#' @return \code{MediationExtract} object containing:
-#'   \itemize{
-#'     \item Path coefficients (a, b, c')
-#'     \item Variance-covariance matrix
-#'     \item Residual standard deviations
-#'     \item Variable names and metadata
-#'   }
+#' @return A \code{medfit::MediationData} object
 #'
-#' @examples
-#' # Example 1: Extract from lm objects
-#' set.seed(123)
-#' data <- data.frame(X = rnorm(100), C = rnorm(100))
-#' data$M <- 0.5 * data$X + 0.3 * data$C + rnorm(100)
-#' data$Y <- 0.4 * data$M + 0.2 * data$X + rnorm(100)
-#'
-#' model_m <- lm(M ~ X + C, data = data)
-#' model_y <- lm(Y ~ M + X + C, data = data)
-#' extract <- extract_mediation(model_m, model_y = model_y,
-#'                               treatment = "X", mediator = "M", data = data)
-#' print(extract)
-#'
-#' \donttest{
-#' # Example 2: Extract from lavaan
-#' if (requireNamespace("lavaan", quietly = TRUE)) {
-#'   library(lavaan)
-#'   model <- 'M ~ a*X + C
-#'             Y ~ b*M + cp*X + C'
-#'   fit <- sem(model, data = data)
-#'   extract <- extract_mediation(fit, treatment = "X", mediator = "M")
-#'   print(extract)
-#' }
-#'
-#' # Example 3: Extract from mediate object
-#' if (requireNamespace("mediation", quietly = TRUE)) {
-#'   library(mediation)
-#'   med_out <- mediation::mediate(model_m, model_y,
-#'                                  treat = "X", mediator = "M", boot = FALSE)
-#'   extract <- extract_mediation(med_out)
-#'   print(extract)
-#' }
-#' }
-#'
-#' @seealso \code{\link{pmed}} for computing P_med from extracted objects
+#' @seealso \code{\link[medfit]{extract_mediation}} for full documentation
+#' @importFrom medfit extract_mediation
 #' @export
-extract_mediation <- S7::new_generic(
-  "extract_mediation",
-  dispatch_args = "object"
-)
+#' @name extract_mediation
+NULL
+
 
 #' Compute P_med: Probabilistic Effect Size for Mediation
 #'
@@ -79,7 +31,7 @@ extract_mediation <- S7::new_generic(
 #' @param object Either:
 #'   \itemize{
 #'     \item A \code{formula} for the outcome model (most common)
-#'     \item A \code{MediationExtract} object from \code{extract_mediation()}
+#'     \item A \code{medfit::MediationData} object from \code{extract_mediation()}
 #'   }
 #' @param ... Additional arguments passed to methods (see method documentation)
 #'

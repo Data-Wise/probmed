@@ -10,7 +10,7 @@ pmed(object, ...)
 \item{object}{Either:
 \itemize{
 \item A \code{formula} for the outcome model (most common)
-\item A \code{MediationExtract} object from \code{extract_mediation()}
+\item A \code{medfit::MediationData} object from \code{extract_mediation()}
 }}
 
 \item{...}{Additional arguments passed to methods (see method documentation)}

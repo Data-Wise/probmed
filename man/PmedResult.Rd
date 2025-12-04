@@ -18,7 +18,7 @@ PmedResult(
   ie_boot_estimates = numeric(0),
   x_ref = integer(0),
   x_value = integer(0),
-  source_extract = MediationExtract(),
+  source_extract = NULL,
   converged = logical(0),
   call = NULL
 )
@@ -50,7 +50,7 @@ PmedResult(
 
 \item{x_value}{Numeric: treatment value for contrast}
 
-\item{source_extract}{MediationExtract object: source of the estimates}
+\item{source_extract}{medfit::MediationData object: source of the estimates}
 
 \item{converged}{Logical: did computation converge}
 
