@@ -1,19 +1,19 @@
 
-
 <!-- README.md is generated from README.qmd. Please edit that file -->
 
 # probmed <img src="man/figures/logo.png" align="right" height="139" />
 
 <!-- badges: start -->
 
-[![CRAN
-status](https://www.r-pkg.org/badges/version/probmed.png)](https://CRAN.R-project.org/package=probmed)
-[![Website
-Status](https://img.shields.io/website?url=https%3A%2F%2Fdata-wise.github.io%2Fprobmed%2F)](https://data-wise.github.io/probmed/)
 [![Lifecycle:
 stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
-[![R-hub](https://github.com/data-wise/probmed/actions/workflows/rhub.yaml/badge.svg)](https://github.com/data-wise/probmed/actions/workflows/rhub.yaml)
+[![Repo
+Status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![R-CMD-check](https://github.com/data-wise/probmed/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/data-wise/probmed/actions/workflows/R-CMD-check.yaml)
+[![Website
+Status](https://github.com/data-wise/probmed/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/data-wise/probmed/actions/workflows/pkgdown.yaml)
+[![R-hub](https://github.com/data-wise/probmed/actions/workflows/rhub.yaml/badge.svg)](https://github.com/data-wise/probmed/actions/workflows/rhub.yaml)
+[![Codecov](https://codecov.io/gh/data-wise/probmed/graph/badge.svg)](https://codecov.io/gh/data-wise/probmed)
 <!-- badges: end -->
 
 **probmed** provides a robust framework for computing **$P_{med}$**, a
@@ -62,17 +62,20 @@ comparable.
 
 ## Mediationverse Ecosystem
 
-**probmed** is part of the **mediationverse** ecosystem for mediation analysis in R:
+**probmed** is part of the **mediationverse** ecosystem for mediation
+analysis in R:
 
 | Package | Purpose | Role |
-|---------|---------|------|
+|----|----|----|
 | [**medfit**](https://github.com/data-wise/medfit) | Model fitting, extraction, bootstrap | Foundation |
 | **probmed** (this) | Probabilistic effect size (P_med) | Application |
 | [**RMediation**](https://github.com/data-wise/rmediation) | Confidence intervals (DOP, MBCO) | Application |
 | [**medrobust**](https://github.com/data-wise/medrobust) | Sensitivity analysis | Application |
 | [**medsim**](https://github.com/data-wise/medsim) | Simulation infrastructure | Support |
 
-See [Ecosystem Coordination](https://github.com/data-wise/medfit/blob/main/planning/ECOSYSTEM.md) for version compatibility and development guidelines.
+See [Ecosystem
+Coordination](https://github.com/data-wise/medfit/blob/main/planning/ECOSYSTEM.md)
+for version compatibility and development guidelines.
 
 ## Installation
 
