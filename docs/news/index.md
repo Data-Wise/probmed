@@ -23,6 +23,18 @@
   logistic regression) for both mediator and outcome.
 - **Bootstrap Inference**: Added parametric and nonparametric bootstrap
   methods for confidence intervals.
+- **lavaan Integration**: Added
+  [`extract_mediation()`](https://data-wise.github.io/probmed/reference/extract_mediation.md)
+  support for SEM models fitted with the `lavaan` package, including
+  FIML and robust estimators.
+- **mediation Integration**: Added support for extracting mediation
+  structures directly from
+  [`mediation::mediate()`](https://rdrr.io/pkg/mediation/man/mediate.html)
+  objects.
+- **Indirect Effect Reporting**:
+  [`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md) now
+  reports the Indirect Effect (product of coefficients) alongside
+  $`P_{med}`$, including bootstrap confidence intervals.
 
 ### Documentation
 
@@ -30,3 +42,7 @@
   features, and examples.
 - **New Vignette**: Added “Introduction to probmed” vignette
   demonstrating linear and binary outcome examples.
+- **Integration Vignettes**: Added dedicated vignettes for `lavaan` and
+  `mediation` package integrations.
+- **Comparison Vignette**: Added “Comparing probmed Workflows” to guide
+  users on choosing the best integration method.

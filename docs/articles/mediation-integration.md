@@ -1,0 +1,99 @@
+# Integration with the mediation Package
+
+The `probmed` package can extract mediation structures directly from
+objects created by the popular `mediation` package. This allows you to
+easily compute $`P_{med}`$ for models you have already fitted using
+[`mediation::mediate()`](https://rdrr.io/pkg/mediation/man/mediate.html).
+
+## Prerequisites
+
+Ensure you have both `probmed` and `mediation` installed:
+
+``` r
+
+install.packages("mediation")
+# install.packages("probmed") # Not on CRAN yet
+```
+
+Load the packages:
+
+``` r
+
+library(probmed)
+library(mediation)
+```
+
+## Basic Usage
+
+The workflow is simple: 1. Fit your mediator and outcome models (using
+`lm`, `glm`, etc.). 2. Run
+[`mediation::mediate()`](https://rdrr.io/pkg/mediation/man/mediate.html).
+3. Pass the resulting object to
+[`extract_mediation()`](https://data-wise.github.io/probmed/reference/extract_mediation.md).
+4. Compute
+[`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md).
+
+### Example: Linear Mediation
+
+``` r
+
+# Simulate data
+set.seed(123)
+n <- 100
+data <- data.frame(X = rnorm(n), C = rnorm(n))
+data$M <- 0.5 * data$X + 0.3 * data$C + rnorm(n)
+data$Y <- 0.4 * data$M + 0.2 * data$X + 0.1 * data$C + rnorm(n)
+
+# 1. Fit models
+model_m <- lm(M ~ X + C, data = data)
+model_y <- lm(Y ~ M + X + C, data = data)
+
+# 2. Run mediate
+# We use boot=FALSE here for speed, but you can use bootstrap in mediate()
+med_out <- mediate(model_m, model_y, treat = "X", mediator = "M", boot = FALSE)
+summary(med_out)
+
+# 3. Extract mediation structure
+extract <- extract_mediation(med_out)
+print(extract)
+
+# 4. Compute P_med
+pmed(extract, method = "parametric_bootstrap", n_boot = 200)
+```
+
+## Why use probmed with mediation?
+
+While the `mediation` package provides excellent tools for estimating
+natural direct and indirect effects (ADE and ACME), `probmed` adds the
+**Probabilistic Index of Mediation ($`P_{med}`$)**.
+
+$`P_{med}`$ is a scale-free effect size that represents the probability
+that the outcome for a treated individual is higher than for a control
+individual, specifically due to the indirect path. This complements the
+raw effect estimates provided by `mediation`.
+
+## Supported Models
+
+Since `probmed` extracts the underlying `lm` or `glm` objects from the
+`mediate` object, it supports any model type that `probmed` supports
+(currently Linear Models and Generalized Linear Models).
+
+### Example: Binary Outcome (GLM)
+
+``` r
+
+# Simulate binary outcome
+data$Y_prob <- plogis(0.4 * data$M + 0.2 * data$X)
+data$Y_bin <- rbinom(n, 1, data$Y_prob)
+
+# Fit models
+model_m <- lm(M ~ X + C, data = data)
+model_y <- glm(Y_bin ~ M + X + C, data = data, family = binomial)
+
+# Run mediate
+med_out_bin <- mediate(model_m, model_y, treat = "X", mediator = "M", boot = FALSE)
+
+# Extract and compute P_med
+extract_bin <- extract_mediation(med_out_bin)
+pmed(extract_bin, method = "parametric_bootstrap", n_boot = 200)
+```

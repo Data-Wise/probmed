@@ -24,6 +24,9 @@ comparable.
 - **Flexible Modeling**: Supports both **Linear Models (LM)** and
   **Generalized Linear Models (GLM)** (e.g., Logistic, Poisson) for the
   mediator and outcome.
+- **Comprehensive Effect Reporting**: Provides both $`P_{med}`$
+  (probabilistic effect size) and the traditional Indirect Effect
+  ($`a \times b`$) with bootstrap confidence intervals.
 - **Robust Inference**: Implements multiple methods for constructing
   confidence intervals:
   - **Parametric Bootstrap**: Efficient and accurate for large samples
@@ -33,8 +36,15 @@ comparable.
   - **Plug-in Estimator**: Fast point estimation.
 - **Modern Architecture**: Built on the **S7** object-oriented system,
   ensuring type safety, stability, and easy extensibility.
-- **Seamless Integration**: Designed to work with standard R `formula`
-  interfaces and `data.frame` inputs.
+- **Ecosystem Integration**: Works seamlessly with popular R packages:
+  - **lavaan**: Extract from Structural Equation Models with FIML and
+    robust estimators
+  - **mediation**: Direct integration with
+    [`mediate()`](https://rdrr.io/pkg/mediation/man/mediate.html)
+    objects
+  - Standard **lm/glm**: Native support for regression models
+- **User-Friendly Interface**: Designed to work with standard R
+  `formula` interfaces and `data.frame` inputs.
 
 ## Installation
 
@@ -95,41 +105,158 @@ result <- pmed(
 
 ### 3. View Results
 
-The results object provides a clear summary of the point estimate and
-confidence interval.
+The results object provides a clear summary of both $`P_{med}`$ and the
+Indirect Effect with confidence intervals.
 
 ``` r
 
 print(result)
-#> P_med Estimate: 0.56 (Parametric Bootstrap)
-#> 95% CI: [0.52, 0.61]
+#>
+#> P_med: Probability of Mediated Shift
+#> ====================================
+#>
+#> Estimate: 0.563
+#> 95% CI: [0.520, 0.605]
+#>
+#> Indirect Effect (Product of Coefficients):
+#> Estimate: 0.198
+#> 95% CI: [0.134, 0.268]
+#>
+#> Inference: parametric_bootstrap
+#> Bootstrap samples: 1000
+#>
+#> Treatment contrast: X = 1 vs. X* = 0
+#>
+#> Interpretation:
+#>   P(Y_{X*, M_X} > Y_{X, M_X}) = 0.563
 
 summary(result)
 ```
 
-**Interpretation**: A $`P_{med}`$ of 0.56 implies that, considering the
-indirect path, there is a 56% probability that a treated individual will
-have a higher outcome than a control individual. Since 0.50 represents
-“no effect” (random chance), this indicates a positive mediation effect.
+**Interpretation**: - **$`P_{med}`$ = 0.563**: There is a 56.3%
+probability that a treated individual will have a higher outcome than a
+control individual through the indirect path. Since 0.50 represents “no
+effect” (random chance), this indicates a positive mediation effect. -
+**Indirect Effect = 0.198**: The traditional product-of-coefficients
+indirect effect ($`a \times b`$) quantifies the average change in
+outcome due to the mediated path.
 
-## Advanced Usage
+## Workflow Options
 
-### Generalized Linear Models (GLMs)
+`probmed` offers three workflow approaches to suit your needs:
 
-`probmed` supports GLMs for non-normal outcomes. For example, if your
-outcome $`Y`$ is binary:
+### 1. Formula Interface (Recommended for Most Users)
+
+Directly specify your models using R formulas:
 
 ``` r
 
-# Example with binary outcome (conceptual)
-# result_bin <- pmed(
-#   Y ~ X + M + C,
-#   formula_m = M ~ X + C,
-#   data = data_bin,
-#   family_y = binomial(),   # Specify the family for the outcome
-#   treatment = "X",
-#   mediator = "M"
-# )
+result <- pmed(
+  Y ~ X + M + C,             # Outcome model
+  formula_m = M ~ X + C,     # Mediator model
+  data = data,
+  treatment = "X",
+  mediator = "M",
+  method = "parametric_bootstrap"
+)
+```
+
+### 2. Integration with lavaan (For SEM Users)
+
+Extract from fitted Structural Equation Models with full support for
+FIML, robust estimators, and standardized estimates:
+
+``` r
+
+library(lavaan)
+
+# Define SEM model
+model <- '
+  M ~ a*X + C
+  Y ~ b*M + cp*X + C
+'
+
+# Fit with FIML for missing data
+fit <- sem(model, data = data, missing = "fiml")
+
+# Extract and compute P_med
+extract <- extract_mediation(fit, treatment = "X", mediator = "M")
+result <- pmed(extract, method = "parametric_bootstrap", n_boot = 5000)
+print(result)
+```
+
+### 3. Integration with mediation Package
+
+Seamlessly work with objects from the `mediation` package:
+
+``` r
+
+library(mediation)
+
+# Fit models
+model_m <- lm(M ~ X + C, data = data)
+model_y <- lm(Y ~ M + X + C, data = data)
+
+# Run mediate
+med_out <- mediate(model_m, model_y, treat = "X", mediator = "M", boot = TRUE)
+
+# Compute P_med from mediate object
+result <- pmed(extract_mediation(med_out))
+print(result)
+```
+
+## Advanced Features
+
+### Generalized Linear Models (GLMs)
+
+`probmed` supports GLMs for non-normal outcomes. For example, with a
+binary outcome:
+
+``` r
+
+# Binary outcome example
+data_bin <- data
+data_bin$Y_binary <- rbinom(n, 1, plogis(0.4 * data$M + 0.2 * data$X))
+
+result_bin <- pmed(
+  Y_binary ~ X + M + C,
+  formula_m = M ~ X + C,
+  data = data_bin,
+  family_y = binomial(),    # Logistic regression for binary outcome
+  treatment = "X",
+  mediator = "M",
+  method = "parametric_bootstrap",
+  n_boot = 1000
+)
+print(result_bin)
+```
+
+### Bootstrap Methods Comparison
+
+**When to use each method:**
+
+- **Plugin** (`method = "plugin"`): Fast point estimates only, no
+  confidence intervals. Use for quick exploration.
+- **Parametric Bootstrap** (`method = "parametric_bootstrap"`): Default
+  choice. Fast and accurate when parameter estimates are approximately
+  normally distributed.
+- **Nonparametric Bootstrap** (`method = "nonparametric_bootstrap"`):
+  More robust to distributional assumptions but computationally
+  intensive. Use when parametric assumptions are questionable.
+
+``` r
+
+# Compare methods
+result_plugin <- pmed(Y ~ X + M, formula_m = M ~ X, data = data,
+                      treatment = "X", mediator = "M", method = "plugin")
+
+result_param <- pmed(Y ~ X + M, formula_m = M ~ X, data = data,
+                     treatment = "X", mediator = "M",
+                     method = "parametric_bootstrap", n_boot = 1000)
+
+result_nonparam <- pmed(Y ~ X + M, formula_m = M ~ X, data = data,
+                        treatment = "X", mediator = "M",
+                        method = "nonparametric_bootstrap", n_boot = 1000)
 ```
 
 ## References

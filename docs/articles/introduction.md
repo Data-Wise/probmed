@@ -77,14 +77,6 @@ data <- data.frame(X, M, Y, C)
 head(data)
 ```
 
-                X          M             Y           C
-    1 -0.60189285 -1.4648878 -1.6394155324 -0.56047565
-    2 -0.99369859 -1.6058576 -1.1943754836 -0.23017749
-    3  1.02678506  0.9630248  0.0002105782  1.55870831
-    4  0.75106130  0.2645080  0.8971858963  0.07050839
-    5 -1.50916654 -3.2651397 -0.4616766212  0.12928774
-    6 -0.09514745  1.5075192  3.0542047502  1.71506499
-
 ### 2. Estimate $`P_{med}`$
 
 To estimate $`P_{med}`$, we use the
@@ -121,65 +113,59 @@ We can print and summarize the results.
 print(result)
 ```
 
+The output shows both the estimated $`P_{med}`$ and the traditional
+Indirect Effect with their 95% confidence intervals.
+
+**Understanding the Output:**
+
+- **$`P_{med}`$ Estimate**: A value significantly greater than 0.50
+  indicates a positive mediation effect. For example, $`P_{med} = 0.56`$
+  means there’s a 56% probability that a treated individual has a higher
+  outcome than a control individual through the indirect path.
+- **Indirect Effect (IE)**: The traditional product-of-coefficients
+  ($`a \times b`$) measure, useful for comparing with other mediation
+  analyses.
+- **Confidence Intervals**: If the $`P_{med}`$ CI excludes 0.50, or if
+  the IE CI excludes 0, the mediation effect is statistically
+  significant.
+
+Example output:
 
     P_med: Probability of Mediated Shift
     ====================================
 
-    Estimate: 0.35
-    95% CI: [ 0.326 ,  0.374 ]
+    Estimate: 0.563
+    95% CI: [0.520, 0.605]
+
+    Indirect Effect (Product of Coefficients):
+    Estimate: 0.198
+    95% CI: [0.134, 0.268]
 
     Inference: parametric_bootstrap
     Bootstrap samples: 1000
 
-    Treatment contrast: X = 1 vs. X* = 0
-
-    Interpretation:
-      P(Y_{X*, M_X} > Y_{X, M_X}) = 0.35 
-
-The output shows the estimated $`P_{med}`$ and its 95% confidence
-interval.
-
-- **Estimate**: A value significantly greater than 0.50 indicates a
-  positive mediation effect.
-- **Confidence Interval**: If the interval excludes 0.50, the effect is
-  statistically significant.
-
-You can also get a more detailed summary:
+You can also get a more detailed summary including bootstrap
+distribution statistics:
 
 ``` r
 
 summary(result)
 ```
 
+And visualize the bootstrap distribution:
 
-    P_med: Probability of Mediated Shift
-    ====================================
+``` r
 
-    Estimate: 0.35
-    95% CI: [ 0.326 ,  0.374 ]
-
-    Inference: parametric_bootstrap
-    Bootstrap samples: 1000
-
-    Treatment contrast: X = 1 vs. X* = 0
-
-    Interpretation:
-      P(Y_{X*, M_X} > Y_{X, M_X}) = 0.35
-
-    Bootstrap Distribution:
-       Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-     0.3183  0.3402  0.3494  0.3496  0.3584  0.3904
-
-    Standard Error: 0.01271875
-
-    Source: stats
-    Sample size: 500 
+plot(result)
+```
 
 ## Advanced Example: Binary Outcome (GLM)
 
-`probmed` shines when dealing with non-linear models where traditional
-coefficients ($`a \times b`$) are hard to interpret. Let’s look at a
-case with a **binary outcome**.
+`probmed` is particularly valuable when dealing with non-linear models
+where traditional coefficients are on different scales (e.g., logit
+scale for binary outcomes). $`P_{med}`$ provides a scale-free
+interpretation, while the Indirect Effect gives the traditional measure
+for comparison. Let’s look at a case with a **binary outcome**.
 
 ### 1. Simulate Binary Data
 
@@ -220,21 +206,6 @@ result_bin <- pmed(
 
 print(result_bin)
 ```
-
-
-    P_med: Probability of Mediated Shift
-    ====================================
-
-    Estimate: 0.378
-    95% CI: [ 0.352 ,  0.405 ]
-
-    Inference: parametric_bootstrap
-    Bootstrap samples: 1000
-
-    Treatment contrast: X = 1 vs. X* = 0
-
-    Interpretation:
-      P(Y_{X*, M_X} > Y_{X, M_X}) = 0.378 
 
 The interpretation remains the same: $`P_{med}`$ is the probability of
 the outcome being “better” (higher latent utility or probability class)
