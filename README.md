@@ -60,6 +60,20 @@ comparable.
 - **User-Friendly Interface**: Designed to work with standard R
   `formula` interfaces and `data.frame` inputs.
 
+## Mediationverse Ecosystem
+
+**probmed** is part of the **mediationverse** ecosystem for mediation analysis in R:
+
+| Package | Purpose | Role |
+|---------|---------|------|
+| [**medfit**](https://github.com/data-wise/medfit) | Model fitting, extraction, bootstrap | Foundation |
+| **probmed** (this) | Probabilistic effect size (P_med) | Application |
+| [**RMediation**](https://github.com/data-wise/rmediation) | Confidence intervals (DOP, MBCO) | Application |
+| [**medrobust**](https://github.com/data-wise/medrobust) | Sensitivity analysis | Application |
+| [**medsim**](https://github.com/data-wise/medsim) | Simulation infrastructure | Support |
+
+See [Ecosystem Coordination](https://github.com/data-wise/medfit/blob/main/planning/ECOSYSTEM.md) for version compatibility and development guidelines.
+
 ## Installation
 
 You can install the development version of probmed from
