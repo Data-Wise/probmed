@@ -1,5 +1,17 @@
 # Changelog
 
+## probmed (development version)
+
+### Ecosystem Notes
+
+- Part of the mediationverse ecosystem for mediation analysis
+- Builds on medfit for model infrastructure (integration planned)
+- See [Ecosystem
+  Coordination](https://github.com/data-wise/medfit/blob/main/planning/ECOSYSTEM.md)
+  for guidelines
+
+------------------------------------------------------------------------
+
 ## probmed 0.0.0.9000
 
 ### Major Changes
