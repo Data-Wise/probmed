@@ -4,25 +4,15 @@ template:
   bootstrap: 5
   bootswatch: litera
   bslib:
-    # A deeper, more "academic" blue for primary actions
+    # Consistent academic blue across ecosystem
     primary: "#0054AD"
-    # A slightly off-white background reduces eye strain compared to pure white
     bg: "#ffffff"
     fg: "#212529"
-    # Modern, readable fonts
+    # Modern, readable fonts (consistent with mediationverse)
     base_font: { google: "Inter" }
     heading_font: { google: "Montserrat" }
     code_font: { google: "Fira Code" }
-    # Controls the global base font size (Default is 1rem)
     font-size-base: 0.925rem
-
-  opengraph:
-    image:
-      src: man/figures/logo.png
-      alt: "probmed: Probabilistic Effect Sizes for Mediation Analysis"
-    twitter:
-      creator: "@dtofighi"
-      card: summary_large_image
 
 home:
   title: "probmed: Probabilistic Effect Sizes for Mediation"
@@ -43,8 +33,6 @@ home:
   - text: "Request Feature"
     href: https://github.com/data-wise/probmed/issues/new
 
-# LOGO CONFIGURATION
-# best practice: keep your logo at man/figures/logo.png
 logo:
   image: man/figures/logo.png
   align: right
@@ -79,8 +67,6 @@ navbar:
       text: Ecosystem
       menu:
       - text: "Core Packages"
-      - text: "mediationverse (Meta-package)"
-        href: https://data-wise.github.io/mediationverse/
       - text: "medfit (Foundation)"
         href: https://data-wise.github.io/medfit/
       - text: "probmed (P_med Effect Size)"
@@ -97,12 +83,15 @@ navbar:
       icon: fas fa-chart-line
       text: Status
       menu:
-      - text: "Package Status Dashboard"
+      - text: "📊 Package Status Dashboard"
         href: https://github.com/data-wise/mediationverse/blob/main/STATUS.md
-      - text: "Development Roadmap"
+      - text: "🗺️ Development Roadmap"
         href: https://data-wise.github.io/mediationverse/articles/roadmap.html
-      - text: "Contributing Guide"
+      - text: "🤝 Contributing Guide"
         href: https://data-wise.github.io/mediationverse/articles/contributing.html
+      - text: "---------"
+      - text: "📋 Ecosystem Coordination"
+        href: https://github.com/data-wise/medfit/blob/main/planning/ECOSYSTEM.md
     news:
       text: News
       href: news/index.html
