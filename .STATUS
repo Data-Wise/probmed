@@ -1,0 +1,51 @@
+📦 probmed - Probabilistic Effect Sizes for Mediation
+────────────────────────────────────────────────
+
+📍 LOCATION
+~/projects/r-packages/active/probmed/
+
+⏰ LAST UPDATED
+2025-12-14
+
+────────────────────────────────────────────────
+
+🎯 CURRENT STATUS
+Priority: P1
+Status: active
+Progress: 55
+
+────────────────────────────────────────────────
+
+📋 DESCRIPTION
+Compute P_med, a scale-free probabilistic effect size
+for causal mediation analysis. Provides interpretable
+measures of mediation strength.
+
+Version: 0.0.0.9000
+
+────────────────────────────────────────────────
+
+Next: Add more distribution support, expand vignettes
+Blocked: None
+
+────────────────────────────────────────────────
+
+✅ COMPLETED
+- S7 class system
+- P_med computation
+- Bootstrap confidence intervals
+- Integration with medfit
+
+────────────────────────────────────────────────
+
+📁 KEY FILES
+R/              # Source code
+tests/testthat/ # Test suite
+man/            # Documentation
+vignettes/      # Usage tutorials
+
+────────────────────────────────────────────────
+
+🔗 DEPENDENCIES
+Imports: medfit, methods, S7, stats
+Part of: mediationverse ecosystem
