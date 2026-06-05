@@ -4,6 +4,8 @@
 ^README\.html$
 ^probmed\.code-workspace$
 ^planning$
+^\.STATUS$
+^\.STATUS\.backup$
 ^\.claude$
 ^CLAUDE\.md$
 ^README_files$

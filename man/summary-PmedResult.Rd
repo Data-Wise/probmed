@@ -3,10 +3,6 @@
 \name{summary-PmedResult}
 \alias{summary-PmedResult}
 \title{Summary Method}
-\usage{
-## S7 method for class <probmed::PmedResult>
-summary(object, ...)
-}
 \description{
 Summary Method
 }

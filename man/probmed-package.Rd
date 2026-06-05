@@ -120,14 +120,25 @@ Useful links:
   \item Report bugs at \url{https://github.com/data-wise/probmed/issues}
 }
 
+
+Useful links:
+\itemize{
+  \item \url{https://data-wise.github.io/probmed/}
+  \item \url{https://github.com/data-wise/probmed}
+  \item Report bugs at \url{https://github.com/data-wise/probmed/issues}
+}
+
+
+Useful links:
+\itemize{
+  \item \url{https://data-wise.github.io/probmed/}
+  \item \url{https://github.com/data-wise/probmed}
+  \item Report bugs at \url{https://github.com/data-wise/probmed/issues}
+}
+
 }
 \author{
 \strong{Maintainer}: Davood Tofighi \email{dtofighi@gmail.com} (\href{https://orcid.org/0000-0001-8523-7776}{ORCID})
-
-Authors:
-\itemize{
-  \item Davood Tofighi \email{dtofighi@gmail.com} (\href{https://orcid.org/0000-0001-8523-7776}{ORCID})
-}
 
 }
 \keyword{internal}
