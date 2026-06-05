@@ -3,6 +3,10 @@
 \name{plot-PmedResult}
 \alias{plot-PmedResult}
 \title{Plot Bootstrap Distribution}
+\usage{
+## S7 method for class <probmed::PmedResult>
+plot(x, ...)
+}
 \description{
 Plot Bootstrap Distribution
 }

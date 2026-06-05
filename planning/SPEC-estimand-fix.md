@@ -1,6 +1,9 @@
 # SPEC: Fix probmed's core P_med estimand to match the mediation definition
 
-> **Status:** spec only — no code changed yet. Implement on a feature branch off `dev`.
+> **Status:** IMPLEMENTED on `feature/estimand-fix` (medfit family slot on
+> `feature/family-slot`, v0.2.0.9000). Gaussian core matches the closed form to
+> MC error, c' invariance holds, binary outcomes are non-degenerate, and both
+> bootstraps were repaired (parametric was mis-indexing intercepts as a/b).
 > The pmed manuscript's §6 illustrative code depends on this fix (pointer kept in
 > `pmed/docs/SPEC-probmed-estimand-fix.md`).
 

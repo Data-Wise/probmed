@@ -3,6 +3,10 @@
 \name{print-PmedResult}
 \alias{print-PmedResult}
 \title{Print PmedResult}
+\usage{
+## S7 method for class <probmed::PmedResult>
+print(x, digits = 3, ...)
+}
 \description{
 Print PmedResult
 }

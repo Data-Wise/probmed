@@ -3,6 +3,19 @@
 \name{pmed-MediationData}
 \alias{pmed-MediationData}
 \title{Compute P_med from MediationData}
+\usage{
+## S7 method for class <medfit::MediationData>
+pmed(
+  object,
+  x_ref = 0,
+  x_value = 1,
+  method = c("parametric_bootstrap", "nonparametric_bootstrap", "plugin"),
+  n_boot = 1000,
+  ci_level = 0.95,
+  seed = NULL,
+  ...
+)
+}
 \description{
 Compute P_med from MediationData
 }

@@ -11,15 +11,18 @@
 Compute P_med, a scale-free probabilistic effect size for causal mediation analysis.
 
 Compute P_med, a scale-free probabilistic effect size for causal mediation
-analysis. P_med = P(Y_\{x*,M_x\} > Y_\{x,M_x\}) represents the probability that
-the outcome under treatment with the mediator at its control level exceeds
-the outcome under control.
+analysis. P_med = P(Y(x, M(x)) > Y(x, M(x*))) represents the probability that
+the outcome under treatment with the mediator at its treated level exceeds
+the outcome under treatment with the mediator at its control level (with a
+one-half tie correction). The direct effect cancels, so P_med reflects
+mediation only.
 
 The \code{probmed} package provides a robust framework for computing \eqn{P_{med}},
 a scale-free probabilistic effect size for causal mediation analysis. Unlike
 traditional effect sizes, \eqn{P_{med}} quantifies the probability that the
-counterfactual outcome under treatment with the mediator at its control level
-exceeds the counterfactual outcome under control.
+counterfactual outcome under treatment with the mediator at its treated level
+exceeds the counterfactual outcome under treatment with the mediator at its
+control level (holding treatment fixed, so the direct effect cancels).
 }
 \section{Key Features}{
 
@@ -117,25 +120,14 @@ Useful links:
   \item Report bugs at \url{https://github.com/data-wise/probmed/issues}
 }
 
-
-Useful links:
-\itemize{
-  \item \url{https://data-wise.github.io/probmed/}
-  \item \url{https://github.com/data-wise/probmed}
-  \item Report bugs at \url{https://github.com/data-wise/probmed/issues}
-}
-
-
-Useful links:
-\itemize{
-  \item \url{https://data-wise.github.io/probmed/}
-  \item \url{https://github.com/data-wise/probmed}
-  \item Report bugs at \url{https://github.com/data-wise/probmed/issues}
-}
-
 }
 \author{
 \strong{Maintainer}: Davood Tofighi \email{dtofighi@gmail.com} (\href{https://orcid.org/0000-0001-8523-7776}{ORCID})
+
+Authors:
+\itemize{
+  \item Davood Tofighi \email{dtofighi@gmail.com} (\href{https://orcid.org/0000-0001-8523-7776}{ORCID})
+}
 
 }
 \keyword{internal}

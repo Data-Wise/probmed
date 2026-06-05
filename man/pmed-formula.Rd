@@ -3,6 +3,25 @@
 \name{pmed-formula}
 \alias{pmed-formula}
 \title{Compute P_med from Formula}
+\usage{
+## S7 method for class <formula>
+pmed(
+  object,
+  formula_m,
+  data,
+  treatment,
+  mediator,
+  family_y = stats::gaussian(),
+  family_m = stats::gaussian(),
+  x_ref = 0,
+  x_value = 1,
+  method = c("parametric_bootstrap", "nonparametric_bootstrap", "plugin"),
+  n_boot = 1000,
+  ci_level = 0.95,
+  seed = NULL,
+  ...
+)
+}
 \arguments{
 \item{object}{Formula for outcome model (Y ~ X + M + C)}
 
