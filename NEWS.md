@@ -1,10 +1,33 @@
-# probmed (development version)
+# probmed 0.1.0 (2026-06-06)
 
-## Ecosystem Notes
+First GitHub release (non-CRAN).
 
-* Part of the mediationverse ecosystem for mediation analysis
-* Builds on medfit for model infrastructure (integration planned)
-* See [Ecosystem Coordination](https://github.com/data-wise/medfit/blob/main/planning/ECOSYSTEM.md) for guidelines
+## Features
+
+* `pmed()` computes P_med — a scale-free probabilistic effect size for causal
+  mediation — from a formula or a `medfit::MediationData` object, with plugin,
+  parametric-bootstrap, and nonparametric-bootstrap methods, alongside the
+  indirect effect (`a * b`).
+
+## Fixes
+
+* `pmed()` now computes the **mediation** estimand
+  `P(Y(x, M(x)) > Y(x, M(x*))) + 0.5 P(=)` (manuscript Definition 1): treatment
+  held fixed, mediator varied between its treated and control levels with the
+  tie term. Previously it computed a direct-effect contrast that depended on the
+  direct effect `c'` and could land on the wrong side of 0.5. Verified against
+  the closed form `Phi(ab / sqrt(2 (b^2 sigma_M^2 + sigma_Y^2)))` and the
+  manuscript `memory_exp` example (`P_med = 0.68`).
+* Binary/non-Gaussian outcomes now draw Bernoulli responses through the link
+  (previously degenerate, returning 0/1), using the new medfit family slot.
+* Parametric bootstrap indexes coefficients **by name** (was selecting
+  intercepts as `a`/`b`); nonparametric bootstrap refits on the **correct
+  family** (was always Gaussian).
+
+## Ecosystem
+
+* Builds on **medfit (>= 0.3.0)** for model extraction and the family/link slot.
+  Part of the mediationverse ecosystem.
 
 ---
 
