@@ -108,22 +108,22 @@ S7::method(pmed, S7::class_formula) <- function(object,  # formula_y
   return(result)
 }
 
-#' Compute P_med from MediationExtract
+#' Compute P_med from MediationData
 #'
-#' @name pmed-MediationExtract
-S7::method(pmed, MediationExtract) <- function(object,
-                                                x_ref = 0,
-                                                x_value = 1,
-                                                method = c("parametric_bootstrap",
-                                                          "nonparametric_bootstrap",
-                                                          "plugin"),
-                                                n_boot = 1000,
-                                                ci_level = 0.95,
-                                                seed = NULL,
-                                                ...) {
-  
+#' @name pmed-MediationData
+S7::method(pmed, medfit::MediationData) <- function(object,
+                                                     x_ref = 0,
+                                                     x_value = 1,
+                                                     method = c("parametric_bootstrap",
+                                                               "nonparametric_bootstrap",
+                                                               "plugin"),
+                                                     n_boot = 1000,
+                                                     ci_level = 0.95,
+                                                     seed = NULL,
+                                                     ...) {
+
   method <- match.arg(method)
-  
+
   .pmed_compute(
     extract = object,
     x_ref = x_ref,

@@ -5,6 +5,8 @@ vignette: >
   %\VignetteIndexEntry{Integration with the mediation Package}
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
+execute:
+  eval: false
 ---
 
 ```{r}

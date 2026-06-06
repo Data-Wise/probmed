@@ -10,5 +10,6 @@ probmed.code-workspace
 *.tar.gz
 README.html
 README_files/
-planning/
+planning/*
+!planning/SPEC-estimand-fix.md
 CLAUDE.md

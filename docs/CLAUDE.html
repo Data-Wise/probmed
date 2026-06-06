@@ -225,7 +225,7 @@
 </ul></li>
 <li>
 <strong><code>extract_mediation(object, ...)</code></strong> - Extract from fitted models
-<ul><li>Generic with methods for lm/glm, lavaan, mediation, medflex</li>
+<ul><li>Generic with methods for lm/glm, lavaan, mediation</li>
 <li>Standardizes across packages</li>
 <li>Returns <code>MediationExtract</code>
 </li>
@@ -260,8 +260,6 @@
 <strong>lavaan</strong>: SEM model support</li>
 <li>
 <strong>mediation</strong>: mediation package integration</li>
-<li>
-<strong>medflex</strong>: Natural effects framework support</li>
 </ul></div>
 <div class="section level3">
 <h3 id="explicit-namespacing">Explicit Namespacing<a class="anchor" aria-label="anchor" href="#explicit-namespacing"></a></h3>
@@ -712,7 +710,7 @@
 <div class="section level2">
 <h2 id="development-roadmap">Development Roadmap<a class="anchor" aria-label="anchor" href="#development-roadmap"></a></h2>
 <div class="section level3">
-<h3 id="phase-1-core-functionality-current">Phase 1: Core Functionality (Current)<a class="anchor" aria-label="anchor" href="#phase-1-core-functionality-current"></a></h3>
+<h3 id="phase-1-core-functionality-white_check_mark-complete">Phase 1: Core Functionality ✅ COMPLETE<a class="anchor" aria-label="anchor" href="#phase-1-core-functionality-white_check_mark-complete"></a></h3>
 <ul class="task-list"><li><label><input type="checkbox" checked>S7 class architecture</label></li>
 <li><label><input type="checkbox" checked>Formula interface with GLM</label></li>
 <li><label><input type="checkbox" checked>Bootstrap inference methods</label></li>
@@ -720,17 +718,19 @@
 <li><label><input type="checkbox" checked>Print/summary/plot methods</label></li>
 </ul></div>
 <div class="section level3">
-<h3 id="phase-2-model-integration-weeks-6-9">Phase 2: Model Integration (Weeks 6-9)<a class="anchor" aria-label="anchor" href="#phase-2-model-integration-weeks-6-9"></a></h3>
-<ul class="task-list"><li><label><input type="checkbox">lavaan extraction</label></li>
-<li><label><input type="checkbox">mediation package extraction</label></li>
-<li><label><input type="checkbox">medflex extraction</label></li>
-<li><label><input type="checkbox">Comprehensive testing</label></li>
+<h3 id="phase-2-model-integration-white_check_mark-complete-with-deferrals">Phase 2: Model Integration ✅ COMPLETE (with deferrals)<a class="anchor" aria-label="anchor" href="#phase-2-model-integration-white_check_mark-complete-with-deferrals"></a></h3>
+<ul class="task-list"><li><label><input type="checkbox" checked>lavaan extraction</label></li>
+<li><label><input type="checkbox" checked>mediation package extraction</label></li>
+<li><label><input type="checkbox" checked>Indirect Effect (IE) reporting</label></li>
+<li><label><input type="checkbox" checked>Comprehensive testing</label></li>
+<li><label><input type="checkbox"><strong>DEFERRED</strong>: medflex extraction (moved to Phase 3)</label></li>
 </ul></div>
 <div class="section level3">
-<h3 id="phase-3-extensions-months-3-6">Phase 3: Extensions (Months 3-6)<a class="anchor" aria-label="anchor" href="#phase-3-extensions-months-3-6"></a></h3>
+<h3 id="phase-3-extensions-in-planning">Phase 3: Extensions (In Planning)<a class="anchor" aria-label="anchor" href="#phase-3-extensions-in-planning"></a></h3>
 <ul class="task-list"><li><label><input type="checkbox">Exposure-mediator interactions</label></li>
 <li><label><input type="checkbox">Multiple parallel mediators</label></li>
 <li><label><input type="checkbox">Sequential mediators (path-specific)</label></li>
+<li><label><input type="checkbox">medflex integration (natural effects framework)</label></li>
 <li><label><input type="checkbox">Integration with medrobust</label></li>
 </ul></div>
 <div class="section level3">
@@ -739,6 +739,8 @@
 <li><label><input type="checkbox">High-dimensional mediators</label></li>
 <li><label><input type="checkbox">Bayesian estimation (via Stan/JAGS)</label></li>
 <li><label><input type="checkbox">Multiply robust estimation</label></li>
+<li><label><input type="checkbox">Additional model fitting engines (see planning documents)</label></li>
+<li><label><input type="checkbox">medfit foundation package integration (see <code>planning/three-package-ecosystem-strategy.md</code>)</label></li>
 </ul></div>
 </div>
 <div class="section level2">

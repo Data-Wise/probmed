@@ -16,7 +16,10 @@
       "Bash(git fetch:*)",
       "Bash(git rm:*)",
       "Bash(xargs:*)",
-      "Bash(open /Users/dt/Library/CloudStorage/GoogleDrive-dtofighi@gmail.com/My Drive/packages/probmed/docs/index.html)"
+      "Bash(open /Users/dt/Library/CloudStorage/GoogleDrive-dtofighi@gmail.com/My Drive/packages/probmed/docs/index.html)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(Rscript:*)"
     ],
     "deny": [],
     "ask": []

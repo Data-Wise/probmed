@@ -5,6 +5,9 @@
 <url><loc>https://data-wise.github.io/probmed/LICENSE.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/articles/index.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/articles/introduction.html</loc></url>
+<url><loc>https://data-wise.github.io/probmed/articles/lavaan-integration.html</loc></url>
+<url><loc>https://data-wise.github.io/probmed/articles/mediation-integration.html</loc></url>
+<url><loc>https://data-wise.github.io/probmed/articles/package-comparison.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/authors.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/index.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/news/index.html</loc></url>
@@ -16,7 +19,9 @@
 <url><loc>https://data-wise.github.io/probmed/reference/dot-pmed_parametric_boot.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/dot-pmed_plugin.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/extract_mediation-lm.html</loc></url>
+<url><loc>https://data-wise.github.io/probmed/reference/extract_mediation-mediate.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/extract_mediation.html</loc></url>
+<url><loc>https://data-wise.github.io/probmed/reference/extract_mediation_lavaan.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/index.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/lm_class.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/null-coalesce.html</loc></url>

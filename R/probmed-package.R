@@ -4,8 +4,9 @@
 #' The `probmed` package provides a robust framework for computing \eqn{P_{med}},
 #' a scale-free probabilistic effect size for causal mediation analysis. Unlike
 #' traditional effect sizes, \eqn{P_{med}} quantifies the probability that the
-#' counterfactual outcome under treatment with the mediator at its control level
-#' exceeds the counterfactual outcome under control.
+#' counterfactual outcome under treatment with the mediator at its treated level
+#' exceeds the counterfactual outcome under treatment with the mediator at its
+#' control level (holding treatment fixed, so the direct effect cancels).
 #'
 #' @section Key Features:
 #' \itemize{

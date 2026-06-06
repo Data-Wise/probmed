@@ -12,7 +12,6 @@ URL: https://data-wise.github.io/probmed/, https://github.com/data-wise/probmed
 BugReports: https://github.com/data-wise/probmed/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Suggests:
     alabama,
     knitr,
@@ -24,7 +23,11 @@ Suggests:
     quarto
 Config/testthat/edition: 3
 Imports:
+    medfit (>= 0.2.0.9000),
     methods,
     S7 (>= 0.2.1),
     stats
+Remotes:
+    data-wise/medfit@dev
 VignetteBuilder: knitr, quarto
+RoxygenNote: 7.3.3
