@@ -5,14 +5,14 @@
 ~/projects/r-packages/active/probmed/
 
 ⏰ LAST UPDATED
-2025-12-14
+2026-06-06
 
 ────────────────────────────────────────────────
 
 🎯 CURRENT STATUS
 Priority: P1
 Status: active
-Progress: 55
+Progress: 70
 
 ────────────────────────────────────────────────
 
@@ -21,20 +21,29 @@ Compute P_med, a scale-free probabilistic effect size
 for causal mediation analysis. Provides interpretable
 measures of mediation strength.
 
-Version: 0.0.0.9000
+Version: 0.1.0 (first GitHub release, non-CRAN; pins medfit@v0.3.0)
 
 ────────────────────────────────────────────────
 
-Next: Add more distribution support, expand vignettes
-Blocked: None
+Next:
+- Manuscript §6: un-comment pmed.qmd eval:false chunk (UNBLOCKED — probmed@v0.1.0
+  installs; reproduces P_med 0.681 / NIE 2.121 / binary 0.629)
+- Ecosystem: resolve medfit version skew — medsim/mediationverse Remotes point at
+  medfit main (v0.2.0) but probmed needs >=0.3.0. Pin siblings @v0.3.0 OR wait for
+  medfit dev→main (CRAN-gated)
+- Feature: method="mbco" (closed-form interval); P_med for parallel/sequential
+  structures; expand vignettes
+Blocked (CRAN-gated): medfit v0.2.0 CRAN acceptance → PR #33 (v0.3.0→main) →
+  probmed→main + Remotes flip-back to data-wise/medfit
 
 ────────────────────────────────────────────────
 
 ✅ COMPLETED
-- S7 class system
-- P_med computation
-- Bootstrap confidence intervals
-- Integration with medfit
+- S7 class system (PmedResult)
+- Correct mediation estimand (manuscript Definition 1) + binary outcomes
+- Bootstrap CIs (parametric + nonparametric, name-indexed)
+- medfit integration (extraction + family/link slot)
+- v0.1.0 GitHub release; pkgdown site + CLAUDE.md synced (2026-06-06)
 
 ────────────────────────────────────────────────
 
