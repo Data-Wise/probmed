@@ -13,6 +13,8 @@
 <url><loc>https://data-wise.github.io/probmed/news/index.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/MediationExtract.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/PmedResult.html</loc></url>
+<url><loc>https://data-wise.github.io/probmed/reference/dot-is_gaussian.html</loc></url>
+<url><loc>https://data-wise.github.io/probmed/reference/dot-named_or.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/dot-pmed_compute.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/dot-pmed_core_simple.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/dot-pmed_nonparametric_boot.html</loc></url>
@@ -26,6 +28,7 @@
 <url><loc>https://data-wise.github.io/probmed/reference/lm_class.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/null-coalesce.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/plot-PmedResult.html</loc></url>
+<url><loc>https://data-wise.github.io/probmed/reference/pmed-MediationData.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/pmed-MediationExtract.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/pmed-formula.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/pmed.html</loc></url>

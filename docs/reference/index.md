@@ -9,20 +9,16 @@ structures from fitted statistical models.
   Compute P_med: Probabilistic Effect Size for Mediation
 - [`pmed-formula`](https://data-wise.github.io/probmed/reference/pmed-formula.md)
   : Compute P_med from Formula
-- [`pmed-MediationExtract`](https://data-wise.github.io/probmed/reference/pmed-MediationExtract.md)
-  : Compute P_med from MediationExtract
-- [`extract_mediation()`](https://data-wise.github.io/probmed/reference/extract_mediation.md)
-  : Extract Mediation Structure
-- [`extract_mediation-lm`](https://data-wise.github.io/probmed/reference/extract_mediation-lm.md)
-  : Extract from GLM/LM
+- [`pmed-MediationData`](https://data-wise.github.io/probmed/reference/pmed-MediationData.md)
+  : Compute P_med from MediationData
+- [`extract_mediation`](https://data-wise.github.io/probmed/reference/extract_mediation.md)
+  : Re-export extract_mediation from medfit
 
 ## S7 Class Definitions
 
 Formal class structures for mediation analysis objects. These classes
 define the object-oriented architecture of the package.
 
-- [`MediationExtract()`](https://data-wise.github.io/probmed/reference/MediationExtract.md)
-  : Mediation Extract Base Class
 - [`PmedResult()`](https://data-wise.github.io/probmed/reference/PmedResult.md)
   : P_med Result Class
 
@@ -43,20 +39,14 @@ summary, and visualization functions.
 Low-level computational functions. These functions are exported for
 transparency but are not intended for direct use by end users.
 
-- [`MediationExtract()`](https://data-wise.github.io/probmed/reference/MediationExtract.md)
-  : Mediation Extract Base Class
 - [`PmedResult()`](https://data-wise.github.io/probmed/reference/PmedResult.md)
   : P_med Result Class
-- [`extract_mediation-lm`](https://data-wise.github.io/probmed/reference/extract_mediation-lm.md)
-  : Extract from GLM/LM
-- [`extract_mediation-mediate`](https://data-wise.github.io/probmed/reference/extract_mediation-mediate.md)
-  : Extract Mediation Structure from mediate Objects
-- [`extract_mediation()`](https://data-wise.github.io/probmed/reference/extract_mediation.md)
-  : Extract Mediation Structure
+- [`extract_mediation`](https://data-wise.github.io/probmed/reference/extract_mediation.md)
+  : Re-export extract_mediation from medfit
 - [`plot-PmedResult`](https://data-wise.github.io/probmed/reference/plot-PmedResult.md)
   : Plot Bootstrap Distribution
-- [`pmed-MediationExtract`](https://data-wise.github.io/probmed/reference/pmed-MediationExtract.md)
-  : Compute P_med from MediationExtract
+- [`pmed-MediationData`](https://data-wise.github.io/probmed/reference/pmed-MediationData.md)
+  : Compute P_med from MediationData
 - [`pmed-formula`](https://data-wise.github.io/probmed/reference/pmed-formula.md)
   : Compute P_med from Formula
 - [`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md) :
@@ -65,6 +55,10 @@ transparency but are not intended for direct use by end users.
   : Print PmedResult
 - [`summary-PmedResult`](https://data-wise.github.io/probmed/reference/summary-PmedResult.md)
   : Summary Method
+- [`.is_gaussian()`](https://data-wise.github.io/probmed/reference/dot-is_gaussian.md)
+  : Is a family Gaussian (NULL is treated as Gaussian)?
+- [`.named_or()`](https://data-wise.github.io/probmed/reference/dot-named_or.md)
+  : Look up a named coefficient, returning a default when absent
 - [`.pmed_compute()`](https://data-wise.github.io/probmed/reference/dot-pmed_compute.md)
   : Core P_med Computation Dispatcher
 - [`.pmed_core_simple()`](https://data-wise.github.io/probmed/reference/dot-pmed_core_simple.md)
@@ -75,8 +69,6 @@ transparency but are not intended for direct use by end users.
   : Parametric Bootstrap for P_med
 - [`.pmed_plugin()`](https://data-wise.github.io/probmed/reference/dot-pmed_plugin.md)
   : Plugin Estimator (Point Estimate Only)
-- [`extract_mediation_lavaan()`](https://data-wise.github.io/probmed/reference/extract_mediation_lavaan.md)
-  : Extract Mediation Structure from lavaan Objects
 - [`lm_class`](https://data-wise.github.io/probmed/reference/lm_class.md)
   : S3 Class Wrappers for S7
 - [`` `%||%` ``](https://data-wise.github.io/probmed/reference/null-coalesce.md)

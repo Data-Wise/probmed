@@ -19,7 +19,7 @@ PmedResult(
   ie_boot_estimates = numeric(0),
   x_ref = integer(0),
   x_value = integer(0),
-  source_extract = MediationExtract(),
+  source_extract = NULL,
   converged = logical(0),
   call = NULL
 )
@@ -81,7 +81,7 @@ PmedResult(
 
 - source_extract:
 
-  MediationExtract object: source of the estimates
+  medfit::MediationData object: source of the estimates
 
 - converged:
 

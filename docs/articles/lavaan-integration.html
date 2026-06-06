@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/Fira_Code-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/Montserrat-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -21,11 +21,7 @@
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="lavaan-integration_files/libs/quarto-html/popper.min.js"></script><script src="lavaan-integration_files/libs/quarto-html/tippy.umd.min.js"></script><link href="lavaan-integration_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="lavaan-integration_files/libs/quarto-html/light-border.css" rel="stylesheet">
 <!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Working with lavaan Models">
-<meta property="og:image" content="https://data-wise.github.io/probmed/reference/figures/logo.png">
-<meta property="og:image:alt" content="probmed: Probabilistic Effect Sizes for Mediation Analysis">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:creator" content="@dtofighi">
-<meta name="twitter:site" content="@dtofighi">
+<meta property="og:image" content="https://data-wise.github.io/probmed/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -35,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">probmed</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.0.0.9000</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +51,29 @@
     <li><a class="dropdown-item" href="../articles/lavaan-integration.html">lavaan Integration</a></li>
     <li><a class="dropdown-item" href="../articles/mediation-integration.html">mediation Package Integration</a></li>
     <li><a class="dropdown-item" href="../articles/package-comparison.html">Package Comparison</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-ecosystem" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Ecosystem</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-ecosystem">
+<li><h6 class="dropdown-header" data-toc-skip>Core Packages</h6></li>
+    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/medfit/">medfit (Foundation)</a></li>
+    <li><a class="dropdown-item" href="https://data-wise.github.io/probmed/">probmed (P_med Effect Size)</a></li>
+    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/rmediation/">RMediation (Confidence Intervals)</a></li>
+    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/medrobust/">medrobust (Sensitivity Analysis)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Support Packages</h6></li>
+    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/medsim/">medsim (Simulation Infrastructure)</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-status" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fas fa-chart-line"></span> Status</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-status">
+<li><a class="external-link dropdown-item" href="https://github.com/data-wise/mediationverse/blob/main/STATUS.md">📊 Package Status Dashboard</a></li>
+    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/mediationverse/articles/roadmap.html">🗺️ Development Roadmap</a></li>
+    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/mediationverse/articles/contributing.html">🤝 Contributing Guide</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="external-link dropdown-item" href="https://github.com/data-wise/medfit/blob/main/planning/ECOSYSTEM.md">📋 Ecosystem Coordination</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
@@ -205,7 +224,7 @@
 </div>
 </section><section class="level3"><h3 id="path-not-found">“Path not found”<a class="anchor" aria-label="anchor" href="#path-not-found"></a>
 </h3>
-<p>Ensure that the model actually contains the paths <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>∼</mo><mi>X</mi></mrow><annotation encoding="application/x-tex">M \sim X</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>∼</mo><mi>M</mi></mrow><annotation encoding="application/x-tex">Y \sim M</annotation></semantics></math>, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>∼</mo><mi>X</mi></mrow><annotation encoding="application/x-tex">Y \sim X</annotation></semantics></math>. If any of these are missing (e.g., if you fixed <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mi>′</mi></mrow><annotation encoding="application/x-tex">c'</annotation></semantics></math> to 0), <code><a href="../reference/extract_mediation.html">extract_mediation()</a></code> will fail because <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> requires all three paths (though <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mi>′</mi></mrow><annotation encoding="application/x-tex">c'</annotation></semantics></math> can be 0, it must be in the model structure or handled as 0).</p>
+<p>Ensure that the model actually contains the paths <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>∼</mo><mi>X</mi></mrow><annotation encoding="application/x-tex">M \sim X</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>∼</mo><mi>M</mi></mrow><annotation encoding="application/x-tex">Y \sim M</annotation></semantics></math>, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>∼</mo><mi>X</mi></mrow><annotation encoding="application/x-tex">Y \sim X</annotation></semantics></math>. If any of these are missing (e.g., if you fixed <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>c</mi><mo>′</mo></msup><annotation encoding="application/x-tex">c'</annotation></semantics></math> to 0), <code><a href="../reference/extract_mediation.html">extract_mediation()</a></code> will fail because <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> requires all three paths (though <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>c</mi><mo>′</mo></msup><annotation encoding="application/x-tex">c'</annotation></semantics></math> can be 0, it must be in the model structure or handled as 0).</p>
 <p>Currently, <code>probmed</code> expects the direct effect <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>∼</mo><mi>X</mi></mrow><annotation encoding="application/x-tex">Y \sim X</annotation></semantics></math> to be present in the model. If you omitted it (assuming full mediation), you can add it and fix it to 0 in <code>lavaan</code>: <code>Y ~ 0*X</code>.</p>
 </section></section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
