@@ -28,6 +28,6 @@ Imports:
     S7 (>= 0.2.1),
     stats
 Remotes:
-    data-wise/medfit
+    data-wise/medfit@dev
 VignetteBuilder: knitr, quarto
 RoxygenNote: 7.3.3
