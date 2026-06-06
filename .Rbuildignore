@@ -3,6 +3,7 @@
 ^README\.qmd$
 ^README\.html$
 ^probmed\.code-workspace$
+^\.lintr$
 ^planning$
 ^\.STATUS$
 ^\.STATUS\.backup$

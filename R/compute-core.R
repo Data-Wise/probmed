@@ -106,8 +106,8 @@
   # --- Draw the mediator under BOTH treatment levels, independently ---
   # E[M | X] on the link scale; intercept cancels for Gaussian but is needed
   # for a nonlinear link.
-  mu_m_t <- i_m + a * x_value # M(x)
-  mu_m_c <- i_m + a * x_ref # M(x*)
+  mu_m_t <- i_m + a * x_value # mediator mean under treatment
+  mu_m_c <- i_m + a * x_ref # mediator mean under control
   if (gaussian_m) {
     m_t <- stats::rnorm(n_sim, mean = mu_m_t, sd = sigma_m)
     m_c <- stats::rnorm(n_sim, mean = mu_m_c, sd = sigma_m)
@@ -118,8 +118,8 @@
   }
 
   # --- Outcomes with treatment held at x_value for BOTH (c' cancels) ---
-  eta_t <- i_y + b * m_t + c_prime * x_value # Y(x, M(x))
-  eta_c <- i_y + b * m_c + c_prime * x_value # Y(x, M(x*))
+  eta_t <- i_y + b * m_t + c_prime * x_value # outcome lin. predictor, treated mediator
+  eta_c <- i_y + b * m_c + c_prime * x_value # outcome lin. predictor, control mediator
   if (gaussian_y) {
     y_t <- eta_t + stats::rnorm(n_sim, 0, sigma_y)
     y_c <- eta_c + stats::rnorm(n_sim, 0, sigma_y)
