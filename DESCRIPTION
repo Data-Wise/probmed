@@ -23,11 +23,11 @@ Suggests:
     quarto
 Config/testthat/edition: 3
 Imports:
-    medfit (>= 0.2.0.9000),
+    medfit (>= 0.3.0),
     methods,
     S7 (>= 0.2.1),
     stats
 Remotes:
-    data-wise/medfit@dev
+    data-wise/medfit@v0.3.0
 VignetteBuilder: knitr, quarto
 RoxygenNote: 7.3.3
