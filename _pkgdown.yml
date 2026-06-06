@@ -108,16 +108,14 @@ reference:
     contents:
       - pmed
       - pmed-formula
-      - pmed-MediationExtract
+      - pmed-MediationData
       - extract_mediation
-      - extract_mediation-lm
 
   - title: "S7 Class Definitions"
     desc: >
       Formal class structures for mediation analysis objects.
       These classes define the object-oriented architecture of the package.
     contents:
-      - MediationExtract
       - PmedResult
 
   - title: "Methods and Utilities"
