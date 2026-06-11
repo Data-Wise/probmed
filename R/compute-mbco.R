@@ -3,16 +3,22 @@
 #' Steps outward from `est` in increments of `step` until the statistic exceeds
 #' the cutoff, then locates the crossing with uniroot (resolution-independent).
 #' `domain = c(lo, hi)` bounds the search; an endpoint pinned at a bound means
-#' the interval is open there.
+#' the interval is open there. The step-out loop is sized to span the whole
+#' domain (`max_k` steps), so a crossing anywhere in `[lo, hi]` is reached --
+#' a fixed iteration cap could otherwise stop short of a wide domain and return
+#' a non-root interior point.
 #'
 #' @return c(lower = ., upper = .)
 #' @keywords internal
 .mbco_invert <- function(est, excess, domain, step) {
   lo <- domain[1]
   hi <- domain[2]
+  # Enough steps to walk from `est` to either bound (plus a margin), so the
+  # `outer` clamp always reaches a bound before the loop is exhausted.
+  max_k <- as.integer(ceiling((hi - lo) / step)) + 1L
   endpoint <- function(dir) {
     inner <- est
-    for (k in seq_len(200)) {
+    for (k in seq_len(max_k)) {
       outer <- min(max(est + dir * step * k, lo), hi)
       if (excess(outer) > 0) {
         return(tryCatch(
@@ -93,8 +99,13 @@
 .pmed_mbco <- function(extract, x_ref, x_value, ci_level = 0.95, ...) {
   prep <- .mbco_prep(extract, x_ref, x_value)
 
-  a <- extract@a_path
-  b <- extract@b_path
+  # Use prep's own refit (a_hat, b_hat, Vm_hat, Vy_hat) for the point estimate,
+  # NOT extract@a_path / extract@b_path. The CI is inverted around prep$ll_free
+  # (from the same lm refits), so centering the estimate on prep guarantees the
+  # interval brackets it by construction -- immune to any divergence in how
+  # extract@a_path / @b_path were populated (e.g. an SEM-sourced extract).
+  a <- prep$a_hat
+  b <- prep$b_hat
   delta <- prep$delta
   dhat <- a * delta * b / sqrt(2 * (b^2 * prep$Vm_hat + prep$Vy_hat))
   est <- as.numeric(stats::pnorm(dhat))

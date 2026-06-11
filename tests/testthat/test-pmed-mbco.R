@@ -239,3 +239,13 @@ test_that(".mbco_invert returns NA when the estimate is already rejected", {
   expect_true(is.na(ci["lower"]))
   expect_true(is.na(ci["upper"]))
 })
+
+test_that(".mbco_invert finds a crossing beyond 200 steps within a wide domain", {
+  # Crossing at |t| = 3, which is 300 steps from est at step = 0.01 -- past the
+  # old fixed 200-iteration cap. The loop must span the full domain to find it
+  # rather than stop short and return a non-root interior point.
+  excess <- function(t) abs(t) - 3 # negative for |t| < 3, positive beyond
+  ci <- .mbco_invert(0, excess, domain = c(-5, 5), step = 0.01)
+  expect_equal(unname(ci["lower"]), -3, tolerance = 1e-3)
+  expect_equal(unname(ci["upper"]), 3, tolerance = 1e-3)
+})

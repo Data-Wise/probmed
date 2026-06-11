@@ -13,6 +13,9 @@ c(lower = ., upper = .)
 Steps outward from \code{est} in increments of \code{step} until the statistic exceeds
 the cutoff, then locates the crossing with uniroot (resolution-independent).
 \code{domain = c(lo, hi)} bounds the search; an endpoint pinned at a bound means
-the interval is open there.
+the interval is open there. The step-out loop is sized to span the whole
+domain (\code{max_k} steps), so a crossing anywhere in \verb{[lo, hi]} is reached --
+a fixed iteration cap could otherwise stop short of a wide domain and return
+a non-root interior point.
 }
 \keyword{internal}

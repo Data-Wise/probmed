@@ -27,6 +27,11 @@
 #' contrast `x_ref != x_value`. For binary or other non-Gaussian models, use the
 #' bootstrap methods.
 #'
+#' For `method = "mbco"`, the `converged` flag reflects the **P_med** interval
+#' only. The indirect-effect interval is reported separately and may be `NA` on
+#' a degenerate design (e.g. a non-finite delta-method scale for `a*b`) even when
+#' the P_med interval converges; check `ie_ci_lower` / `ie_ci_upper` directly.
+#'
 #' @examples
 #' # Toy example: Simple mediation model
 #' # Generate data where X affects Y through M
