@@ -10,13 +10,22 @@
 #' @param family_m Family for mediator model (default: gaussian())
 #' @param x_ref Reference treatment value (default: 0)
 #' @param x_value Treatment value (default: 1)
-#' @param method Inference method: "parametric_bootstrap", "nonparametric_bootstrap", "plugin"
+#' @param method Inference method: "parametric_bootstrap", "nonparametric_bootstrap", "plugin", "mbco"
 #' @param n_boot Number of bootstrap samples (default: 1000)
 #' @param ci_level Confidence level (default: 0.95)
 #' @param seed Random seed for reproducibility
 #' @param ... Additional arguments
 #'
 #' @return PmedResult object
+#'
+#' @details
+#' `method = "mbco"` returns a Model-Based Constrained Optimization interval
+#' (Tofighi & Kelley, 2020): a likelihood-ratio interval for P_med and for the
+#' indirect effect `a*b`, obtained by inverting the constrained-likelihood test
+#' rather than by resampling. It is deterministic (no `n_boot`, no `seed`) and
+#' supports a Gaussian outcome and mediator, with covariates, and any treatment
+#' contrast `x_ref != x_value`. For binary or other non-Gaussian models, use the
+#' bootstrap methods.
 #'
 #' @examples
 #' # Toy example: Simple mediation model
