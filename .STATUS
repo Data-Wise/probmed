@@ -15,8 +15,7 @@ Status: active
 Progress: 85
 
 🌿 ACTIVE WORKTREE
-(none — feature/pmed-parallel merged to dev via PR #3, 2026-06-11;
- worktree ~/.git-worktrees/probmed/feature-pmed-parallel pending cleanup)
+(none — feature/pmed-parallel merged via PR #3 and cleaned up, 2026-06-11)
 
 ────────────────────────────────────────────────
 
