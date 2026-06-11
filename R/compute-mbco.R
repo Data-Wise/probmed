@@ -101,3 +101,47 @@
 .mbco_gll <- function(sse, V, n) {
   -n / 2 * log(2 * pi * V) - sse / (2 * V)
 }
+
+#' Maximized log-likelihood under the constraint P_med = pnorm(qstar).
+#'
+#' Profiles out intercepts, the direct effect, and covariate coefficients by OLS,
+#' so only (a, log Vm, log|b|) are optimized numerically (b is sign-pinned to the
+#' target branch; Vy is fixed by the P_med constraint). Nelder-Mead is used because
+#' the Vy <= 0 infeasible region is a hard penalty wall that defeats gradient methods.
+#'
+#' @return Maximized joint log-likelihood, or NA_real_ if the fit fails.
+#' @keywords internal
+.mbco_ll_constrained_pmed <- function(prep, qstar, a_sign) {
+  n <- prep$n
+
+  # p* = 0.5: indirect effect is zero (b = 0). Y reduces to its design Dy.
+  if (abs(qstar) < 1e-8) {
+    sse_m <- .ols_sse(cbind(prep$Dm, X = prep$X), prep$M)  # full M eq: [1, C, X]
+    sse_y <- .ols_sse(prep$Dy, prep$Y)                     # Y ~ [1, X, C], no M
+    return(.mbco_gll(sse_m, sse_m / n, n) + .mbco_gll(sse_y, sse_y / n, n))
+  }
+
+  sb <- sign(qstar) * a_sign  # pin sign(a*b) = sign(qstar)
+  delta <- prep$delta
+
+  # Optimize over (a, log Vm, log|b|). |b| is a search coordinate, NOT a profiled
+  # quantity: b enters both the constraint (which fixes Vy) and the Y residual, so
+  # unlike the intercepts / cp / covariate coefficients it cannot be OLS-profiled.
+  start <- c(prep$a_hat, log(prep$Vm_hat), log(abs(prep$b_hat) + 1e-3))
+  nll <- function(p) {
+    a  <- p[1]
+    Vm <- exp(p[2])
+    b  <- sb * exp(p[3])
+    Vy <- (a * delta * b)^2 / (2 * qstar^2) - b^2 * Vm
+    if (!is.finite(Vy) || Vy <= 1e-8) return(1e10)
+    sse_m <- .ols_sse(prep$Dm, prep$M - a * prep$X)
+    sse_y <- .ols_sse(prep$Dy, prep$Y - b * prep$M)
+    -(.mbco_gll(sse_m, Vm, n) + .mbco_gll(sse_y, Vy, n))
+  }
+
+  o <- try(stats::optim(start, nll, method = "Nelder-Mead",
+                        control = list(maxit = 3000, reltol = 1e-10)),
+           silent = TRUE)
+  if (inherits(o, "try-error") || o$value >= 1e9) return(NA_real_)
+  -o$value
+}

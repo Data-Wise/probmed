@@ -45,3 +45,36 @@ test_that("mbco errors when the source data is absent", {
   ex@data <- NULL
   expect_error(pmed(ex, method = "mbco"), "data")
 })
+
+test_that("constrained P_med log-lik at the MLE equals the free log-lik", {
+  data <- generate_mediation_data(n = 1500, a = 0.5, b = 0.5, c_prime = 0.3, seed = 41)
+  fit_m <- stats::glm(M ~ X, data = data)
+  fit_y <- stats::glm(Y ~ X + M, data = data)
+  ex <- extract_mediation(fit_m, treatment = "X", mediator = "M",
+                          model_y = fit_y, data = data)
+  prep <- .mbco_prep(ex, x_ref = 0, x_value = 1)
+
+  # P_med at the free MLE
+  a <- ex@a_path; b <- ex@b_path
+  d <- a * b / sqrt(2 * (b^2 * prep$Vm_hat + prep$Vy_hat))
+  p_mle <- as.numeric(stats::pnorm(d))
+
+  a_sign <- sign(a); if (a_sign == 0) a_sign <- 1
+  ll0 <- .mbco_ll_constrained_pmed(prep, qstar = stats::qnorm(p_mle), a_sign = a_sign)
+
+  # Non-binding constraint at the MLE: LR ~ 0, and ll0 never exceeds the free ll.
+  expect_lte(ll0, prep$ll_free + 1e-6)
+  expect_equal(-2 * (ll0 - prep$ll_free), 0, tolerance = 1e-2)
+})
+
+test_that("constrained P_med log-lik handles the null (p*=0.5, b=0) submodel", {
+  data <- generate_mediation_data(n = 1000, a = 0.5, b = 0.5, c_prime = 0.3, seed = 42)
+  fit_m <- stats::glm(M ~ X, data = data)
+  fit_y <- stats::glm(Y ~ X + M, data = data)
+  ex <- extract_mediation(fit_m, treatment = "X", mediator = "M",
+                          model_y = fit_y, data = data)
+  prep <- .mbco_prep(ex, x_ref = 0, x_value = 1)
+  ll_null <- .mbco_ll_constrained_pmed(prep, qstar = 0, a_sign = 1)
+  # Null nests inside the free model: strictly less likely here (b != 0 truly).
+  expect_lt(ll_null, prep$ll_free)
+})
