@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 [![Website Status](https://github.com/data-wise/probmed/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/data-wise/probmed/actions/workflows/pkgdown.yaml)
 [![R-hub](https://github.com/data-wise/probmed/actions/workflows/rhub.yaml/badge.svg)](https://github.com/data-wise/probmed/actions/workflows/rhub.yaml)
 [![Codecov](https://codecov.io/gh/data-wise/probmed/graph/badge.svg)](https://app.codecov.io/gh/data-wise/probmed)
-[![r-universe](https://data-wise.r-universe.dev/badges/probmed)](https://data-wise.r-universe.dev/probmed)
+[![r-universe](https://data-wise.r-universe.dev/probmed/badges/version)](https://data-wise.r-universe.dev/probmed)
 <!-- badges: end -->
 
 **probmed** provides a robust framework for computing **$P_{med}$**, a scale-free probabilistic effect size for causal mediation analysis.
