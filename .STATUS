@@ -12,12 +12,11 @@
 🎯 CURRENT STATUS
 Priority: P1
 Status: active
-Progress: 80
+Progress: 85
 
 🌿 ACTIVE WORKTREE
-~/.git-worktrees/probmed/feature-pmed-parallel  [feature/pmed-parallel, base dev]
-  → Implementing parallel (joint) P_med — 4 methods, closed-form kernel, Gaussian
-    (spec: docs/superpowers/specs/2026-06-11-pmed-parallel-design.md)
+(none — feature/pmed-parallel merged to dev via PR #3, 2026-06-11;
+ worktree ~/.git-worktrees/probmed/feature-pmed-parallel pending cleanup)
 
 ────────────────────────────────────────────────
 
@@ -36,7 +35,8 @@ Next:
 - Ecosystem: resolve medfit version skew — medsim/mediationverse Remotes point at
   medfit main (v0.2.0) but probmed needs >=0.3.0. Pin siblings @v0.3.0 OR wait for
   medfit dev→main (CRAN-gated)
-- Feature: P_med for parallel/sequential structures; expand vignettes
+- Feature: P_med for SEQUENTIAL/serial structures (parallel joint done, PR #3);
+  path-specific parallel P_med; non-Gaussian parallel (needs medfit family slots)
 Blocked (CRAN-gated): medfit v0.2.0 CRAN acceptance → PR #33 (v0.3.0→main) →
   probmed→main + Remotes flip-back to data-wise/medfit
 
@@ -49,6 +49,8 @@ Blocked (CRAN-gated): medfit v0.2.0 CRAN acceptance → PR #33 (v0.3.0→main) �
 - medfit integration (extraction + family/link slot)
 - v0.1.0 GitHub release; pkgdown site + CLAUDE.md synced (2026-06-06)
 - method="mbco" closed-form MBCO interval (P_med + indirect effect) — PR #2 merged 2026-06-11
+- Parallel (joint) P_med for ParallelMediationData — 4 methods, Gaussian, vignette
+  + adversarial review fixes — PR #3 merged 2026-06-11
 
 ────────────────────────────────────────────────
 
