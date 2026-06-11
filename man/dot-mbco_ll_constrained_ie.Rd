@@ -2,7 +2,7 @@
 % Please edit documentation in R/compute-mbco.R
 \name{.mbco_ll_constrained_ie}
 \alias{.mbco_ll_constrained_ie}
-\title{Maximized log-likelihood under the constraint a*b = ie0.}
+\title{Maximized log-likelihood under the constraint \code{a*b} = ie0.}
 \usage{
 .mbco_ll_constrained_ie(prep, ie0)
 }

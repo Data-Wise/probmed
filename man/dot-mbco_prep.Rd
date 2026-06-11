@@ -7,7 +7,8 @@
 .mbco_prep(extract, x_ref, x_value)
 }
 \description{
-Dm = \link{intercept, mediator covariates} (the M-equation design with a\emph{X removed).
-Dy = \link{intercept, treatment, outcome covariates} (the Y-equation design with b}M removed).
+\code{Dm} is the M-equation design (intercept plus mediator covariates) with the
+treatment term \code{a*X} removed; \code{Dy} is the Y-equation design (intercept,
+treatment, and outcome covariates) with the mediator term \code{b*M} removed.
 }
 \keyword{internal}

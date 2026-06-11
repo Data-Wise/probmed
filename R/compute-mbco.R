@@ -26,7 +26,7 @@
   c(lower = endpoint(-1), upper = endpoint(+1))
 }
 
-#' Maximized log-likelihood under the constraint a*b = ie0.
+#' Maximized log-likelihood under the constraint `a*b` = ie0.
 #'
 #' Pins b = ie0 / a; Vy is free (its MLE is SSE_Y / n). Optimizes over
 #' (a, log Vm); all linear nuisance terms are profiled by OLS.
@@ -137,8 +137,9 @@
 
 #' Build design matrices and free-fit summaries for the MBCO optimization.
 #'
-#' Dm = [intercept, mediator covariates] (the M-equation design with a*X removed).
-#' Dy = [intercept, treatment, outcome covariates] (the Y-equation design with b*M removed).
+#' `Dm` is the M-equation design (intercept plus mediator covariates) with the
+#'   treatment term `a*X` removed; `Dy` is the Y-equation design (intercept,
+#'   treatment, and outcome covariates) with the mediator term `b*M` removed.
 #'
 #' @keywords internal
 .mbco_prep <- function(extract, x_ref, x_value) {
