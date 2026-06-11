@@ -13,7 +13,7 @@ Status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repost
 [![Website
 Status](https://github.com/data-wise/probmed/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/data-wise/probmed/actions/workflows/pkgdown.yaml)
 [![R-hub](https://github.com/data-wise/probmed/actions/workflows/rhub.yaml/badge.svg)](https://github.com/data-wise/probmed/actions/workflows/rhub.yaml)
-[![Codecov](https://codecov.io/gh/data-wise/probmed/graph/badge.svg)](https://codecov.io/gh/data-wise/probmed)
+[![Codecov](https://codecov.io/gh/data-wise/probmed/graph/badge.svg)](https://app.codecov.io/gh/data-wise/probmed)
 <!-- badges: end -->
 
 **probmed** provides a robust framework for computing **$P_{med}$**, a

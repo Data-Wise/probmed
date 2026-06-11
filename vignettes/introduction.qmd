@@ -143,6 +143,30 @@ And visualize the bootstrap distribution:
 plot(result)
 ```
 
+### MBCO intervals (deterministic)
+
+For Gaussian models you can use the Model-Based Constrained Optimization (MBCO)
+interval, which inverts a likelihood-ratio test instead of resampling — so it is
+deterministic and needs no `n_boot` or `seed`:
+
+```{r}
+#| label: mbco
+#| eval: false
+result_mbco <- pmed(
+  Y ~ X + M + C,
+  formula_m = M ~ X + C,
+  data = data,
+  treatment = "X",
+  mediator = "M",
+  method = "mbco"
+)
+print(result_mbco)
+```
+
+MBCO returns likelihood-ratio intervals for both P_med and the indirect effect
+`a*b`. It supports a Gaussian outcome and mediator (with covariates); for binary
+or other non-Gaussian models, use the bootstrap methods.
+
 ## Advanced Example: Binary Outcome (GLM)
 
 `probmed` is particularly valuable when dealing with non-linear models where traditional coefficients are on different scales (e.g., logit scale for binary outcomes). $P_{med}$ provides a scale-free interpretation, while the Indirect Effect gives the traditional measure for comparison. Let's look at a case with a **binary outcome**.

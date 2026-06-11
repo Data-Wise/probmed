@@ -11,6 +11,9 @@
     ),
     plugin = .pmed_plugin(
       extract, x_ref, x_value, ...
+    ),
+    mbco = .pmed_mbco(
+      extract, x_ref, x_value, ci_level = ci_level, ...
     )
   )
 }

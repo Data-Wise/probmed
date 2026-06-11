@@ -22,7 +22,7 @@
 
 \item{x_value}{Treatment value (default: 1)}
 
-\item{method}{Inference method: "parametric_bootstrap", "nonparametric_bootstrap", "plugin"}
+\item{method}{Inference method: "parametric_bootstrap", "nonparametric_bootstrap", "plugin", "mbco"}
 
 \item{n_boot}{Number of bootstrap samples (default: 1000)}
 
@@ -37,6 +37,20 @@ PmedResult object
 }
 \description{
 Compute P_med from Formula
+}
+\details{
+\code{method = "mbco"} returns a Model-Based Constrained Optimization interval
+(Tofighi & Kelley, 2020): a likelihood-ratio interval for P_med and for the
+indirect effect \code{a*b}, obtained by inverting the constrained-likelihood test
+rather than by resampling. It is deterministic (no \code{n_boot}, no \code{seed}) and
+supports a Gaussian outcome and mediator, with covariates, and any treatment
+contrast \code{x_ref != x_value}. For binary or other non-Gaussian models, use the
+bootstrap methods.
+
+For \code{method = "mbco"}, the \code{converged} flag reflects the \strong{P_med} interval
+only. The indirect-effect interval is reported separately and may be \code{NA} on
+a degenerate design (e.g. a non-finite delta-method scale for \code{a*b}) even when
+the P_med interval converges; check \code{ie_ci_lower} / \code{ie_ci_upper} directly.
 }
 \examples{
 # Toy example: Simple mediation model
