@@ -14,6 +14,7 @@ Status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repost
 Status](https://github.com/data-wise/probmed/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/data-wise/probmed/actions/workflows/pkgdown.yaml)
 [![R-hub](https://github.com/data-wise/probmed/actions/workflows/rhub.yaml/badge.svg)](https://github.com/data-wise/probmed/actions/workflows/rhub.yaml)
 [![Codecov](https://codecov.io/gh/data-wise/probmed/graph/badge.svg)](https://app.codecov.io/gh/data-wise/probmed)
+[![r-universe](https://data-wise.r-universe.dev/badges/probmed)](https://data-wise.r-universe.dev/probmed)
 <!-- badges: end -->
 
 **probmed** provides a robust framework for computing **$P_{med}$**, a
@@ -79,8 +80,15 @@ for version compatibility and development guidelines.
 
 ## Installation
 
-You can install the development version of probmed from
-[GitHub](https://github.com/) with:
+Install from the [Data-Wise r-universe](https://data-wise.r-universe.dev) — no
+compiler needed, and dependencies (e.g. `medfit`) resolve automatically:
+
+``` r
+install.packages("probmed", repos = "https://data-wise.r-universe.dev")
+```
+
+Or install the development version from
+[GitHub](https://github.com/data-wise/probmed):
 
 ``` r
 # install.packages("devtools")
