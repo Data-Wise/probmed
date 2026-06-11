@@ -66,12 +66,13 @@ S7::method(pmed, S7::class_formula) <- function(object,  # formula_y
                                                 x_value = 1,
                                                 method = c("parametric_bootstrap",
                                                           "nonparametric_bootstrap",
-                                                          "plugin"),
+                                                          "plugin",
+                                                          "mbco"),
                                                 n_boot = 1000,
                                                 ci_level = 0.95,
                                                 seed = NULL,
                                                 ...) {
-  
+
   method <- match.arg(method)
   
   # Store call
@@ -116,7 +117,8 @@ S7::method(pmed, medfit::MediationData) <- function(object,
                                                      x_value = 1,
                                                      method = c("parametric_bootstrap",
                                                                "nonparametric_bootstrap",
-                                                               "plugin"),
+                                                               "plugin",
+                                                               "mbco"),
                                                      n_boot = 1000,
                                                      ci_level = 0.95,
                                                      seed = NULL,
