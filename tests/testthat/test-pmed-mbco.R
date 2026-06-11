@@ -160,3 +160,42 @@ test_that("mbco IE constrained log-lik finds the global optimum on the bimodal t
   est <- .mbco_ll_constrained_ie(prep, ie0)
   expect_equal(est, brute, tolerance = 1e-3)
 })
+
+test_that("mbco P_med interval reflects correctly under a reversed treatment contrast", {
+  # Reversing the contrast (delta -> -delta) maps P_med -> 1 - P_med, so the
+  # whole interval should reflect: [L, U] at delta=+1 becomes [1-U, 1-L] at delta=-1.
+  data <- generate_mediation_data(n = 1200, a = 0.5, b = 0.5, c_prime = 0.3, seed = 51)
+  fwd <- pmed(Y ~ X + M, formula_m = M ~ X, data = data,
+              treatment = "X", mediator = "M", method = "mbco",
+              x_ref = 0, x_value = 1)
+  rev <- pmed(Y ~ X + M, formula_m = M ~ X, data = data,
+              treatment = "X", mediator = "M", method = "mbco",
+              x_ref = 1, x_value = 0)
+  expect_equal(rev@estimate, 1 - fwd@estimate, tolerance = 1e-6)
+  expect_equal(rev@ci_lower, 1 - fwd@ci_upper, tolerance = 1e-3)
+  expect_equal(rev@ci_upper, 1 - fwd@ci_lower, tolerance = 1e-3)
+})
+
+test_that("mbco errors when x_ref equals x_value (degenerate contrast)", {
+  data <- generate_mediation_data(n = 400, a = 0.5, b = 0.5, c_prime = 0.3, seed = 31)
+  expect_error(
+    pmed(Y ~ X + M, formula_m = M ~ X, data = data,
+         treatment = "X", mediator = "M", method = "mbco",
+         x_ref = 1, x_value = 1),
+    "x_value|x_ref|contrast"
+  )
+})
+
+test_that(".mbco_invert pins to the domain bounds when the statistic never crosses", {
+  flat <- function(t) -1                       # excess always negative: never rejected
+  ci <- .mbco_invert(0.5, flat, domain = c(0.01, 0.99), step = 0.01)
+  expect_equal(unname(ci["lower"]), 0.01)
+  expect_equal(unname(ci["upper"]), 0.99)
+})
+
+test_that(".mbco_invert returns NA when the estimate is already rejected", {
+  always_pos <- function(t) 1                  # excess > 0 immediately: same-sign bracket
+  ci <- .mbco_invert(0.5, always_pos, domain = c(0.01, 0.99), step = 0.01)
+  expect_true(is.na(ci["lower"]))
+  expect_true(is.na(ci["upper"]))
+})

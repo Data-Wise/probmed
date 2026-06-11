@@ -147,6 +147,10 @@
          "Use method = \"parametric_bootstrap\" or \"nonparametric_bootstrap\" ",
          "for non-Gaussian models.", call. = FALSE)
   }
+  if (x_value == x_ref) {
+    stop("method = \"mbco\" requires x_ref != x_value (a non-degenerate ",
+         "treatment contrast).", call. = FALSE)
+  }
   data <- extract@data
   if (is.null(data)) {
     stop("method = \"mbco\" needs the source data to refit constrained models, ",
@@ -218,8 +222,9 @@
     return(.mbco_gll(sse_m, sse_m / n, n) + .mbco_gll(sse_y, sse_y / n, n))
   }
 
-  sb <- sign(qstar) * a_sign  # pin sign(a*b) = sign(qstar)
   delta <- prep$delta
+  # Constraint requires sign(a*delta*b) = sign(qstar), so sign(a*b) = sign(qstar)*sign(delta).
+  sb <- sign(qstar) * a_sign * sign(delta)
 
   # Optimize over (a, log Vm, log|b|). |b| is a search coordinate, NOT a profiled
   # quantity: b enters both the constraint (which fixes Vy) and the Y residual, so
@@ -230,6 +235,8 @@
     Vm <- exp(p[2])
     b  <- sb * exp(p[3])
     Vy <- (a * delta * b)^2 / (2 * qstar^2) - b^2 * Vm
+    # 1e10 penalty wall (infeasible Vy) is kept well above any real NLL so the
+    # o$value >= 1e9 check below reliably detects a failed/penalized fit.
     if (!is.finite(Vy) || Vy <= 1e-8) return(1e10)
     sse_m <- .ols_sse(prep$Dm, prep$M - a * prep$X)
     sse_y <- .ols_sse(prep$Dy, prep$Y - b * prep$M)
