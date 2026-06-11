@@ -36,7 +36,16 @@ S7::method(print, PmedResult) <- function(x, digits = 3, ...) {
 
   cat("\nTreatment contrast: X =", x@x_value, "vs. X* =", x@x_ref, "\n")
   cat("\nInterpretation:\n")
-  cat("  P(Y_{X*, M_X} > Y_{X, M_X}) =", format(x@estimate, digits = digits), "\n")
+  cat(
+    "  P(Y(", x@x_value, ", M(", x@x_value, ")) > Y(", x@x_value,
+    ", M(", x@x_ref, "))) = ", format(x@estimate, digits = digits), "\n",
+    sep = ""
+  )
+  cat(
+    "  P that the mediator shift (M(", x@x_ref, ") -> M(", x@x_value,
+    ")) leaves a random individual better off, holding X = ", x@x_value, ".\n",
+    sep = ""
+  )
   cat("\n")
 
   invisible(x)
