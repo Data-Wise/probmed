@@ -56,6 +56,10 @@ navbar:
       - text: "Introduction to probmed"
         href: articles/introduction.html
       - text: "─────────────"
+      - text: "Methods"
+      - text: "Parallel Mediation: joint P_med"
+        href: articles/parallel-mediation.html
+      - text: "─────────────"
       - text: "Integration Guides"
       - text: "lavaan Integration"
         href: articles/lavaan-integration.html
@@ -141,6 +145,10 @@ articles:
     navbar: ~
     contents:
       - introduction
+  - title: "Methods"
+    navbar: ~
+    contents:
+      - parallel-mediation
   - title: "Integration Guides"
     navbar: ~
     contents:

@@ -6,7 +6,8 @@ articles:
   lavaan-integration: lavaan-integration.html
   mediation-integration: mediation-integration.html
   package-comparison: package-comparison.html
-last_built: 2026-06-11T12:35Z
+  parallel-mediation: parallel-mediation.html
+last_built: 2026-06-11T15:11Z
 urls:
   reference: https://data-wise.github.io/probmed/reference
   article: https://data-wise.github.io/probmed/articles
