@@ -1,3 +1,31 @@
+#' Invert an LR test: find where excess(t) = LR(t) - crit crosses zero.
+#'
+#' Steps outward from `est` in increments of `step` until the statistic exceeds
+#' the cutoff, then locates the crossing with uniroot (resolution-independent).
+#' `domain = c(lo, hi)` bounds the search; an endpoint pinned at a bound means
+#' the interval is open there.
+#'
+#' @return c(lower = ., upper = .)
+#' @keywords internal
+.mbco_invert <- function(est, excess, domain, step) {
+  lo <- domain[1]; hi <- domain[2]
+  endpoint <- function(dir) {
+    inner <- est
+    for (k in seq_len(200)) {
+      outer <- min(max(est + dir * step * k, lo), hi)
+      if (excess(outer) > 0) {
+        return(tryCatch(
+          stats::uniroot(excess, sort(c(inner, outer)), tol = step / 100)$root,
+          error = function(e) NA_real_))
+      }
+      inner <- outer
+      if (outer <= lo || outer >= hi) return(outer)
+    }
+    outer
+  }
+  c(lower = endpoint(-1), upper = endpoint(+1))
+}
+
 #' MBCO Confidence Interval for P_med (Gaussian single-mediator model)
 #'
 #' Implements the Model-Based Constrained Optimization interval (Tofighi &
@@ -11,19 +39,26 @@
 
   a <- extract@a_path
   b <- extract@b_path
-  Vm <- prep$Vm_hat
-  Vy <- prep$Vy_hat
   delta <- prep$delta
-
-  dhat <- a * delta * b / sqrt(2 * (b^2 * Vm + Vy))
+  dhat <- a * delta * b / sqrt(2 * (b^2 * prep$Vm_hat + prep$Vy_hat))
   est  <- as.numeric(stats::pnorm(dhat))
   ie_est <- a * b
 
+  a_sign <- sign(a); if (a_sign == 0) a_sign <- 1
+  crit <- stats::qchisq(ci_level, df = 1)
+  excess_pmed <- function(ps) {
+    ps  <- min(max(ps, 1e-5), 1 - 1e-5)
+    ll0 <- .mbco_ll_constrained_pmed(prep, stats::qnorm(ps), a_sign)
+    if (is.na(ll0)) return(crit + 1e3)          # infeasible -> rejected
+    -2 * (ll0 - prep$ll_free) - crit
+  }
+  ci <- .mbco_invert(est, excess_pmed, domain = c(1e-4, 1 - 1e-4), step = 0.01)
+
   PmedResult(
     estimate = est,
-    ci_lower = NA_real_,
-    ci_upper = NA_real_,
-    ci_level = NA_real_,
+    ci_lower = unname(ci["lower"]),
+    ci_upper = unname(ci["upper"]),
+    ci_level = ci_level,
     method = "mbco",
     n_boot = NA_integer_,
     boot_estimates = numeric(0),
@@ -34,7 +69,7 @@
     x_ref = x_ref,
     x_value = x_value,
     source_extract = extract,
-    converged = TRUE
+    converged = !is.na(ci["lower"]) && !is.na(ci["upper"])
   )
 }
 

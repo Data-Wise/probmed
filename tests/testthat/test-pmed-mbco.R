@@ -78,3 +78,18 @@ test_that("constrained P_med log-lik handles the null (p*=0.5, b=0) submodel", {
   # Null nests inside the free model: strictly less likely here (b != 0 truly).
   expect_lt(ll_null, prep$ll_free)
 })
+
+test_that("mbco P_med interval brackets the estimate, lies in (0,1), and is deterministic", {
+  data <- generate_mediation_data(n = 1200, a = 0.5, b = 0.5, c_prime = 0.3, seed = 51)
+  r1 <- pmed(Y ~ X + M, formula_m = M ~ X, data = data,
+             treatment = "X", mediator = "M", method = "mbco", ci_level = 0.95)
+  r2 <- pmed(Y ~ X + M, formula_m = M ~ X, data = data,
+             treatment = "X", mediator = "M", method = "mbco", ci_level = 0.95)
+  expect_gt(r1@ci_lower, 0); expect_lt(r1@ci_upper, 1)
+  expect_lte(r1@ci_lower, r1@estimate)
+  expect_gte(r1@ci_upper, r1@estimate)
+  expect_equal(r1@ci_level, 0.95)
+  # Seed-free: identical across calls.
+  expect_identical(r1@ci_lower, r2@ci_lower)
+  expect_identical(r1@ci_upper, r2@ci_upper)
+})
