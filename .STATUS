@@ -29,8 +29,9 @@ Version: 0.1.0 (first GitHub release, non-CRAN; pins medfit@v0.3.0)
 ────────────────────────────────────────────────
 
 Next:
-- Manuscript §6: un-comment pmed.qmd eval:false chunk (UNBLOCKED — probmed@v0.1.0
-  installs; reproduces P_med 0.681 / NIE 2.121 / binary 0.629)
+- Manuscript §6: DONE — chunk is live and verified 2026-06-11 (runs end-to-end,
+  reproduces displayed P_med 0.68 / NIE 2.12 / binary 0.63 vs probmed 0.1.0.9000 +
+  medfit 0.3.0 + RMediation 1.4.0; sub-2-decimal MC drift only)
 - Ecosystem: resolve medfit version skew — medsim/mediationverse Remotes point at
   medfit main (v0.2.0) but probmed needs >=0.3.0. Pin siblings @v0.3.0 OR wait for
   medfit dev→main (CRAN-gated)
