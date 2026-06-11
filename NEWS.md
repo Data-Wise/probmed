@@ -1,5 +1,15 @@
 # probmed 0.1.0.9000 (development)
 
+## Features
+
+* `pmed(..., method = "mbco")` adds a deterministic Model-Based Constrained
+  Optimization interval (Tofighi & Kelley, 2020): a likelihood-ratio interval
+  for both P_med and the indirect effect `a * b`, obtained by inverting the
+  constrained-likelihood test rather than by resampling. Gaussian outcome and
+  mediator (with covariates) and any contrast `x_ref != x_value`; seed-free and
+  grid-resolution-independent. Non-Gaussian models still use the bootstrap
+  methods.
+
 ## Fixes
 
 * `print(PmedResult)` interpretation line now shows the mediation estimand
