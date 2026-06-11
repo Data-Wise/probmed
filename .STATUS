@@ -15,7 +15,9 @@ Status: active
 Progress: 80
 
 🌿 ACTIVE WORKTREE
-(none — feature/pmed-mbco merged to dev via PR #2, 2026-06-11; worktree removed)
+~/.git-worktrees/probmed/feature-pmed-parallel  [feature/pmed-parallel, base dev]
+  → Implementing parallel (joint) P_med — 4 methods, closed-form kernel, Gaussian
+    (spec: docs/superpowers/specs/2026-06-11-pmed-parallel-design.md)
 
 ────────────────────────────────────────────────
 
