@@ -40,7 +40,6 @@
     sse_y <- .ols_sse(prep$Dy, prep$Y)
     return(.mbco_gll(sse_m, sse_m / n, n) + .mbco_gll(sse_y, sse_y / n, n))
   }
-  start <- c(prep$a_hat, log(prep$Vm_hat))
   nll <- function(p) {
     a <- p[1]
     if (abs(a) < 1e-8) return(1e10)
@@ -50,11 +49,25 @@
     sse_y <- .ols_sse(prep$Dy, prep$Y - b * prep$M)
     -(.mbco_gll(sse_m, Vm, n) + .mbco_gll(sse_y, sse_y / n, n))
   }
-  o <- try(stats::optim(start, nll, method = "Nelder-Mead",
-                        control = list(maxit = 3000, reltol = 1e-10)),
-           silent = TRUE)
-  if (inherits(o, "try-error") || o$value >= 1e9) return(NA_real_)
-  -o$value
+  # b = ie0/a makes the a-profile bimodal away from the point estimate, so we
+  # warm-start from BOTH basins: a near the free MLE, and a near ie0/b_hat (the
+  # basin where b stays near its free value). Keep the better optimum.
+  starts <- list(c(prep$a_hat, log(prep$Vm_hat)))
+  if (abs(prep$b_hat) > 1e-8) {
+    starts[[length(starts) + 1L]] <- c(ie0 / prep$b_hat, log(prep$Vm_hat))
+  }
+  best <- NA_real_
+  for (s in starts) {
+    if (!all(is.finite(s))) next
+    o <- try(stats::optim(s, nll, method = "Nelder-Mead",
+                          control = list(maxit = 3000, reltol = 1e-10)),
+             silent = TRUE)
+    if (!inherits(o, "try-error") && o$value < 1e9) {
+      best <- max(best, -o$value, na.rm = TRUE)
+    }
+  }
+  if (!is.finite(best)) return(NA_real_)
+  best
 }
 
 #' MBCO Confidence Interval for P_med (Gaussian single-mediator model)
@@ -85,18 +98,21 @@
   }
   ci <- .mbco_invert(est, excess_pmed, domain = c(1e-4, 1 - 1e-4), step = 0.01)
 
-  crit_ie <- stats::qchisq(ci_level, df = 1)
-  excess_ie <- function(ie0) {
-    ll0 <- .mbco_ll_constrained_ie(prep, ie0)
-    if (is.na(ll0)) return(crit_ie + 1e3)
-    -2 * (ll0 - prep$ll_free) - crit_ie
+  if (is.finite(prep$sd_ie) && prep$sd_ie > 0) {
+    excess_ie <- function(ie0) {
+      ll0 <- .mbco_ll_constrained_ie(prep, ie0)
+      if (is.na(ll0)) return(crit + 1e3)
+      -2 * (ll0 - prep$ll_free) - crit
+    }
+    ie_step <- prep$sd_ie / 20
+    ie_ci <- .mbco_invert(
+      ie_est, excess_ie,
+      domain = c(ie_est - 12 * prep$sd_ie, ie_est + 12 * prep$sd_ie),
+      step = ie_step
+    )
+  } else {
+    ie_ci <- c(lower = NA_real_, upper = NA_real_)
   }
-  ie_step <- max(prep$sd_ie / 20, 1e-4)
-  ie_ci <- .mbco_invert(
-    ie_est, excess_ie,
-    domain = c(ie_est - 12 * prep$sd_ie, ie_est + 12 * prep$sd_ie),
-    step = ie_step
-  )
 
   PmedResult(
     estimate = est,
@@ -113,6 +129,8 @@
     x_ref = x_ref,
     x_value = x_value,
     source_extract = extract,
+    # converged tracks the P_med interval only; the IE interval is reported
+    # separately and may be NA on a degenerate design.
     converged = !is.na(ci["lower"]) && !is.na(ci["upper"])
   )
 }

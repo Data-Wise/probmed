@@ -133,3 +133,30 @@ test_that("mbco IE interval includes 0 at a near-null indirect effect", {
   expect_lt(res@ie_ci_lower, 0)
   expect_gt(res@ie_ci_upper, 0)
 })
+
+test_that("mbco IE constrained log-lik finds the global optimum on the bimodal tail", {
+  data <- generate_mediation_data(n = 1500, a = 0.6, b = 0.6, c_prime = 0.3, seed = 71)
+  fit_m <- stats::glm(M ~ X, data = data)
+  fit_y <- stats::glm(Y ~ X + M, data = data)
+  ex <- extract_mediation(fit_m, treatment = "X", mediator = "M",
+                          model_y = fit_y, data = data)
+  prep <- .mbco_prep(ex, x_ref = 0, x_value = 1)
+  ie0 <- 0.05  # deep in the tail, where the a-profile is bimodal
+
+  # Independent brute-force global maximum: profile over a on a dense grid,
+  # with Vm, Vy, and all linear nuisance terms in closed form (MLE = sse/n).
+  n <- prep$n
+  grid_ll <- function(a) {
+    if (abs(a) < 1e-6) return(-Inf)
+    b <- ie0 / a
+    sse_m <- sum(stats::lm.fit(prep$Dm, prep$M - a * prep$X)$residuals^2)
+    sse_y <- sum(stats::lm.fit(prep$Dy, prep$Y - b * prep$M)$residuals^2)
+    -n / 2 * log(2 * pi * sse_m / n) - n / 2 -
+      n / 2 * log(2 * pi * sse_y / n) - n / 2
+  }
+  a_grid <- seq(0.01, 3.0, length.out = 6000)
+  brute <- max(vapply(a_grid, grid_ll, numeric(1)))
+
+  est <- .mbco_ll_constrained_ie(prep, ie0)
+  expect_equal(est, brute, tolerance = 1e-3)
+})
