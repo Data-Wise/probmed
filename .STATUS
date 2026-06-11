@@ -5,19 +5,17 @@
 ~/projects/r-packages/active/probmed/
 
 ⏰ LAST UPDATED
-2026-06-10
+2026-06-11
 
 ────────────────────────────────────────────────
 
 🎯 CURRENT STATUS
 Priority: P1
 Status: active
-Progress: 70
+Progress: 80
 
 🌿 ACTIVE WORKTREE
-.claude/worktrees/feature/pmed-mbco  [feature/pmed-mbco, base dev]
-  → Implementing method="mbco" (spec + plan on dev:
-    docs/superpowers/{specs,plans}/2026-06-10-pmed-mbco*.md)
+(none — feature/pmed-mbco merged to dev via PR #2, 2026-06-11; worktree removed)
 
 ────────────────────────────────────────────────
 
@@ -36,8 +34,7 @@ Next:
 - Ecosystem: resolve medfit version skew — medsim/mediationverse Remotes point at
   medfit main (v0.2.0) but probmed needs >=0.3.0. Pin siblings @v0.3.0 OR wait for
   medfit dev→main (CRAN-gated)
-- Feature: method="mbco" (closed-form interval); P_med for parallel/sequential
-  structures; expand vignettes
+- Feature: P_med for parallel/sequential structures; expand vignettes
 Blocked (CRAN-gated): medfit v0.2.0 CRAN acceptance → PR #33 (v0.3.0→main) →
   probmed→main + Remotes flip-back to data-wise/medfit
 
@@ -49,6 +46,7 @@ Blocked (CRAN-gated): medfit v0.2.0 CRAN acceptance → PR #33 (v0.3.0→main) �
 - Bootstrap CIs (parametric + nonparametric, name-indexed)
 - medfit integration (extraction + family/link slot)
 - v0.1.0 GitHub release; pkgdown site + CLAUDE.md synced (2026-06-06)
+- method="mbco" closed-form MBCO interval (P_med + indirect effect) — PR #2 merged 2026-06-11
 
 ────────────────────────────────────────────────
 
