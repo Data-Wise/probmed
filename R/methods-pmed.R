@@ -151,3 +151,34 @@ S7::method(pmed, medfit::MediationData) <- function(object,
     ...
   )
 }
+
+#' Compute parallel (joint) P_med from a ParallelMediationData object
+#'
+#' Computes the joint P_med for k parallel mediators (all moved together from
+#' their control to their treated levels). Gaussian outcome and mediators only.
+#' See `vignette("parallel-mediation", package = "probmed")` for the estimand.
+#'
+#' @name pmed-ParallelMediationData
+S7::method(pmed, medfit::ParallelMediationData) <- function(
+    object,
+    x_ref = 0,
+    x_value = 1,
+    method = c("parametric_bootstrap", "nonparametric_bootstrap",
+               "plugin", "mbco"),
+    n_boot = 1000,
+    ci_level = 0.95,
+    seed = NULL,
+    ...) {
+  method <- match.arg(method)
+
+  .pmed_compute_parallel(
+    extract = object,
+    x_ref = x_ref,
+    x_value = x_value,
+    method = method,
+    n_boot = n_boot,
+    ci_level = ci_level,
+    seed = seed,
+    ...
+  )
+}
