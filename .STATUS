@@ -29,9 +29,11 @@ Version: 0.1.0 (first GitHub release, non-CRAN; pins medfit@v0.3.0)
 ────────────────────────────────────────────────
 
 Next:
-- Manuscript §6: DONE — chunk is live and verified 2026-06-11 (runs end-to-end,
-  reproduces displayed P_med 0.68 / NIE 2.12 / binary 0.63 vs probmed 0.1.0.9000 +
-  medfit 0.3.0 + RMediation 1.4.0; sub-2-decimal MC drift only)
+- Manuscript §6: DONE — chunk live, verified 2026-06-11. Full apaquarto-pdf render
+  clean (_manuscript/pmed.pdf). probmed 0.1.0 and 0.1.0.9000 are BIT-EXACT here
+  (single-mediator path unchanged): P_med cont 0.6778, binary 0.6268, NIE 2.1210
+  → displayed 0.68 / 0.63 / 2.12. The old 0.681/0.629 reference was stale, not a
+  version discrepancy.
 - Ecosystem: resolve medfit version skew — medsim/mediationverse Remotes point at
   medfit main (v0.2.0) but probmed needs >=0.3.0. Pin siblings @v0.3.0 OR wait for
   medfit dev→main (CRAN-gated)
