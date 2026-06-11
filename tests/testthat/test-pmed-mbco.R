@@ -115,3 +115,21 @@ test_that("profiled mbco interval matches the independent oracle (one covariate)
   expect_equal(res@ci_lower, unname(orc["lower"]), tolerance = 0.015)
   expect_equal(res@ci_upper, unname(orc["upper"]), tolerance = 0.015)
 })
+
+test_that("mbco IE interval brackets a*b and excludes 0 for a strong effect", {
+  data <- generate_mediation_data(n = 1500, a = 0.6, b = 0.6, c_prime = 0.3, seed = 71)
+  res <- pmed(Y ~ X + M, formula_m = M ~ X, data = data,
+              treatment = "X", mediator = "M", method = "mbco")
+  expect_lte(res@ie_ci_lower, res@ie_estimate)
+  expect_gte(res@ie_ci_upper, res@ie_estimate)
+  expect_gt(res@ie_ci_lower, 0)             # strong positive mediation
+  expect_lt(res@ie_ci_lower, res@ie_ci_upper)
+})
+
+test_that("mbco IE interval includes 0 at a near-null indirect effect", {
+  data <- generate_mediation_data(n = 1500, a = 0.02, b = 0.02, c_prime = 0.3, seed = 72)
+  res <- pmed(Y ~ X + M, formula_m = M ~ X, data = data,
+              treatment = "X", mediator = "M", method = "mbco")
+  expect_lt(res@ie_ci_lower, 0)
+  expect_gt(res@ie_ci_upper, 0)
+})

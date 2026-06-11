@@ -26,6 +26,37 @@
   c(lower = endpoint(-1), upper = endpoint(+1))
 }
 
+#' Maximized log-likelihood under the constraint a*b = ie0.
+#'
+#' Pins b = ie0 / a; Vy is free (its MLE is SSE_Y / n). Optimizes over
+#' (a, log Vm); all linear nuisance terms are profiled by OLS.
+#'
+#' @return Maximized joint log-likelihood, or NA_real_ if the fit fails.
+#' @keywords internal
+.mbco_ll_constrained_ie <- function(prep, ie0) {
+  n <- prep$n
+  if (abs(ie0) < 1e-12) {  # a*b = 0: take b = 0 (Y ~ Dy, no M)
+    sse_m <- .ols_sse(cbind(prep$Dm, X = prep$X), prep$M)
+    sse_y <- .ols_sse(prep$Dy, prep$Y)
+    return(.mbco_gll(sse_m, sse_m / n, n) + .mbco_gll(sse_y, sse_y / n, n))
+  }
+  start <- c(prep$a_hat, log(prep$Vm_hat))
+  nll <- function(p) {
+    a <- p[1]
+    if (abs(a) < 1e-8) return(1e10)
+    Vm <- exp(p[2])
+    b  <- ie0 / a
+    sse_m <- .ols_sse(prep$Dm, prep$M - a * prep$X)
+    sse_y <- .ols_sse(prep$Dy, prep$Y - b * prep$M)
+    -(.mbco_gll(sse_m, Vm, n) + .mbco_gll(sse_y, sse_y / n, n))
+  }
+  o <- try(stats::optim(start, nll, method = "Nelder-Mead",
+                        control = list(maxit = 3000, reltol = 1e-10)),
+           silent = TRUE)
+  if (inherits(o, "try-error") || o$value >= 1e9) return(NA_real_)
+  -o$value
+}
+
 #' MBCO Confidence Interval for P_med (Gaussian single-mediator model)
 #'
 #' Implements the Model-Based Constrained Optimization interval (Tofighi &
@@ -54,6 +85,19 @@
   }
   ci <- .mbco_invert(est, excess_pmed, domain = c(1e-4, 1 - 1e-4), step = 0.01)
 
+  crit_ie <- stats::qchisq(ci_level, df = 1)
+  excess_ie <- function(ie0) {
+    ll0 <- .mbco_ll_constrained_ie(prep, ie0)
+    if (is.na(ll0)) return(crit_ie + 1e3)
+    -2 * (ll0 - prep$ll_free) - crit_ie
+  }
+  ie_step <- max(prep$sd_ie / 20, 1e-4)
+  ie_ci <- .mbco_invert(
+    ie_est, excess_ie,
+    domain = c(ie_est - 12 * prep$sd_ie, ie_est + 12 * prep$sd_ie),
+    step = ie_step
+  )
+
   PmedResult(
     estimate = est,
     ci_lower = unname(ci["lower"]),
@@ -63,8 +107,8 @@
     n_boot = NA_integer_,
     boot_estimates = numeric(0),
     ie_estimate = ie_est,
-    ie_ci_lower = NA_real_,
-    ie_ci_upper = NA_real_,
+    ie_ci_lower = unname(ie_ci["lower"]),
+    ie_ci_upper = unname(ie_ci["upper"]),
     ie_boot_estimates = numeric(0),
     x_ref = x_ref,
     x_value = x_value,
