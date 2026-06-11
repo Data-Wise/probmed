@@ -3,14 +3,18 @@
 \name{.pmed_parallel_coef_names}
 \alias{.pmed_parallel_coef_names}
 \title{Names of the structural coefficients (a_j, b_j) in the parallel estimates
-vector / vcov: \verb{m\{j\}_<treatment>} for the a-paths, \verb{y_<mediator_j>} for the
-b-paths (see the medfit parallel extractor).}
+vector / vcov. Uses the structural aliases \verb{a\{j\}} / \verb{b\{j\}}, which BOTH the
+lm/glm and lavaan medfit extractors expose (with full vcov rows) -- unlike the
+source-specific \verb{m\{j\}_<tx>} / \verb{y_<mediator_j>} names, which exist only in the
+lm/glm extractor and would break the parametric bootstrap on a lavaan extract.}
 \usage{
 .pmed_parallel_coef_names(extract)
 }
 \description{
 Names of the structural coefficients (a_j, b_j) in the parallel estimates
-vector / vcov: \verb{m\{j\}_<treatment>} for the a-paths, \verb{y_<mediator_j>} for the
-b-paths (see the medfit parallel extractor).
+vector / vcov. Uses the structural aliases \verb{a\{j\}} / \verb{b\{j\}}, which BOTH the
+lm/glm and lavaan medfit extractors expose (with full vcov rows) -- unlike the
+source-specific \verb{m\{j\}_<tx>} / \verb{y_<mediator_j>} names, which exist only in the
+lm/glm extractor and would break the parametric bootstrap on a lavaan extract.
 }
 \keyword{internal}

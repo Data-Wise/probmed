@@ -21,7 +21,11 @@
 #'
 #' `ParallelMediationData` carries no `family_*` slots, so the Gaussian
 #' indicator is "all `sigma_mediators` and `sigma_y` present and finite". A
-#' non-Gaussian fit leaves these NA/empty.
+#' non-Gaussian GLM fit leaves these NA/empty. Caveat: a lavaan-sourced extract
+#' computes a residual SD for any variable under normal theory, so a binary /
+#' ordinal mediator fit that way could slip past this heuristic -- callers must
+#' ensure mediators and outcome are genuinely continuous-Gaussian. The durable
+#' fix is family slots on the medfit ParallelMediationData container.
 #'
 #' @keywords internal
 .pmed_parallel_require_gaussian <- function(extract) {
@@ -95,15 +99,17 @@
 }
 
 #' Names of the structural coefficients (a_j, b_j) in the parallel estimates
-#' vector / vcov: `m{j}_<treatment>` for the a-paths, `y_<mediator_j>` for the
-#' b-paths (see the medfit parallel extractor).
+#' vector / vcov. Uses the structural aliases `a{j}` / `b{j}`, which BOTH the
+#' lm/glm and lavaan medfit extractors expose (with full vcov rows) -- unlike the
+#' source-specific `m{j}_<tx>` / `y_<mediator_j>` names, which exist only in the
+#' lm/glm extractor and would break the parametric bootstrap on a lavaan extract.
 #'
 #' @keywords internal
 .pmed_parallel_coef_names <- function(extract) {
   k <- length(extract@mediators)
   list(
-    a = paste0("m", seq_len(k), "_", extract@treatment),
-    b = paste0("y_", extract@mediators)
+    a = paste0("a", seq_len(k)),
+    b = paste0("b", seq_len(k))
   )
 }
 
@@ -127,6 +133,14 @@
 
   nm <- .pmed_parallel_coef_names(extract)
   all_nm <- c(nm$a, nm$b)
+  missing <- setdiff(all_nm, rownames(extract@vcov))
+  if (length(missing)) {
+    stop("Parallel parametric bootstrap: structural coefficients not found in ",
+      "the extract's vcov: ", paste(missing, collapse = ", "), ". ",
+      "Use method = \"nonparametric_bootstrap\" or \"mbco\".",
+      call. = FALSE
+    )
+  }
   mu <- extract@estimates[all_nm]
   Sigma <- extract@vcov[all_nm, all_nm, drop = FALSE]
 

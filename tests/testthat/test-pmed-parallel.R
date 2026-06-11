@@ -171,6 +171,9 @@ test_that("profiled mbco joint interval matches the full-dimensional oracle", {
   ex <- extract_parallel(data)
   res <- pmed(ex, method = "mbco")
   orc <- oracle_parallel_mbco_ci(data, meds = c("M1", "M2"), delta = 1)
+  # The estimate assertion is a sanity guard (both paths share the closed form by
+  # construction); the CI endpoints are the substantive check -- they come from
+  # an independent un-profiled full-dimensional LR inversion in the oracle.
   expect_equal(res@estimate, unname(orc["estimate"]), tolerance = 1e-6)
   expect_equal(res@ci_lower, unname(orc["lower"]), tolerance = 0.02)
   expect_equal(res@ci_upper, unname(orc["upper"]), tolerance = 0.02)
@@ -205,4 +208,77 @@ test_that("mbco errors on a degenerate contrast (x_ref == x_value)", {
     pmed(ex, method = "mbco", x_ref = 1, x_value = 1),
     "x_value|x_ref|contrast"
   )
+})
+
+test_that("mbco S=0 (p*=0.5) fit is continuous with the qstar->0 limit (k>=2)", {
+  # sum(a*b) ~ 0 with all b_j != 0 (the mediators cancel). The constrained fit at
+  # p* = 0.5 must allow b != 0 on the surface S = 0, not force b = 0 -- the latter
+  # was ~80-160 log-lik units worse, a discontinuity that spuriously inflated the
+  # LR statistic near P_med = 0.5.
+  data <- generate_parallel_data(
+    n = 1500, a_vec = c(0.4, 0.4), b_vec = c(0.35, -0.30), seed = 121
+  )
+  ex <- extract_parallel(data)
+  prep <- .mbco_prep_parallel(ex, 0, 1)
+  ll_at <- .mbco_ll_constrained_pmed_parallel(prep, stats::qnorm(0.5))
+  ll_near <- .mbco_ll_constrained_pmed_parallel(prep, stats::qnorm(0.5 + 1e-4))
+  expect_equal(ll_at, ll_near, tolerance = 1.0)
+})
+
+test_that("profiled mbco joint interval matches the oracle for three mediators", {
+  data <- generate_parallel_data(
+    n = 1000, a_vec = c(0.4, 0.3, 0.5), b_vec = c(0.5, 0.4, 0.3), seed = 118
+  )
+  ex <- extract_parallel(data)
+  res <- pmed(ex, method = "mbco")
+  orc <- oracle_parallel_mbco_ci(data, meds = c("M1", "M2", "M3"), delta = 1)
+  expect_equal(res@estimate, unname(orc["estimate"]), tolerance = 1e-6)
+  expect_equal(res@ci_lower, unname(orc["lower"]), tolerance = 0.025)
+  expect_equal(res@ci_upper, unname(orc["upper"]), tolerance = 0.025)
+})
+
+test_that("all methods handle covariates in the parallel mediator/outcome models", {
+  data <- generate_parallel_data(n = 1500, n_cov = 1, seed = 119)
+  ex <- extract_parallel(data, covariates = "C1")
+  plug <- pmed(ex, method = "plugin")
+  par <- pmed(ex, method = "parametric_bootstrap", n_boot = 400, seed = 1)
+  npar <- pmed(ex, method = "nonparametric_bootstrap", n_boot = 200, seed = 1)
+  mb <- pmed(ex, method = "mbco")
+  # Plugin point estimate matches the simulator built from the covariate-adjusted
+  # path estimates.
+  orc <- oracle_parallel_pmed(
+    ex@a_paths, ex@b_paths, ex@sigma_mediators, ex@sigma_y,
+    delta = 1, n_sim = 3e6, seed = 8
+  )
+  expect_equal(plug@estimate, orc, tolerance = 0.012)
+  expect_equal(par@estimate, plug@estimate, tolerance = 0.03)
+  expect_equal(npar@estimate, plug@estimate, tolerance = 0.03)
+  # MBCO interval valid and brackets the estimate with covariates present.
+  expect_gt(mb@ci_lower, 0)
+  expect_lt(mb@ci_upper, 1)
+  expect_lte(mb@ci_lower, mb@estimate)
+  expect_gte(mb@ci_upper, mb@estimate)
+})
+
+test_that("parametric bootstrap works on a lavaan-sourced parallel extract", {
+  skip_if_not_installed("lavaan")
+  data <- generate_parallel_data(n = 1200, seed = 120)
+  ex <- extract_parallel_lavaan(data, meds = c("M1", "M2"))
+  skip_if(is.null(ex), "lavaan parallel extraction unavailable")
+  # The structural aliases a{j}/b{j} (present in both lm and lavaan extracts)
+  # make the parametric draw source-agnostic; this errored before the fix.
+  res <- pmed(ex, method = "parametric_bootstrap", n_boot = 400, seed = 1)
+  expect_s7_class(res, PmedResult)
+  expect_gt(res@ci_lower, 0)
+  expect_lt(res@ci_upper, 1)
+  expect_lte(res@ci_lower, res@ci_upper)
+})
+
+test_that("Gaussian guard fires on a non-Gaussian mediator and on non-plugin entry", {
+  data <- generate_parallel_data(n = 600, seed = 122)
+  ex <- extract_parallel(data)
+  ex@sigma_mediators <- c(ex@sigma_mediators[1], NA_real_) # one non-Gaussian M
+  expect_error(pmed(ex, method = "plugin"), "Gaussian")
+  expect_error(pmed(ex, method = "parametric_bootstrap"), "Gaussian")
+  expect_error(pmed(ex, method = "mbco"), "Gaussian")
 })

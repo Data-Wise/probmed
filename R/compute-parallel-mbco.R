@@ -64,10 +64,20 @@
     M = as.matrix(data[, meds, drop = FALSE]),
     Y = data[[out]], X = data[[tx]],
     Dm_list = Dm_list, Dy = Dy, n = nrow(data), k = k,
+    # Precomputed QR of the FIXED design matrices: the constrained optimizers
+    # only change the response (Y - M b, M_j - a_j X), never the design, so
+    # decomposing once and reusing qr.resid avoids re-factorizing every nll call.
+    qr_Dy = qr(Dy), qr_Dm_list = lapply(Dm_list, qr),
     delta = x_value - x_ref,
     a_hat = a_hat, b_hat = b_hat, Vm_hat = Vm_hat, Vy_hat = Vy_hat,
     ll_free = ll_free, sd_ie = sd_ie
   )
+}
+
+#' Residual sum of squares against a precomputed QR decomposition.
+#' @keywords internal
+.qr_sse <- function(qr_obj, y) {
+  sum(qr.resid(qr_obj, y)^2) # qr.resid is base, not stats
 }
 
 #' Joint Gaussian log-likelihood for the parallel free model at given params.
@@ -81,11 +91,76 @@
   n <- prep$n
   ll <- 0
   for (j in seq_len(prep$k)) {
-    sse_mj <- .ols_sse(prep$Dm_list[[j]], prep$M[, j] - a[j] * prep$X)
+    sse_mj <- .qr_sse(prep$qr_Dm_list[[j]], prep$M[, j] - a[j] * prep$X)
     ll <- ll + .mbco_gll(sse_mj, Vm[j], n)
   }
-  sse_y <- .ols_sse(prep$Dy, prep$Y - as.numeric(prep$M %*% b))
+  sse_y <- .qr_sse(prep$qr_Dy, prep$Y - as.numeric(prep$M %*% b))
   ll + .mbco_gll(sse_y, Vy, n)
+}
+
+#' Deterministic perturbed warm starts for the parallel MBCO optimizers.
+#'
+#' Returns `base` followed by `n_extra` jittered copies. The jitter draws from a
+#' fixed local RNG seed whose prior global state is restored on exit, so the
+#' starts (and hence the MBCO interval) stay reproducible and seed-free for the
+#' caller. The constrained surfaces are multimodal / penalty-walled, so a single
+#' warm start can stick below the true constrained MLE; multistart guards that.
+#'
+#' @keywords internal
+.mbco_parallel_starts <- function(base, n_extra, sd = 0.25) {
+  starts <- list(base)
+  if (n_extra <= 0L) {
+    return(starts)
+  }
+  if (exists(".Random.seed", envir = .GlobalEnv)) {
+    old_seed <- get(".Random.seed", envir = .GlobalEnv)
+    on.exit(assign(".Random.seed", old_seed, envir = .GlobalEnv), add = TRUE)
+  } else {
+    on.exit(
+      if (exists(".Random.seed", envir = .GlobalEnv)) {
+        rm(".Random.seed", envir = .GlobalEnv)
+      },
+      add = TRUE
+    )
+  }
+  set.seed(20260611L)
+  for (i in seq_len(n_extra)) {
+    starts[[length(starts) + 1L]] <- base + stats::rnorm(length(base), 0, sd)
+  }
+  starts
+}
+
+#' Run Nelder-Mead from several starts, returning the best maximized
+#' log-likelihood (`-min value`), or NA if every start fails / is penalized.
+#'
+#' The first start (the analytic warm start) gets the full iteration budget; the
+#' remaining (perturbed) starts are capped low -- they exist only to escape a
+#' nearby false basin, so a start that does not converge quickly is abandoned
+#' cheaply rather than burning the full budget against the penalty wall.
+#'
+#' @keywords internal
+.mbco_parallel_optim_best <- function(nll, starts, maxit = 1500L,
+                                      maxit_extra = 400L) {
+  best <- NA_real_
+  for (i in seq_along(starts)) {
+    s <- starts[[i]]
+    if (!all(is.finite(s))) next
+    o <- try(
+      stats::optim(s, nll,
+        method = "Nelder-Mead",
+        control = list(
+          # reltol 1e-8 is ample for a CI (P_med to ~1e-4) and avoids many extra
+          # iterations chasing negligible log-likelihood gains near the optimum.
+          maxit = if (i == 1L) maxit else maxit_extra, reltol = 1e-8
+        )
+      ),
+      silent = TRUE
+    )
+    if (!inherits(o, "try-error") && o$value < 1e9) {
+      best <- max(best, -o$value, na.rm = TRUE)
+    }
+  }
+  if (!is.finite(best)) NA_real_ else best
 }
 
 #' Maximized log-likelihood under the constraint joint P_med = pnorm(qstar).
@@ -101,20 +176,17 @@
   k <- prep$k
   delta <- prep$delta
 
-  # p* = 0.5: indirect effect S = 0; take b = 0 (Y ~ Dy, no mediators), each
-  # mediator equation full (intercept + treatment + covariates).
+  # p* = 0.5  <=>  S = sum(a*b) = 0. For k = 1 this forces b = 0, but for k >= 2
+  # the mediators can cancel (e.g. a1*b1 = -a2*b2) with all b_j != 0, which fits
+  # the outcome strictly better -- a naive b = 0 fit understates the constrained
+  # log-likelihood and inflates the LR statistic near P_med = 0.5. The constraint
+  # S = 0 is exactly the ie0 = 0 case of the IE-constrained fit (b_k = (0 - ...) /
+  # a_k collapses to b = 0 at k = 1), so reuse it.
   if (abs(qstar) < 1e-8) {
-    sse_y <- .ols_sse(prep$Dy, prep$Y)
-    ll <- .mbco_gll(sse_y, sse_y / n, n)
-    for (j in seq_len(k)) {
-      sse_mj <- .ols_sse(cbind(prep$Dm_list[[j]], X = prep$X), prep$M[, j])
-      ll <- ll + .mbco_gll(sse_mj, sse_mj / n, n)
-    }
-    return(ll)
+    return(.mbco_ll_constrained_ie_parallel(prep, 0))
   }
 
   s_target <- sign(qstar) * sign(delta) # required sign of S = sum(a*b)
-  start <- c(prep$a_hat, log(prep$Vm_hat), prep$b_hat)
   nll <- function(p) {
     a <- p[seq_len(k)]
     Vm <- exp(p[k + seq_len(k)])
@@ -130,17 +202,10 @@
     -.mbco_parallel_ll(prep, a, Vm, b, Vy)
   }
 
-  o <- try(
-    stats::optim(start, nll,
-      method = "Nelder-Mead",
-      control = list(maxit = 5000, reltol = 1e-10)
-    ),
-    silent = TRUE
-  )
-  if (inherits(o, "try-error") || o$value >= 1e9) {
-    return(NA_real_)
-  }
-  -o$value
+  # 3k coupled coordinates behind a Vy penalty wall: a single start can stick
+  # below the constrained MLE (inflating the LR statistic). Multistart.
+  base <- c(prep$a_hat, log(prep$Vm_hat), prep$b_hat)
+  .mbco_parallel_optim_best(nll, .mbco_parallel_starts(base, n_extra = 3L))
 }
 
 #' Maximized log-likelihood under the constraint sum(a*b) = ie0 (parallel).
@@ -164,36 +229,23 @@
     }
     b_k <- (ie0 - sum(a[-k] * b_head)) / a[k]
     b <- c(b_head, b_k)
-    sse_y <- .ols_sse(prep$Dy, prep$Y - as.numeric(prep$M %*% b))
+    sse_y <- .qr_sse(prep$qr_Dy, prep$Y - as.numeric(prep$M %*% b))
     -.mbco_parallel_ll(prep, a, Vm, b, sse_y / n)
   }
 
-  starts <- list(c(prep$a_hat, log(prep$Vm_hat), prep$b_hat[-k]))
-  # Second basin: a_k near (ie0 - sum_{j<k} a_j b_j)/b_k, keeping b near free.
+  base <- c(prep$a_hat, log(prep$Vm_hat), prep$b_hat[-k])
+  # The b_k = (ie0 - ...)/a_k substitution makes the profile multimodal in each
+  # (a_j, b_j) pair. Start from the free MLE, the analytic second basin (a_k
+  # tilted to satisfy the constraint), and k-scaled jittered starts to cover the
+  # additional basins that appear as k grows.
+  starts <- .mbco_parallel_starts(base, n_extra = 2L)
   if (abs(prep$b_hat[k]) > 1e-8) {
     a_alt <- prep$a_hat
     a_alt[k] <- (ie0 - sum(prep$a_hat[-k] * prep$b_hat[-k])) / prep$b_hat[k]
     starts[[length(starts) + 1L]] <- c(a_alt, log(prep$Vm_hat), prep$b_hat[-k])
   }
 
-  best <- NA_real_
-  for (s in starts) {
-    if (!all(is.finite(s))) next
-    o <- try(
-      stats::optim(s, nll,
-        method = "Nelder-Mead",
-        control = list(maxit = 5000, reltol = 1e-10)
-      ),
-      silent = TRUE
-    )
-    if (!inherits(o, "try-error") && o$value < 1e9) {
-      best <- max(best, -o$value, na.rm = TRUE)
-    }
-  }
-  if (!is.finite(best)) {
-    return(NA_real_)
-  }
-  best
+  .mbco_parallel_optim_best(nll, starts)
 }
 
 #' MBCO confidence interval for parallel joint P_med (Gaussian).
@@ -233,7 +285,10 @@
       }
       -2 * (ll0 - prep$ll_free) - crit
     }
-    ie_step <- prep$sd_ie / 20
+    # Coarser than the single-mediator step: it only needs to bracket the
+    # crossing (uniroot refines to step/100), and each constrained fit here is
+    # a multistart optim, so fewer outward steps is a large saving.
+    ie_step <- prep$sd_ie / 6
     ie_ci <- .mbco_invert(
       ie_est, excess_ie,
       domain = c(ie_est - 12 * prep$sd_ie, ie_est + 12 * prep$sd_ie),
