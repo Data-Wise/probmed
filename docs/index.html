@@ -255,7 +255,8 @@
 <span><span class="co">#&gt; Treatment contrast: X = 1 vs. X* = 0</span></span>
 <span><span class="co">#&gt;</span></span>
 <span><span class="co">#&gt; Interpretation:</span></span>
-<span><span class="co">#&gt;   P(Y_{X*, M_X} &gt; Y_{X, M_X}) = 0.563</span></span>
+<span><span class="co">#&gt;   P(Y(1, M(1)) &gt; Y(1, M(0))) = 0.563</span></span>
+<span><span class="co">#&gt;   P that the mediator shift (M(0) -&gt; M(1)) leaves a random individual better off, holding X = 1.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Interpretation</strong>: - <strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> = 0.563</strong>: There is a 56.3% probability that a treated individual will have a higher outcome than a control individual through the indirect path. Since 0.50 represents “no effect” (random chance), this indicates a positive mediation effect. - <strong>Indirect Effect = 0.198</strong>: The traditional product-of-coefficients indirect effect (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>×</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">a \times b</annotation></semantics></math>) quantifies the average change in outcome due to the mediated path.</p>

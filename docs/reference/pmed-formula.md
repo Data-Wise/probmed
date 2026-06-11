@@ -43,7 +43,7 @@ Compute P_med from Formula
 - method:
 
   Inference method: "parametric_bootstrap", "nonparametric_bootstrap",
-  "plugin"
+  "plugin", "mbco"
 
 - n_boot:
 
@@ -64,6 +64,23 @@ Compute P_med from Formula
 ## Value
 
 PmedResult object
+
+## Details
+
+`method = "mbco"` returns a Model-Based Constrained Optimization
+interval (Tofighi & Kelley, 2020): a likelihood-ratio interval for P_med
+and for the indirect effect `a*b`, obtained by inverting the
+constrained-likelihood test rather than by resampling. It is
+deterministic (no `n_boot`, no `seed`) and supports a Gaussian outcome
+and mediator, with covariates, and any treatment contrast
+`x_ref != x_value`. For binary or other non-Gaussian models, use the
+bootstrap methods.
+
+For `method = "mbco"`, the `converged` flag reflects the **P_med**
+interval only. The indirect-effect interval is reported separately and
+may be `NA` on a degenerate design (e.g. a non-finite delta-method scale
+for `a*b`) even when the P_med interval converges; check `ie_ci_lower` /
+`ie_ci_upper` directly.
 
 ## Examples
 
@@ -103,7 +120,8 @@ print(result_plugin)
 #> Treatment contrast: X = 1 vs. X* = 0 
 #> 
 #> Interpretation:
-#>   P(Y_{X*, M_X} > Y_{X, M_X}) = 0.574 
+#>   P(Y(1, M(1)) > Y(1, M(0))) = 0.574
+#>   P that the mediator shift (M(0) -> M(1)) leaves a random individual better off, holding X = 1.
 #> 
 
 # \donttest{
@@ -136,7 +154,8 @@ print(result_boot)
 #> Treatment contrast: X = 1 vs. X* = 0 
 #> 
 #> Interpretation:
-#>   P(Y_{X*, M_X} > Y_{X, M_X}) = 0.574 
+#>   P(Y(1, M(1)) > Y(1, M(0))) = 0.574
+#>   P that the mediator shift (M(0) -> M(1)) leaves a random individual better off, holding X = 1.
 #> 
 # }
 ```

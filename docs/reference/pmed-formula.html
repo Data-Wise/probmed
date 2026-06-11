@@ -107,7 +107,7 @@
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
-<dd><p>Inference method: "parametric_bootstrap", "nonparametric_bootstrap", "plugin"</p></dd>
+<dd><p>Inference method: "parametric_bootstrap", "nonparametric_bootstrap", "plugin", "mbco"</p></dd>
 
 
 <dt id="arg-n-boot">n_boot<a class="anchor" aria-label="anchor" href="#arg-n-boot"></a></dt>
@@ -129,6 +129,20 @@
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>PmedResult object</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p><code>method = "mbco"</code> returns a Model-Based Constrained Optimization interval
+(Tofighi &amp; Kelley, 2020): a likelihood-ratio interval for P_med and for the
+indirect effect <code>a*b</code>, obtained by inverting the constrained-likelihood test
+rather than by resampling. It is deterministic (no <code>n_boot</code>, no <code>seed</code>) and
+supports a Gaussian outcome and mediator, with covariates, and any treatment
+contrast <code>x_ref != x_value</code>. For binary or other non-Gaussian models, use the
+bootstrap methods.</p>
+<p>For <code>method = "mbco"</code>, the <code>converged</code> flag reflects the <strong>P_med</strong> interval
+only. The indirect-effect interval is reported separately and may be <code>NA</code> on
+a degenerate design (e.g. a non-finite delta-method scale for <code>a*b</code>) even when
+the P_med interval converges; check <code>ie_ci_lower</code> / <code>ie_ci_upper</code> directly.</p>
     </div>
 
     <div class="section level2">
@@ -168,7 +182,8 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Treatment contrast: X = 1 vs. X* = 0 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Interpretation:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   P(Y_{X*, M_X} &gt; Y_{X, M_X}) = 0.574 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   P(Y(1, M(1)) &gt; Y(1, M(0))) = 0.574</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   P that the mediator shift (M(0) -&gt; M(1)) leaves a random individual better off, holding X = 1.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
@@ -201,7 +216,8 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Treatment contrast: X = 1 vs. X* = 0 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Interpretation:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   P(Y_{X*, M_X} &gt; Y_{X, M_X}) = 0.574 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   P(Y(1, M(1)) &gt; Y(1, M(0))) = 0.574</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   P that the mediator shift (M(0) -&gt; M(1)) leaves a random individual better off, holding X = 1.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>

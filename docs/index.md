@@ -145,7 +145,8 @@ print(result)
 #> Treatment contrast: X = 1 vs. X* = 0
 #>
 #> Interpretation:
-#>   P(Y_{X*, M_X} > Y_{X, M_X}) = 0.563
+#>   P(Y(1, M(1)) > Y(1, M(0))) = 0.563
+#>   P that the mediator shift (M(0) -> M(1)) leaves a random individual better off, holding X = 1.
 
 summary(result)
 ```

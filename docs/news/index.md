@@ -1,5 +1,16 @@
 # Changelog
 
+## probmed 0.1.0.9000 (development)
+
+### Fixes
+
+- `print(PmedResult)` interpretation line now shows the mediation
+  estimand `P(Y(1, M(1)) > Y(1, M(0)))` (manuscript Definition 1)
+  instead of the stale direct-effect notation
+  `P(Y_{X*, M_X} > Y_{X, M_X})`. The computed value was already correct;
+  only the displayed notation was wrong. A plain-language gloss was
+  added beneath it. README cached output updated to match.
+
 ## probmed 0.1.0 (2026-06-06)
 
 First GitHub release (non-CRAN).

@@ -14,9 +14,16 @@
 <url><loc>https://data-wise.github.io/probmed/reference/MediationExtract.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/PmedResult.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/dot-is_gaussian.html</loc></url>
+<url><loc>https://data-wise.github.io/probmed/reference/dot-mbco_gll.html</loc></url>
+<url><loc>https://data-wise.github.io/probmed/reference/dot-mbco_invert.html</loc></url>
+<url><loc>https://data-wise.github.io/probmed/reference/dot-mbco_ll_constrained_ie.html</loc></url>
+<url><loc>https://data-wise.github.io/probmed/reference/dot-mbco_ll_constrained_pmed.html</loc></url>
+<url><loc>https://data-wise.github.io/probmed/reference/dot-mbco_prep.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/dot-named_or.html</loc></url>
+<url><loc>https://data-wise.github.io/probmed/reference/dot-ols_sse.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/dot-pmed_compute.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/dot-pmed_core_simple.html</loc></url>
+<url><loc>https://data-wise.github.io/probmed/reference/dot-pmed_mbco.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/dot-pmed_nonparametric_boot.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/dot-pmed_parametric_boot.html</loc></url>
 <url><loc>https://data-wise.github.io/probmed/reference/dot-pmed_plugin.html</loc></url>

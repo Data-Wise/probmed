@@ -65,7 +65,7 @@
 <p>This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.</p>
 <hr><div class="section level2">
 <h2 id="about-this-package">About This Package<a class="anchor" aria-label="anchor" href="#about-this-package"></a></h2>
-<p><strong>probmed</strong> is an R package for computing P_med, a scale-free probabilistic effect size for causal mediation analysis. P_med quantifies mediation effects as the probability that the counterfactual outcome under treatment with the mediator at its control level exceeds the counterfactual outcome under control.</p>
+<p><strong>probmed</strong> is an R package for computing P_med, a scale-free probabilistic effect size for causal mediation analysis. P_med quantifies mediation as the probability that the outcome under treatment with the mediator at its <strong>treated</strong> level exceeds the outcome with the mediator at its <strong>control</strong> level (treatment held fixed for both, so the direct effect cancels). See the P_med Definition section below.</p>
 <div class="section level3">
 <h3 id="core-mission">Core Mission<a class="anchor" aria-label="anchor" href="#core-mission"></a></h3>
 <p>Provide researchers with a scale-free, interpretable effect size measure (P_med in [0, 1]) for mediation analysis that works consistently across mixed variable types and avoids limitations of traditional mean-difference approaches.</p>
@@ -73,8 +73,8 @@
 <div class="section level3">
 <h3 id="key-features">Key Features<a class="anchor" aria-label="anchor" href="#key-features"></a></h3>
 <ul><li>Scale-free interpretation: P_med in [0, 1] with clear probabilistic meaning</li>
-<li>Flexible estimation: Works with GLMs, SEM (lavaan), fitted models</li>
-<li>Multiple mediators: Parallel and sequential mediation structures</li>
+<li>Flexible estimation: Works with GLMs, SEM (lavaan), and fitted models via medfit</li>
+<li>Mixed outcome types: continuous (Gaussian) and binary outcomes, simulated on the correct link scale via medfit’s family/link slot</li>
 <li>Bootstrap inference: Parametric and nonparametric methods</li>
 <li>S7 OOP architecture for type safety and extensibility</li>
 </ul><hr></div>
@@ -124,9 +124,7 @@
 </td>
 </tr><tr><td>S7 Classes</td>
 <td>CamelCase</td>
-<td>
-<code>MediationExtract</code>, <code>PmedResult</code>
-</td>
+<td><code>PmedResult</code></td>
 </tr><tr><td>Properties</td>
 <td>snake_case</td>
 <td>
@@ -142,13 +140,16 @@
 <h3 id="code-organization">Code Organization<a class="anchor" aria-label="anchor" href="#code-organization"></a></h3>
 <pre><code>R/
 ├── aaa-imports.R           # Package imports
-├── classes.R               # S7 class definitions
-├── generics.R              # S7 generic functions
-├── methods-extract.R       # extract_mediation() methods
-├── methods-pmed.R          # pmed() methods
-├── compute-core.R          # Core P_med computation
-├── compute-bootstrap.R     # Bootstrap implementations
+├── classes.R               # S7 class definitions (PmedResult)
+├── generics.R              # S7 generic functions (pmed)
+├── methods-pmed.R          # pmed() methods (formula + MediationData)
+├── methods-print.R         # print/summary/plot methods
+├── compute-core.R          # Core P_med computation (.pmed_core_simple)
+├── compute-bootstrap.R     # Parametric + nonparametric bootstrap
+├── probmed-package.R       # Package-level docs
+├── zzz.R                   # .onLoad (S7 dispatch registration)
 └── utils.R                 # Utility functions</code></pre>
+<p>Note: model extraction lives in <strong>medfit</strong> (<code><a href="reference/extract_mediation.html">extract_mediation()</a></code> is re-exported); probmed no longer defines its own extraction methods.</p>
 <hr></div>
 </div>
 <div class="section level2">
@@ -158,25 +159,21 @@
 <table class="table"><colgroup><col width="21%"><col width="28%"><col width="50%"></colgroup><thead><tr><th>Class</th>
 <th>Purpose</th>
 <th>Key Properties</th>
-</tr></thead><tbody><tr><td><code>MediationExtract</code></td>
-<td>Extracted mediation structure</td>
-<td>
-<code>a_path</code>, <code>b_path</code>, <code>c_prime</code>, <code>vcov</code>
-</td>
-</tr><tr><td><code>PmedResult</code></td>
+</tr></thead><tbody><tr><td><code>PmedResult</code></td>
 <td>P_med computation results</td>
 <td>
-<code>estimate</code>, <code>ci_lower</code>, <code>ci_upper</code>, <code>boot_estimates</code>
+<code>estimate</code>, <code>ci_lower</code>, <code>ci_upper</code>, <code>boot_estimates</code>, <code>ie_estimate</code>
 </td>
-</tr></tbody></table></div>
+</tr></tbody></table><p>The extracted mediation structure is <code><a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a></code> (provides <code>a_path</code>, <code>b_path</code>, <code>c_prime</code>, <code>vcov</code>, <code>sigma_m</code>/<code>sigma_y</code>, and <code>family_m</code>/<code>family_y</code>) — not a probmed-owned class.</p>
+</div>
 <div class="section level3">
 <h3 id="s7-generics">S7 Generics<a class="anchor" aria-label="anchor" href="#s7-generics"></a></h3>
 <table class="table"><colgroup><col width="33%"><col width="33%"><col width="33%"></colgroup><thead><tr><th>Generic</th>
 <th>Purpose</th>
 <th>Returns</th>
 </tr></thead><tbody><tr><td><code><a href="reference/extract_mediation.html">extract_mediation()</a></code></td>
-<td>Extract from fitted models</td>
-<td><code>MediationExtract</code></td>
+<td>Extract from fitted models (re-exported from medfit)</td>
+<td><code><a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a></code></td>
 </tr><tr><td><code><a href="reference/pmed.html">pmed()</a></code></td>
 <td>Compute P_med</td>
 <td><code>PmedResult</code></td>
@@ -199,6 +196,9 @@
 </tr><tr><td><code>"nonparametric_bootstrap"</code></td>
 <td>Resample data, refit</td>
 <td>Normality questionable</td>
+</tr><tr><td><code>"mbco"</code></td>
+<td>LR-inversion interval (Tofighi &amp; Kelley 2020); deterministic</td>
+<td>Gaussian + covariates; closed-form CI for P_med and a*b</td>
 </tr></tbody></table><hr></div>
 </div>
 <div class="section level2">
@@ -212,11 +212,10 @@
 <div class="section level3">
 <h3 id="test-organization">Test Organization<a class="anchor" aria-label="anchor" href="#test-organization"></a></h3>
 <pre><code>tests/testthat/
-├── test-classes.R           # S7 class validation
-├── test-pmed-glm.R          # GLM interface
-├── test-pmed-bootstrap.R    # Bootstrap methods
-├── test-extract-lavaan.R    # lavaan extraction
-└── test-edge-cases.R        # Edge cases</code></pre>
+├── test-pmed-glm.R          # Formula/GLM interface + parametric bootstrap CIs
+├── test-pmed-ie.R           # Indirect effect (a*b) reporting
+└── test-pmed-estimand.R     # Estimand correctness: closed-form agreement,
+                             #   c'-invariance, binary non-degeneracy, IE = a*b</code></pre>
 <hr></div>
 </div>
 <div class="section level2">
@@ -246,7 +245,9 @@
 </tr></tbody></table></div>
 <div class="section level3">
 <h3 id="integration-with-medfit">Integration with medfit<a class="anchor" aria-label="anchor" href="#integration-with-medfit"></a></h3>
-<p>probmed uses medfit for: - Model extraction via <code><a href="https://data-wise.github.io/medfit/reference/extract_mediation.html" class="external-link">medfit::extract_mediation()</a></code> - Bootstrap infrastructure via <code><a href="https://data-wise.github.io/medfit/reference/bootstrap_mediation.html" class="external-link">medfit::bootstrap_mediation()</a></code></p>
+<p>probmed uses medfit for: - Model extraction via <code><a href="https://data-wise.github.io/medfit/reference/extract_mediation.html" class="external-link">medfit::extract_mediation()</a></code> → <code><a href="https://data-wise.github.io/medfit/reference/MediationData.html" class="external-link">medfit::MediationData</a></code> - The outcome/mediator family/link (<code>@family_y</code>, <code>@family_m</code>), used to simulate non-Gaussian potential outcomes on the correct scale</p>
+<p>probmed’s bootstrap (parametric + nonparametric) is implemented in <code>R/compute-bootstrap.R</code> — it does <strong>not</strong> use <code><a href="https://data-wise.github.io/medfit/reference/bootstrap_mediation.html" class="external-link">medfit::bootstrap_mediation()</a></code>.</p>
+<p>Requires <strong>medfit (&gt;= 0.3.0)</strong>; the GitHub build pins <code>Remotes: data-wise/medfit@v0.3.0</code>.</p>
 <hr></div>
 </div>
 <div class="section level2">
@@ -275,19 +276,21 @@
 <h2 id="development-roadmap">Development Roadmap<a class="anchor" aria-label="anchor" href="#development-roadmap"></a></h2>
 <div class="section level3">
 <h3 id="completed">Completed<a class="anchor" aria-label="anchor" href="#completed"></a></h3>
-<ul class="task-list"><li><label><input type="checkbox" checked>S7 class architecture</label></li>
+<ul class="task-list"><li><label><input type="checkbox" checked>S7 class architecture (<code>PmedResult</code>)</label></li>
 <li><label><input type="checkbox" checked>Formula interface with GLM</label></li>
-<li><label><input type="checkbox" checked>Bootstrap inference</label></li>
-<li><label><input type="checkbox" checked>lavaan extraction</label></li>
+<li><label><input type="checkbox" checked>Bootstrap inference (parametric + nonparametric)</label></li>
+<li><label><input type="checkbox" checked>medfit integration (extraction, family/link slot)</label></li>
+<li><label><input type="checkbox" checked>Correct mediation estimand (matches manuscript Definition 1)</label></li>
+<li><label><input type="checkbox" checked>Binary / non-Gaussian outcomes (Bernoulli simulation via the link)</label></li>
 <li><label><input type="checkbox" checked>Print/summary/plot methods</label></li>
+<li><label><input type="checkbox" checked>method = “mbco” — closed-form MBCO interval (P_med + indirect effect)</label></li>
 </ul></div>
 <div class="section level3">
 <h3 id="future">Future<a class="anchor" aria-label="anchor" href="#future"></a></h3>
-<ul class="task-list"><li><label><input type="checkbox">Exposure-mediator interactions</label></li>
-<li><label><input type="checkbox">Multiple parallel mediators</label></li>
-<li><label><input type="checkbox">Sequential mediators (path-specific)</label></li>
-<li><label><input type="checkbox">Integration with medrobust</label></li>
-</ul><hr><p><strong>Last Updated</strong>: 2026-05-09</p>
+<ul class="task-list"><li><label><input type="checkbox">P_med for parallel / sequential structures (medfit already provides <code>ParallelMediationData</code> / <code>SerialMediationData</code>; probmed needs the estimands)</label></li>
+<li><label><input type="checkbox">Exposure-mediator interactions (<code>InteractionMediationData</code>)</label></li>
+<li><label><input type="checkbox">Expand vignettes; integration with medrobust</label></li>
+</ul><hr><p><strong>Version</strong>: 0.1.0 (first GitHub release; non-CRAN) · <strong>Last Updated</strong>: 2026-06-06</p>
 </div>
 </div>
 </div>
