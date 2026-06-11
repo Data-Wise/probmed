@@ -8,7 +8,8 @@
 #' @return c(lower = ., upper = .)
 #' @keywords internal
 .mbco_invert <- function(est, excess, domain, step) {
-  lo <- domain[1]; hi <- domain[2]
+  lo <- domain[1]
+  hi <- domain[2]
   endpoint <- function(dir) {
     inner <- est
     for (k in seq_len(200)) {
@@ -16,10 +17,13 @@
       if (excess(outer) > 0) {
         return(tryCatch(
           stats::uniroot(excess, sort(c(inner, outer)), tol = step / 100)$root,
-          error = function(e) NA_real_))
+          error = function(e) NA_real_
+        ))
       }
       inner <- outer
-      if (outer <= lo || outer >= hi) return(outer)
+      if (outer <= lo || outer >= hi) {
+        return(outer)
+      }
     }
     outer
   }
@@ -35,16 +39,18 @@
 #' @keywords internal
 .mbco_ll_constrained_ie <- function(prep, ie0) {
   n <- prep$n
-  if (abs(ie0) < 1e-12) {  # a*b = 0: take b = 0 (Y ~ Dy, no M)
+  if (abs(ie0) < 1e-12) { # a*b = 0: take b = 0 (Y ~ Dy, no M)
     sse_m <- .ols_sse(cbind(prep$Dm, X = prep$X), prep$M)
     sse_y <- .ols_sse(prep$Dy, prep$Y)
     return(.mbco_gll(sse_m, sse_m / n, n) + .mbco_gll(sse_y, sse_y / n, n))
   }
   nll <- function(p) {
     a <- p[1]
-    if (abs(a) < 1e-8) return(1e10)
+    if (abs(a) < 1e-8) {
+      return(1e10)
+    }
     Vm <- exp(p[2])
-    b  <- ie0 / a
+    b <- ie0 / a
     sse_m <- .ols_sse(prep$Dm, prep$M - a * prep$X)
     sse_y <- .ols_sse(prep$Dy, prep$Y - b * prep$M)
     -(.mbco_gll(sse_m, Vm, n) + .mbco_gll(sse_y, sse_y / n, n))
@@ -59,14 +65,20 @@
   best <- NA_real_
   for (s in starts) {
     if (!all(is.finite(s))) next
-    o <- try(stats::optim(s, nll, method = "Nelder-Mead",
-                          control = list(maxit = 3000, reltol = 1e-10)),
-             silent = TRUE)
+    o <- try(
+      stats::optim(s, nll,
+        method = "Nelder-Mead",
+        control = list(maxit = 3000, reltol = 1e-10)
+      ),
+      silent = TRUE
+    )
     if (!inherits(o, "try-error") && o$value < 1e9) {
       best <- max(best, -o$value, na.rm = TRUE)
     }
   }
-  if (!is.finite(best)) return(NA_real_)
+  if (!is.finite(best)) {
+    return(NA_real_)
+  }
   best
 }
 
@@ -85,15 +97,18 @@
   b <- extract@b_path
   delta <- prep$delta
   dhat <- a * delta * b / sqrt(2 * (b^2 * prep$Vm_hat + prep$Vy_hat))
-  est  <- as.numeric(stats::pnorm(dhat))
+  est <- as.numeric(stats::pnorm(dhat))
   ie_est <- a * b
 
-  a_sign <- sign(a); if (a_sign == 0) a_sign <- 1
+  a_sign <- sign(a)
+  if (a_sign == 0) a_sign <- 1
   crit <- stats::qchisq(ci_level, df = 1)
   excess_pmed <- function(ps) {
-    ps  <- min(max(ps, 1e-5), 1 - 1e-5)
+    ps <- min(max(ps, 1e-5), 1 - 1e-5)
     ll0 <- .mbco_ll_constrained_pmed(prep, stats::qnorm(ps), a_sign)
-    if (is.na(ll0)) return(crit + 1e3)          # infeasible -> rejected
+    if (is.na(ll0)) {
+      return(crit + 1e3)
+    } # infeasible: treat as rejected
     -2 * (ll0 - prep$ll_free) - crit
   }
   ci <- .mbco_invert(est, excess_pmed, domain = c(1e-4, 1 - 1e-4), step = 0.01)
@@ -101,7 +116,9 @@
   if (is.finite(prep$sd_ie) && prep$sd_ie > 0) {
     excess_ie <- function(ie0) {
       ll0 <- .mbco_ll_constrained_ie(prep, ie0)
-      if (is.na(ll0)) return(crit + 1e3)
+      if (is.na(ll0)) {
+        return(crit + 1e3)
+      }
       -2 * (ll0 - prep$ll_free) - crit
     }
     ie_step <- prep$sd_ie / 20
@@ -145,29 +162,37 @@
 .mbco_prep <- function(extract, x_ref, x_value) {
   if (!.is_gaussian(extract@family_m) || !.is_gaussian(extract@family_y)) {
     stop("method = \"mbco\" requires a Gaussian outcome and mediator. ",
-         "Use method = \"parametric_bootstrap\" or \"nonparametric_bootstrap\" ",
-         "for non-Gaussian models.", call. = FALSE)
+      "Use method = \"parametric_bootstrap\" or \"nonparametric_bootstrap\" ",
+      "for non-Gaussian models.",
+      call. = FALSE
+    )
   }
   if (x_value == x_ref) {
     stop("method = \"mbco\" requires x_ref != x_value (a non-degenerate ",
-         "treatment contrast).", call. = FALSE)
+      "treatment contrast).",
+      call. = FALSE
+    )
   }
   data <- extract@data
   if (is.null(data)) {
     stop("method = \"mbco\" needs the source data to refit constrained models, ",
-         "but extract@data is NULL.", call. = FALSE)
+      "but extract@data is NULL.",
+      call. = FALSE
+    )
   }
 
-  tx  <- extract@treatment
+  tx <- extract@treatment
   med <- extract@mediator
   out <- extract@outcome
   cov_m <- setdiff(extract@mediator_predictors, c("(Intercept)", tx))
   cov_y <- setdiff(extract@outcome_predictors, c("(Intercept)", tx, med))
 
   Dm <- stats::model.matrix(
-    stats::reformulate(if (length(cov_m)) cov_m else "1"), data)
+    stats::reformulate(if (length(cov_m)) cov_m else "1"), data
+  )
   Dy <- stats::model.matrix(
-    stats::reformulate(c(tx, cov_y)), data)
+    stats::reformulate(c(tx, cov_y)), data
+  )
 
   # Free fits (full M and Y equations) for warm starts, point estimates, scale.
   fm <- stats::lm(stats::reformulate(c(tx, cov_m), med), data)
@@ -218,8 +243,8 @@
 
   # p* = 0.5: indirect effect is zero (b = 0). Y reduces to its design Dy.
   if (abs(qstar) < 1e-8) {
-    sse_m <- .ols_sse(cbind(prep$Dm, X = prep$X), prep$M)  # full M eq: [1, C, X]
-    sse_y <- .ols_sse(prep$Dy, prep$Y)                     # Y ~ [1, X, C], no M
+    sse_m <- .ols_sse(cbind(prep$Dm, X = prep$X), prep$M) # full M eq: [1, C, X]
+    sse_y <- .ols_sse(prep$Dy, prep$Y) # Y ~ [1, X, C], no M
     return(.mbco_gll(sse_m, sse_m / n, n) + .mbco_gll(sse_y, sse_y / n, n))
   }
 
@@ -232,21 +257,29 @@
   # unlike the intercepts / cp / covariate coefficients it cannot be OLS-profiled.
   start <- c(prep$a_hat, log(prep$Vm_hat), log(abs(prep$b_hat) + 1e-3))
   nll <- function(p) {
-    a  <- p[1]
+    a <- p[1]
     Vm <- exp(p[2])
-    b  <- sb * exp(p[3])
+    b <- sb * exp(p[3])
     Vy <- (a * delta * b)^2 / (2 * qstar^2) - b^2 * Vm
     # 1e10 penalty wall (infeasible Vy) is kept well above any real NLL so the
     # o$value >= 1e9 check below reliably detects a failed/penalized fit.
-    if (!is.finite(Vy) || Vy <= 1e-8) return(1e10)
+    if (!is.finite(Vy) || Vy <= 1e-8) {
+      return(1e10)
+    }
     sse_m <- .ols_sse(prep$Dm, prep$M - a * prep$X)
     sse_y <- .ols_sse(prep$Dy, prep$Y - b * prep$M)
     -(.mbco_gll(sse_m, Vm, n) + .mbco_gll(sse_y, Vy, n))
   }
 
-  o <- try(stats::optim(start, nll, method = "Nelder-Mead",
-                        control = list(maxit = 3000, reltol = 1e-10)),
-           silent = TRUE)
-  if (inherits(o, "try-error") || o$value >= 1e9) return(NA_real_)
+  o <- try(
+    stats::optim(start, nll,
+      method = "Nelder-Mead",
+      control = list(maxit = 3000, reltol = 1e-10)
+    ),
+    silent = TRUE
+  )
+  if (inherits(o, "try-error") || o$value >= 1e9) {
+    return(NA_real_)
+  }
   -o$value
 }
