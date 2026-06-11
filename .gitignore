@@ -13,3 +13,4 @@ README_files/
 planning/*
 !planning/SPEC-estimand-fix.md
 CLAUDE.md
+.claude/worktrees/
