@@ -1,7 +1,7 @@
 # Design: `method = "mbco"` for `pmed()`
 
 **Date:** 2026-06-10
-**Status:** Approved (design); pending implementation plan
+**Status:** Approved (2026-06-10) — ready for implementation plan
 **Package:** probmed (Data-Wise/probmed)
 **Roadmap item:** "`method = "mbco"` — closed-form MBCO interval (prototype in `research/pmed/code/mbco_pmed.R`)"
 
@@ -129,9 +129,13 @@ Given the core values:
 Design matrices are built from `extract@mediator_predictors` and
 `extract@outcome_predictors` against `extract@data`.
 
-**Optimizer.** Low-dimensional, so a robust general method (`optim` BFGS or
-Nelder-Mead) with a stable parameterization: optimize `log(Vm)` and a sign-pinned
-`b` so variances stay positive and the fit targets `p*` rather than `1 − p*`.
+**Optimizer.** `optim` **Nelder-Mead**, warm-started from the free OLS/MLE fits.
+Nelder-Mead is chosen deliberately over a gradient method: the constrained
+objective has a discontinuous penalty wall where `Vy ≤ 0` becomes infeasible
+(§4.2 edge cases), which breaks BFGS gradient/line-search steps — this is why the
+prototype uses Nelder-Mead. Parameterization keeps the search well-behaved:
+optimize `log(Vm)` (positivity) and a sign-pinned `b = sign(target)·exp(·)` so
+the fit targets `p*` rather than `1 − p*`.
 
 **Edge cases (from prototype).**
 
@@ -170,8 +174,11 @@ bootstrap vector (the `plugin` method exercises this path today).
 ## 5. Testing — `tests/testthat/test-pmed-mbco.R`
 
 1. **No-covariate agreement.** Point estimate and interval match the standalone
-   prototype within tolerance (optionally cross-checked against
-   `RMediation::mbco`, which is installed; Suggests).
+   prototype within tolerance. (No `RMediation::mbco` test: its API takes fitted
+   lavaan `h0`/`h1` models, so an automated cross-check would couple the suite to
+   lavaan + RMediation for marginal gain — the prototype and the §5.2 brute-force
+   grid are sufficient oracles. A manual `RMediation` sanity check can be run
+   out-of-suite during development.)
 2. **Covariate correctness.** Profiled-likelihood interval matches a brute-force
    grid LR inversion on a model with one or more covariates.
 3. **Coverage sanity.** Interval brackets the estimate; endpoints in (0, 1);
@@ -188,14 +195,15 @@ bootstrap vector (the `plugin` method exercises this path today).
 - `R/methods-pmed.R`: extend the `@param method` docs to list `"mbco"`.
 - `CLAUDE.md`: move MBCO from the "Future" roadmap list to "Completed"; add a row
   to the Computation Methods table.
-- Add an MBCO note to the relevant vignette / `pkgdown` reference page.
+- `vignettes/introduction.qmd`: add an MBCO subsection alongside the existing
+  `method = "parametric_bootstrap"` discussion (this is the vignette that teaches
+  the inference-method choices).
 
 ## 7. Dependencies
 
-No new hard dependency. `stats` (already imported) covers `optim`, `lm`/OLS,
-`qnorm`, `qchisq`, `uniroot`, `pnorm`. `RMediation` may be added to **Suggests**
-purely for an optional cross-validation test (it is already installed in the dev
-environment; v1.3.0 exports `mbco`).
+**No new dependency of any kind.** `stats` (already imported) covers `optim`,
+`lm`/OLS, `qnorm`, `qchisq`, `uniroot`, `pnorm`. `RMediation` is **not** added —
+neither Imports nor Suggests — for the reason in §5.1.
 
 ## 8. Files touched
 
@@ -206,5 +214,4 @@ environment; v1.3.0 exports `mbco`).
 | `R/methods-pmed.R` | add `"mbco"` to `match.arg`; doc the param |
 | `tests/testthat/test-pmed-mbco.R` | **new** — tests above |
 | `CLAUDE.md` | roadmap + method table update |
-| `DESCRIPTION` | (optional) `RMediation` under Suggests |
-| vignette / pkgdown ref | MBCO note |
+| `vignettes/introduction.qmd` | MBCO subsection by the method discussion |
