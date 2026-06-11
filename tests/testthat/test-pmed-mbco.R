@@ -93,3 +93,25 @@ test_that("mbco P_med interval brackets the estimate, lies in (0,1), and is dete
   expect_identical(r1@ci_lower, r2@ci_lower)
   expect_identical(r1@ci_upper, r2@ci_upper)
 })
+
+test_that("profiled mbco interval matches the independent oracle (no covariates)", {
+  data <- generate_mediation_data(n = 1500, a = 0.5, b = 0.5, c_prime = 0.3, seed = 61)
+  res <- pmed(Y ~ X + M, formula_m = M ~ X, data = data,
+              treatment = "X", mediator = "M", method = "mbco")
+  orc <- oracle_mbco_ci(data, level = 0.95)
+  expect_equal(res@estimate, unname(orc["estimate"]), tolerance = 1e-6)
+  expect_equal(res@ci_lower, unname(orc["lower"]), tolerance = 0.01)
+  expect_equal(res@ci_upper, unname(orc["upper"]), tolerance = 0.01)
+})
+
+test_that("profiled mbco interval matches the independent oracle (one covariate)", {
+  data <- generate_mediation_data(n = 1500, a = 0.5, b = 0.5, c_prime = 0.3,
+                                  n_covariates = 1, covariate_effects = list(m = 0.3, y = 0.4),
+                                  seed = 62)
+  res <- pmed(Y ~ X + M + C1, formula_m = M ~ X + C1, data = data,
+              treatment = "X", mediator = "M", method = "mbco")
+  orc <- oracle_mbco_ci(data, level = 0.95, covs = "C1")
+  expect_equal(res@estimate, unname(orc["estimate"]), tolerance = 1e-6)
+  expect_equal(res@ci_lower, unname(orc["lower"]), tolerance = 0.015)
+  expect_equal(res@ci_upper, unname(orc["upper"]), tolerance = 0.015)
+})
