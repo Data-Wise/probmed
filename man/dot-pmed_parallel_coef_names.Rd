@@ -4,13 +4,13 @@
 \alias{.pmed_parallel_coef_names}
 \title{Names of the structural coefficients (a_j, b_j) in the parallel estimates
 vector / vcov: \verb{m\{j\}_<treatment>} for the a-paths, \verb{y_<mediator_j>} for the
-b-paths (see medfit's parallel extractor).}
+b-paths (see the medfit parallel extractor).}
 \usage{
 .pmed_parallel_coef_names(extract)
 }
 \description{
 Names of the structural coefficients (a_j, b_j) in the parallel estimates
 vector / vcov: \verb{m\{j\}_<treatment>} for the a-paths, \verb{y_<mediator_j>} for the
-b-paths (see medfit's parallel extractor).
+b-paths (see the medfit parallel extractor).
 }
 \keyword{internal}

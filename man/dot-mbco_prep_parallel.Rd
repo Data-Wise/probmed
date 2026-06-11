@@ -7,8 +7,8 @@
 .mbco_prep_parallel(extract, x_ref, x_value)
 }
 \description{
-Generalizes \code{.mbco_prep} to k parallel mediators. \code{Dm_list[[j]]} is the j-th
-mediator design (intercept + that mediator's covariates) with the treatment
+Generalizes \code{.mbco_prep} to k parallel mediators. \code{Dm_list[[j]]} is the
+design for mediator j (intercept + its covariates) with the treatment
 term removed; \code{Dy} is the outcome design (intercept + treatment + outcome
 covariates) with all mediator terms removed. The b-paths multiply the columns
 of \code{M} (n x k).
