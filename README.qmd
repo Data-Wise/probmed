@@ -1,5 +1,8 @@
 ---
-output: github_document
+format:
+  gfm:
+    default-image-extension: ""   # don't append .png to extensionless badge URLs
+    wrap: preserve                # keep the source line structure (one badge per line)
 ---
 
 <!-- README.md is generated from README.qmd. Please edit that file -->
@@ -69,8 +72,7 @@ See [Ecosystem Coordination](https://github.com/data-wise/medfit/blob/main/plann
 
 ## Installation
 
-Install from the [Data-Wise r-universe](https://data-wise.r-universe.dev) — no
-compiler needed, and dependencies (e.g. `medfit`) resolve automatically:
+Install from the [Data-Wise r-universe](https://data-wise.r-universe.dev) — no compiler needed, and dependencies (e.g. `medfit`) resolve automatically:
 
 ```r
 install.packages("probmed", repos = "https://data-wise.r-universe.dev")
