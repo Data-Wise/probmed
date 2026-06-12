@@ -24,7 +24,8 @@ Compute P_med, a scale-free probabilistic effect size
 for causal mediation analysis. Provides interpretable
 measures of mediation strength.
 
-Version: 0.1.0 (first GitHub release, non-CRAN; pins medfit@v0.3.0)
+Version: 0.2.0 (GitHub release 2026-06-11, non-CRAN; pins medfit@v0.3.0)
+  — adds method="mbco" + parallel (joint) P_med; tagged off dev like v0.1.0
 
 ────────────────────────────────────────────────
 

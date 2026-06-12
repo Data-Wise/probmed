@@ -1,4 +1,4 @@
-# probmed 0.1.0.9000 (development)
+# probmed 0.2.0 (2026-06-11)
 
 ## Features
 
