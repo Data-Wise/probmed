@@ -1,6 +1,30 @@
 # Changelog
 
-## probmed 0.1.0.9000 (development)
+## probmed 0.2.0 (2026-06-11)
+
+### Features
+
+- [`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md) now
+  accepts a
+  [`medfit::ParallelMediationData`](https://data-wise.github.io/medfit/reference/ParallelMediationData.html)
+  object and computes the **joint** P_med for k parallel mediators — the
+  probability the outcome is higher with all mediators at their treated
+  levels than at their control levels:
+  `Phi(delta * sum(a*b) / sqrt(2*sum(b^2*Vm) + 2*Vy))`, recovering the
+  single-mediator formula at k = 1. All four methods are supported
+  (`plugin`, `parametric_bootstrap`, `nonparametric_bootstrap`, `mbco`),
+  with the total indirect effect `sum(a_j b_j)`. Gaussian outcome and
+  mediators only. See
+  [`vignette("parallel-mediation")`](https://data-wise.github.io/probmed/articles/parallel-mediation.md).
+
+- `pmed(..., method = "mbco")` adds a deterministic Model-Based
+  Constrained Optimization interval (Tofighi & Kelley, 2020): a
+  likelihood-ratio interval for both P_med and the indirect effect
+  `a * b`, obtained by inverting the constrained-likelihood test rather
+  than by resampling. Gaussian outcome and mediator (with covariates)
+  and any contrast `x_ref != x_value`; seed-free and
+  grid-resolution-independent. Non-Gaussian models still use the
+  bootstrap methods.
 
 ### Fixes
 

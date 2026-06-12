@@ -65,8 +65,17 @@ for version compatibility and development guidelines.
 
 ## Installation
 
-You can install the development version of probmed from
-[GitHub](https://github.com/) with:
+Install from the [Data-Wise
+r-universe](https://data-wise.r-universe.dev) — no compiler needed, and
+dependencies (e.g. `medfit`) resolve automatically:
+
+``` r
+
+install.packages("probmed", repos = "https://data-wise.r-universe.dev")
+```
+
+Or install the development version from
+[GitHub](https://github.com/data-wise/probmed):
 
 ``` r
 
