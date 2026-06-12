@@ -4,16 +4,19 @@ Compute P_med, a scale-free probabilistic effect size for causal
 mediation analysis.
 
 Compute P_med, a scale-free probabilistic effect size for causal
-mediation analysis. P_med = P(Y\_{x\*,M_x} \> Y\_{x,M_x}) represents the
+mediation analysis. P_med = P(Y(x, M(x)) \> Y(x, M(x\*))) represents the
 probability that the outcome under treatment with the mediator at its
-control level exceeds the outcome under control.
+treated level exceeds the outcome under treatment with the mediator at
+its control level (with a one-half tie correction). The direct effect
+cancels, so P_med reflects mediation only.
 
 The `probmed` package provides a robust framework for computing
 \\P\_{med}\\, a scale-free probabilistic effect size for causal
 mediation analysis. Unlike traditional effect sizes, \\P\_{med}\\
 quantifies the probability that the counterfactual outcome under
-treatment with the mediator at its control level exceeds the
-counterfactual outcome under control.
+treatment with the mediator at its treated level exceeds the
+counterfactual outcome under treatment with the mediator at its control
+level (holding treatment fixed, so the direct effect cancels).
 
 ## Key Features
 
@@ -60,6 +63,7 @@ The basic workflow involves three steps:
 2.  Choose an inference method (parametric bootstrap recommended)
 
 3.  Interpret results (both \\P\_{med}\\ and Indirect Effect)
+
 
     # Example workflow
     library(probmed)

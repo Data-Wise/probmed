@@ -1,0 +1,243 @@
+# Introduction to probmed
+
+## Overview
+
+The `probmed` package provides a framework for computing
+**$`P_{med}`$**, a scale-free probabilistic effect size for causal
+mediation analysis. Unlike traditional effect sizes like the “Proportion
+Mediated” ($`P_M`$), which can be unstable or difficult to interpret
+(especially with inconsistent mediation or non-linear models),
+$`P_{med}`$ offers a clear probabilistic interpretation.
+
+### What is $`P_{med}`$?
+
+$`P_{med}`$ is defined as the probability that the outcome for an
+individual in the treatment group ($`Y(1)`$) is superior to the outcome
+for an individual in the control group ($`Y(0)`$), specifically due to
+the indirect effect transmitted through the mediator ($`M`$).
+
+Mathematically, for a treatment $`X`$, mediator $`M`$, and outcome
+$`Y`$:
+
+``` math
+ P_{med} = P(Y(1, M(1)) > Y(0, M(0))) 
+```
+
+where the direct effect of $`X`$ on $`Y`$ is held constant or accounted
+for, focusing purely on the mediation path.
+
+Key advantages:
+
+1.  **Scale-Free**: It does not depend on the units of $`Y`$ or $`M`$.
+2.  **Bounded**: It ranges from 0 to 1 (or 0.5 for no effect in some
+    contexts).
+3.  **Robust**: It works well for both linear and generalized linear
+    models (GLMs).
+
+## Installation
+
+You can install the development version of `probmed` from GitHub:
+
+``` r
+
+# install.packages("devtools")
+devtools::install_github("data-wise/probmed")
+```
+
+## Basic Example: Linear Mediation
+
+Let’s demonstrate `probmed` with a simple linear mediation model. We
+will simulate data where $`X`$ affects $`M`$, and both $`X`$ and $`M`$
+affect $`Y`$.
+
+### 1. Simulate Data
+
+``` r
+
+library(probmed)
+
+set.seed(123)
+n <- 500
+
+# Confounder / Covariate
+C <- rnorm(n)
+
+# Treatment (Continuous)
+X <- rnorm(n)
+
+# Mediator: M ~ X + C
+# Path a = 0.5
+M <- 0.5 * X + 0.3 * C + rnorm(n)
+
+# Outcome: Y ~ M + X + C
+# Path b = 0.4, Path c' = 0.2
+Y <- 0.4 * M + 0.2 * X + 0.2 * C + rnorm(n)
+
+data <- data.frame(X, M, Y, C)
+head(data)
+```
+
+### 2. Estimate $`P_{med}`$
+
+To estimate $`P_{med}`$, we use the
+[`pmed()`](https://data-wise.github.io/probmed/dev/reference/pmed.md)
+function. We need to specify:
+
+- The **outcome model** formula (`Y ~ ...`).
+- The **mediator model** formula (`formula_m = ...`).
+- The names of the **treatment** and **mediator** variables.
+
+We will use the **parametric bootstrap** method for inference, which is
+fast and accurate for standard models.
+
+``` r
+
+result <- pmed(
+    Y ~ X + M + C, # Outcome model
+    formula_m = M ~ X + C, # Mediator model
+    data = data,
+    treatment = "X",
+    mediator = "M",
+    method = "parametric_bootstrap",
+    n_boot = 1000, # Number of bootstrap samples
+    seed = 42
+)
+```
+
+### 3. Interpret Results
+
+We can print and summarize the results.
+
+``` r
+
+print(result)
+```
+
+The output shows both the estimated $`P_{med}`$ and the traditional
+Indirect Effect with their 95% confidence intervals.
+
+**Understanding the Output:**
+
+- **$`P_{med}`$ Estimate**: A value significantly greater than 0.50
+  indicates a positive mediation effect. For example, $`P_{med} = 0.56`$
+  means there’s a 56% probability that a treated individual has a higher
+  outcome than a control individual through the indirect path.
+- **Indirect Effect (IE)**: The traditional product-of-coefficients
+  ($`a \times b`$) measure, useful for comparing with other mediation
+  analyses.
+- **Confidence Intervals**: If the $`P_{med}`$ CI excludes 0.50, or if
+  the IE CI excludes 0, the mediation effect is statistically
+  significant.
+
+Example output:
+
+    P_med: Probability of Mediated Shift
+    ====================================
+
+    Estimate: 0.563
+    95% CI: [0.520, 0.605]
+
+    Indirect Effect (Product of Coefficients):
+    Estimate: 0.198
+    95% CI: [0.134, 0.268]
+
+    Inference: parametric_bootstrap
+    Bootstrap samples: 1000
+
+You can also get a more detailed summary including bootstrap
+distribution statistics:
+
+``` r
+
+summary(result)
+```
+
+And visualize the bootstrap distribution:
+
+``` r
+
+plot(result)
+```
+
+### MBCO intervals (deterministic)
+
+For Gaussian models you can use the Model-Based Constrained Optimization
+(MBCO) interval, which inverts a likelihood-ratio test instead of
+resampling — so it is deterministic and needs no `n_boot` or `seed`:
+
+``` r
+
+result_mbco <- pmed(
+  Y ~ X + M + C,
+  formula_m = M ~ X + C,
+  data = data,
+  treatment = "X",
+  mediator = "M",
+  method = "mbco"
+)
+print(result_mbco)
+```
+
+MBCO returns likelihood-ratio intervals for both P_med and the indirect
+effect `a*b`. It supports a Gaussian outcome and mediator (with
+covariates); for binary or other non-Gaussian models, use the bootstrap
+methods.
+
+## Advanced Example: Binary Outcome (GLM)
+
+`probmed` is particularly valuable when dealing with non-linear models
+where traditional coefficients are on different scales (e.g., logit
+scale for binary outcomes). $`P_{med}`$ provides a scale-free
+interpretation, while the Indirect Effect gives the traditional measure
+for comparison. Let’s look at a case with a **binary outcome**.
+
+### 1. Simulate Binary Data
+
+``` r
+
+set.seed(456)
+n <- 500
+X <- rnorm(n)
+M <- 0.5 * X + rnorm(n)
+
+# Outcome is binary (Logistic model)
+# logit(P(Y=1)) = 0.5*M + 0.2*X
+logits <- 0.5 * M + 0.2 * X
+probs <- 1 / (1 + exp(-logits))
+Y_bin <- rbinom(n, 1, probs)
+
+data_bin <- data.frame(X, M, Y_bin)
+```
+
+### 2. Estimate with GLM
+
+We simply specify `family_y = binomial()` to tell `probmed` that the
+outcome model is a logistic regression.
+
+``` r
+
+result_bin <- pmed(
+    Y_bin ~ X + M,
+    formula_m = M ~ X,
+    data = data_bin,
+    family_y = binomial(), # Specify binomial family
+    treatment = "X",
+    mediator = "M",
+    method = "parametric_bootstrap",
+    n_boot = 1000,
+    seed = 42
+)
+
+print(result_bin)
+```
+
+The interpretation remains the same: $`P_{med}`$ is the probability of
+the outcome being “better” (higher latent utility or probability class)
+due to mediation.
+
+## Conclusion
+
+The `probmed` package makes it easy to compute interpretable, scale-free
+effect sizes for mediation analysis. Whether you are working with simple
+linear models or complex GLMs, $`P_{med}`$ provides a unified metric for
+understanding the magnitude of indirect effects.

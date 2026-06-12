@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/Fira_Code-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/Montserrat-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -21,11 +21,7 @@
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="introduction_files/libs/quarto-html/popper.min.js"></script><script src="introduction_files/libs/quarto-html/tippy.umd.min.js"></script><link href="introduction_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="introduction_files/libs/quarto-html/light-border.css" rel="stylesheet">
 <!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to probmed">
-<meta property="og:image" content="https://data-wise.github.io/probmed/reference/figures/logo.png">
-<meta property="og:image:alt" content="probmed: Probabilistic Effect Sizes for Mediation Analysis">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:creator" content="@dtofighi">
-<meta name="twitter:site" content="@dtofighi">
+<meta property="og:image" content="https://data-wise.github.io/probmed/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -35,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">probmed</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.0.0.9000</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,10 +47,36 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
 <li><a class="dropdown-item" href="../articles/introduction.html">Introduction to probmed</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>─────────────</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Methods</h6></li>
+    <li><a class="dropdown-item" href="../articles/parallel-mediation.html">Parallel Mediation: joint P_med</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>─────────────</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>Integration Guides</h6></li>
     <li><a class="dropdown-item" href="../articles/lavaan-integration.html">lavaan Integration</a></li>
     <li><a class="dropdown-item" href="../articles/mediation-integration.html">mediation Package Integration</a></li>
     <li><a class="dropdown-item" href="../articles/package-comparison.html">Package Comparison</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-ecosystem" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Ecosystem</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-ecosystem">
+<li><h6 class="dropdown-header" data-toc-skip>Core Packages</h6></li>
+    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/medfit/">medfit (Foundation)</a></li>
+    <li><a class="dropdown-item" href="https://data-wise.github.io/probmed/">probmed (P_med Effect Size)</a></li>
+    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/rmediation/">RMediation (Confidence Intervals)</a></li>
+    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/medrobust/">medrobust (Sensitivity Analysis)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Support Packages</h6></li>
+    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/medsim/">medsim (Simulation Infrastructure)</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-status" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fas fa-chart-line"></span> Status</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-status">
+<li><a class="external-link dropdown-item" href="https://github.com/data-wise/mediationverse/blob/main/STATUS.md">📊 Package Status Dashboard</a></li>
+    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/mediationverse/articles/roadmap.html">🗺️ Development Roadmap</a></li>
+    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/mediationverse/articles/contributing.html">🤝 Contributing Guide</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="external-link dropdown-item" href="https://github.com/data-wise/medfit/blob/main/planning/ECOSYSTEM.md">📋 Ecosystem Coordination</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
@@ -77,7 +99,7 @@
 
 
 
-      <small class="dont-index">Source: <a href="https://github.com/data-wise/probmed/blob/main/vignettes/introduction.qmd" class="external-link"><code>vignettes/introduction.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/data-wise/probmed/blob/v0.2.0/vignettes/introduction.qmd" class="external-link"><code>vignettes/introduction.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -91,9 +113,9 @@
 <p>The <code>probmed</code> package provides a framework for computing <strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math></strong>, a scale-free probabilistic effect size for causal mediation analysis. Unlike traditional effect sizes like the “Proportion Mediated” (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>M</mi></msub><annotation encoding="application/x-tex">P_M</annotation></semantics></math>), which can be unstable or difficult to interpret (especially with inconsistent mediation or non-linear models), <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> offers a clear probabilistic interpretation.</p>
 <section class="level3"><h3 id="what-is-p_med">What is <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math>?<a class="anchor" aria-label="anchor" href="#what-is-p_med"></a>
 </h3>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> is defined as the probability that the outcome for an individual in the treatment group (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">Y(1)</annotation></semantics></math>) is superior to the outcome for an individual in the control group (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">Y(0)</annotation></semantics></math>), specifically due to the indirect effect transmitted through the mediator (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>).</p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> is defined as the probability that the outcome for an individual in the treatment group (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">Y(1)</annotation></semantics></math>) is superior to the outcome for an individual in the control group (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">Y(0)</annotation></semantics></math>), specifically due to the indirect effect transmitted through the mediator (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>).</p>
 <p>Mathematically, for a treatment <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>, mediator <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>, and outcome <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><mo>=</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>,</mo><mi>M</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>&gt;</mo><mi>Y</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mi>M</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex"> P_{med} = P(Y(1, M(1)) &gt; Y(0, M(0))) </annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><mo>=</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mi>M</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo>&gt;</mo><mi>Y</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mi>M</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex"> P_{med} = P(Y(1, M(1)) &gt; Y(0, M(0))) </annotation></semantics></math></p>
 <p>where the direct effect of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> on <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> is held constant or accounted for, focusing purely on the mediation path.</p>
 <p>Key advantages:</p>
 <ol type="1">
@@ -200,13 +222,29 @@ Bootstrap samples: 1000</code></pre>
 <div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
 </div>
+</section><section class="level3"><h3 id="mbco-intervals-deterministic">MBCO intervals (deterministic)<a class="anchor" aria-label="anchor" href="#mbco-intervals-deterministic"></a>
+</h3>
+<p>For Gaussian models you can use the Model-Based Constrained Optimization (MBCO) interval, which inverts a likelihood-ratio test instead of resampling — so it is deterministic and needs no <code>n_boot</code> or <code>seed</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">result_mbco</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pmed.html">pmed</a></span><span class="op">(</span></span>
+<span>  <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>,</span>
+<span>  formula_m <span class="op">=</span> <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">data</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="st">"X"</span>,</span>
+<span>  mediator <span class="op">=</span> <span class="st">"M"</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"mbco"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result_mbco</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>MBCO returns likelihood-ratio intervals for both P_med and the indirect effect <code>a*b</code>. It supports a Gaussian outcome and mediator (with covariates); for binary or other non-Gaussian models, use the bootstrap methods.</p>
 </section></section><section class="level2"><h2 id="advanced-example-binary-outcome-glm">Advanced Example: Binary Outcome (GLM)<a class="anchor" aria-label="anchor" href="#advanced-example-binary-outcome-glm"></a>
 </h2>
 <p><code>probmed</code> is particularly valuable when dealing with non-linear models where traditional coefficients are on different scales (e.g., logit scale for binary outcomes). <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> provides a scale-free interpretation, while the Indirect Effect gives the traditional measure for comparison. Let’s look at a case with a <strong>binary outcome</strong>.</p>
 <section class="level3"><h3 id="simulate-binary-data">1. Simulate Binary Data<a class="anchor" aria-label="anchor" href="#simulate-binary-data"></a>
 </h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">456</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">500</span></span>
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
@@ -224,7 +262,7 @@ Bootstrap samples: 1000</code></pre>
 </h3>
 <p>We simply specify <code>family_y = binomial()</code> to tell <code>probmed</code> that the outcome model is a logistic regression.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result_bin</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pmed.html">pmed</a></span><span class="op">(</span></span>
 <span>    <span class="va">Y_bin</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span>,</span>
 <span>    formula_m <span class="op">=</span> <span class="va">M</span> <span class="op">~</span> <span class="va">X</span>,</span>

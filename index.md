@@ -1,20 +1,20 @@
 # probmed
 
-**probmed** provides a robust framework for computing **$P_{med}$**, a
+**probmed** provides a robust framework for computing **$`P_{med}`$**, a
 scale-free probabilistic effect size for causal mediation analysis.
 
-## What is $P_{med}$?
+## What is $`P_{med}`$?
 
-$P_{med}$ offers an intuitive alternative to traditional mediation
+$`P_{med}`$ offers an intuitive alternative to traditional mediation
 effect sizes. It represents the probability that the outcome for an
 individual in the treatment group is higher than the outcome for an
 individual in the control group, specifically due to the indirect path
 through the mediator.
 
 Unlike the “Proportion Mediated” or simple indirect effect coefficients,
-$P_{med}$: \* **Is Scale-Free**: Interpretable regardless of the units
-of measurement for $X$, $M$, or $Y$. \* **Is Bounded**: Always falls
-between 0 and 1 (or 0 and 0.5 for some definitions), making it
+$`P_{med}`$: \* **Is Scale-Free**: Interpretable regardless of the units
+of measurement for $`X`$, $`M`$, or $`Y`$. \* **Is Bounded**: Always
+falls between 0 and 1 (or 0 and 0.5 for some definitions), making it
 comparable across studies. \* **Handles Non-Linearity**: Can be extended
 to Generalized Linear Models (GLMs) where coefficients are not directly
 comparable.
@@ -24,9 +24,9 @@ comparable.
 - **Flexible Modeling**: Supports both **Linear Models (LM)** and
   **Generalized Linear Models (GLM)** (e.g., Logistic, Poisson) for the
   mediator and outcome.
-- **Comprehensive Effect Reporting**: Provides both $P_{med}$
+- **Comprehensive Effect Reporting**: Provides both $`P_{med}`$
   (probabilistic effect size) and the traditional Indirect Effect
-  ($a \times b$) with bootstrap confidence intervals.
+  ($`a \times b`$) with bootstrap confidence intervals.
 - **Robust Inference**: Implements multiple methods for constructing
   confidence intervals:
   - **Parametric Bootstrap**: Efficient and accurate for large samples
@@ -51,13 +51,13 @@ comparable.
 **probmed** is part of the **mediationverse** ecosystem for mediation
 analysis in R:
 
-| Package                                                   | Purpose                              | Role        |
-|-----------------------------------------------------------|--------------------------------------|-------------|
-| [**medfit**](https://github.com/data-wise/medfit)         | Model fitting, extraction, bootstrap | Foundation  |
-| **probmed** (this)                                        | Probabilistic effect size (P_med)    | Application |
-| [**RMediation**](https://github.com/data-wise/rmediation) | Confidence intervals (DOP, MBCO)     | Application |
-| [**medrobust**](https://github.com/data-wise/medrobust)   | Sensitivity analysis                 | Application |
-| [**medsim**](https://github.com/data-wise/medsim)         | Simulation infrastructure            | Support     |
+| Package | Purpose | Role |
+|----|----|----|
+| [**medfit**](https://github.com/data-wise/medfit) | Model fitting, extraction, bootstrap | Foundation |
+| **probmed** (this) | Probabilistic effect size (P_med) | Application |
+| [**RMediation**](https://github.com/data-wise/rmediation) | Confidence intervals (DOP, MBCO) | Application |
+| [**medrobust**](https://github.com/data-wise/medrobust) | Sensitivity analysis | Application |
+| [**medsim**](https://github.com/data-wise/medsim) | Simulation infrastructure | Support |
 
 See [Ecosystem
 Coordination](https://github.com/data-wise/medfit/blob/main/planning/ECOSYSTEM.md)
@@ -65,10 +65,20 @@ for version compatibility and development guidelines.
 
 ## Installation
 
-You can install the development version of probmed from
-[GitHub](https://github.com/) with:
+Install from the [Data-Wise
+r-universe](https://data-wise.r-universe.dev) — no compiler needed, and
+dependencies (e.g. `medfit`) resolve automatically:
 
 ``` r
+
+install.packages("probmed", repos = "https://data-wise.r-universe.dev")
+```
+
+Or install the development version from
+[GitHub](https://github.com/data-wise/probmed):
+
+``` r
+
 # install.packages("devtools")
 devtools::install_github("data-wise/probmed")
 ```
@@ -76,14 +86,15 @@ devtools::install_github("data-wise/probmed")
 ## Quick Example
 
 Here is a basic example showing how to simulate data and compute
-$P_{med}$ using a parametric bootstrap approach.
+$`P_{med}`$ using a parametric bootstrap approach.
 
 ### 1. Simulate Data
 
-First, we generate a dataset with a continuous treatment ($X$), mediator
-($M$), and outcome ($Y$), along with a covariate ($C$).
+First, we generate a dataset with a continuous treatment ($`X`$),
+mediator ($`M`$), and outcome ($`Y`$), along with a covariate ($`C`$).
 
 ``` r
+
 library(probmed)
 
 set.seed(123)
@@ -97,7 +108,7 @@ data$M <- 0.5 * data$X + 0.3 * data$C + rnorm(n)
 data$Y <- 0.4 * data$M + 0.2 * data$X + 0.2 * data$C + rnorm(n)
 ```
 
-### 2. Compute $P_{med}$
+### 2. Compute $`P_{med}`$
 
 We use the
 [`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md)
@@ -105,6 +116,7 @@ function to estimate the effect size. We specify the models for the
 outcome and mediator, and select the bootstrap method.
 
 ``` r
+
 result <- pmed(
   Y ~ X + M + C,             # Outcome model formula
   formula_m = M ~ X + C,     # Mediator model formula
@@ -119,10 +131,11 @@ result <- pmed(
 
 ### 3. View Results
 
-The results object provides a clear summary of both $P_{med}$ and the
+The results object provides a clear summary of both $`P_{med}`$ and the
 Indirect Effect with confidence intervals.
 
 ``` r
+
 print(result)
 #>
 #> P_med: Probability of Mediated Shift
@@ -141,18 +154,19 @@ print(result)
 #> Treatment contrast: X = 1 vs. X* = 0
 #>
 #> Interpretation:
-#>   P(Y_{X*, M_X} > Y_{X, M_X}) = 0.563
+#>   P(Y(1, M(1)) > Y(1, M(0))) = 0.563
+#>   P that the mediator shift (M(0) -> M(1)) leaves a random individual better off, holding X = 1.
 
 summary(result)
 ```
 
-**Interpretation**: - **$P_{med}$ = 0.563**: There is a 56.3%
+**Interpretation**: - **$`P_{med}`$ = 0.563**: There is a 56.3%
 probability that a treated individual will have a higher outcome than a
 control individual through the indirect path. Since 0.50 represents “no
 effect” (random chance), this indicates a positive mediation effect. -
 **Indirect Effect = 0.198**: The traditional product-of-coefficients
-indirect effect ($a \times b$) quantifies the average change in outcome
-due to the mediated path.
+indirect effect ($`a \times b`$) quantifies the average change in
+outcome due to the mediated path.
 
 ## Workflow Options
 
@@ -163,6 +177,7 @@ due to the mediated path.
 Directly specify your models using R formulas:
 
 ``` r
+
 result <- pmed(
   Y ~ X + M + C,             # Outcome model
   formula_m = M ~ X + C,     # Mediator model
@@ -179,6 +194,7 @@ Extract from fitted Structural Equation Models with full support for
 FIML, robust estimators, and standardized estimates:
 
 ``` r
+
 library(lavaan)
 
 # Define SEM model
@@ -201,6 +217,7 @@ print(result)
 Seamlessly work with objects from the `mediation` package:
 
 ``` r
+
 library(mediation)
 
 # Fit models
@@ -223,6 +240,7 @@ print(result)
 binary outcome:
 
 ``` r
+
 # Binary outcome example
 data_bin <- data
 data_bin$Y_binary <- rbinom(n, 1, plogis(0.4 * data$M + 0.2 * data$X))
@@ -254,6 +272,7 @@ print(result_bin)
   intensive. Use when parametric assumptions are questionable.
 
 ``` r
+
 # Compare methods
 result_plugin <- pmed(Y ~ X + M, formula_m = M ~ X, data = data,
                       treatment = "X", mediator = "M", method = "plugin")

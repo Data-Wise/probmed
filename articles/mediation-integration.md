@@ -2,7 +2,7 @@
 
 The `probmed` package can extract mediation structures directly from
 objects created by the popular `mediation` package. This allows you to
-easily compute $P_{med}$ for models you have already fitted using
+easily compute $`P_{med}`$ for models you have already fitted using
 [`mediation::mediate()`](https://rdrr.io/pkg/mediation/man/mediate.html).
 
 ## Prerequisites
@@ -10,6 +10,7 @@ easily compute $P_{med}$ for models you have already fitted using
 Ensure you have both `probmed` and `mediation` installed:
 
 ``` r
+
 install.packages("mediation")
 # install.packages("probmed") # Not on CRAN yet
 ```
@@ -17,6 +18,7 @@ install.packages("mediation")
 Load the packages:
 
 ``` r
+
 library(probmed)
 library(mediation)
 ```
@@ -34,6 +36,7 @@ The workflow is simple: 1. Fit your mediator and outcome models (using
 ### Example: Linear Mediation
 
 ``` r
+
 # Simulate data
 set.seed(123)
 n <- 100
@@ -62,9 +65,9 @@ pmed(extract, method = "parametric_bootstrap", n_boot = 200)
 
 While the `mediation` package provides excellent tools for estimating
 natural direct and indirect effects (ADE and ACME), `probmed` adds the
-**Probabilistic Index of Mediation ($P_{med}$)**.
+**Probabilistic Index of Mediation ($`P_{med}`$)**.
 
-$P_{med}$ is a scale-free effect size that represents the probability
+$`P_{med}`$ is a scale-free effect size that represents the probability
 that the outcome for a treated individual is higher than for a control
 individual, specifically due to the indirect path. This complements the
 raw effect estimates provided by `mediation`.
@@ -78,6 +81,7 @@ Since `probmed` extracts the underlying `lm` or `glm` objects from the
 ### Example: Binary Outcome (GLM)
 
 ``` r
+
 # Simulate binary outcome
 data$Y_prob <- plogis(0.4 * data$M + 0.2 * data$X)
 data$Y_bin <- rbinom(n, 1, data$Y_prob)
