@@ -15,9 +15,8 @@ Status: active
 Progress: 85
 
 🌿 ACTIVE WORKTREE
-feature/fix-win-vignette @ ~/.git-worktrees/probmed/feature-fix-win-vignette
-  — PR #5 → dev: guard parallel-mediation.qmd eval so quarto vignette rebuild
-    no longer errors on Windows (library(probmed) not on check subprocess path)
+(none — 2026-06-14 worktrees merged & cleaned up:
+   feature/fix-win-vignette → PR #5; feature/ci-dev-triggers → PR #7)
 
 ────────────────────────────────────────────────
 
@@ -31,6 +30,9 @@ Version: 0.2.0 (GitHub release 2026-06-11, non-CRAN; pins medfit@v0.3.0)
   — 2026-06-14: dev→main release PR #4 merged; main was stale (v0.1.0/v0.2.0
     had been tagged off dev, integration PR never opened). main now = 0.2.0.
   — 2026-06-14: r-universe registry flipped probmed dev→main (builds from main).
+  — 2026-06-14: Windows quarto-vignette failure fixed (PR #5/#6, on main); CI now
+    runs R-CMD-check+test-coverage on dev (PR #7) so failures surface before release.
+    NOTE: workflow trigger change is on dev; main syncs it at the next dev→main PR.
 
 ────────────────────────────────────────────────
 
