@@ -4,7 +4,9 @@ on:
   push:
     branches: [main, master]
   pull_request:
-    branches: [main, master]
+    # dev included for build validation only; deploy step is gated on
+    # github.event_name != 'pull_request', so dev never publishes the site.
+    branches: [main, master, dev]
   release:
     types: [published]
   workflow_dispatch:
