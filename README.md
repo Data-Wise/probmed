@@ -1,69 +1,49 @@
 
+
 <!-- README.md is generated from README.qmd. Please edit that file -->
 
 # probmed <img src="man/figures/logo.png" align="right" height="139" />
 
 <!-- badges: start -->
 
-[![Lifecycle:
-stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
-[![Repo
-Status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![Repo Status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![R-CMD-check](https://github.com/data-wise/probmed/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/data-wise/probmed/actions/workflows/R-CMD-check.yaml)
-[![Website
-Status](https://github.com/data-wise/probmed/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/data-wise/probmed/actions/workflows/pkgdown.yaml)
+[![Website Status](https://github.com/data-wise/probmed/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/data-wise/probmed/actions/workflows/pkgdown.yaml)
 [![R-hub](https://github.com/data-wise/probmed/actions/workflows/rhub.yaml/badge.svg)](https://github.com/data-wise/probmed/actions/workflows/rhub.yaml)
-[![Codecov](https://codecov.io/gh/data-wise/probmed/graph/badge.svg)](https://codecov.io/gh/data-wise/probmed)
+[![Codecov](https://codecov.io/gh/data-wise/probmed/graph/badge.svg)](https://app.codecov.io/gh/data-wise/probmed)
+[![r-universe](https://data-wise.r-universe.dev/probmed/badges/version)](https://data-wise.r-universe.dev/probmed)
 <!-- badges: end -->
 
-**probmed** provides a robust framework for computing **$P_{med}$**, a
-scale-free probabilistic effect size for causal mediation analysis.
+**probmed** provides a robust framework for computing **$P_{med}$**, a scale-free probabilistic effect size for causal mediation analysis.
 
 ## What is $P_{med}$?
 
-$P_{med}$ offers an intuitive alternative to traditional mediation
-effect sizes. It represents the probability that the outcome for an
-individual in the treatment group is higher than the outcome for an
-individual in the control group, specifically due to the indirect path
-through the mediator.
+$P_{med}$ offers an intuitive alternative to traditional mediation effect sizes. It represents the probability that the outcome for an individual in the treatment group is higher than the outcome for an individual in the control group, specifically due to the indirect path through the mediator.
 
-Unlike the “Proportion Mediated” or simple indirect effect coefficients,
-$P_{med}$: \* **Is Scale-Free**: Interpretable regardless of the units
-of measurement for $X$, $M$, or $Y$. \* **Is Bounded**: Always falls
-between 0 and 1 (or 0 and 0.5 for some definitions), making it
-comparable across studies. \* **Handles Non-Linearity**: Can be extended
-to Generalized Linear Models (GLMs) where coefficients are not directly
-comparable.
+Unlike the “Proportion Mediated” or simple indirect effect coefficients, $P_{med}$:
+\* **Is Scale-Free**: Interpretable regardless of the units of measurement for $X$, $M$, or $Y$.
+\* **Is Bounded**: Always falls between 0 and 1 (or 0 and 0.5 for some definitions), making it comparable across studies.
+\* **Handles Non-Linearity**: Can be extended to Generalized Linear Models (GLMs) where coefficients are not directly comparable.
 
 ## Features
 
-- **Flexible Modeling**: Supports both **Linear Models (LM)** and
-  **Generalized Linear Models (GLM)** (e.g., Logistic, Poisson) for the
-  mediator and outcome.
-- **Comprehensive Effect Reporting**: Provides both $P_{med}$
-  (probabilistic effect size) and the traditional Indirect Effect
-  ($a \times b$) with bootstrap confidence intervals.
-- **Robust Inference**: Implements multiple methods for constructing
-  confidence intervals:
-  - **Parametric Bootstrap**: Efficient and accurate for large samples
-    with known distributions.
-  - **Nonparametric Bootstrap**: Robust to distributional assumptions
-    (resampling-based).
+- **Flexible Modeling**: Supports both **Linear Models (LM)** and **Generalized Linear Models (GLM)** (e.g., Logistic, Poisson) for the mediator and outcome.
+- **Comprehensive Effect Reporting**: Provides both $P_{med}$ (probabilistic effect size) and the traditional Indirect Effect ($a \times b$) with bootstrap confidence intervals.
+- **Robust Inference**: Implements multiple methods for constructing confidence intervals:
+  - **Parametric Bootstrap**: Efficient and accurate for large samples with known distributions.
+  - **Nonparametric Bootstrap**: Robust to distributional assumptions (resampling-based).
   - **Plug-in Estimator**: Fast point estimation.
-- **Modern Architecture**: Built on the **S7** object-oriented system,
-  ensuring type safety, stability, and easy extensibility.
+- **Modern Architecture**: Built on the **S7** object-oriented system, ensuring type safety, stability, and easy extensibility.
 - **Ecosystem Integration**: Works seamlessly with popular R packages:
-  - **lavaan**: Extract from Structural Equation Models with FIML and
-    robust estimators
+  - **lavaan**: Extract from Structural Equation Models with FIML and robust estimators
   - **mediation**: Direct integration with `mediate()` objects
   - Standard **lm/glm**: Native support for regression models
-- **User-Friendly Interface**: Designed to work with standard R
-  `formula` interfaces and `data.frame` inputs.
+- **User-Friendly Interface**: Designed to work with standard R `formula` interfaces and `data.frame` inputs.
 
 ## Mediationverse Ecosystem
 
-**probmed** is part of the **mediationverse** ecosystem for mediation
-analysis in R:
+**probmed** is part of the **mediationverse** ecosystem for mediation analysis in R:
 
 | Package | Purpose | Role |
 |----|----|----|
@@ -73,14 +53,17 @@ analysis in R:
 | [**medrobust**](https://github.com/data-wise/medrobust) | Sensitivity analysis | Application |
 | [**medsim**](https://github.com/data-wise/medsim) | Simulation infrastructure | Support |
 
-See [Ecosystem
-Coordination](https://github.com/data-wise/medfit/blob/main/planning/ECOSYSTEM.md)
-for version compatibility and development guidelines.
+See [Ecosystem Coordination](https://github.com/data-wise/medfit/blob/main/planning/ECOSYSTEM.md) for version compatibility and development guidelines.
 
 ## Installation
 
-You can install the development version of probmed from
-[GitHub](https://github.com/) with:
+Install from the [Data-Wise r-universe](https://data-wise.r-universe.dev) — no compiler needed, and dependencies (e.g. `medfit`) resolve automatically:
+
+``` r
+install.packages("probmed", repos = "https://data-wise.r-universe.dev")
+```
+
+Or install the development version from [GitHub](https://github.com/data-wise/probmed):
 
 ``` r
 # install.packages("devtools")
@@ -89,13 +72,11 @@ devtools::install_github("data-wise/probmed")
 
 ## Quick Example
 
-Here is a basic example showing how to simulate data and compute
-$P_{med}$ using a parametric bootstrap approach.
+Here is a basic example showing how to simulate data and compute $P_{med}$ using a parametric bootstrap approach.
 
 ### 1. Simulate Data
 
-First, we generate a dataset with a continuous treatment ($X$), mediator
-($M$), and outcome ($Y$), along with a covariate ($C$).
+First, we generate a dataset with a continuous treatment ($X$), mediator ($M$), and outcome ($Y$), along with a covariate ($C$).
 
 ``` r
 library(probmed)
@@ -113,8 +94,7 @@ data$Y <- 0.4 * data$M + 0.2 * data$X + 0.2 * data$C + rnorm(n)
 
 ### 2. Compute $P_{med}$
 
-We use the `pmed()` function to estimate the effect size. We specify the
-models for the outcome and mediator, and select the bootstrap method.
+We use the `pmed()` function to estimate the effect size. We specify the models for the outcome and mediator, and select the bootstrap method.
 
 ``` r
 result <- pmed(
@@ -131,8 +111,7 @@ result <- pmed(
 
 ### 3. View Results
 
-The results object provides a clear summary of both $P_{med}$ and the
-Indirect Effect with confidence intervals.
+The results object provides a clear summary of both $P_{med}$ and the Indirect Effect with confidence intervals.
 
 ``` r
 print(result)
@@ -153,18 +132,15 @@ print(result)
 #> Treatment contrast: X = 1 vs. X* = 0
 #>
 #> Interpretation:
-#>   P(Y_{X*, M_X} > Y_{X, M_X}) = 0.563
+#>   P(Y(1, M(1)) > Y(1, M(0))) = 0.563
+#>   P that the mediator shift (M(0) -> M(1)) leaves a random individual better off, holding X = 1.
 
 summary(result)
 ```
 
-**Interpretation**: - **$P_{med}$ = 0.563**: There is a 56.3%
-probability that a treated individual will have a higher outcome than a
-control individual through the indirect path. Since 0.50 represents “no
-effect” (random chance), this indicates a positive mediation effect. -
-**Indirect Effect = 0.198**: The traditional product-of-coefficients
-indirect effect ($a \times b$) quantifies the average change in outcome
-due to the mediated path.
+**Interpretation**:
+- **$P_{med}$ = 0.563**: There is a 56.3% probability that a treated individual will have a higher outcome than a control individual through the indirect path. Since 0.50 represents “no effect” (random chance), this indicates a positive mediation effect.
+- **Indirect Effect = 0.198**: The traditional product-of-coefficients indirect effect ($a \times b$) quantifies the average change in outcome due to the mediated path.
 
 ## Workflow Options
 
@@ -187,8 +163,7 @@ result <- pmed(
 
 ### 2. Integration with lavaan (For SEM Users)
 
-Extract from fitted Structural Equation Models with full support for
-FIML, robust estimators, and standardized estimates:
+Extract from fitted Structural Equation Models with full support for FIML, robust estimators, and standardized estimates:
 
 ``` r
 library(lavaan)
@@ -231,8 +206,7 @@ print(result)
 
 ### Generalized Linear Models (GLMs)
 
-`probmed` supports GLMs for non-normal outcomes. For example, with a
-binary outcome:
+`probmed` supports GLMs for non-normal outcomes. For example, with a binary outcome:
 
 ``` r
 # Binary outcome example
@@ -256,14 +230,9 @@ print(result_bin)
 
 **When to use each method:**
 
-- **Plugin** (`method = "plugin"`): Fast point estimates only, no
-  confidence intervals. Use for quick exploration.
-- **Parametric Bootstrap** (`method = "parametric_bootstrap"`): Default
-  choice. Fast and accurate when parameter estimates are approximately
-  normally distributed.
-- **Nonparametric Bootstrap** (`method = "nonparametric_bootstrap"`):
-  More robust to distributional assumptions but computationally
-  intensive. Use when parametric assumptions are questionable.
+- **Plugin** (`method = "plugin"`): Fast point estimates only, no confidence intervals. Use for quick exploration.
+- **Parametric Bootstrap** (`method = "parametric_bootstrap"`): Default choice. Fast and accurate when parameter estimates are approximately normally distributed.
+- **Nonparametric Bootstrap** (`method = "nonparametric_bootstrap"`): More robust to distributional assumptions but computationally intensive. Use when parametric assumptions are questionable.
 
 ``` r
 # Compare methods
@@ -281,13 +250,9 @@ result_nonparam <- pmed(Y ~ X + M, formula_m = M ~ X, data = data,
 
 ## References
 
-- Tofighi, D. (In Press). *Probabilistic Effect Sizes for Mediation
-  Analysis*.
-- MacKinnon, D. P. (2008). *Introduction to Statistical Mediation
-  Analysis*. Lawrence Erlbaum Associates.
+- Tofighi, D. (In Press). *Probabilistic Effect Sizes for Mediation Analysis*.
+- MacKinnon, D. P. (2008). *Introduction to Statistical Mediation Analysis*. Lawrence Erlbaum Associates.
 
 ## Contributing
 
-We welcome contributions! Please see the [Issue
-Tracker](https://github.com/data-wise/probmed/issues) for potential
-features or bug reports.
+We welcome contributions! Please see the [Issue Tracker](https://github.com/data-wise/probmed/issues) for potential features or bug reports.

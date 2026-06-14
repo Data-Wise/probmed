@@ -56,6 +56,10 @@ navbar:
       - text: "Introduction to probmed"
         href: articles/introduction.html
       - text: "─────────────"
+      - text: "Methods"
+      - text: "Parallel Mediation: joint P_med"
+        href: articles/parallel-mediation.html
+      - text: "─────────────"
       - text: "Integration Guides"
       - text: "lavaan Integration"
         href: articles/lavaan-integration.html
@@ -108,16 +112,14 @@ reference:
     contents:
       - pmed
       - pmed-formula
-      - pmed-MediationExtract
+      - pmed-MediationData
       - extract_mediation
-      - extract_mediation-lm
 
   - title: "S7 Class Definitions"
     desc: >
       Formal class structures for mediation analysis objects.
       These classes define the object-oriented architecture of the package.
     contents:
-      - MediationExtract
       - PmedResult
 
   - title: "Methods and Utilities"
@@ -143,6 +145,10 @@ articles:
     navbar: ~
     contents:
       - introduction
+  - title: "Methods"
+    navbar: ~
+    contents:
+      - parallel-mediation
   - title: "Integration Guides"
     navbar: ~
     contents:

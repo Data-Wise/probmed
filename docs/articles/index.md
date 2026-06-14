@@ -5,6 +5,11 @@
 - [Introduction to
   probmed](https://data-wise.github.io/probmed/articles/introduction.md):
 
+### Methods
+
+- [Parallel mediation: joint
+  P_med](https://data-wise.github.io/probmed/articles/parallel-mediation.md):
+
 ### Integration Guides
 
 - [Working with lavaan

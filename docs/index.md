@@ -46,10 +46,36 @@ comparable.
 - **User-Friendly Interface**: Designed to work with standard R
   `formula` interfaces and `data.frame` inputs.
 
+## Mediationverse Ecosystem
+
+**probmed** is part of the **mediationverse** ecosystem for mediation
+analysis in R:
+
+| Package | Purpose | Role |
+|----|----|----|
+| [**medfit**](https://github.com/data-wise/medfit) | Model fitting, extraction, bootstrap | Foundation |
+| **probmed** (this) | Probabilistic effect size (P_med) | Application |
+| [**RMediation**](https://github.com/data-wise/rmediation) | Confidence intervals (DOP, MBCO) | Application |
+| [**medrobust**](https://github.com/data-wise/medrobust) | Sensitivity analysis | Application |
+| [**medsim**](https://github.com/data-wise/medsim) | Simulation infrastructure | Support |
+
+See [Ecosystem
+Coordination](https://github.com/data-wise/medfit/blob/main/planning/ECOSYSTEM.md)
+for version compatibility and development guidelines.
+
 ## Installation
 
-You can install the development version of probmed from
-[GitHub](https://github.com/) with:
+Install from the [Data-Wise
+r-universe](https://data-wise.r-universe.dev) — no compiler needed, and
+dependencies (e.g. `medfit`) resolve automatically:
+
+``` r
+
+install.packages("probmed", repos = "https://data-wise.r-universe.dev")
+```
+
+Or install the development version from
+[GitHub](https://github.com/data-wise/probmed):
 
 ``` r
 
@@ -128,7 +154,8 @@ print(result)
 #> Treatment contrast: X = 1 vs. X* = 0
 #>
 #> Interpretation:
-#>   P(Y_{X*, M_X} > Y_{X, M_X}) = 0.563
+#>   P(Y(1, M(1)) > Y(1, M(0))) = 0.563
+#>   P that the mediator shift (M(0) -> M(1)) leaves a random individual better off, holding X = 1.
 
 summary(result)
 ```

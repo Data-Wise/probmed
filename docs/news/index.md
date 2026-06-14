@@ -1,5 +1,78 @@
 # Changelog
 
+## probmed 0.2.0 (2026-06-11)
+
+### Features
+
+- [`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md) now
+  accepts a
+  [`medfit::ParallelMediationData`](https://data-wise.github.io/medfit/reference/ParallelMediationData.html)
+  object and computes the **joint** P_med for k parallel mediators — the
+  probability the outcome is higher with all mediators at their treated
+  levels than at their control levels:
+  `Phi(delta * sum(a*b) / sqrt(2*sum(b^2*Vm) + 2*Vy))`, recovering the
+  single-mediator formula at k = 1. All four methods are supported
+  (`plugin`, `parametric_bootstrap`, `nonparametric_bootstrap`, `mbco`),
+  with the total indirect effect `sum(a_j b_j)`. Gaussian outcome and
+  mediators only. See
+  [`vignette("parallel-mediation")`](https://data-wise.github.io/probmed/articles/parallel-mediation.md).
+
+- `pmed(..., method = "mbco")` adds a deterministic Model-Based
+  Constrained Optimization interval (Tofighi & Kelley, 2020): a
+  likelihood-ratio interval for both P_med and the indirect effect
+  `a * b`, obtained by inverting the constrained-likelihood test rather
+  than by resampling. Gaussian outcome and mediator (with covariates)
+  and any contrast `x_ref != x_value`; seed-free and
+  grid-resolution-independent. Non-Gaussian models still use the
+  bootstrap methods.
+
+### Fixes
+
+- `print(PmedResult)` interpretation line now shows the mediation
+  estimand `P(Y(1, M(1)) > Y(1, M(0)))` (manuscript Definition 1)
+  instead of the stale direct-effect notation
+  `P(Y_{X*, M_X} > Y_{X, M_X})`. The computed value was already correct;
+  only the displayed notation was wrong. A plain-language gloss was
+  added beneath it. README cached output updated to match.
+
+## probmed 0.1.0 (2026-06-06)
+
+First GitHub release (non-CRAN).
+
+### Features
+
+- [`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md)
+  computes P_med — a scale-free probabilistic effect size for causal
+  mediation — from a formula or a
+  [`medfit::MediationData`](https://data-wise.github.io/medfit/reference/MediationData.html)
+  object, with plugin, parametric-bootstrap, and nonparametric-bootstrap
+  methods, alongside the indirect effect (`a * b`).
+
+### Fixes
+
+- [`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md) now
+  computes the **mediation** estimand
+  `P(Y(x, M(x)) > Y(x, M(x*))) + 0.5 P(=)` (manuscript Definition 1):
+  treatment held fixed, mediator varied between its treated and control
+  levels with the tie term. Previously it computed a direct-effect
+  contrast that depended on the direct effect `c'` and could land on the
+  wrong side of 0.5. Verified against the closed form
+  `Phi(ab / sqrt(2 (b^2 sigma_M^2 + sigma_Y^2)))` and the manuscript
+  `memory_exp` example (`P_med = 0.68`).
+- Binary/non-Gaussian outcomes now draw Bernoulli responses through the
+  link (previously degenerate, returning 0/1), using the new medfit
+  family slot.
+- Parametric bootstrap indexes coefficients **by name** (was selecting
+  intercepts as `a`/`b`); nonparametric bootstrap refits on the
+  **correct family** (was always Gaussian).
+
+### Ecosystem
+
+- Builds on **medfit (\>= 0.3.0)** for model extraction and the
+  family/link slot. Part of the mediationverse ecosystem.
+
+------------------------------------------------------------------------
+
 ## probmed 0.0.0.9000
 
 ### Major Changes

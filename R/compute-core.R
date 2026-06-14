@@ -11,6 +11,9 @@
     ),
     plugin = .pmed_plugin(
       extract, x_ref, x_value, ...
+    ),
+    mbco = .pmed_mbco(
+      extract, x_ref, x_value, ci_level = ci_level, ...
     )
   )
 }
@@ -35,7 +38,11 @@
     x_value = x_value,
     sigma_y = sigma_y,
     sigma_m = sigma_m,
-    n_sim = n_sim
+    n_sim = n_sim,
+    family_y = extract@family_y,
+    family_m = extract@family_m,
+    i_y = .named_or(extract@estimates, "y_(Intercept)"),
+    i_m = .named_or(extract@estimates, "m_(Intercept)")
   )
 
   # Compute Indirect Effect (a * b)
@@ -58,43 +65,73 @@
   )
 }
 
-#' Simple P_med Core Computation
+#' Look up a named coefficient, returning a default when absent
 #'
 #' @keywords internal
-.pmed_core_simple <- function(a, b, c_prime, x_ref, x_value, sigma_y = 1, sigma_m = 1, n_sim = 10000) {
-  # Handle NA sigma values (for non-Gaussian models)
-  # For binary outcomes/mediators, residual variance is not applicable
-  if (is.na(sigma_m)) sigma_m <- 0
-  if (is.na(sigma_y)) sigma_y <- 0
-
-  # Counterfactual means for M
-  mu_m_x <- a * x_value # E[M | X = x]
-  mu_m_xref <- a * x_ref # E[M | X = x*]
-
-  # Simulate M under treatment (with residual variance if Gaussian)
-  if (sigma_m > 0) {
-    m_x <- stats::rnorm(n_sim, mean = mu_m_x, sd = sigma_m)
+.named_or <- function(estimates, name, default = 0) {
+  if (!is.null(estimates) && name %in% names(estimates)) {
+    unname(estimates[[name]])
   } else {
-    # For non-Gaussian M (e.g., binary), use expected value
-    m_x <- rep(mu_m_x, n_sim)
+    default
+  }
+}
+
+#' Is a family Gaussian (NULL is treated as Gaussian)?
+#'
+#' @keywords internal
+.is_gaussian <- function(family) {
+  is.null(family) || identical(family$family, "gaussian")
+}
+
+#' Simple P_med Core Computation
+#'
+#' Computes the mediation estimand
+#' \eqn{P_{med} = P(Y(x, M(x)) > Y(x, M(x^*))) + \tfrac12 P(Y(x, M(x)) = Y(x, M(x^*)))}:
+#' the mediator is drawn under BOTH treatment levels independently while the
+#' treatment is held at `x_value` for both outcomes, so the direct effect
+#' `c_prime` cancels and the result reflects mediation only. The intercepts and
+#' families matter only for non-Gaussian models (they cancel in the Gaussian
+#' linear contrast); their defaults keep Gaussian behaviour unchanged.
+#'
+#' @keywords internal
+.pmed_core_simple <- function(a, b, c_prime, x_ref, x_value,
+                              sigma_y = 1, sigma_m = 1, n_sim = 10000,
+                              family_y = NULL, family_m = NULL,
+                              i_y = 0, i_m = 0) {
+  # Residual SDs are NULL/NA for non-Gaussian models; treat as 0 (unused there,
+  # since the family branch draws responses directly).
+  if (is.null(sigma_m) || is.na(sigma_m)) sigma_m <- 0
+  if (is.null(sigma_y) || is.na(sigma_y)) sigma_y <- 0
+
+  gaussian_m <- .is_gaussian(family_m)
+  gaussian_y <- .is_gaussian(family_y)
+
+  # --- Draw the mediator under BOTH treatment levels, independently ---
+  # E[M | X] on the link scale; intercept cancels for Gaussian but is needed
+  # for a nonlinear link.
+  mu_m_t <- i_m + a * x_value # mediator mean under treatment
+  mu_m_c <- i_m + a * x_ref # mediator mean under control
+  if (gaussian_m) {
+    m_t <- stats::rnorm(n_sim, mean = mu_m_t, sd = sigma_m)
+    m_c <- stats::rnorm(n_sim, mean = mu_m_c, sd = sigma_m)
+  } else {
+    # Non-Gaussian mediator (e.g. binary): draw responses on the correct scale
+    m_t <- stats::rbinom(n_sim, 1, family_m$linkinv(mu_m_t))
+    m_c <- stats::rbinom(n_sim, 1, family_m$linkinv(mu_m_c))
   }
 
-  # Y counterfactuals (with residual variance if Gaussian)
-  if (sigma_y > 0) {
-    # Y(x*, M_x) = b*M_x + c'*x* + epsilon_y
-    y_xref_mx <- b * m_x + c_prime * x_ref + stats::rnorm(n_sim, 0, sigma_y)
-
-    # Y(x, M_x) = b*M_x + c'*x + epsilon_y
-    y_x_mx <- b * m_x + c_prime * x_value + stats::rnorm(n_sim, 0, sigma_y)
+  # --- Outcomes with treatment held at x_value for BOTH (c' cancels) ---
+  eta_t <- i_y + b * m_t + c_prime * x_value # outcome lin. predictor, treated mediator
+  eta_c <- i_y + b * m_c + c_prime * x_value # outcome lin. predictor, control mediator
+  if (gaussian_y) {
+    y_t <- eta_t + stats::rnorm(n_sim, 0, sigma_y)
+    y_c <- eta_c + stats::rnorm(n_sim, 0, sigma_y)
   } else {
-    # For non-Gaussian Y (e.g., binary), use linear predictor
-    # Note: For binary Y, this is on the logit scale
-    y_xref_mx <- b * m_x + c_prime * x_ref
-    y_x_mx <- b * m_x + c_prime * x_value
+    # Non-Gaussian outcome (e.g. binary): map through the link, draw responses
+    y_t <- stats::rbinom(n_sim, 1, family_y$linkinv(eta_t))
+    y_c <- stats::rbinom(n_sim, 1, family_y$linkinv(eta_c))
   }
 
-  # P_med = P(Y(x*, M_x) > Y(x, M_x))
-  pmed <- mean(y_xref_mx > y_x_mx)
-
-  return(pmed)
+  # P_med = P(Y(x, M(x)) > Y(x, M(x*))) + 0.5 * P(tie)   (Definition 1)
+  mean(y_t > y_c) + 0.5 * mean(y_t == y_c)
 }

@@ -24,9 +24,14 @@ NULL
 #' analysis, along with the traditional Indirect Effect (\eqn{a \times b}).
 #' Provides point estimates and bootstrap confidence intervals.
 #'
-#' \eqn{P_{med}} represents \eqn{P(Y_{x^*, M_x} > Y_{x, M_x})}, the probability
-#' that the counterfactual outcome under control with mediator at treated level
-#' exceeds the outcome under treatment.
+#' \eqn{P_{med}} represents
+#' \eqn{P(Y(x, M(x)) > Y(x, M(x^*))) + \tfrac12 P(Y(x, M(x)) = Y(x, M(x^*)))}:
+#' the probability that the outcome under treatment with the mediator at its
+#' treated level exceeds the outcome under treatment with the mediator at its
+#' control level (a one-half correction is added for ties). Both potential
+#' outcomes hold treatment at \eqn{x}, so the direct effect cancels and
+#' \eqn{P_{med}} reflects mediation only; values \eqn{> 0.5} indicate positive
+#' mediation.
 #'
 #' @param object Either:
 #'   \itemize{

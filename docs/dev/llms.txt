@@ -1,0 +1,511 @@
+# probmed
+
+**probmed** provides a robust framework for computing **$`P_{med}`$**, a
+scale-free probabilistic effect size for causal mediation analysis.
+
+## What is $`P_{med}`$?
+
+$`P_{med}`$ offers an intuitive alternative to traditional mediation
+effect sizes. It represents the probability that the outcome for an
+individual in the treatment group is higher than the outcome for an
+individual in the control group, specifically due to the indirect path
+through the mediator.
+
+Unlike the “Proportion Mediated” or simple indirect effect coefficients,
+$`P_{med}`$: \* **Is Scale-Free**: Interpretable regardless of the units
+of measurement for $`X`$, $`M`$, or $`Y`$. \* **Is Bounded**: Always
+falls between 0 and 1 (or 0 and 0.5 for some definitions), making it
+comparable across studies. \* **Handles Non-Linearity**: Can be extended
+to Generalized Linear Models (GLMs) where coefficients are not directly
+comparable.
+
+## Features
+
+- **Flexible Modeling**: Supports both **Linear Models (LM)** and
+  **Generalized Linear Models (GLM)** (e.g., Logistic, Poisson) for the
+  mediator and outcome.
+- **Comprehensive Effect Reporting**: Provides both $`P_{med}`$
+  (probabilistic effect size) and the traditional Indirect Effect
+  ($`a \times b`$) with bootstrap confidence intervals.
+- **Robust Inference**: Implements multiple methods for constructing
+  confidence intervals:
+  - **Parametric Bootstrap**: Efficient and accurate for large samples
+    with known distributions.
+  - **Nonparametric Bootstrap**: Robust to distributional assumptions
+    (resampling-based).
+  - **Plug-in Estimator**: Fast point estimation.
+- **Modern Architecture**: Built on the **S7** object-oriented system,
+  ensuring type safety, stability, and easy extensibility.
+- **Ecosystem Integration**: Works seamlessly with popular R packages:
+  - **lavaan**: Extract from Structural Equation Models with FIML and
+    robust estimators
+  - **mediation**: Direct integration with
+    [`mediate()`](https://rdrr.io/pkg/mediation/man/mediate.html)
+    objects
+  - Standard **lm/glm**: Native support for regression models
+- **User-Friendly Interface**: Designed to work with standard R
+  `formula` interfaces and `data.frame` inputs.
+
+## Mediationverse Ecosystem
+
+**probmed** is part of the **mediationverse** ecosystem for mediation
+analysis in R:
+
+| Package | Purpose | Role |
+|----|----|----|
+| [**medfit**](https://github.com/data-wise/medfit) | Model fitting, extraction, bootstrap | Foundation |
+| **probmed** (this) | Probabilistic effect size (P_med) | Application |
+| [**RMediation**](https://github.com/data-wise/rmediation) | Confidence intervals (DOP, MBCO) | Application |
+| [**medrobust**](https://github.com/data-wise/medrobust) | Sensitivity analysis | Application |
+| [**medsim**](https://github.com/data-wise/medsim) | Simulation infrastructure | Support |
+
+See [Ecosystem
+Coordination](https://github.com/data-wise/medfit/blob/main/planning/ECOSYSTEM.md)
+for version compatibility and development guidelines.
+
+## Installation
+
+Install from the [Data-Wise
+r-universe](https://data-wise.r-universe.dev) — no compiler needed, and
+dependencies (e.g. `medfit`) resolve automatically:
+
+``` r
+
+install.packages("probmed", repos = "https://data-wise.r-universe.dev")
+```
+
+Or install the development version from
+[GitHub](https://github.com/data-wise/probmed):
+
+``` r
+
+# install.packages("devtools")
+devtools::install_github("data-wise/probmed")
+```
+
+## Quick Example
+
+Here is a basic example showing how to simulate data and compute
+$`P_{med}`$ using a parametric bootstrap approach.
+
+### 1. Simulate Data
+
+First, we generate a dataset with a continuous treatment ($`X`$),
+mediator ($`M`$), and outcome ($`Y`$), along with a covariate ($`C`$).
+
+``` r
+
+library(probmed)
+
+set.seed(123)
+n <- 300
+data <- data.frame(X = rnorm(n), C = rnorm(n))
+
+# Mediator model: M ~ X + C
+data$M <- 0.5 * data$X + 0.3 * data$C + rnorm(n)
+
+# Outcome model: Y ~ M + X + C
+data$Y <- 0.4 * data$M + 0.2 * data$X + 0.2 * data$C + rnorm(n)
+```
+
+### 2. Compute $`P_{med}`$
+
+We use the
+[`pmed()`](https://data-wise.github.io/probmed/dev/reference/pmed.md)
+function to estimate the effect size. We specify the models for the
+outcome and mediator, and select the bootstrap method.
+
+``` r
+
+result <- pmed(
+  Y ~ X + M + C,             # Outcome model formula
+  formula_m = M ~ X + C,     # Mediator model formula
+  data = data,
+  treatment = "X",
+  mediator = "M",
+  method = "parametric_bootstrap",
+  n_boot = 1000,
+  seed = 42
+)
+```
+
+### 3. View Results
+
+The results object provides a clear summary of both $`P_{med}`$ and the
+Indirect Effect with confidence intervals.
+
+``` r
+
+print(result)
+#>
+#> P_med: Probability of Mediated Shift
+#> ====================================
+#>
+#> Estimate: 0.563
+#> 95% CI: [0.520, 0.605]
+#>
+#> Indirect Effect (Product of Coefficients):
+#> Estimate: 0.198
+#> 95% CI: [0.134, 0.268]
+#>
+#> Inference: parametric_bootstrap
+#> Bootstrap samples: 1000
+#>
+#> Treatment contrast: X = 1 vs. X* = 0
+#>
+#> Interpretation:
+#>   P(Y(1, M(1)) > Y(1, M(0))) = 0.563
+#>   P that the mediator shift (M(0) -> M(1)) leaves a random individual better off, holding X = 1.
+
+summary(result)
+```
+
+**Interpretation**: - **$`P_{med}`$ = 0.563**: There is a 56.3%
+probability that a treated individual will have a higher outcome than a
+control individual through the indirect path. Since 0.50 represents “no
+effect” (random chance), this indicates a positive mediation effect. -
+**Indirect Effect = 0.198**: The traditional product-of-coefficients
+indirect effect ($`a \times b`$) quantifies the average change in
+outcome due to the mediated path.
+
+## Workflow Options
+
+`probmed` offers three workflow approaches to suit your needs:
+
+### 1. Formula Interface (Recommended for Most Users)
+
+Directly specify your models using R formulas:
+
+``` r
+
+result <- pmed(
+  Y ~ X + M + C,             # Outcome model
+  formula_m = M ~ X + C,     # Mediator model
+  data = data,
+  treatment = "X",
+  mediator = "M",
+  method = "parametric_bootstrap"
+)
+```
+
+### 2. Integration with lavaan (For SEM Users)
+
+Extract from fitted Structural Equation Models with full support for
+FIML, robust estimators, and standardized estimates:
+
+``` r
+
+library(lavaan)
+
+# Define SEM model
+model <- '
+  M ~ a*X + C
+  Y ~ b*M + cp*X + C
+'
+
+# Fit with FIML for missing data
+fit <- sem(model, data = data, missing = "fiml")
+
+# Extract and compute P_med
+extract <- extract_mediation(fit, treatment = "X", mediator = "M")
+result <- pmed(extract, method = "parametric_bootstrap", n_boot = 5000)
+print(result)
+```
+
+### 3. Integration with mediation Package
+
+Seamlessly work with objects from the `mediation` package:
+
+``` r
+
+library(mediation)
+
+# Fit models
+model_m <- lm(M ~ X + C, data = data)
+model_y <- lm(Y ~ M + X + C, data = data)
+
+# Run mediate
+med_out <- mediate(model_m, model_y, treat = "X", mediator = "M", boot = TRUE)
+
+# Compute P_med from mediate object
+result <- pmed(extract_mediation(med_out))
+print(result)
+```
+
+## Advanced Features
+
+### Generalized Linear Models (GLMs)
+
+`probmed` supports GLMs for non-normal outcomes. For example, with a
+binary outcome:
+
+``` r
+
+# Binary outcome example
+data_bin <- data
+data_bin$Y_binary <- rbinom(n, 1, plogis(0.4 * data$M + 0.2 * data$X))
+
+result_bin <- pmed(
+  Y_binary ~ X + M + C,
+  formula_m = M ~ X + C,
+  data = data_bin,
+  family_y = binomial(),    # Logistic regression for binary outcome
+  treatment = "X",
+  mediator = "M",
+  method = "parametric_bootstrap",
+  n_boot = 1000
+)
+print(result_bin)
+```
+
+### Bootstrap Methods Comparison
+
+**When to use each method:**
+
+- **Plugin** (`method = "plugin"`): Fast point estimates only, no
+  confidence intervals. Use for quick exploration.
+- **Parametric Bootstrap** (`method = "parametric_bootstrap"`): Default
+  choice. Fast and accurate when parameter estimates are approximately
+  normally distributed.
+- **Nonparametric Bootstrap** (`method = "nonparametric_bootstrap"`):
+  More robust to distributional assumptions but computationally
+  intensive. Use when parametric assumptions are questionable.
+
+``` r
+
+# Compare methods
+result_plugin <- pmed(Y ~ X + M, formula_m = M ~ X, data = data,
+                      treatment = "X", mediator = "M", method = "plugin")
+
+result_param <- pmed(Y ~ X + M, formula_m = M ~ X, data = data,
+                     treatment = "X", mediator = "M",
+                     method = "parametric_bootstrap", n_boot = 1000)
+
+result_nonparam <- pmed(Y ~ X + M, formula_m = M ~ X, data = data,
+                        treatment = "X", mediator = "M",
+                        method = "nonparametric_bootstrap", n_boot = 1000)
+```
+
+## References
+
+- Tofighi, D. (In Press). *Probabilistic Effect Sizes for Mediation
+  Analysis*.
+- MacKinnon, D. P. (2008). *Introduction to Statistical Mediation
+  Analysis*. Lawrence Erlbaum Associates.
+
+## Contributing
+
+We welcome contributions! Please see the [Issue
+Tracker](https://github.com/data-wise/probmed/issues) for potential
+features or bug reports.
+
+# Package index
+
+## Core Functions
+
+Primary functions for computing P_med and extracting mediation
+structures from fitted statistical models.
+
+- [`pmed()`](https://data-wise.github.io/probmed/dev/reference/pmed.md)
+  : Compute P_med: Probabilistic Effect Size for Mediation
+- [`pmed-formula`](https://data-wise.github.io/probmed/dev/reference/pmed-formula.md)
+  : Compute P_med from Formula
+- [`pmed-MediationData`](https://data-wise.github.io/probmed/dev/reference/pmed-MediationData.md)
+  : Compute P_med from MediationData
+- [`extract_mediation`](https://data-wise.github.io/probmed/dev/reference/extract_mediation.md)
+  : Re-export extract_mediation from medfit
+
+## S7 Class Definitions
+
+Formal class structures for mediation analysis objects. These classes
+define the object-oriented architecture of the package.
+
+- [`PmedResult()`](https://data-wise.github.io/probmed/dev/reference/PmedResult.md)
+  : P_med Result Class
+
+## Methods and Utilities
+
+Generic methods for working with probmed objects, including print,
+summary, and visualization functions.
+
+- [`print-PmedResult`](https://data-wise.github.io/probmed/dev/reference/print-PmedResult.md)
+  : Print PmedResult
+- [`summary-PmedResult`](https://data-wise.github.io/probmed/dev/reference/summary-PmedResult.md)
+  : Summary Method
+- [`plot-PmedResult`](https://data-wise.github.io/probmed/dev/reference/plot-PmedResult.md)
+  : Plot Bootstrap Distribution
+
+## Internal Functions
+
+Low-level computational functions. These functions are exported for
+transparency but are not intended for direct use by end users.
+
+- [`PmedResult()`](https://data-wise.github.io/probmed/dev/reference/PmedResult.md)
+  : P_med Result Class
+
+- [`extract_mediation`](https://data-wise.github.io/probmed/dev/reference/extract_mediation.md)
+  : Re-export extract_mediation from medfit
+
+- [`plot-PmedResult`](https://data-wise.github.io/probmed/dev/reference/plot-PmedResult.md)
+  : Plot Bootstrap Distribution
+
+- [`pmed-MediationData`](https://data-wise.github.io/probmed/dev/reference/pmed-MediationData.md)
+  : Compute P_med from MediationData
+
+- [`pmed-ParallelMediationData`](https://data-wise.github.io/probmed/dev/reference/pmed-ParallelMediationData.md)
+  : Compute parallel (joint) P_med from a ParallelMediationData object
+
+- [`pmed-formula`](https://data-wise.github.io/probmed/dev/reference/pmed-formula.md)
+  : Compute P_med from Formula
+
+- [`pmed()`](https://data-wise.github.io/probmed/dev/reference/pmed.md)
+  : Compute P_med: Probabilistic Effect Size for Mediation
+
+- [`print-PmedResult`](https://data-wise.github.io/probmed/dev/reference/print-PmedResult.md)
+  : Print PmedResult
+
+- [`summary-PmedResult`](https://data-wise.github.io/probmed/dev/reference/summary-PmedResult.md)
+  : Summary Method
+
+- [`.is_gaussian()`](https://data-wise.github.io/probmed/dev/reference/dot-is_gaussian.md)
+  : Is a family Gaussian (NULL is treated as Gaussian)?
+
+- [`.mbco_gll()`](https://data-wise.github.io/probmed/dev/reference/dot-mbco_gll.md)
+  : Gaussian profile log-likelihood given SSE, variance V, and n rows.
+
+- [`.mbco_invert()`](https://data-wise.github.io/probmed/dev/reference/dot-mbco_invert.md)
+  : Invert an LR test: find where excess(t) = LR(t) - crit crosses zero.
+
+- [`.mbco_ll_constrained_ie()`](https://data-wise.github.io/probmed/dev/reference/dot-mbco_ll_constrained_ie.md)
+  :
+
+  Maximized log-likelihood under the constraint `a*b` = ie0.
+
+- [`.mbco_ll_constrained_ie_parallel()`](https://data-wise.github.io/probmed/dev/reference/dot-mbco_ll_constrained_ie_parallel.md)
+  : Maximized log-likelihood under the constraint sum(a\*b) = ie0
+  (parallel).
+
+- [`.mbco_ll_constrained_pmed()`](https://data-wise.github.io/probmed/dev/reference/dot-mbco_ll_constrained_pmed.md)
+  : Maximized log-likelihood under the constraint P_med = pnorm(qstar).
+
+- [`.mbco_ll_constrained_pmed_parallel()`](https://data-wise.github.io/probmed/dev/reference/dot-mbco_ll_constrained_pmed_parallel.md)
+  : Maximized log-likelihood under the constraint joint P_med =
+  pnorm(qstar).
+
+- [`.mbco_parallel_ll()`](https://data-wise.github.io/probmed/dev/reference/dot-mbco_parallel_ll.md)
+  : Joint Gaussian log-likelihood for the parallel free model at given
+  params.
+
+- [`.mbco_parallel_optim_best()`](https://data-wise.github.io/probmed/dev/reference/dot-mbco_parallel_optim_best.md)
+  :
+
+  Run Nelder-Mead from several starts, returning the best maximized
+  log-likelihood (`-min value`), or NA if every start fails / is
+  penalized.
+
+- [`.mbco_parallel_starts()`](https://data-wise.github.io/probmed/dev/reference/dot-mbco_parallel_starts.md)
+  : Deterministic perturbed warm starts for the parallel MBCO
+  optimizers.
+
+- [`.mbco_prep()`](https://data-wise.github.io/probmed/dev/reference/dot-mbco_prep.md)
+  : Build design matrices and free-fit summaries for the MBCO
+  optimization.
+
+- [`.mbco_prep_parallel()`](https://data-wise.github.io/probmed/dev/reference/dot-mbco_prep_parallel.md)
+  : Build design matrices and free-fit summaries for the parallel MBCO
+  fit.
+
+- [`.named_or()`](https://data-wise.github.io/probmed/dev/reference/dot-named_or.md)
+  : Look up a named coefficient, returning a default when absent
+
+- [`.ols_sse()`](https://data-wise.github.io/probmed/dev/reference/dot-ols_sse.md)
+  : Residual sum of squares of an OLS fit of y on design matrix D.
+
+- [`.pmed_compute()`](https://data-wise.github.io/probmed/dev/reference/dot-pmed_compute.md)
+  : Core P_med Computation Dispatcher
+
+- [`.pmed_compute_parallel()`](https://data-wise.github.io/probmed/dev/reference/dot-pmed_compute_parallel.md)
+  : Dispatch parallel (joint) P_med by inference method.
+
+- [`.pmed_core_simple()`](https://data-wise.github.io/probmed/dev/reference/dot-pmed_core_simple.md)
+  : Simple P_med Core Computation
+
+- [`.pmed_mbco()`](https://data-wise.github.io/probmed/dev/reference/dot-pmed_mbco.md)
+  : MBCO Confidence Interval for P_med (Gaussian single-mediator model)
+
+- [`.pmed_nonparametric_boot()`](https://data-wise.github.io/probmed/dev/reference/dot-pmed_nonparametric_boot.md)
+  : Nonparametric Bootstrap for P_med
+
+- [`.pmed_parallel_boot_result()`](https://data-wise.github.io/probmed/dev/reference/dot-pmed_parallel_boot_result.md)
+  :
+
+  Assemble a bootstrap `PmedResult` (shared by both parallel
+  bootstraps).
+
+- [`.pmed_parallel_closed()`](https://data-wise.github.io/probmed/dev/reference/dot-pmed_parallel_closed.md)
+  : Closed-form joint P_med for parallel mediators (Gaussian).
+
+- [`.pmed_parallel_coef_names()`](https://data-wise.github.io/probmed/dev/reference/dot-pmed_parallel_coef_names.md)
+  :
+
+  Names of the structural coefficients (a_j, b_j) in the parallel
+  estimates vector / vcov. Uses the structural aliases `a{j}` / `b{j}`,
+  which BOTH the lm/glm and lavaan medfit extractors expose (with full
+  vcov rows) – unlike the source-specific `m{j}_<tx>` / `y_<mediator_j>`
+  names, which exist only in the lm/glm extractor and would break the
+  parametric bootstrap on a lavaan extract.
+
+- [`.pmed_parallel_mbco()`](https://data-wise.github.io/probmed/dev/reference/dot-pmed_parallel_mbco.md)
+  : MBCO confidence interval for parallel joint P_med (Gaussian).
+
+- [`.pmed_parallel_nonparametric_boot()`](https://data-wise.github.io/probmed/dev/reference/dot-pmed_parallel_nonparametric_boot.md)
+  : Nonparametric bootstrap for parallel joint P_med.
+
+- [`.pmed_parallel_parametric_boot()`](https://data-wise.github.io/probmed/dev/reference/dot-pmed_parallel_parametric_boot.md)
+  : Parametric bootstrap for parallel joint P_med.
+
+- [`.pmed_parallel_plugin()`](https://data-wise.github.io/probmed/dev/reference/dot-pmed_parallel_plugin.md)
+  : Plugin (point estimate only) for parallel joint P_med.
+
+- [`.pmed_parallel_require_gaussian()`](https://data-wise.github.io/probmed/dev/reference/dot-pmed_parallel_require_gaussian.md)
+  : Require a Gaussian parallel extract (finite residual SDs present).
+
+- [`.pmed_parametric_boot()`](https://data-wise.github.io/probmed/dev/reference/dot-pmed_parametric_boot.md)
+  : Parametric Bootstrap for P_med
+
+- [`.pmed_plugin()`](https://data-wise.github.io/probmed/dev/reference/dot-pmed_plugin.md)
+  : Plugin Estimator (Point Estimate Only)
+
+- [`.qr_sse()`](https://data-wise.github.io/probmed/dev/reference/dot-qr_sse.md)
+  : Residual sum of squares against a precomputed QR decomposition.
+
+- [`lm_class`](https://data-wise.github.io/probmed/dev/reference/lm_class.md)
+  : S3 Class Wrappers for S7
+
+- [`` `%||%` ``](https://data-wise.github.io/probmed/dev/reference/null-coalesce.md)
+  : Null coalescing operator
+
+- [`probmed-package`](https://data-wise.github.io/probmed/dev/reference/probmed-package.md)
+  [`probmed`](https://data-wise.github.io/probmed/dev/reference/probmed-package.md)
+  : probmed: Probabilistic Effect Sizes for Causal Mediation Analysis
+
+# Articles
+
+### Getting Started
+
+- [Introduction to
+  probmed](https://data-wise.github.io/probmed/dev/articles/introduction.md):
+
+### Methods
+
+- [Parallel mediation: joint
+  P_med](https://data-wise.github.io/probmed/dev/articles/parallel-mediation.md):
+
+### Integration Guides
+
+- [Working with lavaan
+  Models](https://data-wise.github.io/probmed/dev/articles/lavaan-integration.md):
+- [Integration with the mediation
+  Package](https://data-wise.github.io/probmed/dev/articles/mediation-integration.md):
+- [Comparing probmed
+  Workflows](https://data-wise.github.io/probmed/dev/articles/package-comparison.md):
