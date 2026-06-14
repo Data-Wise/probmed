@@ -12,6 +12,13 @@ vignette: >
 #| include: false
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 set.seed(2026)
+# Quarto renders vignettes in a child process whose library path may not
+# include the just-built package during R CMD check (notably on Windows).
+# Degrade to code-only there instead of erroring on library(probmed); Linux/
+# macOS builds (CRAN, r-universe) still execute with full output.
+if (!requireNamespace("probmed", quietly = TRUE)) {
+  knitr::opts_chunk$set(eval = FALSE)
+}
 ```
 
 ## Overview
