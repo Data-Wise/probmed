@@ -5,7 +5,7 @@
 ~/projects/r-packages/active/probmed/
 
 ⏰ LAST UPDATED
-2026-06-11
+2026-06-14
 
 ────────────────────────────────────────────────
 
@@ -15,7 +15,9 @@ Status: active
 Progress: 85
 
 🌿 ACTIVE WORKTREE
-(none — feature/pmed-parallel merged via PR #3 and cleaned up, 2026-06-11)
+feature/fix-win-vignette @ ~/.git-worktrees/probmed/feature-fix-win-vignette
+  — PR #5 → dev: guard parallel-mediation.qmd eval so quarto vignette rebuild
+    no longer errors on Windows (library(probmed) not on check subprocess path)
 
 ────────────────────────────────────────────────
 
@@ -25,7 +27,10 @@ for causal mediation analysis. Provides interpretable
 measures of mediation strength.
 
 Version: 0.2.0 (GitHub release 2026-06-11, non-CRAN; pins medfit@v0.3.0)
-  — adds method="mbco" + parallel (joint) P_med; tagged off dev like v0.1.0
+  — adds method="mbco" + parallel (joint) P_med
+  — 2026-06-14: dev→main release PR #4 merged; main was stale (v0.1.0/v0.2.0
+    had been tagged off dev, integration PR never opened). main now = 0.2.0.
+  — 2026-06-14: r-universe registry flipped probmed dev→main (builds from main).
 
 ────────────────────────────────────────────────
 
