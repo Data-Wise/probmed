@@ -29,6 +29,12 @@ GaugePmedResult(
 
 \item{p_med_ci}{Numeric length-2: confidence interval for \code{p_med}.}
 
+\item{p_med_fieller}{Numeric: Fieller confidence set for the ratio \code{p_med}
+(may be unbounded; empty if not requested).}
+
+\item{fieller_type}{Character: type of Fieller set returned (e.g. bounded,
+unbounded, or empty); \code{NA} if not computed.}
+
 \item{W}{Numeric: gauge residual \code{R / OE}.}
 
 \item{W_ci}{Numeric length-2: confidence interval for \code{W}.}

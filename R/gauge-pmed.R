@@ -10,6 +10,10 @@
 #'
 #' @param p_med Numeric: interventional proportion mediated, `IIE / OE`.
 #' @param p_med_ci Numeric length-2: confidence interval for `p_med`.
+#' @param p_med_fieller Numeric: Fieller confidence set for the ratio `p_med`
+#'   (may be unbounded; empty if not requested).
+#' @param fieller_type Character: type of Fieller set returned (e.g. bounded,
+#'   unbounded, or empty); `NA` if not computed.
 #' @param W Numeric: gauge residual `R / OE`.
 #' @param W_ci Numeric length-2: confidence interval for `W`.
 #' @param W_se Numeric: standard error of `W`.
