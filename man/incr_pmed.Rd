@@ -4,13 +4,19 @@
 \alias{incr_pmed}
 \title{Incremental Mediated Elasticity Curve}
 \usage{
-incr_pmed(object, ...)
+incr_pmed(
+  object,
+  deltas = c(1/3, 1/2, 1, 2, 3),
+  covars = "C",
+  K = 5L,
+  ci_level = 0.95,
+  seed = 1L,
+  ...
+)
 }
 \arguments{
 \item{object}{A data frame with columns \code{A} (binary treatment), \code{M}
 (mediator), \code{Y} (outcome), and the covariates named in \code{covars}.}
-
-\item{...}{Unused.}
 
 \item{deltas}{Numeric: tilt factors at which to evaluate the curve.}
 
@@ -21,6 +27,8 @@ incr_pmed(object, ...)
 \item{ci_level}{Numeric: confidence level (default \code{0.95}).}
 
 \item{seed}{Integer: random seed for fold assignment (default \code{1}).}
+
+\item{...}{Unused.}
 }
 \value{
 An \link{IncrPmedResult} object whose \verb{@curve} slot holds one row per

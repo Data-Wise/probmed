@@ -134,7 +134,12 @@ IncrPmedResult <- S7::new_class(
 #' incr_pmed(d, deltas = c(0.5, 1, 2))
 #'
 #' @export
-incr_pmed <- S7::new_generic("incr_pmed", dispatch_args = "object")
+incr_pmed <- S7::new_generic(
+  "incr_pmed", dispatch_args = "object",
+  fun = function(object, deltas = c(1 / 3, 1 / 2, 1, 2, 3), covars = "C",
+                 K = 5L, ci_level = 0.95, seed = 1L, ...) {
+    S7::S7_dispatch()
+  })
 
 #' @export
 S7::method(incr_pmed, S7::class_data.frame) <-
