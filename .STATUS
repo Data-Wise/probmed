@@ -5,7 +5,7 @@
 ~/projects/r-packages/active/probmed/
 
 ⏰ LAST UPDATED
-2026-06-14
+2026-06-19
 
 ────────────────────────────────────────────────
 
@@ -37,18 +37,13 @@ Version: 0.2.0 (GitHub release 2026-06-11, non-CRAN; pins medfit@v0.3.0)
 ────────────────────────────────────────────────
 
 Next:
-- Manuscript §6: DONE — chunk live, verified 2026-06-11. Full apaquarto-pdf render
-  clean (_manuscript/pmed.pdf). probmed 0.1.0 and 0.1.0.9000 are BIT-EXACT here
-  (single-mediator path unchanged): P_med cont 0.6778, binary 0.6268, NIE 2.1210
-  → displayed 0.68 / 0.63 / 2.12. The old 0.681/0.629 reference was stale, not a
-  version discrepancy.
-- Ecosystem: resolve medfit version skew — medsim/mediationverse Remotes point at
-  medfit main (v0.2.0) but probmed needs >=0.3.0. Pin siblings @v0.3.0 OR wait for
-  medfit dev→main (CRAN-gated)
-- Feature: P_med for SEQUENTIAL/serial structures (parallel joint done, PR #3);
-  path-specific parallel P_med; non-Gaussian parallel (needs medfit family slots)
-Blocked (CRAN-gated): medfit v0.2.0 CRAN acceptance → PR #33 (v0.3.0→main) →
-  probmed→main + Remotes flip-back to data-wise/medfit
+⛔ BLOCKED ON CRAN (2026-06-19): Imports medfit >= 0.3.0; CRAN has medfit 0.2.1; dev has
+  medfit 0.3.1. DESCRIPTION has `Remotes: data-wise/medfit@v0.3.0` — must be cleared before
+  CRAN submission. Unblock path: (1) medfit 0.3.x submitted + accepted on CRAN; (2) drop
+  Remotes entry from probmed DESCRIPTION; (3) CRAN-check probmed; (4) submit. Cascade position:
+  Phase 3 of 4 (medrobust → medsim → probmed → mediationverse).
+- Feature: P_med for sequential structures (deferred); path-specific parallel P_med; non-Gaussian parallel.
+Blocked: medfit >= 0.3.x on CRAN (hard gate — Imports, not Suggests)
 
 ────────────────────────────────────────────────
 
