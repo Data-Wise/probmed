@@ -15,14 +15,13 @@ Status: active
 Progress: 85
 
 🌿 ACTIVE WORKTREE
-feature/gauge-pmed (2026-06-19) — ~/projects/r-packages/worktrees/probmed-gauge-pmed
-   adds ward_residual() / GaugePmedResult (gauge-calibrated P_med, W=R/OE).
-   R/gauge-pmed.R + tests/testthat/test-gauge-pmed.R (5 tests pass); roxygen done.
-   companion manuscript: ~/projects/research/pmed-modern/01-gauge-pmed.
-   TODO before merge: generalize density-ratio to non-binary A; coverage tuning
-   (sim shows ~0.86-0.90, SE slightly < empSD); add vignette.
-(prior — 2026-06-14 worktrees merged & cleaned up:
-   feature/fix-win-vignette → PR #5; feature/ci-dev-triggers → PR #7)
+feature/incremental-pmed — ~/projects/r-packages/worktrees/probmed-incremental-pmed
+   Paper 2 (incremental mediated elasticity, P_med^δ). In progress; rebase on dev.
+   companion manuscript: ~/projects/research/pmed-modern/02-incremental-pmed.
+(merged — 2026-06-19: feature/gauge-pmed → PR #8 squash-merged to dev:
+   ward_residual()/GaugePmedResult on R/gauge-pmed.R + tests (gauge-calibrated P_med, W=R/OE).
+   Open TODO before CRAN: generalize density-ratio to non-binary A; coverage tuning; vignette.)
+(prior — 2026-06-14: feature/fix-win-vignette → PR #5; feature/ci-dev-triggers → PR #7)
 
 ────────────────────────────────────────────────
 
