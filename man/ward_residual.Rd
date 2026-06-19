@@ -4,13 +4,19 @@
 \alias{ward_residual}
 \title{Gauge-Calibrated Proportion Mediated}
 \usage{
-ward_residual(object, ...)
+ward_residual(
+  object,
+  covars = "C",
+  K = 5L,
+  ci_level = 0.95,
+  seed = 1L,
+  fieller = TRUE,
+  ...
+)
 }
 \arguments{
 \item{object}{A \code{data.frame} with columns \code{A} (binary treatment), \code{M}
 (mediator), \code{Y} (outcome), and the covariates named in \code{covars}.}
-
-\item{...}{Unused.}
 
 \item{covars}{Character vector of covariate column names. Default \code{"C"}.}
 
@@ -23,6 +29,8 @@ ward_residual(object, ...)
 \item{fieller}{Logical: also compute the Fieller confidence set for the ratio
 \code{P_med = IIE/OE}, which is unbounded when the total effect \code{OE} is not
 significant (default \code{TRUE}).}
+
+\item{...}{Unused.}
 }
 \value{
 A \link{GaugePmedResult} object.

@@ -116,7 +116,12 @@ GaugePmedResult <- S7::new_class(
 #' ward_residual(data.frame(A, M, Y, C))
 #'
 #' @export
-ward_residual <- S7::new_generic("ward_residual", dispatch_args = "object")
+ward_residual <- S7::new_generic(
+  "ward_residual", dispatch_args = "object",
+  fun = function(object, covars = "C", K = 5L, ci_level = 0.95,
+                 seed = 1L, fieller = TRUE, ...) {
+    S7::S7_dispatch()
+  })
 
 #' @export
 S7::method(ward_residual, S7::class_data.frame) <-
