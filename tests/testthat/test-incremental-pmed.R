@@ -1,0 +1,92 @@
+## Tests for incr_pmed() / IncrPmedResult (incremental mediated elasticity, Paper 2)
+.ip_gen <- function(n, tint, seed = 1) {
+  set.seed(seed)
+  C <- rnorm(n)
+  A <- rbinom(n, 1, plogis(-0.2 + 0.8 * C))
+  M <- 0.6 * A + 0.4 * C + rnorm(n)
+  Y <- 0.5 * A + 0.7 * M + tint * A * M + 0.3 * C + rnorm(n)
+  data.frame(A, M, Y, C)
+}
+
+# Plug-in oracle for the headline properties: nested corner means nu(a, a', C),
+# the elasticity decomposition, and Theta(d, d) for a numeric derivative check.
+# This mirrors the validated prototype (sims/incr_pmed_proto.R) and lets us test
+# the exact-additivity (Theorem 1) and reduction (Theorem 2) theorems directly,
+# rather than asserting the tautology tot == dir + med on the one-step output.
+.ip_oracle <- function(d, deltas) {
+  g <- stats::predict(stats::glm(A ~ C, data = d, family = stats::binomial()),
+                      type = "response")
+  om <- stats::glm(Y ~ A * M + C, data = d, family = stats::gaussian())
+  nu <- matrix(NA_real_, nrow(d), 4, dimnames = list(NULL, c("11", "10", "01", "00")))
+  for (cc in list(c(1, 1, "11"), c(1, 0, "10"), c(0, 1, "01"), c(0, 0, "00"))) {
+    a <- as.numeric(cc[1]); ap <- as.numeric(cc[2]); nm <- cc[3]
+    muAM <- stats::predict(om, newdata = transform(d, A = a))
+    etam <- stats::lm(yy ~ C, data = data.frame(yy = muAM[d$A == ap], C = d$C[d$A == ap]))
+    nu[, nm] <- stats::predict(etam, newdata = d)
+  }
+  Theta <- function(del) {
+    q <- del * g / (del * g + 1 - g)
+    mean(q * q * nu[, "11"] + q * (1 - q) * nu[, "10"] +
+         (1 - q) * q * nu[, "01"] + (1 - q) * (1 - q) * nu[, "00"])
+  }
+  t(vapply(deltas, function(del) {
+    q  <- del * g / (del * g + 1 - g)
+    qp <- g * (1 - g) / (del * g + 1 - g)^2
+    dir <- mean(qp * (q * (nu[, "11"] - nu[, "01"]) + (1 - q) * (nu[, "10"] - nu[, "00"])))
+    med <- mean(qp * (q * (nu[, "11"] - nu[, "10"]) + (1 - q) * (nu[, "01"] - nu[, "00"])))
+    tot_num <- (Theta(del + 1e-5) - Theta(del - 1e-5)) / 2e-5
+    c(delta = del, dir = dir, med = med, tot_analytic = dir + med,
+      tot_numeric = tot_num, remainder = tot_num - (dir + med), Pmed = med / (dir + med))
+  }, numeric(7)))
+}
+
+test_that("incr_pmed returns an IncrPmedResult with a finite curve", {
+  r <- incr_pmed(.ip_gen(1500, 0.0), deltas = c(0.5, 1, 2))
+  expect_true(S7::S7_inherits(r, IncrPmedResult))
+  expect_equal(nrow(r@curve), 3)
+  expect_true(all(is.finite(r@curve$Pmed)))
+  expect_true(all(is.finite(r@curve$se)))
+  expect_true(all(is.finite(r@curve$lo)) && all(is.finite(r@curve$hi)))
+  expect_true(all(r@curve$lo <= r@curve$hi))
+})
+
+test_that("Theorem 1: exact additivity, remainder R(delta) = 0 for every delta", {
+  # numeric d/ddelta Theta(delta, delta) equals the analytic dir + med
+  o <- .ip_oracle(.ip_gen(20000, 0.9), deltas = c(1 / 3, 1 / 2, 1, 2, 3))
+  expect_true(all(abs(o[, "remainder"]) < 1e-3))
+  expect_equal(o[, "tot_numeric"], o[, "tot_analytic"], tolerance = 1e-3,
+               ignore_attr = TRUE)
+})
+
+test_that("Theorem 2: reduction to classical P_med under no A*M interaction", {
+  # linear-Gaussian, no interaction => flat curve at b_a * t_m / (t_a + b_a * t_m)
+  classical <- 0.6 * 0.7 / (0.5 + 0.6 * 0.7)   # = 0.4565
+  o <- .ip_oracle(.ip_gen(40000, 0.0), deltas = c(1 / 3, 1 / 2, 1, 2, 3))
+  expect_true(all(abs(o[, "Pmed"] - classical) < 0.03))  # at the classical value
+  expect_lt(diff(range(o[, "Pmed"])), 0.01)              # and flat across delta
+})
+
+test_that("curve bends with delta when an A*M interaction is present", {
+  o <- .ip_oracle(.ip_gen(40000, 0.9), deltas = c(1 / 3, 1, 3))
+  expect_gt(diff(range(o[, "Pmed"])), 0.02)
+})
+
+test_that("one-step estimator recovers the classical value at delta = 1 (no interaction)", {
+  classical <- 0.6 * 0.7 / (0.5 + 0.6 * 0.7)
+  r <- incr_pmed(.ip_gen(8000, 0.0), deltas = 1, K = 5L)
+  expect_true(abs(r@curve$Pmed[1] - classical) < 0.08)
+  expect_lte(r@curve$lo[1], classical)
+  expect_gte(r@curve$hi[1], classical)
+})
+
+test_that("multiple covariates are supported", {
+  d <- .ip_gen(1500, 0.3); d$C2 <- rnorm(nrow(d))
+  r <- incr_pmed(d, deltas = c(0.5, 2), covars = c("C", "C2"))
+  expect_true(all(is.finite(r@curve$Pmed)))
+})
+
+test_that("print method runs and returns invisibly", {
+  r <- incr_pmed(.ip_gen(1000, 0.0), deltas = c(0.5, 1, 2))
+  expect_output(print(r), "Incremental mediated elasticity")
+  expect_identical(withVisible(print(r))$visible, FALSE)
+})
