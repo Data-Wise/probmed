@@ -27,6 +27,8 @@ GaugePmedResult <- S7::new_class(
   "GaugePmedResult", package = "probmed",
   properties = list(
     p_med = S7::class_numeric, p_med_ci = S7::class_numeric,
+    p_med_fieller = S7::new_property(class = S7::class_numeric, default = numeric(0)),
+    fieller_type = S7::new_property(class = S7::class_character, default = NA_character_),
     W = S7::class_numeric, W_ci = S7::class_numeric,
     W_se = S7::class_numeric, W_p = S7::class_numeric,
     OE = S7::class_numeric, IDE = S7::class_numeric,
@@ -94,6 +96,9 @@ GaugePmedResult <- S7::new_class(
 #' @param K Integer: number of cross-fitting folds (default 5).
 #' @param ci_level Numeric: confidence level (default 0.95).
 #' @param seed Integer: RNG seed for fold assignment.
+#' @param fieller Logical: also compute the Fieller confidence set for the ratio
+#'   `P_med = IIE/OE`, which is unbounded when the total effect `OE` is not
+#'   significant (default `TRUE`).
 #' @param ... Unused.
 #'
 #' @return A [GaugePmedResult] object.
@@ -111,7 +116,7 @@ ward_residual <- S7::new_generic("ward_residual", dispatch_args = "object")
 
 #' @export
 S7::method(ward_residual, S7::class_data.frame) <-
-  function(object, covars = "C", K = 5L, ci_level = 0.95, seed = 1L, ...) {
+  function(object, covars = "C", K = 5L, ci_level = 0.95, seed = 1L, fieller = TRUE, ...) {
     stopifnot(all(c("A", "M", "Y") %in% names(object)), all(covars %in% names(object)))
     set.seed(seed)
     binY <- all(object$Y %in% 0:1)
@@ -124,8 +129,30 @@ S7::method(ward_residual, S7::class_data.frame) <-
     pIIE <- phi[, "01"] - phi[, "00"]; pR <- pOE - pIDE - pIIE
     se <- function(x) stats::sd(x) / sqrt(n); zc <- stats::qnorm(1 - (1 - ci_level) / 2)
     seP <- se((pIIE - Pmed * pOE) / OE); seW <- se((pR - W * pOE) / OE); z <- W / seW
+
+    ## Fieller confidence set for P_med = IIE/OE. When the denominator OE is not
+    ## significant the set is unbounded; the Wald interval understates this.
+    fbounds <- numeric(0); ftype <- NA_character_
+    if (isTRUE(fieller)) {
+      VOE <- stats::var(pOE)/n; VIIE <- stats::var(pIIE)/n; COVio <- stats::cov(pIIE, pOE)/n
+      fa <- OE^2 - zc^2 * VOE
+      fb <- -2 * IIE * OE + 2 * zc^2 * COVio
+      fc <- IIE^2 - zc^2 * VIIE
+      disc <- fb^2 - 4 * fa * fc
+      if (fa > 0) {
+        if (disc >= 0) { fbounds <- sort((-fb + c(-1,1)*sqrt(disc))/(2*fa)); ftype <- "bounded" }
+        else          { fbounds <- c(NA_real_, NA_real_); ftype <- "empty" }
+      } else if (fa < 0) {
+        if (disc >= 0) { fbounds <- sort((-fb + c(-1,1)*sqrt(disc))/(2*fa)); ftype <- "exclusive-unbounded" }
+        else          { fbounds <- c(-Inf, Inf); ftype <- "all-real" }
+      } else { # fa == 0 (linear)
+        fbounds <- c(-Inf, Inf); ftype <- "all-real"
+      }
+    }
+
     GaugePmedResult(
       p_med = unname(Pmed), p_med_ci = unname(c(Pmed - zc * seP, Pmed + zc * seP)),
+      p_med_fieller = unname(fbounds), fieller_type = ftype,
       W = unname(W), W_ci = unname(c(W - zc * seW, W + zc * seW)), W_se = unname(seW),
       W_p = unname(2 * stats::pnorm(-abs(z))),
       OE = unname(OE), IDE = unname(IDE), IIE = unname(IIE), R = unname(R),
@@ -137,7 +164,17 @@ S7::method(ward_residual, S7::class_data.frame) <-
 #' @export
 S7::method(print, GaugePmedResult) <- function(x, ...) {
   cat("Gauge-calibrated proportion mediated (", x@method, ", n=", x@n, ")\n", sep = "")
-  cat(sprintf("  P_med = %.3f  [%.3f, %.3f]\n", x@p_med, x@p_med_ci[1], x@p_med_ci[2]))
+  cat(sprintf("  P_med = %.3f  Wald [%.3f, %.3f]\n", x@p_med, x@p_med_ci[1], x@p_med_ci[2]))
+  if (!is.na(x@fieller_type)) {
+    fb <- x@p_med_fieller
+    cat(switch(x@fieller_type,
+      "bounded" = sprintf("    Fieller 95%% CI [%.3f, %.3f]\n", fb[1], fb[2]),
+      "exclusive-unbounded" = sprintf(
+        "    Fieller 95%% set (-Inf, %.3f] U [%.3f, Inf) -- OE not significant => UNBOUNDED\n",
+        fb[1], fb[2]),
+      "all-real" = "    Fieller 95% set = all of R (OE indistinguishable from 0)\n",
+      "empty" = "    Fieller set empty (degenerate)\n", ""))
+  }
   cat(sprintf("  W=R/OE = %.3f  [%.3f, %.3f]  (p=%.3g)\n", x@W, x@W_ci[1], x@W_ci[2], x@W_p))
   cat(sprintf("  OE=%.3f  IDE=%.3f  IIE=%.3f  R=%.3f\n", x@OE, x@IDE, x@IIE, x@R))
   if (abs(x@W) > 0.1)

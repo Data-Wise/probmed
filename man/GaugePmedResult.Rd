@@ -7,6 +7,8 @@
 GaugePmedResult(
   p_med = integer(0),
   p_med_ci = integer(0),
+  p_med_fieller = numeric(0),
+  fieller_type = NA_character_,
   W = integer(0),
   W_ci = integer(0),
   W_se = integer(0),

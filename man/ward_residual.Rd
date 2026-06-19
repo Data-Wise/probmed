@@ -19,6 +19,10 @@ ward_residual(object, ...)
 \item{ci_level}{Numeric: confidence level (default 0.95).}
 
 \item{seed}{Integer: RNG seed for fold assignment.}
+
+\item{fieller}{Logical: also compute the Fieller confidence set for the ratio
+\code{P_med = IIE/OE}, which is unbounded when the total effect \code{OE} is not
+significant (default \code{TRUE}).}
 }
 \value{
 A \link{GaugePmedResult} object.

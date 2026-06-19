@@ -32,6 +32,18 @@ test_that("A*M interaction => W > 0 with CI excluding 0", {
   expect_lt(r@W_p, 0.01)
 })
 
+test_that("Fieller set is computed and typed", {
+  r <- ward_residual(.gp_gen(3000, 0.5, FALSE), fieller = TRUE)
+  expect_true(r@fieller_type %in% c("bounded", "exclusive-unbounded", "all-real", "empty"))
+  expect_length(r@p_med_fieller, 2)
+})
+
+test_that("fieller=FALSE leaves the Fieller fields empty", {
+  r <- ward_residual(.gp_gen(1500, 0.3, FALSE), fieller = FALSE)
+  expect_length(r@p_med_fieller, 0)
+  expect_true(is.na(r@fieller_type))
+})
+
 test_that("multiple covariates are supported", {
   d <- .gp_gen(1500, 0.3, FALSE); d$C2 <- rnorm(nrow(d))
   r <- ward_residual(d, covars = c("C", "C2"))
