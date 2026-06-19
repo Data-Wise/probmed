@@ -33,16 +33,20 @@ GaugePmedResult <- S7::new_class(
   }
 )
 
-## ---- engine (cross-fit one-step) ----
-.gauge_fit <- function(d, K, binY) {
+## ---- engine (cross-fit one-step); covars = character vector of covariate names ----
+.gauge_fit <- function(d, K, binY, covars) {
+  cf <- paste(covars, collapse = " + ")
+  f_pi <- stats::as.formula(paste("A ~", cf))
+  f_q  <- stats::as.formula(paste("A ~ M +", cf))
+  f_om <- stats::as.formula(paste("Y ~ A * M +", cf))
   n <- nrow(d); folds <- sample(rep(1:K, length.out = n))
   nm <- c("11","10","01","00"); cor <- list(c(1,1),c(1,0),c(0,1),c(0,0))
   phi <- matrix(0, n, 4, dimnames = list(NULL, nm))
   for (k in 1:K) {
     tr <- d[folds != k, , drop = FALSE]; te_i <- which(folds == k); te <- d[te_i, , drop = FALSE]
-    pim <- stats::glm(A ~ C, data = tr, family = stats::binomial())
-    qm  <- stats::glm(A ~ M + C, data = tr, family = stats::binomial())
-    om  <- stats::glm(Y ~ A * M + C, data = tr,
+    pim <- stats::glm(f_pi, data = tr, family = stats::binomial())
+    qm  <- stats::glm(f_q,  data = tr, family = stats::binomial())
+    om  <- stats::glm(f_om, data = tr,
                       family = if (binY) stats::binomial() else stats::gaussian())
     p1 <- stats::predict(pim, newdata = te, type = "response"); pa <- function(z) ifelse(z==1, p1, 1-p1)
     q1 <- stats::predict(qm,  newdata = te, type = "response"); qa <- function(z) ifelse(z==1, q1, 1-q1)
@@ -51,10 +55,11 @@ GaugePmedResult <- S7::new_class(
       a <- cor[[j]][1]; ap <- cor[[j]][2]
       muAM <- mu(a)
       ratio <- (qa(ap)/qa(a)) * (pa(a)/pa(ap))            # f(M|ap,C)/f(M|a,C)
-      ## eta via nested regression of mu(a,M,C) on C within {A=ap}, fit on TRAIN
+      ## eta via nested regression of mu(a,M,C) on covars within {A=ap}, fit on TRAIN
       muAM_tr <- stats::predict(om, newdata = transform(tr, A = a), type = "response")
       sub <- tr$A == ap
-      etam <- stats::lm(yy ~ C, data = data.frame(yy = muAM_tr[sub], C = tr$C[sub]))
+      etam <- stats::lm(stats::reformulate(covars, "yy"),
+                        data = cbind(data.frame(yy = muAM_tr[sub]), tr[sub, covars, drop = FALSE]))
       eta <- stats::predict(etam, newdata = te)
       phi[te_i, j] <- (te$A==a)/pa(a) * ratio * (te$Y - muAM) +
                       (te$A==ap)/pa(ap) * (muAM - eta) + eta
@@ -66,12 +71,12 @@ GaugePmedResult <- S7::new_class(
 ## ---- generic + method ----
 ward_residual <- S7::new_generic("ward_residual", dispatch_args = "object")
 
-S7::method(ward_residual, S7::class_data.frame) <- function(object, K = 5L,
+S7::method(ward_residual, S7::class_data.frame) <- function(object, covars = "C", K = 5L,
                                                             ci_level = 0.95, seed = 1L, ...) {
-  stopifnot(all(c("A","M","Y","C") %in% names(object)))
+  stopifnot(all(c("A","M","Y") %in% names(object)), all(covars %in% names(object)))
   set.seed(seed)
   binY <- all(object$Y %in% 0:1)
-  phi <- .gauge_fit(object, K, binY); n <- nrow(object)
+  phi <- .gauge_fit(object, K, binY, covars); n <- nrow(object)
   th <- colMeans(phi)
   OE <- th["11"]-th["00"]; IDE <- th["10"]-th["00"]; IIE <- th["01"]-th["00"]
   R <- OE-IDE-IIE; Pmed <- IIE/OE; W <- R/OE
