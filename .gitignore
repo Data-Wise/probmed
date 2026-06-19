@@ -12,6 +12,8 @@ README.html
 README_files/
 planning/*
 !planning/SPEC-estimand-fix.md
+!planning/pmed-extensions/
+!planning/pmed-extensions/**
 CLAUDE.md
 .claude/worktrees/
 .claude/guard-session-counts

@@ -1,3 +1,18 @@
+# probmed (development version)
+
+## New features
+
+* `ward_residual()` and the `GaugePmedResult` class add the **gauge-calibrated
+  proportion mediated** for interventional/stochastic effects. Alongside the
+  interventional proportion mediated `P_med = IIE/OE`, it reports the **gauge
+  residual** `W = R/OE` with `R = OE - IDE - IIE`, the treatment-by-mediator
+  interaction (non-decomposability) term. A nonzero `W` flags that the additive
+  split fails and the single-number `P_med` is unreliable. Cross-fitted one-step
+  estimator built on the triply-robust EIFs of the corner means
+  `theta(a,a') = E[Y(a, M(a'))]`; analytic sqrt(n) confidence intervals via the
+  ratio identity. Binary treatment; general covariates; binary or continuous
+  outcome. (feature/gauge-pmed; companion manuscript: pmed-modern/01-gauge-pmed.)
+
 # probmed 0.2.0 (2026-06-11)
 
 ## Features
