@@ -30,7 +30,7 @@
 IncrPmedResult <- S7::new_class(
   "IncrPmedResult", package = "probmed",
   properties = list(
-    curve = S7::class_data.frame,
+    curve = S7::new_property(class = S7::class_data.frame, default = quote(data.frame())),
     deltas = S7::class_numeric,
     method = S7::class_character,
     n = S7::class_integer,
