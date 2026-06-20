@@ -19,11 +19,24 @@ feature/incremental-pmed — ~/projects/r-packages/worktrees/probmed-incremental
    Paper 2 (incremental mediated elasticity, P_med^δ). PR-READY (2026-06-19):
    incr_pmed()/IncrPmedResult promoted to R/incremental-pmed.R; 17 tests (Thm 1
    additivity, Thm 2 reduction); full suite 169/0; CI-clean (S7-generic fun= fix).
-   Pushed origin/feature/incremental-pmed (5 ahead of dev, 0 behind).
+   Pushed origin/feature/incremental-pmed (now 6 ahead of dev, 0 behind).
+   R3/A-3 (2026-06-19, commit 8e7544f): added estimator-level theorem tests; suite 174/0.
+   Finding: Thm 1 is a tautology at the estimator level (tot:=dir+med, incremental-pmed.R:160)
+   → oracle test kept; Thm 2 + curve-bending genuinely covered.
    PR-READY but HELD: PR #9 was opened then CLOSED (2026-06-19) to honor the plan below.
    ⚠️ HOLD the PR until you intend to integrate — do not open speculatively.
    Open TODO before CRAN: g-score EIF term (SE treats fitted g(C) as fixed → conservative).
    companion manuscript: ~/projects/research/pmed-modern/02-incremental-pmed.
+
+feature/my-sensitivity — ~/projects/r-packages/worktrees/probmed-sensitivity (commit 96d2a0d)
+   R6/A-11 (2026-06-19): shared M–Y (A4) sensitivity helper pmed_sensitivity()/PmedSensitivity
+   (R/sensitivity.R); offset bias P_med(b)=(indirect+b)/total; E-value rejected (no strength→0
+   limit). Suite 174/0. P1/P2 ready; P3 variance-share call is a flagged placeholder (deferred).
+   Pushed origin/feature/my-sensitivity; PR-ready but HELD until integrating.
+
+⚠️ INCOMING (from pmed-modern R4/A-12): sobol_pmed()'s cross-fit IF SE is anti-conservative at the
+   true null (se_Dm/empSD≈0.56 @ n=2000 → split-guard over-rejects). When sobol_pmed() is promoted
+   here (R2), check for a missing IF-variance term before trusting near-boundary Wald SEs.
 (merged — 2026-06-19: feature/gauge-pmed → PR #8 squash-merged to dev:
    ward_residual()/GaugePmedResult on R/gauge-pmed.R + tests (gauge-calibrated P_med, W=R/OE).
    Open TODO before CRAN: generalize density-ratio to non-binary A; coverage tuning; vignette.)
