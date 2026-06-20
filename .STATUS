@@ -16,7 +16,12 @@ Progress: 85
 
 🌿 ACTIVE WORKTREE
 feature/incremental-pmed — ~/projects/r-packages/worktrees/probmed-incremental-pmed
-   Paper 2 (incremental mediated elasticity, P_med^δ). In progress; rebase on dev.
+   Paper 2 (incremental mediated elasticity, P_med^δ). PR-READY (2026-06-19):
+   incr_pmed()/IncrPmedResult promoted to R/incremental-pmed.R; 17 tests (Thm 1
+   additivity, Thm 2 reduction); full suite 169/0; CI-clean (S7-generic fun= fix).
+   Pushed origin/feature/incremental-pmed (5 ahead of dev, 0 behind).
+   ⚠️ HOLD the PR until you intend to integrate — do not open speculatively.
+   Open TODO before CRAN: g-score EIF term (SE treats fitted g(C) as fixed → conservative).
    companion manuscript: ~/projects/research/pmed-modern/02-incremental-pmed.
 (merged — 2026-06-19: feature/gauge-pmed → PR #8 squash-merged to dev:
    ward_residual()/GaugePmedResult on R/gauge-pmed.R + tests (gauge-calibrated P_med, W=R/OE).
