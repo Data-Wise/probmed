@@ -144,6 +144,46 @@ test_that("determinism: same seed -> identical point estimate and inference", {
 })
 
 ## -----------------------------------------------------------------------------------------------
+test_that("A-15 reps (repeated cross-fitting) stabilises the near-null point estimate", {
+  ## near-null DGP: the single-split point is ~80% fold noise; averaging over reps
+  ## fold draws must move it toward 0 and shrink its run-to-run spread.
+  d <- .sp_gen(2000, cell_null)
+  f1  <- sobol_pmed(d, seed = 1L, reps = 1L,  warn_boundary = FALSE)
+  f10 <- sobol_pmed(d, seed = 1L, reps = 10L, warn_boundary = FALSE)
+  expect_identical(f10@reps, 10L)
+  expect_identical(f1@reps, 1L)
+  expect_true(is.finite(f10@Dm) && is.finite(f10@se_Dm))
+  expect_true(S7::S7_inherits(f10, SobolPmedResult))
+  ## repeated-CF |Dm| should not exceed the single-split |Dm| by much; typically smaller
+  expect_lt(abs(f10@Dm), abs(f1@Dm) + 0.05)
+})
+
+## -----------------------------------------------------------------------------------------------
+test_that("A-15 se_method='bootstrap' returns a valid (conservative) near-null se", {
+  d <- .sp_gen(1500, cell_null)
+  fa <- sobol_pmed(d, seed = 1L, se_method = "analytic",  warn_boundary = FALSE)
+  fb <- sobol_pmed(d, seed = 1L, se_method = "bootstrap", B = 40L, warn_boundary = FALSE)
+  expect_identical(fa@se_method, "analytic")
+  expect_identical(fb@se_method, "bootstrap")
+  expect_true(is.finite(fb@se_Dm) && fb@se_Dm > 0)
+  expect_true(all(is.finite(fb@ci)))
+  ## near the null the bootstrap se is conservative -> not smaller than the analytic se
+  expect_gt(fb@se_Dm, 0.9 * fa@se_Dm)
+  ## same point estimate (bootstrap changes only the se, not Dm), reps default 1
+  expect_equal(fb@Dm, fa@Dm, tolerance = 1e-8)
+})
+
+## -----------------------------------------------------------------------------------------------
+test_that("A-15 default path is unchanged and bad se_method errors", {
+  d <- .sp_gen(2000, cell_interaction)
+  f_def <- sobol_pmed(d, seed = 3L, warn_boundary = FALSE)
+  f_exp <- sobol_pmed(d, seed = 3L, reps = 1L, se_method = "analytic", warn_boundary = FALSE)
+  expect_equal(f_def@p_med, f_exp@p_med, tolerance = 1e-12)  # explicit defaults == implicit
+  expect_identical(f_def@se_method, "analytic")
+  expect_error(sobol_pmed(d, seed = 3L, se_method = "jackknife", warn_boundary = FALSE))
+})
+
+## -----------------------------------------------------------------------------------------------
 test_that("sobol_from_theta matches the variance decomposition identities", {
   th <- .sp_theta(cell_interaction)
   v <- sobol_from_theta(th, pd = .5, pm = .5)

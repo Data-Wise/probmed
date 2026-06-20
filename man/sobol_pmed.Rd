@@ -15,6 +15,9 @@ sobol_pmed(
   warn_boundary = TRUE,
   boundary_test = c("split", "plugin", "none"),
   procedure = c("B", "A"),
+  reps = 1L,
+  se_method = c("analytic", "bootstrap"),
+  B = 200L,
   ...
 )
 }
@@ -43,8 +46,18 @@ the reported interval falls back to the Procedure-A upper bound
 (over-rejecting) plug-in Wald test, diagnostic only.}
 
 \item{procedure}{Character: interval procedure for \code{ci}. \code{"B"} (default) is the
-uniformly valid sample-split CI (image of the \code{Delta_m} CI); \code{"A"} is the
-legacy gated interval (non-uniform near the boundary). See \link{SobolPmedResult}.}
+sample-split CI (image of the \code{Delta_m} CI); \code{"A"} is the legacy gated interval
+(non-uniform near the boundary). See \link{SobolPmedResult}.}
+
+\item{reps}{Integer: repeated cross-fitting draws averaged for the point estimate
+(default \code{1}). Use \code{reps > 1} near the boundary for a reproducible, lower-variance
+estimate (it removes the ~80\% fold-split variance).}
+
+\item{se_method}{Character: \code{"analytic"} (default) or \code{"bootstrap"}. The bootstrap
+gives a valid (conservative) se near the non-regular boundary, where the analytic
+se is anti-conservative; off the boundary the analytic se is calibrated.}
+
+\item{B}{Integer: bootstrap resamples when \code{se_method = "bootstrap"} (default \code{200}).}
 
 \item{...}{Unused.}
 }
@@ -67,13 +80,16 @@ influence function degenerates and the symmetric Wald interval is non-regular.
 A Williamson et al. (2021) sample-split test on the regular contrast \code{Delta_m}
 decides the boundary. The default reported interval is \strong{Procedure B}
 (\code{procedure = "B"}): the image of the regular \code{Delta_m} Wald CI under
-\verb{delta -> (c_m/V_T) delta^2}, uniformly valid by continuous mapping (no gate).
-\strong{Procedure A} (\code{procedure = "A"}) is the legacy gated rule (Wald on rejection,
-one-sided \verb{[0, Pmed_upper]} otherwise), which is pointwise- but \strong{not}
-uniformly-valid across the near-null transition (Leeb-Potscher pre-test
-under-coverage). The boundary machinery recurses through a plain internal fitter
-(not this generic), so the point estimate, fold draw, and split are deterministic
-in \code{seed}. See the \strong{Coverage caveat} in \link{SobolPmedResult}.
+\verb{delta -> (c_m/V_T) delta^2} (continuous mapping, no gate). Its validity inherits
+that of the input \code{Delta_m} CI -- so near the boundary use \code{reps > 1} and
+\code{se_method = "bootstrap"} for a valid interval (the analytic \code{Delta_m} se is
+anti-conservative there; see the boundary coverage section). \strong{Procedure A}
+(\code{procedure = "A"}) is the legacy gated rule (Wald on rejection, one-sided
+\verb{[0, Pmed_upper]} otherwise), pointwise- but \strong{not} uniformly-valid across the
+near-null transition (Leeb-Potscher pre-test under-coverage). The boundary
+machinery recurses through a plain internal fitter (not this generic), so the
+point estimate, fold draw, and split are deterministic in \code{seed}. See the
+boundary coverage section in \link{SobolPmedResult}.
 }
 \examples{
 set.seed(1)

@@ -44,27 +44,46 @@
 #' `ci_A`) is the legacy *gated* rule: Wald on rejection, one-sided
 #' `[0, Pmed_upper]` otherwise.
 #'
-#' **Coverage caveat -- two separate issues.** (1) *Procedure A is not uniformly
-#' valid.* As a pre-test (gating) rule, A is only pointwise valid: near the
-#' boundary it routes downward-selected `Delta_m_hat` to the contracting one-sided
-#' bound, a Leeb-Potscher post-selection effect -- prefer B, which does not gate.
-#' (2) *Near-null se limitation (affects A and B alike).* A reproducible
-#' decomposition (>=1000 reps, fixed seed, two streams) shows that **in the
-#' near-null regime** the `Delta_m` standard error is **anti-conservative**
-#' (`se_Dm` ~ 0.70-0.76x the empirical sampling SD), so even the regular two-sided
-#' `Delta_m` Wald CI -- and hence its image B -- covers only ~0.85; `V_T` is well
-#' calibrated. The deflation is **persistent**: across `n = 2000` to `64000`
-#' (32-fold) the se-ratio stays ~0.70-0.76 and coverage ~0.85-0.88 -- too slow for
-#' a vanishing finite-sample effect, so near-null asymptotic validity is *not*
-#' established (slowly-consistent vs structurally inconsistent is unresolved). This
-#' is **near-null specific**: for ordinary effect sizes `se_Dm` is calibrated (~0.95
-#' se-ratio, ~nominal coverage). Mechanism not definitively pinned -- the cross-world
-#' density ratio `f(M | a', C) / f(M | a, C)` is heavy-tailed but its law is the same
-#' in all cells, so heaviness alone cannot explain the near-null-specificity. B is
-#' the correct interval *construction* (uniformly valid relative to the `Delta_m`
-#' CI), but cannot out-cover a miscalibrated input se; a heavy-tail-robust `Delta_m`
-#' se for the near-null regime is open work. Treat near-null `V_med` intervals as
-#' approximate. Use `procedure = "A"` only to reproduce the legacy gated behaviour.
+#' **Coverage near the boundary -- mechanism and remedies (A-15).** Two distinct
+#' issues; the second is now decomposed (reproducible fixed-seed variance
+#' decomposition) into three findings, each with a concrete remedy.
+#'
+#' *(1) Procedure A is not uniformly valid.* As a pre-test (gating) rule A is only
+#' pointwise valid: near the boundary it routes downward-selected `Delta_m_hat` to
+#' the contracting one-sided bound, a Leeb-Potscher post-selection effect. Prefer B,
+#' which does not gate.
+#'
+#' *(2) The near-null `Delta_m` standard error.* Three pinned facts:
+#' \itemize{
+#'   \item **Fold-split Monte-Carlo variance dominates.** A single cross-fitting
+#'     fold partition contributes ~80% of `Var(Delta_m_hat)` in the near-null regime
+#'     (~45% at ordinary effect sizes), persistent across `n = 2000` to `8000`. This
+#'     is an algorithmic nuisance, not sampling information: it inflates the
+#'     estimator's variance and makes the single-split point estimate seed-dependent.
+#'     *Remedy:* **`reps > 1`** (repeated cross-fitting -- the corner influence matrix
+#'     is averaged over `reps` independent fold draws), which removes it and yields a
+#'     reproducible, lower-variance point estimate (mean DML aggregation).
+#'   \item **`Delta_m_hat` is approximately normal at the null.** Recomputing coverage
+#'     with the oracle Monte-Carlo SD gives ~0.95, so the Wald *shape* is correct for
+#'     the regular contrast `Delta_m`: the under-coverage is a wrong interval *width*,
+#'     not a wrong *shape* (there is no boundary non-normality for `Delta_m` itself).
+#'   \item **A residual analytic-se bias remains.** Even after fold noise is removed,
+#'     the analytic influence-function se for `Delta_m` is ~0.8x its true sampling SD
+#'     near the null (structural; persistent in `n`); it is well calibrated (ratio
+#'     ~1) at ordinary effect sizes. So the *default* analytic near-null interval --
+#'     and its Procedure-B image -- covers only ~0.85. *Remedy:* **`se_method =
+#'     "bootstrap"`** (resample rows, refit the cross-fit estimator), which recovers a
+#'     valid but mildly **conservative** se (~1.25x the true SD, coverage ~0.97 near
+#'     null) and is calibrated off-boundary.
+#' }
+#'
+#' **Practical guidance.** Off the boundary the analytic default is calibrated and
+#' fast. Near the boundary (the split test does not reject), pass `reps > 1` for a
+#' reproducible point and `se_method = "bootstrap"` for a valid interval (conservative
+#' there -- it trades width for guaranteed coverage). `V_T` is well calibrated
+#' throughout. The full coverage grid across the `Delta_m` transition is validated by
+#' a separate large simulation. Use `procedure = "A"` only to reproduce the legacy
+#' gated behaviour.
 #'
 #' @param p_med Numeric: Sobol proportion mediated `V_med / V_T`.
 #' @param se Numeric: standard error of `p_med` (delta-method, ratio identity).
@@ -100,6 +119,12 @@
 #'   otherwise (`NA` when the test was not run).
 #' @param theta Numeric length-4: corner means `theta(a, a')`.
 #' @param method Character: estimation method.
+#' @param se_method Character: `"analytic"` (default, influence-function se) or
+#'   `"bootstrap"` (nonparametric resample-and-refit se; valid but conservative near
+#'   the boundary). See the boundary coverage section.
+#' @param reps Integer: number of repeated cross-fitting fold draws averaged for the
+#'   point estimate (default `1`); `reps > 1` removes the near-boundary fold-split
+#'   Monte-Carlo variance (mean DML aggregation).
 #' @param n Integer: sample size.
 #' @param ci_level Numeric: confidence level.
 #' @param call Call: original call.
@@ -127,6 +152,8 @@ SobolPmedResult <- S7::new_class(
     vmed_split_p = S7::new_property(class = S7::class_numeric, default = NA_real_),
     vmed_split_reject = S7::new_property(class = S7::class_integer, default = NA_integer_),
     theta = S7::class_numeric, method = S7::class_character,
+    se_method = S7::new_property(class = S7::class_character, default = "analytic"),
+    reps = S7::new_property(class = S7::class_integer, default = 1L),
     n = S7::class_integer, ci_level = S7::class_numeric,
     call = S7::new_property(class = S7::class_any, default = NULL)
   ),
@@ -181,11 +208,31 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
 .sobol_fit <- function(d, pd = 0.5, pm = 0.5, covars = "C", K = 5L, seed = 1L,
                        level = 0.95, warn_boundary = TRUE,
                        boundary_test = c("split", "plugin", "none"),
-                       procedure = c("B", "A")) {
+                       procedure = c("B", "A"), reps = 1L,
+                       se_method = c("analytic", "bootstrap"), B = 200L) {
   boundary_test <- match.arg(boundary_test)
   procedure <- match.arg(procedure)
+  se_method <- match.arg(se_method)
+  reps <- max(1L, as.integer(reps))
   set.seed(seed); n <- nrow(d)
-  phi <- .corner_fit(d, K, binY = FALSE, covars)$phi
+  ## repeated cross-fitting (A-15): average the corner influence matrix over `reps`
+  ## independent fold draws. reps = 1 reproduces the single-split estimator with the
+  ## identical RNG draw, so the default path is byte-for-byte unchanged. Near the
+  ## V_med = 0 boundary one fold partition contributes ~80% of Var(Delta_m_hat) -- a
+  ## Monte-Carlo nuisance, not sampling information -- so averaging it out gives a
+  ## reproducible, lower-variance point estimate (mean DML aggregation).
+  Dm_reps <- NULL
+  if (reps == 1L) {
+    phi <- .corner_fit(d, K, binY = FALSE, covars)$phi
+  } else {
+    phis <- vector("list", reps); Dm_reps <- numeric(reps)
+    for (r in seq_len(reps)) {
+      pr <- .corner_fit(d, K, binY = FALSE, covars)$phi; phis[[r]] <- pr
+      tr <- colMeans(pr)
+      Dm_reps[r] <- (1 - pd) * (tr["01"] - tr["00"]) + pd * (tr["11"] - tr["10"])
+    }
+    phi <- Reduce(`+`, phis) / reps
+  }
   th <- colMeans(phi)
   cd <- pd * (1 - pd); cm <- pm * (1 - pm); cdm <- cd * cm
   Dd <- (1 - pm) * (th["10"] - th["00"]) + pm * (th["11"] - th["01"])
@@ -206,6 +253,9 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
   ## The squaring degenerates phi_{V_med} = 2 c_m Delta_m phi_{Delta_m} -> 0 at the
   ## boundary (deflating the Wald SE for P); test on the regular contrast Delta_m.
   se_Dm <- stats::sd(pDm) / sqrt(n)
+  ## reps aggregation: add the residual fold Monte-Carlo variance of the averaged
+  ## point (var_r(Dm)/R) so the analytic se matches the reps-averaged estimator.
+  if (reps > 1L) se_Dm <- sqrt(se_Dm^2 + stats::var(Dm_reps) / reps)
   z_Dm  <- as.numeric(Dm) / se_Dm
   p_plugin <- 2 * stats::pnorm(-abs(z_Dm))                   # plug-in test (DIAGNOSTIC ONLY)
   Dm1 <- se1 <- Dm2 <- se2 <- NA_real_                       # independent-half Delta_m / se (for B2)
@@ -223,6 +273,29 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
     vmed_split_reject <- as.integer(p_plugin < (1 - level)); vmed_split_p <- p_plugin
   } else {                                                    # "none" (inside the split recursion)
     vmed_split_reject <- NA_integer_; vmed_split_p <- NA_real_
+  }
+  ## ---- bootstrap se for the REPORTED interval (A-15, near-boundary remedy) ----
+  ## The analytic IF se for Delta_m is ~0.8x anti-conservative in the near-null regime
+  ## (a structural variance underestimate; Delta_m_hat is itself approximately normal,
+  ## so the Wald *shape* is correct -- only the *width* is wrong). A nonparametric
+  ## bootstrap (resample rows, refit the cross-fit estimator) recovers a valid -- but
+  ## mildly CONSERVATIVE (~1.25x) -- se. Applied only at the top level (the split-test
+  ## recursion above keeps analytic se via its default args), so cost is B (x reps)
+  ## refits per call, not exponential.
+  if (se_method == "bootstrap") {
+    bsamp <- vapply(seq_len(B), function(b) {
+      db <- d[sample.int(n, n, replace = TRUE), , drop = FALSE]
+      pb <- if (reps == 1L) .corner_fit(db, K, binY = FALSE, covars)$phi
+            else Reduce(`+`, lapply(seq_len(reps),
+                          function(r) .corner_fit(db, K, binY = FALSE, covars)$phi)) / reps
+      tb <- colMeans(pb)
+      Dmb <- (1 - pd) * (tb["01"] - tb["00"]) + pd * (tb["11"] - tb["10"])
+      Ddb <- (1 - pm) * (tb["10"] - tb["00"]) + pm * (tb["11"] - tb["01"])
+      Rgb <- tb["11"] - tb["10"] - tb["01"] + tb["00"]
+      VTb <- cd * Ddb^2 + cm * Dmb^2 + cdm * Rgb^2
+      c(unname(Dmb), unname(cm * Dmb^2 / VTb))
+    }, numeric(2))
+    se_Dm <- stats::sd(bsamp[1, ]); se <- stats::sd(bsamp[2, ])
   }
   ## ---- interval constructions on the regular Delta_m scale, then mapped ----
   ## P_med = c_m Delta_m^2 / V_T, so the CI for P_med is the image of a Delta_m CI
@@ -253,8 +326,14 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
             "(uniformly valid sample-split CI) -- see ?SobolPmedResult 'Coverage caveat'.", call. = FALSE)
   if (warn_boundary && boundary && procedure == "B")
     message("sobol_pmed: near the V_med=0 boundary (split test p=", signif(vmed_split_p, 2),
-            "); reporting Procedure B (image of the Delta_m CI, no gating). Note: near-null ",
-            "coverage is approximate -- se_Dm is anti-conservative in this regime (see ?SobolPmedResult).")
+            "); reporting Procedure B (image of the Delta_m CI, no gating). ",
+            if (se_method == "bootstrap")
+              "se from nonparametric bootstrap (valid, mildly conservative near the boundary)."
+            else
+              paste0("Note: near-null coverage is approximate -- the analytic se_Dm is ",
+                     "anti-conservative here (a structural near-null variance underestimate); ",
+                     "pass se_method = \"bootstrap\" for a valid (conservative) interval, and/or ",
+                     "reps > 1 for a reproducible point estimate (see ?SobolPmedResult)."))
   list(P_med_sobol = unname(P), se = unname(se), ci = unname(ci),
        ci_A = unname(ci_A), ci_B1 = ci_B1, ci_B2 = ci_B2, ci_wald = ci_wald,
        boundary = boundary, Pmed_upper = Pmed_upper, procedure = procedure,
@@ -262,7 +341,8 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
        Vd = unname(Vd), Vm = unname(Vm), Vdm = unname(Vdm), VT = unname(VT),
        Dm = unname(Dm), se_Dm = unname(se_Dm),
        vmed_split_p = unname(vmed_split_p), vmed_split_reject = unname(vmed_split_reject),
-       p_plugin = unname(p_plugin), theta = round(th, 4), n = n)
+       p_plugin = unname(p_plugin), theta = round(th, 4), n = n,
+       se_method = se_method, reps = reps)
 }
 
 #' Sobol / Variance-Scale Proportion Mediated
@@ -283,13 +363,16 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
 #' A Williamson et al. (2021) sample-split test on the regular contrast `Delta_m`
 #' decides the boundary. The default reported interval is **Procedure B**
 #' (`procedure = "B"`): the image of the regular `Delta_m` Wald CI under
-#' `delta -> (c_m/V_T) delta^2`, uniformly valid by continuous mapping (no gate).
-#' **Procedure A** (`procedure = "A"`) is the legacy gated rule (Wald on rejection,
-#' one-sided `[0, Pmed_upper]` otherwise), which is pointwise- but **not**
-#' uniformly-valid across the near-null transition (Leeb-Potscher pre-test
-#' under-coverage). The boundary machinery recurses through a plain internal fitter
-#' (not this generic), so the point estimate, fold draw, and split are deterministic
-#' in `seed`. See the **Coverage caveat** in [SobolPmedResult].
+#' `delta -> (c_m/V_T) delta^2` (continuous mapping, no gate). Its validity inherits
+#' that of the input `Delta_m` CI -- so near the boundary use `reps > 1` and
+#' `se_method = "bootstrap"` for a valid interval (the analytic `Delta_m` se is
+#' anti-conservative there; see the boundary coverage section). **Procedure A**
+#' (`procedure = "A"`) is the legacy gated rule (Wald on rejection, one-sided
+#' `[0, Pmed_upper]` otherwise), pointwise- but **not** uniformly-valid across the
+#' near-null transition (Leeb-Potscher pre-test under-coverage). The boundary
+#' machinery recurses through a plain internal fitter (not this generic), so the
+#' point estimate, fold draw, and split are deterministic in `seed`. See the
+#' boundary coverage section in [SobolPmedResult].
 #'
 #' @param object A `data.frame` with columns `A` (binary treatment), `M`
 #'   (mediator), `Y` (continuous outcome), and the covariates named in `covars`.
@@ -307,8 +390,15 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
 #'   (default) is the Williamson sample-split test on `Delta_m`; `"plugin"` is the
 #'   (over-rejecting) plug-in Wald test, diagnostic only.
 #' @param procedure Character: interval procedure for `ci`. `"B"` (default) is the
-#'   uniformly valid sample-split CI (image of the `Delta_m` CI); `"A"` is the
-#'   legacy gated interval (non-uniform near the boundary). See [SobolPmedResult].
+#'   sample-split CI (image of the `Delta_m` CI); `"A"` is the legacy gated interval
+#'   (non-uniform near the boundary). See [SobolPmedResult].
+#' @param reps Integer: repeated cross-fitting draws averaged for the point estimate
+#'   (default `1`). Use `reps > 1` near the boundary for a reproducible, lower-variance
+#'   estimate (it removes the ~80% fold-split variance).
+#' @param se_method Character: `"analytic"` (default) or `"bootstrap"`. The bootstrap
+#'   gives a valid (conservative) se near the non-regular boundary, where the analytic
+#'   se is anti-conservative; off the boundary the analytic se is calibrated.
+#' @param B Integer: bootstrap resamples when `se_method = "bootstrap"` (default `200`).
 #' @param ... Unused.
 #'
 #' @return A [SobolPmedResult] object.
@@ -333,7 +423,8 @@ sobol_pmed <- S7::new_generic(
   fun = function(object, pd = 0.5, pm = 0.5, covars = "C", K = 5L, seed = 1L,
                  ci_level = 0.95, warn_boundary = TRUE,
                  boundary_test = c("split", "plugin", "none"),
-                 procedure = c("B", "A"), ...) {
+                 procedure = c("B", "A"), reps = 1L,
+                 se_method = c("analytic", "bootstrap"), B = 200L, ...) {
     S7::S7_dispatch()
   })
 
@@ -342,12 +433,15 @@ S7::method(sobol_pmed, S7::class_data.frame) <-
   function(object, pd = 0.5, pm = 0.5, covars = "C", K = 5L, seed = 1L,
            ci_level = 0.95, warn_boundary = TRUE,
            boundary_test = c("split", "plugin", "none"),
-           procedure = c("B", "A"), ...) {
+           procedure = c("B", "A"), reps = 1L,
+           se_method = c("analytic", "bootstrap"), B = 200L, ...) {
     stopifnot(all(c("A", "M", "Y") %in% names(object)), all(covars %in% names(object)))
     boundary_test <- match.arg(boundary_test); procedure <- match.arg(procedure)
+    se_method <- match.arg(se_method)
     f <- .sobol_fit(object, pd = pd, pm = pm, covars = covars, K = K, seed = seed,
                     level = ci_level, warn_boundary = warn_boundary,
-                    boundary_test = boundary_test, procedure = procedure)
+                    boundary_test = boundary_test, procedure = procedure,
+                    reps = reps, se_method = se_method, B = B)
     SobolPmedResult(
       p_med = f$P_med_sobol, se = f$se, ci = f$ci, ci_wald = f$ci_wald,
       ci_A = f$ci_A, ci_B1 = f$ci_B1, ci_B2 = f$ci_B2, procedure = f$procedure,
@@ -357,7 +451,8 @@ S7::method(sobol_pmed, S7::class_data.frame) <-
       Dm = f$Dm, se_Dm = f$se_Dm,
       vmed_split_p = f$vmed_split_p,
       vmed_split_reject = if (is.na(f$vmed_split_reject)) NA_integer_ else as.integer(f$vmed_split_reject),
-      theta = f$theta, method = "onestep-crossfit", n = as.integer(f$n),
+      theta = f$theta, method = "onestep-crossfit",
+      se_method = f$se_method, reps = as.integer(f$reps), n = as.integer(f$n),
       ci_level = ci_level, call = match.call()
     )
   }

@@ -32,10 +32,17 @@
   non-regular (`V_med = c_m Delta_m^2` is degenerate at `Delta_m = 0`), so inference
   reduces to the regular contrast `Delta_m`. Two interval procedures: the default
   **Procedure B** (`procedure = "B"`, the image of the regular `Delta_m` Wald CI under
-  the squared map — uniformly valid, no pre-test) and the legacy gated **Procedure A**
-  (`procedure = "A"`). Coverage caveat: near the boundary the `Delta_m` standard error
-  is anti-conservative (persistent across `n`), so near-null intervals are
-  approximate — see `?SobolPmedResult`. (feature/sobol-pmed; companion manuscript:
+  the squared map — no pre-test) and the legacy gated **Procedure A**
+  (`procedure = "A"`). Near-boundary inference adds two options (A-15): **`reps`**
+  (repeated cross-fitting — averages the corner influence matrix over `reps` fold
+  draws, removing the ~80% fold-split Monte-Carlo variance that dominates
+  `Var(Delta_m_hat)` near the null and yielding a reproducible point estimate), and
+  **`se_method = "bootstrap"`** (nonparametric resample-and-refit se — valid, mildly
+  conservative near the non-regular boundary where the analytic influence-function se
+  is ~0.8x anti-conservative). Defaults (`reps = 1`, `se_method = "analytic"`) are
+  unchanged. `Delta_m_hat` is approximately normal at the null (oracle-SD coverage
+  ~0.95), so the Wald shape is correct — the near-null issue is interval width, not
+  shape; see `?SobolPmedResult`. (feature/sobol-pmed; companion manuscript:
   pmed-modern/03-sobol-pmed.)
 
 # probmed 0.2.0 (2026-06-11)

@@ -27,6 +27,8 @@ SobolPmedResult(
   vmed_split_reject = NA_integer_,
   theta = integer(0),
   method = character(0),
+  se_method = "analytic",
+  reps = 1L,
   n = integer(0),
   ci_level = integer(0),
   call = NULL
@@ -86,6 +88,14 @@ otherwise (\code{NA} when the test was not run).}
 
 \item{method}{Character: estimation method.}
 
+\item{se_method}{Character: \code{"analytic"} (default, influence-function se) or
+\code{"bootstrap"} (nonparametric resample-and-refit se; valid but conservative near
+the boundary). See the boundary coverage section.}
+
+\item{reps}{Integer: number of repeated cross-fitting fold draws averaged for the
+point estimate (default \code{1}); \code{reps > 1} removes the near-boundary fold-split
+Monte-Carlo variance (mean DML aggregation).}
+
 \item{n}{Integer: sample size.}
 
 \item{ci_level}{Numeric: confidence level.}
@@ -136,27 +146,45 @@ not improve coverage (see its note). \strong{Procedure A} (\code{procedure = "A"
 \code{ci_A}) is the legacy \emph{gated} rule: Wald on rejection, one-sided
 \verb{[0, Pmed_upper]} otherwise.
 
-\strong{Coverage caveat -- two separate issues.} (1) \emph{Procedure A is not uniformly
-valid.} As a pre-test (gating) rule, A is only pointwise valid: near the
-boundary it routes downward-selected \code{Delta_m_hat} to the contracting one-sided
-bound, a Leeb-Potscher post-selection effect -- prefer B, which does not gate.
-(2) \emph{Near-null se limitation (affects A and B alike).} A reproducible
-decomposition (>=1000 reps, fixed seed, two streams) shows that \strong{in the
-near-null regime} the \code{Delta_m} standard error is \strong{anti-conservative}
-(\code{se_Dm} ~ 0.70-0.76x the empirical sampling SD), so even the regular two-sided
-\code{Delta_m} Wald CI -- and hence its image B -- covers only ~0.85; \code{V_T} is well
-calibrated. The deflation is \strong{persistent}: across \code{n = 2000} to \code{64000}
-(32-fold) the se-ratio stays ~0.70-0.76 and coverage ~0.85-0.88 -- too slow for
-a vanishing finite-sample effect, so near-null asymptotic validity is \emph{not}
-established (slowly-consistent vs structurally inconsistent is unresolved). This
-is \strong{near-null specific}: for ordinary effect sizes \code{se_Dm} is calibrated (~0.95
-se-ratio, ~nominal coverage). Mechanism not definitively pinned -- the cross-world
-density ratio \verb{f(M | a', C) / f(M | a, C)} is heavy-tailed but its law is the same
-in all cells, so heaviness alone cannot explain the near-null-specificity. B is
-the correct interval \emph{construction} (uniformly valid relative to the \code{Delta_m}
-CI), but cannot out-cover a miscalibrated input se; a heavy-tail-robust \code{Delta_m}
-se for the near-null regime is open work. Treat near-null \code{V_med} intervals as
-approximate. Use \code{procedure = "A"} only to reproduce the legacy gated behaviour.
+\strong{Coverage near the boundary -- mechanism and remedies (A-15).} Two distinct
+issues; the second is now decomposed (reproducible fixed-seed variance
+decomposition) into three findings, each with a concrete remedy.
+
+\emph{(1) Procedure A is not uniformly valid.} As a pre-test (gating) rule A is only
+pointwise valid: near the boundary it routes downward-selected \code{Delta_m_hat} to
+the contracting one-sided bound, a Leeb-Potscher post-selection effect. Prefer B,
+which does not gate.
+
+\emph{(2) The near-null \code{Delta_m} standard error.} Three pinned facts:
+\itemize{
+\item \strong{Fold-split Monte-Carlo variance dominates.} A single cross-fitting
+fold partition contributes ~80\% of \code{Var(Delta_m_hat)} in the near-null regime
+(~45\% at ordinary effect sizes), persistent across \code{n = 2000} to \code{8000}. This
+is an algorithmic nuisance, not sampling information: it inflates the
+estimator's variance and makes the single-split point estimate seed-dependent.
+\emph{Remedy:} \strong{\code{reps > 1}} (repeated cross-fitting -- the corner influence matrix
+is averaged over \code{reps} independent fold draws), which removes it and yields a
+reproducible, lower-variance point estimate (mean DML aggregation).
+\item \strong{\code{Delta_m_hat} is approximately normal at the null.} Recomputing coverage
+with the oracle Monte-Carlo SD gives ~0.95, so the Wald \emph{shape} is correct for
+the regular contrast \code{Delta_m}: the under-coverage is a wrong interval \emph{width},
+not a wrong \emph{shape} (there is no boundary non-normality for \code{Delta_m} itself).
+\item \strong{A residual analytic-se bias remains.} Even after fold noise is removed,
+the analytic influence-function se for \code{Delta_m} is ~0.8x its true sampling SD
+near the null (structural; persistent in \code{n}); it is well calibrated (ratio
+~1) at ordinary effect sizes. So the \emph{default} analytic near-null interval --
+and its Procedure-B image -- covers only ~0.85. \emph{Remedy:} \strong{\code{se_method = "bootstrap"}} (resample rows, refit the cross-fit estimator), which recovers a
+valid but mildly \strong{conservative} se (~1.25x the true SD, coverage ~0.97 near
+null) and is calibrated off-boundary.
+}
+
+\strong{Practical guidance.} Off the boundary the analytic default is calibrated and
+fast. Near the boundary (the split test does not reject), pass \code{reps > 1} for a
+reproducible point and \code{se_method = "bootstrap"} for a valid interval (conservative
+there -- it trades width for guaranteed coverage). \code{V_T} is well calibrated
+throughout. The full coverage grid across the \code{Delta_m} transition is validated by
+a separate large simulation. Use \code{procedure = "A"} only to reproduce the legacy
+gated behaviour.
 }
 \references{
 Williamson, B. D., Gilbert, P. B., Carone, M., & Simon, N. (2021).

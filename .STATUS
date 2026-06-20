@@ -34,9 +34,15 @@ feature/my-sensitivity — ~/projects/r-packages/worktrees/probmed-sensitivity (
    limit). Suite 174/0. P1/P2 ready; P3 variance-share call is a flagged placeholder (deferred).
    Pushed origin/feature/my-sensitivity; PR-ready but HELD until integrating.
 
-⚠️ INCOMING (from pmed-modern R4/A-12): sobol_pmed()'s cross-fit IF SE is anti-conservative at the
-   true null (se_Dm/empSD≈0.56 @ n=2000 → split-guard over-rejects). When sobol_pmed() is promoted
-   here (R2), check for a missing IF-variance term before trusting near-boundary Wald SEs.
+✅ RESOLVED (A-15, 2026-06-20): the near-null sobol_pmed() se is now mechanism-pinned by variance
+   decomposition (data vs fold-split) — THREE components, not one: (1) a single cross-fitting fold
+   partition is ~81% of Var(Δ̂m) near null (persistent n=2000→8000) → fixed by repeated cross-fitting
+   (new `reps` arg, mean DML); (2) Δ̂m is normal at the null (oracle-SD coverage ~0.95 → Wald shape OK);
+   (3) residual ~0.8× analytic-se bias near null → fixed by `se_method="bootstrap"` (valid, ~1.25×
+   conservative). Defaults unchanged (reps=1, analytic). sobol tests 63→77/0. Full coverage-grid
+   validation is a large sim → Hopper (run_grid.R/medsim + SLURM array; staged for user launch).
+   (Earlier A-12 framing "se_Dm/empSD≈0.56 under-estimate, missing IF-variance term" was the right
+   symptom but wrong component — the dominant term was algorithmic fold-split variance, not an EIF gap.)
 (merged — 2026-06-19: feature/gauge-pmed → PR #8 squash-merged to dev:
    ward_residual()/GaugePmedResult on R/gauge-pmed.R + tests (gauge-calibrated P_med, W=R/OE).
    Open TODO before CRAN: generalize density-ratio to non-binary A; coverage tuning; vignette.)
