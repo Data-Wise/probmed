@@ -88,7 +88,8 @@ test_that("split-guard: rejects H0 V_med=0 under strong mediation; rarely under 
 ## -----------------------------------------------------------------------------------------------
 test_that("boundary gating: Procedure-A upper bound reported when test does not reject", {
   set.seed(51)
-  fit <- sobol_pmed(.sp_gen(1500, cell_null), seed = 1L, warn_boundary = FALSE)
+  fit <- sobol_pmed(.sp_gen(1500, cell_null), seed = 1L, warn_boundary = FALSE,
+                    procedure = "A")                 # A-specific test: report the gated interval
   if (isTRUE(fit@boundary)) {
     expect_identical(fit@ci[1], 0)
     expect_equal(fit@ci[2], fit@Pmed_upper)
@@ -106,10 +107,28 @@ test_that("warn_boundary=TRUE emits a warning at the boundary", {
   d <- .sp_gen(1500, cell_null)
   silent <- sobol_pmed(d, seed = 1L, warn_boundary = FALSE)
   if (isTRUE(silent@boundary)) {
-    expect_warning(sobol_pmed(d, seed = 1L, warn_boundary = TRUE), "Procedure A")
+    ## A path warns (non-uniform gated bound); B path (default) is uniform -> message, not warning
+    expect_warning(sobol_pmed(d, seed = 1L, warn_boundary = TRUE, procedure = "A"), "Procedure A")
+    expect_no_warning(sobol_pmed(d, seed = 1L, warn_boundary = TRUE, procedure = "B"))
   } else {
     succeed("seed not at boundary; warning path covered elsewhere")
   }
+})
+
+## -----------------------------------------------------------------------------------------------
+test_that("Procedure B (default) returns the mapped split-CI image, bounded and gate-free", {
+  set.seed(51)
+  fit <- sobol_pmed(.sp_gen(1500, cell_null), seed = 1L, warn_boundary = FALSE)  # default procedure="B"
+  expect_identical(fit@procedure, "B")
+  expect_identical(fit@ci, fit@ci_B1)              # default reports the coherent same-sample image
+  expect_true(all(is.finite(fit@ci)))
+  expect_gte(fit@ci[1], 0)                          # image of a square is non-negative
+  expect_lte(fit@ci[1], fit@ci[2])
+  expect_gte(fit@ci[2], fit@p_med)                  # B1 always brackets the point estimate (centered at full Dm)
+  ## B2 (decorrelated split) present as a robustness diagnostic
+  expect_true(all(is.finite(fit@ci_B2)) && fit@ci_B2[1] >= 0 && fit@ci_B2[1] <= fit@ci_B2[2])
+  ## B does NOT gate: its interval is the squared-map image, distinct from A's [0, Pmed_upper] rule
+  expect_false(identical(fit@ci, fit@ci_A) && !isTRUE(fit@boundary))
 })
 
 ## -----------------------------------------------------------------------------------------------
