@@ -332,7 +332,8 @@ sobol_pmed <- S7::new_generic(
   "sobol_pmed", dispatch_args = "object",
   fun = function(object, pd = 0.5, pm = 0.5, covars = "C", K = 5L, seed = 1L,
                  ci_level = 0.95, warn_boundary = TRUE,
-                 boundary_test = c("split", "plugin", "none"), ...) {
+                 boundary_test = c("split", "plugin", "none"),
+                 procedure = c("B", "A"), ...) {
     S7::S7_dispatch()
   })
 
