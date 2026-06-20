@@ -42,6 +42,10 @@ the reported interval falls back to the Procedure-A upper bound
 (over-rejecting) plug-in Wald test, diagnostic only.}
 
 \item{...}{Unused.}
+
+\item{procedure}{Character: interval procedure for \code{ci}. \code{"B"} (default) is the
+uniformly valid sample-split CI (image of the \code{Delta_m} CI); \code{"A"} is the
+legacy gated interval (non-uniform near the boundary). See \link{SobolPmedResult}.}
 }
 \value{
 A \link{SobolPmedResult} object.
@@ -60,15 +64,15 @@ variance decomposition and the boundary remedy.
 At the null \code{V_med = 0} (equivalently \code{Delta_m = 0}) the squared-variance
 influence function degenerates and the symmetric Wald interval is non-regular.
 A Williamson et al. (2021) sample-split test on the regular contrast \code{Delta_m}
-decides the boundary; when it does not reject, the reported interval \code{ci}
-switches to the one-sided Procedure-A upper bound \verb{[0, Pmed_upper]}. The
-boundary machinery recurses through a plain internal fitter (not this generic),
-so the point estimate, Wald interval, and fold draw are deterministic in
-\code{seed} and unaffected by the test. \strong{Caveat:} this gating (Procedure A) is
-pointwise- but not uniformly-valid across the near-null transition; the gated
-interval can under-cover at intermediate-to-large \code{n} and a uniformly valid
-sample-split CI (Procedure B) is not yet implemented. See the \strong{Coverage caveat}
-in \link{SobolPmedResult}.
+decides the boundary. The default reported interval is \strong{Procedure B}
+(\code{procedure = "B"}): the image of the regular \code{Delta_m} Wald CI under
+\verb{delta -> (c_m/V_T) delta^2}, uniformly valid by continuous mapping (no gate).
+\strong{Procedure A} (\code{procedure = "A"}) is the legacy gated rule (Wald on rejection,
+one-sided \verb{[0, Pmed_upper]} otherwise), which is pointwise- but \strong{not}
+uniformly-valid across the near-null transition (Leeb-Potscher pre-test
+under-coverage). The boundary machinery recurses through a plain internal fitter
+(not this generic), so the point estimate, fold draw, and split are deterministic
+in \code{seed}. See the \strong{Coverage caveat} in \link{SobolPmedResult}.
 }
 \examples{
 set.seed(1)

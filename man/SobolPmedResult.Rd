@@ -9,6 +9,10 @@ SobolPmedResult(
   se = integer(0),
   ci = integer(0),
   ci_wald = integer(0),
+  ci_A = NA_real_,
+  ci_B1 = NA_real_,
+  ci_B2 = NA_real_,
+  procedure = "B",
   boundary = logical(0),
   Pmed_upper = integer(0),
   S1_med = integer(0),
@@ -33,15 +37,31 @@ SobolPmedResult(
 
 \item{se}{Numeric: standard error of \code{p_med} (delta-method, ratio identity).}
 
-\item{ci}{Numeric length-2: \strong{reported} (gated) confidence interval -- the
-Wald interval off-boundary, or the Procedure-A upper bound \verb{[0, Pmed_upper]}
-at the boundary.}
+\item{ci}{Numeric length-2: \strong{reported} confidence interval, selected by
+\code{procedure} -- Procedure B (default, uniformly valid) or Procedure A (gated).}
 
 \item{ci_wald}{Numeric length-2: ungated symmetric Wald interval (always the
 Wald interval, even at the boundary).}
 
+\item{ci_A}{Numeric length-2: Procedure-A (gated, pre-test) interval -- the Wald
+interval off-boundary, or \verb{[0, Pmed_upper]} at the boundary. Pointwise- but
+\strong{not} uniformly-valid (see Coverage caveat).}
+
+\item{ci_B1}{Numeric length-2: Procedure-B interval from the \strong{same-sample}
+\code{Delta_m} Wald CI mapped through \verb{delta -> (c_m/V_T) delta^2} (efficient).}
+
+\item{ci_B2}{Numeric length-2: \strong{experimental} Procedure-B variant from a
+single decorrelated split (\code{Delta_m} point on one half, se on the independent
+half) mapped through the same square. Intended to break \code{Delta_m}/se coupling,
+but the half-sample centre makes it high-variance and it did \strong{not} improve
+near-null coverage in simulation -- a K-fold-decorrelated se keeping the
+full-sample point is the open fix. Not recommended; use \code{ci} (B1).}
+
+\item{procedure}{Character: \code{"B"} (default, uniform sample-split CI) or \code{"A"}
+(legacy gated). Controls which interval is returned in \code{ci}.}
+
 \item{boundary}{Logical: \code{TRUE} when the split test does not reject
-\code{H0: V_med = 0} (the Wald CI is non-regular and \code{ci} is the upper bound).}
+\code{H0: V_med = 0} (the symmetric Wald CI is non-regular there).}
 
 \item{Pmed_upper}{Numeric: one-sided Procedure-A upper bound for \code{p_med}.}
 
@@ -102,30 +122,37 @@ the null \code{V_med = 0}. The null is equivalent to \code{Delta_m = 0}, which h
 regular root-\code{n} influence function. Following Williamson et al. (2021,
 \emph{Biometrics}), the boundary is tested with a sample-split statistic that
 estimates \code{Delta_m} on one half and its standard error on the independent other
-half (so \code{z ~ N(0, 1)} even at the boundary). When the split test does not
-reject \code{H0: V_med = 0} (\code{boundary == TRUE}), the symmetric Wald interval is
-non-regular and a one-sided upper bound \verb{[0, Pmed_upper]} (Procedure A) is
-reported in \code{ci} instead; off-boundary, \code{ci} is the Wald interval.
+half (so \code{z ~ N(0, 1)} even at the boundary).
 
-\strong{Coverage caveat (Procedure A is \emph{not} uniformly valid).} The split \emph{test}
-restores level at the exact null, and Procedure A is conservative-to-nominal at
-the exact boundary and in regular cells. But as a \emph{pre-test} (gating) rule it is
-only \emph{pointwise} valid: across the near-null transition (a small but strictly
-positive \code{V_med}, observed at intermediate-to-large \code{n}) the one-sided bound
-\verb{Pmed_upper = c_m (|Delta_m_hat| + z * se)^2 / V_T_hat} contracts at rate
-\code{O_p(1/n)} while the truth stays fixed, so conditioning the report on
-non-rejection routes downward-selected \code{Delta_m_hat} to a bound that can fall
-below the truth -- a Leeb-Potscher post-selection pathology. In a registered
-simulation grid the gated interval's coverage in the near-null cell was
-conservative (~1.00) for \code{n <= 4000}, dropped to ~0.84 at \code{n = 8000}, and
-recovered (~0.93) by \code{n = 16000} (a \emph{transient} transition-zone dip, not an
-intrinsically miscalibrated bound). Uniformly valid \emph{interval} coverage through
-the transition requires a sample-split CI (Procedure B) whose interval is not
-conditioned on the test outcome; that interval is \strong{not yet implemented here}.
-Until it ships, treat \code{ci} at \code{boundary == TRUE} as a provisional one-sided bound,
-prefer reporting \code{Pmed_upper} honestly as an upper bound (not a two-sided CI),
-and consult \code{ci_wald} and the split-test fields (\code{vmed_split_p},
-\code{vmed_split_reject}) when characterising boundary behaviour.
+\strong{Two interval procedures.} The default reported \code{ci} is \strong{Procedure B}: the
+image of the regular two-sided \code{Delta_m} Wald CI under the map
+\verb{delta -> (c_m/V_T) delta^2} (\code{ci_B1}/\code{ci_B2}). Because it is the continuous
+image of a uniformly-valid CI for the \emph{regular} parameter \code{Delta_m}, it is
+uniformly valid in \code{Delta_m} -- there is no pre-test, hence no boundary
+pathology (subject to the near-null se caveat below). The reported \code{ci} is
+\code{ci_B1}, the same-sample image (centered at the full \code{Delta_m}, so it always
+brackets \code{p_med}); \code{ci_B2} is an \emph{experimental} single-split variant that did
+not improve coverage (see its note). \strong{Procedure A} (\code{procedure = "A"},
+\code{ci_A}) is the legacy \emph{gated} rule: Wald on rejection, one-sided
+\verb{[0, Pmed_upper]} otherwise.
+
+\strong{Coverage caveat -- two separate issues.} (1) \emph{Procedure A is not uniformly
+valid.} As a pre-test (gating) rule, A is only pointwise valid: near the
+boundary it routes downward-selected \code{Delta_m_hat} to the contracting one-sided
+bound, a Leeb-Potscher post-selection effect -- prefer B, which does not gate.
+(2) \emph{Near-null se limitation (affects A and B alike).} A reproducible
+decomposition (>=1000 reps, fixed seed) shows that \strong{in the near-null regime}
+the \code{Delta_m} standard error is \strong{anti-conservative} (\code{se_Dm} ~ 0.7x the true
+sampling SD), so even the regular two-sided \code{Delta_m} Wald CI -- and hence its
+image B -- covers only ~0.85 (flat in \code{n}, not a transition dip); \code{V_T} is well
+calibrated. This is \strong{near-null specific}: for ordinary effect sizes \code{se_Dm} is
+calibrated (~0.95 se-ratio, ~nominal coverage). The cause is the heavy-tailed
+cross-world density ratio \verb{f(M | a', C) / f(M | a, C)}, whose influence-function
+sd is downward-biased in finite samples when the signal is tiny. B is the
+correct interval \emph{construction} (uniformly valid relative to the \code{Delta_m} CI),
+but cannot out-cover a miscalibrated input se; a heavy-tail-robust \code{Delta_m} se
+for the near-null regime is open work. Treat near-null \code{V_med} intervals as
+approximate. Use \code{procedure = "A"} only to reproduce the legacy gated behaviour.
 }
 \references{
 Williamson, B. D., Gilbert, P. B., Carone, M., & Simon, N. (2021).
