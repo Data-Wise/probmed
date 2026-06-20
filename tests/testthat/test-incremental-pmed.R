@@ -79,6 +79,38 @@ test_that("one-step estimator recovers the classical value at delta = 1 (no inte
   expect_gte(r@curve$hi[1], classical)
 })
 
+# ---- Estimator-level coverage of the headline properties (remediation A-3) ----
+# The Theorem 1/2 tests above run on .ip_oracle(); these exercise the SHIPPED
+# incr_pmed() so the headline claims are verified on the estimator users call.
+
+test_that("Theorem 1 (estimator): returned curve satisfies dir + med == tot", {
+  # NOTE: in incr_pmed() tot is *defined* as dir + med (R/incremental-pmed.R),
+  # so on the shipped @curve this identity holds to machine precision -- it is a
+  # structural consistency check, not an empirical test of the chain rule. The
+  # genuine, non-tautological additivity test (numeric d/ddelta Theta == dir+med)
+  # remains the oracle test above, which is the only way to validate Theorem 1
+  # without re-exposing Theta(delta, delta) from the estimator internals.
+  r <- incr_pmed(.ip_gen(12000, 0.9), deltas = c(0.5, 1, 2), K = 5L)
+  expect_equal(r@curve$dir + r@curve$med, r@curve$tot, tolerance = 1e-12)
+  expect_equal(r@curve$Pmed, r@curve$med / r@curve$tot, tolerance = 1e-12)
+})
+
+test_that("Theorem 2 (estimator): no-interaction curve is flat at classical P_med", {
+  # large-n, no A*M interaction => incr_pmed()'s own curve should be ~flat and
+  # ~ the classical proportion mediated (not just the oracle's).
+  classical <- 0.6 * 0.7 / (0.5 + 0.6 * 0.7)        # = 0.4565
+  r <- incr_pmed(.ip_gen(18000, 0.0), deltas = c(0.5, 1, 2), K = 5L)
+  expect_lt(max(abs(r@curve$Pmed - classical)), 0.06)  # near classical value
+  expect_lt(diff(range(r@curve$Pmed)), 0.05)           # and flat across delta
+})
+
+test_that("curve bends (estimator): strong interaction => curve range exceeds threshold", {
+  # under a strong A*M interaction the estimator's own curve must vary with delta;
+  # 0.05 is the print() "bends with delta" threshold.
+  r <- incr_pmed(.ip_gen(18000, 0.9), deltas = c(1 / 3, 1, 3), K = 5L)
+  expect_gt(diff(range(r@curve$Pmed)), 0.05)
+})
+
 test_that("multiple covariates are supported", {
   d <- .ip_gen(1500, 0.3); d$C2 <- rnorm(nrow(d))
   r <- incr_pmed(d, deltas = c(0.5, 2), covars = c("C", "C2"))
