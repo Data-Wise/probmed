@@ -14,7 +14,6 @@ planning/*
 !planning/SPEC-estimand-fix.md
 !planning/pmed-extensions/
 !planning/pmed-extensions/**
-CLAUDE.md
 .claude/worktrees/
 .claude/guard-session-counts
 .claude/settings.local.json
