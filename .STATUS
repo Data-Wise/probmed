@@ -20,8 +20,8 @@ feature/incremental-pmed — ~/projects/r-packages/worktrees/probmed-incremental
    incr_pmed()/IncrPmedResult promoted to R/incremental-pmed.R; 17 tests (Thm 1
    additivity, Thm 2 reduction); full suite 169/0; CI-clean (S7-generic fun= fix).
    Pushed origin/feature/incremental-pmed (5 ahead of dev, 0 behind).
-   PR #9 OPEN (2026-06-19, feature/incremental-pmed → dev) at user direction.
-   [Earlier guidance was HOLD-until-integrating; superseded — this PR has no medsim dependency.]
+   PR-READY but HELD: PR #9 was opened then CLOSED (2026-06-19) to honor the plan below.
+   ⚠️ HOLD the PR until you intend to integrate — do not open speculatively.
    Open TODO before CRAN: g-score EIF term (SE treats fitted g(C) as fixed → conservative).
    companion manuscript: ~/projects/research/pmed-modern/02-incremental-pmed.
 (merged — 2026-06-19: feature/gauge-pmed → PR #8 squash-merged to dev:
