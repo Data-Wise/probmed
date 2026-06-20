@@ -13,6 +13,17 @@
   ratio identity. Binary treatment; general covariates; binary or continuous
   outcome. (feature/gauge-pmed; companion manuscript: pmed-modern/01-gauge-pmed.)
 
+* `incr_pmed()` and the `IncrPmedResult` class add the **incremental mediated
+  elasticity** `P_med^delta(delta)` — the derivative-scale proportion mediated as
+  a function of the treatment-tilt factor `delta`. Unlike a single number it is a
+  *curve*; by the multivariate chain rule its direct and mediated elasticities sum
+  to the total exactly (remainder zero for every `delta`), and the curve is flat at
+  the classical `P_med` when there is no treatment-by-mediator interaction. Same
+  cross-fitted one-step machinery as `ward_residual()`; ratio-identity SEs (the
+  propensity in the tilt weights is treated as fixed — valid under correct
+  propensity, mildly conservative otherwise). (feature/incremental-pmed; companion
+  manuscript: pmed-modern/02-incremental-pmed.)
+
 # probmed 0.2.0 (2026-06-11)
 
 ## Features
