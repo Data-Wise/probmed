@@ -57,3 +57,14 @@ test_that("boundary endpoints: identical corners give P_med^W in {0,1}", {
   expect_equal(e0$pmedW, 0, tolerance = 0.02)
   expect_equal(e1$pmedW, 1, tolerance = 0.02)
 })
+
+test_that("entropic Sinkhorn divergence recovers d=2 corner-law P_med^W", {
+  set.seed(11)
+  mu <- list(c(1.2, 0.8), c(0.4, 0.3), c(0, 0)); sg <- c(1.6, 1.1, 1.0)
+  drw <- function(k, N = 350) cbind(rnorm(N, mu[[k]][1], sg[k]), rnorm(N, mu[[k]][2], sg[k]))
+  w2iso <- function(m1, s1, m2, s2) sqrt(sum((m1 - m2)^2) + 2 * (s1 - s2)^2)
+  truth <- w2iso(mu[[1]], sg[1], mu[[2]], sg[2]) /
+           (w2iso(mu[[1]], sg[1], mu[[2]], sg[2]) + w2iso(mu[[2]], sg[2], mu[[3]], sg[3]))
+  r <- pmedW_md(drw(1), drw(2), drw(3), eps = 0.1)
+  expect_equal(r$pmedW, truth, tolerance = 0.04)   # debiased Sinkhorn, finite n/eps
+})

@@ -135,3 +135,31 @@ if (sys.nframe() == 0L) {
   cat(sprintf("smoke g-comp: P_med^W=%.3f  se=%.3f  NIE^W=%.3f NDE^W=%.3f synergy=%.3f\n",
               r@pmedW, r@pmedW_se, r@NIE_W, r@NDE_W, r@synergy))
 }
+
+## ===================== entropic OT (Sinkhorn) for d>1 (VERIFIED) =====================
+## Log-domain Sinkhorn transport cost + debiased Sinkhorn divergence (Genevay et al.).
+## Verified in research/pmed-modern/04-wasserstein-pmed/sims/entropic_verify.R (FACT7-10):
+## recovers closed-form Gaussian W2 (d=1,2) and a d=2 corner-law P_med^W to <0.03.
+## Use the DEBIASED divergence for the d>1 estimator (removes entropic + sample bias).
+.sinkhorn_cost <- function(X, Y, eps, iters = 400L, tol = 1e-9) {
+  X <- as.matrix(X); Y <- as.matrix(Y); n <- nrow(X); m <- nrow(Y)
+  C <- outer(rowSums(X^2), rowSums(Y^2), "+") - 2 * X %*% t(Y); C[C < 0] <- 0
+  la <- log(rep(1 / n, n)); lb <- log(rep(1 / m, m)); f <- numeric(n); g <- numeric(m)
+  lse <- function(v) { mx <- max(v); mx + log(sum(exp(v - mx))) }
+  for (it in seq_len(iters)) {
+    fo <- f
+    for (i in seq_len(n)) f[i] <- -eps * lse(lb + (g - C[i, ]) / eps)
+    for (j in seq_len(m)) g[j] <- -eps * lse(la + (f - C[, j]) / eps)
+    if (max(abs(f - fo)) < tol) break
+  }
+  sum(exp((outer(f, g, "+") - C) / eps + outer(la, lb, "+")) * C)
+}
+sinkhorn_div <- function(X, Y, eps = 0.1, iters = 400L)                 # debiased; -> W2^2 as eps->0
+  max(.sinkhorn_cost(X, Y, eps, iters) - 0.5 * .sinkhorn_cost(X, X, eps, iters) -
+      0.5 * .sinkhorn_cost(Y, Y, eps, iters), 0)
+
+## Multivariate P_med^W from corner pseudo-samples (matrices, d>=1) via debiased Sinkhorn.
+pmedW_md <- function(NU11, NU10, NU00, eps = 0.1) {
+  NIE <- sqrt(sinkhorn_div(NU11, NU10, eps)); NDE <- sqrt(sinkhorn_div(NU10, NU00, eps))
+  list(NIE_W = NIE, NDE_W = NDE, pmedW = NIE / (NIE + NDE))
+}
