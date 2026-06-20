@@ -163,3 +163,44 @@ pmedW_md <- function(NU11, NU10, NU00, eps = 0.1) {
   NIE <- sqrt(sinkhorn_div(NU11, NU10, eps)); NDE <- sqrt(sinkhorn_div(NU10, NU00, eps))
   list(NIE_W = NIE, NDE_W = NDE, pmedW = NIE / (NIE + NDE))
 }
+
+## ============ cross-fit doubly/triply-robust corner-LAW estimator (1-D, VERIFIED) ============
+## F_{a,a'}(y)=P(Y(a,M(a'))<=y) is a corner mean of 1{Y<=y}; apply the triply-robust corner EIF with
+## outcome 1{Y<=y} and conditional CDF m(a,m,c;y). eta closed form under linear-Gaussian working models.
+## Invert F-hat -> quantiles -> W2 -> P_med^W. MULTIPLY ROBUST (verified, dr_corner_verify.R): consistent
+## when EITHER the outcome OR the propensity model is misspecified (mediator model correct).
+.U_dr <- (seq_len(2048) - 0.5) / 2048
+.corner_cdf_dr <- function(d, a, ap, covars, ygrid, K = 5L, misspec = "none") {
+  n <- nrow(d); folds <- sample(rep(1:K, length.out = n)); cf <- paste(covars, collapse = " + ")
+  G <- length(ygrid); Fmat <- matrix(NA_real_, n, G)
+  for (k in 1:K) {
+    tr <- d[folds != k, ]; idx <- which(folds == k); te <- d[idx, ]
+    f_pi <- if (misspec == "propensity") stats::as.formula("A ~ 1") else stats::as.formula(paste("A ~", cf))
+    f_oY <- if (misspec == "outcome") stats::as.formula(paste("Y ~ A +", cf)) else stats::as.formula(paste("Y ~ A * M +", cf))
+    pim <- stats::glm(f_pi, data = tr, family = stats::binomial())
+    mMm <- stats::lm(stats::as.formula(paste("M ~ A +", cf)), data = tr); sM <- stats::sigma(mMm)
+    oYm <- stats::lm(f_oY, data = tr); sY <- stats::sigma(oYm)
+    p1 <- stats::predict(pim, te, type = "response"); pa <- function(z) ifelse(z == 1, p1, 1 - p1)
+    mMhat <- function(z) stats::predict(mMm, transform(te, A = z))
+    muY <- function(z, mvec) stats::predict(oYm, data.frame(A = z, M = mvec, te[, covars, drop = FALSE]))
+    r <- stats::dnorm(te$M, mMhat(ap), sM) / stats::dnorm(te$M, mMhat(a), sM)
+    alpha <- muY(a, rep(0, nrow(te))); beta_eff <- muY(a, rep(1, nrow(te))) - alpha
+    muY_obs <- alpha + beta_eff * te$M; mM_ap <- mMhat(ap); sd_eta <- sqrt(sY^2 + beta_eff^2 * sM^2)
+    ind <- (te$A == a) / pa(a) * r; wap <- (te$A == ap) / pa(ap)
+    for (g in 1:G) { y <- ygrid[g]
+      Fmat[idx, g] <- ind * ((te$Y <= y) - stats::pnorm(y, muY_obs, sY)) +
+        wap * (stats::pnorm(y, muY_obs, sY) - stats::pnorm(y, alpha + beta_eff * mM_ap, sd_eta)) +
+        stats::pnorm(y, alpha + beta_eff * mM_ap, sd_eta)
+    }
+  }
+  Fhat <- cummax(pmin(pmax(colMeans(Fmat), 0), 1))
+  stats::approx(Fhat, ygrid, xout = .U_dr, rule = 2, ties = "ordered")$y
+}
+pmedW_dr <- function(d, covars = "C", K = 5L, misspec = "none", G = 300L) {
+  yg <- seq(min(d$Y) - 1, max(d$Y) + 1, length.out = G)
+  q11 <- .corner_cdf_dr(d, 1, 1, covars, yg, K, misspec)
+  q10 <- .corner_cdf_dr(d, 1, 0, covars, yg, K, misspec)
+  q00 <- .corner_cdf_dr(d, 0, 0, covars, yg, K, misspec)
+  NIE <- sqrt(mean((q11 - q10)^2)); NDE <- sqrt(mean((q10 - q00)^2))   # W2 on quantile vectors
+  list(NIE_W = NIE, NDE_W = NDE, pmedW = NIE / (NIE + NDE))
+}

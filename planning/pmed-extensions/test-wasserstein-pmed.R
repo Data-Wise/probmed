@@ -68,3 +68,22 @@ test_that("entropic Sinkhorn divergence recovers d=2 corner-law P_med^W", {
   r <- pmedW_md(drw(1), drw(2), drw(3), eps = 0.1)
   expect_equal(r$pmedW, truth, tolerance = 0.04)   # debiased Sinkhorn, finite n/eps
 })
+
+test_that("DR corner-law estimator is multiply robust (consistent under one wrong nuisance)", {
+  set.seed(5); n <- 4000
+  C <- rnorm(n); A <- rbinom(n, 1, plogis(0.5 * C))
+  M <- 0.3 + 0.6 * A + 0.5 * C + rnorm(n)
+  Y <- 0.2 + 0.5 * A + 0.7 * M + 0.4 * C + 0.3 * A * M + rnorm(n)
+  d <- data.frame(A, M, Y, C)
+  # truth via large MC
+  Ct <- rnorm(2e5); cl <- function(a, ap) { Mt <- 0.3 + 0.6 * ap + 0.5 * Ct + rnorm(2e5)
+    0.2 + 0.5 * a + 0.7 * Mt + 0.4 * Ct + 0.3 * a * Mt + rnorm(2e5) }
+  U <- (seq_len(2048) - 0.5) / 2048
+  q <- function(x) quantile(x, U, names = FALSE)
+  N <- sqrt(mean((q(cl(1,1)) - q(cl(1,0)))^2)); D <- sqrt(mean((q(cl(1,0)) - q(cl(0,0)))^2))
+  truthP <- N / (N + D)
+  for (ms in c("none", "outcome", "propensity")) {
+    e <- pmedW_dr(d, covars = "C", K = 5L, misspec = ms)
+    expect_lt(abs(e$pmedW - truthP), 0.05)   # consistent within ~0.05 in each scenario
+  }
+})
