@@ -24,6 +24,20 @@
   propensity, mildly conservative otherwise). (feature/incremental-pmed; companion
   manuscript: pmed-modern/02-incremental-pmed.)
 
+* `sobol_pmed()`, `sobol_from_theta()` and the `SobolPmedResult` class add the
+  **Sobol / functional-ANOVA variance share** `P_med^{sigma^2} = V_med / V_T` — the
+  fraction of the intervention-induced outcome variance carried by the mediator
+  pathway, with `V_med = c_m * Delta_m^2`. Same cross-fitted one-step corner-EIF
+  machinery as `ward_residual()`. At the no-mediation boundary the variance share is
+  non-regular (`V_med = c_m Delta_m^2` is degenerate at `Delta_m = 0`), so inference
+  reduces to the regular contrast `Delta_m`. Two interval procedures: the default
+  **Procedure B** (`procedure = "B"`, the image of the regular `Delta_m` Wald CI under
+  the squared map — uniformly valid, no pre-test) and the legacy gated **Procedure A**
+  (`procedure = "A"`). Coverage caveat: near the boundary the `Delta_m` standard error
+  is anti-conservative (persistent across `n`), so near-null intervals are
+  approximate — see `?SobolPmedResult`. (feature/sobol-pmed; companion manuscript:
+  pmed-modern/03-sobol-pmed.)
+
 # probmed 0.2.0 (2026-06-11)
 
 ## Features

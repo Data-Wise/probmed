@@ -61,11 +61,19 @@ Version: 0.2.0 (GitHub release 2026-06-11, non-CRAN; pins medfit@v0.3.0)
 ────────────────────────────────────────────────
 
 Next:
-⛔ BLOCKED ON CRAN (2026-06-19): Imports medfit >= 0.3.0; CRAN has medfit 0.2.1; dev has
-  medfit 0.3.1. DESCRIPTION has `Remotes: data-wise/medfit@v0.3.0` — must be cleared before
-  CRAN submission. Unblock path: (1) medfit 0.3.x submitted + accepted on CRAN; (2) drop
-  Remotes entry from probmed DESCRIPTION; (3) CRAN-check probmed; (4) submit. Cascade position:
-  Phase 3 of 4 (medrobust → medsim → probmed → mediationverse).
+✅ LOCAL CRAN CHECK CLEAN (2026-06-20): `R CMD check --as-cran` = 0 errors / 0 warnings /
+  0 notes (devtools::check(cran=TRUE), R 4.6.0, medfit 0.3.0 installed). Fixed: sobol_pmed
+  Rd `\usage` WARNING (added `procedure` to the S7 generic signature, 805b4f3). Hygiene done
+  on dev: Version 0.2.0 → 0.2.0.9000; added `Language: en-US` + `cph` role (clears the two
+  cranlint advisories); NEWS dev-section now covers the `sobol_*` exports.
+  ⚠️ LOCAL-CLEAN ≠ SUBMITTABLE: the local check + r-universe are green ONLY because they honor
+  `Remotes:`/the installed medfit 0.3.0 — they mask the CRAN gate. rforge: probmed has ZERO hard
+  reverse-deps; release sequence is strictly medfit → probmed.
+⛔ STILL BLOCKED ON CRAN: Imports medfit >= 0.3.0; CRAN has medfit 0.2.1; dev has medfit 0.3.1.
+  `Remotes: data-wise/medfit@v0.3.0` must be cleared before submission. Unblock path (maintainer):
+  (1) medfit 0.3.x ACCEPTED on CRAN; (2) drop Remotes from DESCRIPTION; (3) write cran-comments.md
+  + bump to a release version (0.3.0); (4) final --as-cran; (5) submit. Cascade: Phase 3 of 4
+  (medrobust → medsim → probmed → mediationverse).
 - Feature: P_med for sequential structures (deferred); path-specific parallel P_med; non-Gaussian parallel.
 Blocked: medfit >= 0.3.x on CRAN (hard gate — Imports, not Suggests)
 
