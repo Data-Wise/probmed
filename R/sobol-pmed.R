@@ -35,6 +35,26 @@
 #' non-regular and a one-sided upper bound `[0, Pmed_upper]` (Procedure A) is
 #' reported in `ci` instead; off-boundary, `ci` is the Wald interval.
 #'
+#' **Coverage caveat (Procedure A is _not_ uniformly valid).** The split *test*
+#' restores level at the exact null, and Procedure A is conservative-to-nominal at
+#' the exact boundary and in regular cells. But as a *pre-test* (gating) rule it is
+#' only *pointwise* valid: across the near-null transition (a small but strictly
+#' positive `V_med`, observed at intermediate-to-large `n`) the one-sided bound
+#' `Pmed_upper = c_m (|Delta_m_hat| + z * se)^2 / V_T_hat` contracts at rate
+#' `O_p(1/n)` while the truth stays fixed, so conditioning the report on
+#' non-rejection routes downward-selected `Delta_m_hat` to a bound that can fall
+#' below the truth -- a Leeb-Potscher post-selection pathology. In a registered
+#' simulation grid the gated interval's coverage in the near-null cell was
+#' conservative (~1.00) for `n <= 4000`, dropped to ~0.84 at `n = 8000`, and
+#' recovered (~0.93) by `n = 16000` (a *transient* transition-zone dip, not an
+#' intrinsically miscalibrated bound). Uniformly valid *interval* coverage through
+#' the transition requires a sample-split CI (Procedure B) whose interval is not
+#' conditioned on the test outcome; that interval is **not yet implemented here**.
+#' Until it ships, treat `ci` at `boundary == TRUE` as a provisional one-sided bound,
+#' prefer reporting `Pmed_upper` honestly as an upper bound (not a two-sided CI),
+#' and consult `ci_wald` and the split-test fields (`vmed_split_p`,
+#' `vmed_split_reject`) when characterising boundary behaviour.
+#'
 #' @param p_med Numeric: Sobol proportion mediated `V_med / V_T`.
 #' @param se Numeric: standard error of `p_med` (delta-method, ratio identity).
 #' @param ci Numeric length-2: **reported** (gated) confidence interval -- the
@@ -181,7 +201,11 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
   if (warn_boundary && boundary)
     warning("sobol_pmed: H0 V_med=0 not rejected (split test, p=", signif(vmed_split_p, 2),
             "); the symmetric Wald CI is non-regular at the boundary. Reporting the one-sided ",
-            "upper bound [0, ", signif(Pmed_upper, 3), "] (Procedure A) instead.", call. = FALSE)
+            "upper bound [0, ", signif(Pmed_upper, 3), "] (Procedure A) instead. ",
+            "Note: this gated bound is NOT uniformly valid across the near-null transition ",
+            "(pre-test under-coverage at intermediate-to-large n); treat it as a provisional ",
+            "one-sided upper bound. A uniformly valid sample-split CI (Procedure B) is not yet ",
+            "implemented -- see ?SobolPmedResult 'Coverage caveat'.", call. = FALSE)
   list(P_med_sobol = unname(P), se = unname(se), ci = unname(ci), ci_wald = ci_wald,
        boundary = boundary, Pmed_upper = Pmed_upper,
        S1_med = unname(Vm / VT), ST_med = unname((Vm + Vdm) / VT),
@@ -211,7 +235,11 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
 #' switches to the one-sided Procedure-A upper bound `[0, Pmed_upper]`. The
 #' boundary machinery recurses through a plain internal fitter (not this generic),
 #' so the point estimate, Wald interval, and fold draw are deterministic in
-#' `seed` and unaffected by the test.
+#' `seed` and unaffected by the test. **Caveat:** this gating (Procedure A) is
+#' pointwise- but not uniformly-valid across the near-null transition; the gated
+#' interval can under-cover at intermediate-to-large `n` and a uniformly valid
+#' sample-split CI (Procedure B) is not yet implemented. See the **Coverage caveat**
+#' in [SobolPmedResult].
 #'
 #' @param object A `data.frame` with columns `A` (binary treatment), `M`
 #'   (mediator), `Y` (continuous outcome), and the covariates named in `covars`.

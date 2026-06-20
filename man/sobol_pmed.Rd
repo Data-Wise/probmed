@@ -64,7 +64,11 @@ decides the boundary; when it does not reject, the reported interval \code{ci}
 switches to the one-sided Procedure-A upper bound \verb{[0, Pmed_upper]}. The
 boundary machinery recurses through a plain internal fitter (not this generic),
 so the point estimate, Wald interval, and fold draw are deterministic in
-\code{seed} and unaffected by the test.
+\code{seed} and unaffected by the test. \strong{Caveat:} this gating (Procedure A) is
+pointwise- but not uniformly-valid across the near-null transition; the gated
+interval can under-cover at intermediate-to-large \code{n} and a uniformly valid
+sample-split CI (Procedure B) is not yet implemented. See the \strong{Coverage caveat}
+in \link{SobolPmedResult}.
 }
 \examples{
 set.seed(1)

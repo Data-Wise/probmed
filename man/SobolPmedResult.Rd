@@ -106,6 +106,26 @@ half (so \code{z ~ N(0, 1)} even at the boundary). When the split test does not
 reject \code{H0: V_med = 0} (\code{boundary == TRUE}), the symmetric Wald interval is
 non-regular and a one-sided upper bound \verb{[0, Pmed_upper]} (Procedure A) is
 reported in \code{ci} instead; off-boundary, \code{ci} is the Wald interval.
+
+\strong{Coverage caveat (Procedure A is \emph{not} uniformly valid).} The split \emph{test}
+restores level at the exact null, and Procedure A is conservative-to-nominal at
+the exact boundary and in regular cells. But as a \emph{pre-test} (gating) rule it is
+only \emph{pointwise} valid: across the near-null transition (a small but strictly
+positive \code{V_med}, observed at intermediate-to-large \code{n}) the one-sided bound
+\verb{Pmed_upper = c_m (|Delta_m_hat| + z * se)^2 / V_T_hat} contracts at rate
+\code{O_p(1/n)} while the truth stays fixed, so conditioning the report on
+non-rejection routes downward-selected \code{Delta_m_hat} to a bound that can fall
+below the truth -- a Leeb-Potscher post-selection pathology. In a registered
+simulation grid the gated interval's coverage in the near-null cell was
+conservative (~1.00) for \code{n <= 4000}, dropped to ~0.84 at \code{n = 8000}, and
+recovered (~0.93) by \code{n = 16000} (a \emph{transient} transition-zone dip, not an
+intrinsically miscalibrated bound). Uniformly valid \emph{interval} coverage through
+the transition requires a sample-split CI (Procedure B) whose interval is not
+conditioned on the test outcome; that interval is \strong{not yet implemented here}.
+Until it ships, treat \code{ci} at \code{boundary == TRUE} as a provisional one-sided bound,
+prefer reporting \code{Pmed_upper} honestly as an upper bound (not a two-sided CI),
+and consult \code{ci_wald} and the split-test fields (\code{vmed_split_p},
+\code{vmed_split_reject}) when characterising boundary behaviour.
 }
 \references{
 Williamson, B. D., Gilbert, P. B., Carone, M., & Simon, N. (2021).
