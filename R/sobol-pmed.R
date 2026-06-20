@@ -49,17 +49,21 @@
 #' boundary it routes downward-selected `Delta_m_hat` to the contracting one-sided
 #' bound, a Leeb-Potscher post-selection effect -- prefer B, which does not gate.
 #' (2) *Near-null se limitation (affects A and B alike).* A reproducible
-#' decomposition (>=1000 reps, fixed seed) shows that **in the near-null regime**
-#' the `Delta_m` standard error is **anti-conservative** (`se_Dm` ~ 0.7x the true
-#' sampling SD), so even the regular two-sided `Delta_m` Wald CI -- and hence its
-#' image B -- covers only ~0.85 (flat in `n`, not a transition dip); `V_T` is well
-#' calibrated. This is **near-null specific**: for ordinary effect sizes `se_Dm` is
-#' calibrated (~0.95 se-ratio, ~nominal coverage). The cause is the heavy-tailed
-#' cross-world density ratio `f(M | a', C) / f(M | a, C)`, whose influence-function
-#' sd is downward-biased in finite samples when the signal is tiny. B is the
-#' correct interval *construction* (uniformly valid relative to the `Delta_m` CI),
-#' but cannot out-cover a miscalibrated input se; a heavy-tail-robust `Delta_m` se
-#' for the near-null regime is open work. Treat near-null `V_med` intervals as
+#' decomposition (>=1000 reps, fixed seed, two streams) shows that **in the
+#' near-null regime** the `Delta_m` standard error is **anti-conservative**
+#' (`se_Dm` ~ 0.70-0.76x the empirical sampling SD), so even the regular two-sided
+#' `Delta_m` Wald CI -- and hence its image B -- covers only ~0.85; `V_T` is well
+#' calibrated. The deflation is **persistent**: across `n = 2000` to `64000`
+#' (32-fold) the se-ratio stays ~0.70-0.76 and coverage ~0.85-0.88 -- too slow for
+#' a vanishing finite-sample effect, so near-null asymptotic validity is *not*
+#' established (slowly-consistent vs structurally inconsistent is unresolved). This
+#' is **near-null specific**: for ordinary effect sizes `se_Dm` is calibrated (~0.95
+#' se-ratio, ~nominal coverage). Mechanism not definitively pinned -- the cross-world
+#' density ratio `f(M | a', C) / f(M | a, C)` is heavy-tailed but its law is the same
+#' in all cells, so heaviness alone cannot explain the near-null-specificity. B is
+#' the correct interval *construction* (uniformly valid relative to the `Delta_m`
+#' CI), but cannot out-cover a miscalibrated input se; a heavy-tail-robust `Delta_m`
+#' se for the near-null regime is open work. Treat near-null `V_med` intervals as
 #' approximate. Use `procedure = "A"` only to reproduce the legacy gated behaviour.
 #'
 #' @param p_med Numeric: Sobol proportion mediated `V_med / V_T`.
