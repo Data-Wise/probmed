@@ -43,48 +43,6 @@ IncrPmedResult <- S7::new_class(
   }
 )
 
-# internal: cross-fit one-step corner pseudo-outcomes phi[i, (a, a')].
-# Identical machinery to .gauge_fit(): the conditional mean of phi[, "aa'"] given C
-# is the nested corner mean nu(a, a', C). Returns the influence matrix and the
-# fitted propensity g(C) = P(A = 1 | C) used to build the tilt weights.
-.incr_fit <- function(d, K, binY, covars) {
-  cf <- paste(covars, collapse = " + ")
-  f_pi <- stats::as.formula(paste("A ~", cf))
-  f_q  <- stats::as.formula(paste("A ~ M +", cf))
-  f_om <- stats::as.formula(paste("Y ~ A * M +", cf))
-  n <- nrow(d); folds <- sample(rep(1:K, length.out = n))
-  nm <- c("11", "10", "01", "00"); cor <- list(c(1, 1), c(1, 0), c(0, 1), c(0, 0))
-  phi <- matrix(0, n, 4, dimnames = list(NULL, nm))
-  gC <- numeric(n)
-  for (k in 1:K) {
-    tr <- d[folds != k, , drop = FALSE]
-    te_i <- which(folds == k); te <- d[te_i, , drop = FALSE]
-    pim <- stats::glm(f_pi, data = tr, family = stats::binomial())
-    qm  <- stats::glm(f_q,  data = tr, family = stats::binomial())
-    om  <- stats::glm(f_om, data = tr,
-                      family = if (binY) stats::binomial() else stats::gaussian())
-    p1 <- stats::predict(pim, newdata = te, type = "response"); gC[te_i] <- p1
-    pa <- function(z) ifelse(z == 1, p1, 1 - p1)
-    q1 <- stats::predict(qm, newdata = te, type = "response")
-    qa <- function(z) ifelse(z == 1, q1, 1 - q1)
-    mu <- function(z) stats::predict(om, newdata = transform(te, A = z), type = "response")
-    for (j in 1:4) {
-      a <- cor[[j]][1]; ap <- cor[[j]][2]
-      muAM <- mu(a)
-      ratio <- (qa(ap) / qa(a)) * (pa(a) / pa(ap))
-      muAM_tr <- stats::predict(om, newdata = transform(tr, A = a), type = "response")
-      sub <- tr$A == ap
-      etam <- stats::lm(stats::reformulate(covars, "yy"),
-                        data = cbind(data.frame(yy = muAM_tr[sub]),
-                                     tr[sub, covars, drop = FALSE]))
-      eta <- stats::predict(etam, newdata = te)
-      phi[te_i, j] <- (te$A == a) / pa(a) * ratio * (te$Y - muAM) +
-                      (te$A == ap) / pa(ap) * (muAM - eta) + eta
-    }
-  }
-  list(phi = phi, g = gC)
-}
-
 #' Incremental Mediated Elasticity Curve
 #'
 #' @description
@@ -149,7 +107,7 @@ S7::method(incr_pmed, S7::class_data.frame) <-
     set.seed(seed)
     n <- nrow(object)
     binY <- all(object$Y %in% 0:1)
-    fit <- .incr_fit(object, K, binY, covars)
+    fit <- .corner_fit(object, K, binY, covars)
     phi <- fit$phi; g <- fit$g
     zc <- stats::qnorm(1 - (1 - ci_level) / 2)
     rows <- lapply(deltas, function(del) {

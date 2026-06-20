@@ -47,44 +47,6 @@ GaugePmedResult <- S7::new_class(
   }
 )
 
-# internal: cross-fit one-step influence matrix for the four corner means
-.gauge_fit <- function(d, K, binY, covars) {
-  cf <- paste(covars, collapse = " + ")
-  f_pi <- stats::as.formula(paste("A ~", cf))
-  f_q  <- stats::as.formula(paste("A ~ M +", cf))
-  f_om <- stats::as.formula(paste("Y ~ A * M +", cf))
-  n <- nrow(d); folds <- sample(rep(1:K, length.out = n))
-  nm <- c("11", "10", "01", "00"); cor <- list(c(1,1), c(1,0), c(0,1), c(0,0))
-  phi <- matrix(0, n, 4, dimnames = list(NULL, nm))
-  for (k in 1:K) {
-    tr <- d[folds != k, , drop = FALSE]
-    te_i <- which(folds == k); te <- d[te_i, , drop = FALSE]
-    pim <- stats::glm(f_pi, data = tr, family = stats::binomial())
-    qm  <- stats::glm(f_q,  data = tr, family = stats::binomial())
-    om  <- stats::glm(f_om, data = tr,
-                      family = if (binY) stats::binomial() else stats::gaussian())
-    p1 <- stats::predict(pim, newdata = te, type = "response")
-    pa <- function(z) ifelse(z == 1, p1, 1 - p1)
-    q1 <- stats::predict(qm, newdata = te, type = "response")
-    qa <- function(z) ifelse(z == 1, q1, 1 - q1)
-    mu <- function(z) stats::predict(om, newdata = transform(te, A = z), type = "response")
-    for (j in 1:4) {
-      a <- cor[[j]][1]; ap <- cor[[j]][2]
-      muAM <- mu(a)
-      ratio <- (qa(ap) / qa(a)) * (pa(a) / pa(ap))
-      muAM_tr <- stats::predict(om, newdata = transform(tr, A = a), type = "response")
-      sub <- tr$A == ap
-      etam <- stats::lm(stats::reformulate(covars, "yy"),
-                        data = cbind(data.frame(yy = muAM_tr[sub]),
-                                     tr[sub, covars, drop = FALSE]))
-      eta <- stats::predict(etam, newdata = te)
-      phi[te_i, j] <- (te$A == a) / pa(a) * ratio * (te$Y - muAM) +
-                      (te$A == ap) / pa(ap) * (muAM - eta) + eta
-    }
-  }
-  phi
-}
-
 #' Gauge-Calibrated Proportion Mediated
 #'
 #' @description
@@ -129,7 +91,7 @@ S7::method(ward_residual, S7::class_data.frame) <-
     stopifnot(all(c("A", "M", "Y") %in% names(object)), all(covars %in% names(object)))
     set.seed(seed)
     binY <- all(object$Y %in% 0:1)
-    phi <- .gauge_fit(object, K, binY, covars); n <- nrow(object)
+    phi <- .corner_fit(object, K, binY, covars)$phi; n <- nrow(object)
     th <- colMeans(phi)
     OE <- th["11"] - th["00"]; IDE <- th["10"] - th["00"]
     IIE <- th["01"] - th["00"]; R <- OE - IDE - IIE
