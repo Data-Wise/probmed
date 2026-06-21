@@ -23,9 +23,12 @@ feature/gauge-bootstrap-se — ~/projects/r-packages/active/probmed (THIS checko
    ✅ ALL THREE pre-CRAN gauge TODOs done (2026-06-21):
    • non-binary A → a0/a1 two-level contrast (factor/{1,2}/{-1,1}); >2 levels is an
      ERROR not a silent subset (would shift the C-averaging population → wrong estimand).
-   • coverage → inst/sim/gauge_coverage.R, closed-form truth W=tau*aM/(bA+(bM+tau)*aM),
-     SLURM-array grid (nsim=1000) staged for cluster; smoke confirms analytic under-covers,
-     bootstrap restores (NOT yet a validated number — MCSE large at nsim=30).
+   • coverage → inst/sim/gauge_coverage.R, closed-form truth W=tau*aM/(bA+(bM+tau)*aM).
+     ANALYTIC half VALIDATED locally (nsim=300, MCSE~0.02): W-CI coverage 0.85-0.88 near
+     null, PERSISTENT across n=500->4000 (not a finite-n effect → ratio-skew shape problem,
+     widening won't fix it); P_med-CI ~0.91-0.93. Confirms the docstring's ~0.85-0.90.
+     BOOTSTRAP half still cluster-pending (SLURM-array, nsim=1000) — smoke shows over-coverage
+     but the reportable number needs the full grid.
    • vignette → vignettes/gauge-residual.qmd (registered in _pkgdown.yml).
    Full suite green (0 fail; only skip_on_cran g-score sims skipped).
    Companion to the gauge-pmed line merged via PR #8; manuscript 01-gauge-pmed sec-extensions.
