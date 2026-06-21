@@ -11,6 +11,9 @@ ward_residual(
   ci_level = 0.95,
   seed = 1L,
   fieller = TRUE,
+  reps = 1L,
+  se_method = c("analytic", "bootstrap"),
+  B = 200L,
   ...
 )
 }
@@ -29,6 +32,22 @@ ward_residual(
 \item{fieller}{Logical: also compute the Fieller confidence set for the ratio
 \code{P_med = IIE/OE}, which is unbounded when the total effect \code{OE} is not
 significant (default \code{TRUE}).}
+
+\item{reps}{Integer: number of repeated cross-fitting fold draws averaged for
+the point estimate (default \code{1}). \code{reps > 1} averages the corner influence
+matrix over independent fold assignments, removing the fold-split component
+of the variance; the analytic se then adds the residual fold Monte-Carlo
+variance of the averaged point.}
+
+\item{se_method}{Character: \code{"analytic"} (default, influence-function se) or
+\code{"bootstrap"}. The analytic se for \code{W} and \code{P_med} is mildly
+\strong{anti-conservative} in finite samples (it under-estimates the empirical SD,
+giving sub-nominal coverage \eqn{\approx 0.85}-\eqn{0.90}); the nonparametric
+bootstrap (resample rows, refit the cross-fit estimator) restores valid --
+but mildly \strong{conservative} -- coverage. \code{reps > 1} and \code{se_method = "bootstrap"} compose.}
+
+\item{B}{Integer: number of bootstrap resamples when \code{se_method = "bootstrap"}
+(default \code{200}). Cost is \code{B} (x \code{reps}) refits.}
 
 \item{...}{Unused.}
 }

@@ -49,3 +49,42 @@ test_that("multiple covariates are supported", {
   r <- ward_residual(d, covars = c("C", "C2"))
   expect_true(is.finite(r@W))
 })
+
+## ---- P1 Fix-path: reps (repeated cross-fitting) + bootstrap se ----
+
+test_that("se_method and reps are recorded on the result", {
+  r <- ward_residual(.gp_gen(800, 0, FALSE), se_method = "bootstrap", reps = 3L, B = 80L)
+  expect_equal(r@se_method, "bootstrap")
+  expect_equal(r@reps, 3L)
+})
+
+test_that("se_method defaults to analytic with reps = 1", {
+  r <- ward_residual(.gp_gen(1500, 0, FALSE))
+  expect_equal(r@se_method, "analytic")
+  expect_equal(r@reps, 1L)
+})
+
+test_that("se_method='bootstrap' yields a different, positive W_se than analytic", {
+  d <- .gp_gen(800, 0, FALSE)
+  ra <- ward_residual(d, se_method = "analytic")
+  rb <- ward_residual(d, se_method = "bootstrap", B = 150L)
+  expect_gt(rb@W_se, 0)
+  expect_false(isTRUE(all.equal(ra@W_se, rb@W_se)))
+  ## bootstrap CI is rebuilt from the bootstrap se (not the analytic one)
+  expect_equal(rb@W_ci, c(rb@W - qnorm(0.975) * rb@W_se,
+                          rb@W + qnorm(0.975) * rb@W_se), tolerance = 1e-8)
+})
+
+test_that("reps>1 averages corner influence over independent fold draws", {
+  d <- .gp_gen(2000, 0.5, FALSE)
+  r1 <- ward_residual(d, reps = 1L)
+  r4 <- ward_residual(d, reps = 4L)
+  expect_equal(r4@reps, 4L)
+  expect_lt(abs(r4@W - r1@W), 0.05)          # reps-averaged point stays close
+  expect_true(is.finite(r4@W_se) && r4@W_se > 0)
+})
+
+test_that("bootstrap se preserves the identity R = OE - IDE - IIE", {
+  r <- ward_residual(.gp_gen(1500, 0.5, FALSE), se_method = "bootstrap", B = 100L)
+  expect_equal(r@R, r@OE - r@IDE - r@IIE, tolerance = 1e-8)
+})

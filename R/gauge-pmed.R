@@ -24,6 +24,10 @@
 #' @param method Character: estimation method.
 #' @param n Integer: sample size.
 #' @param ci_level Numeric: confidence level.
+#' @param se_method Character: `"analytic"` (influence-function se) or
+#'   `"bootstrap"` (nonparametric, valid but mildly conservative).
+#' @param reps Integer: number of repeated cross-fitting fold draws averaged for
+#'   the point estimate.
 #' @param call Call: original call.
 #'
 #' @export
@@ -39,6 +43,8 @@ GaugePmedResult <- S7::new_class(
     IIE = S7::class_numeric, R = S7::class_numeric,
     theta = S7::class_numeric, method = S7::class_character,
     n = S7::class_integer, ci_level = S7::class_numeric,
+    se_method = S7::new_property(class = S7::class_character, default = "analytic"),
+    reps = S7::new_property(class = S7::class_integer, default = 1L),
     call = S7::new_property(class = S7::class_any, default = NULL)
   ),
   validator = function(self) {
@@ -65,6 +71,20 @@ GaugePmedResult <- S7::new_class(
 #' @param fieller Logical: also compute the Fieller confidence set for the ratio
 #'   `P_med = IIE/OE`, which is unbounded when the total effect `OE` is not
 #'   significant (default `TRUE`).
+#' @param reps Integer: number of repeated cross-fitting fold draws averaged for
+#'   the point estimate (default `1`). `reps > 1` averages the corner influence
+#'   matrix over independent fold assignments, removing the fold-split component
+#'   of the variance; the analytic se then adds the residual fold Monte-Carlo
+#'   variance of the averaged point.
+#' @param se_method Character: `"analytic"` (default, influence-function se) or
+#'   `"bootstrap"`. The analytic se for `W` and `P_med` is mildly
+#'   **anti-conservative** in finite samples (it under-estimates the empirical SD,
+#'   giving sub-nominal coverage \eqn{\approx 0.85}-\eqn{0.90}); the nonparametric
+#'   bootstrap (resample rows, refit the cross-fit estimator) restores valid --
+#'   but mildly **conservative** -- coverage. `reps > 1` and `se_method =
+#'   "bootstrap"` compose.
+#' @param B Integer: number of bootstrap resamples when `se_method = "bootstrap"`
+#'   (default `200`). Cost is `B` (x `reps`) refits.
 #' @param ... Unused.
 #'
 #' @return A [GaugePmedResult] object.
@@ -81,17 +101,41 @@ GaugePmedResult <- S7::new_class(
 ward_residual <- S7::new_generic(
   "ward_residual", dispatch_args = "object",
   fun = function(object, covars = "C", K = 5L, ci_level = 0.95,
-                 seed = 1L, fieller = TRUE, ...) {
+                 seed = 1L, fieller = TRUE, reps = 1L,
+                 se_method = c("analytic", "bootstrap"), B = 200L, ...) {
     S7::S7_dispatch()
   })
 
 #' @export
 S7::method(ward_residual, S7::class_data.frame) <-
-  function(object, covars = "C", K = 5L, ci_level = 0.95, seed = 1L, fieller = TRUE, ...) {
+  function(object, covars = "C", K = 5L, ci_level = 0.95, seed = 1L, fieller = TRUE,
+           reps = 1L, se_method = c("analytic", "bootstrap"), B = 200L, ...) {
     stopifnot(all(c("A", "M", "Y") %in% names(object)), all(covars %in% names(object)))
+    se_method <- match.arg(se_method)
+    reps <- max(1L, as.integer(reps))
     set.seed(seed)
-    binY <- all(object$Y %in% 0:1)
-    phi <- .corner_fit(object, K, binY, covars)$phi; n <- nrow(object)
+    binY <- all(object$Y %in% 0:1); n <- nrow(object)
+
+    ## ---- repeated cross-fitting (reps): average the corner influence matrix over
+    ## `reps` independent fold draws, removing the fold-split variance component.
+    ## reps = 1 reproduces the single-draw estimator exactly.
+    .gp_WP <- function(p) {                       # (W, P_med) from a corner-influence matrix
+      t <- colMeans(p); oe <- t["11"] - t["00"]
+      c(W = unname((oe - (t["10"] - t["00"]) - (t["01"] - t["00"])) / oe),
+        P = unname((t["01"] - t["00"]) / oe))
+    }
+    W_reps <- P_reps <- NULL
+    if (reps == 1L) {
+      phi <- .corner_fit(object, K, binY, covars)$phi
+    } else {
+      phis <- vector("list", reps); W_reps <- P_reps <- numeric(reps)
+      for (r in seq_len(reps)) {
+        set.seed(seed + r)
+        phis[[r]] <- .corner_fit(object, K, binY, covars)$phi
+        wp <- .gp_WP(phis[[r]]); W_reps[r] <- wp["W"]; P_reps[r] <- wp["P"]
+      }
+      phi <- Reduce(`+`, phis) / reps
+    }
     th <- colMeans(phi)
     OE <- th["11"] - th["00"]; IDE <- th["10"] - th["00"]
     IIE <- th["01"] - th["00"]; R <- OE - IDE - IIE
@@ -99,7 +143,26 @@ S7::method(ward_residual, S7::class_data.frame) <-
     pOE <- phi[, "11"] - phi[, "00"]; pIDE <- phi[, "10"] - phi[, "00"]
     pIIE <- phi[, "01"] - phi[, "00"]; pR <- pOE - pIDE - pIIE
     se <- function(x) stats::sd(x) / sqrt(n); zc <- stats::qnorm(1 - (1 - ci_level) / 2)
-    seP <- se((pIIE - Pmed * pOE) / OE); seW <- se((pR - W * pOE) / OE); z <- W / seW
+    seP <- se((pIIE - Pmed * pOE) / OE); seW <- se((pR - W * pOE) / OE)
+    ## reps aggregation: add the residual fold Monte-Carlo variance of the averaged point.
+    if (reps > 1L) {
+      seW <- sqrt(seW^2 + stats::var(W_reps) / reps)
+      seP <- sqrt(seP^2 + stats::var(P_reps) / reps)
+    }
+    ## ---- bootstrap se (near-null remedy): the analytic IF se for W and P_med is
+    ## ~0.8x anti-conservative; a nonparametric bootstrap (resample rows, refit) gives
+    ## a valid -- mildly conservative -- se. Cost is B (x reps) refits.
+    if (se_method == "bootstrap") {
+      bsamp <- vapply(seq_len(B), function(b) {
+        db <- object[sample.int(n, n, replace = TRUE), , drop = FALSE]
+        pb <- if (reps == 1L) .corner_fit(db, K, binY, covars)$phi
+              else Reduce(`+`, lapply(seq_len(reps),
+                            function(r) .corner_fit(db, K, binY, covars)$phi)) / reps
+        .gp_WP(pb)
+      }, numeric(2))
+      seW <- stats::sd(bsamp["W", ]); seP <- stats::sd(bsamp["P", ])
+    }
+    z <- W / seW
 
     ## Fieller confidence set for P_med = IIE/OE. When the denominator OE is not
     ## significant the set is unbounded; the Wald interval understates this.
@@ -128,7 +191,8 @@ S7::method(ward_residual, S7::class_data.frame) <-
       W_p = unname(2 * stats::pnorm(-abs(z))),
       OE = unname(OE), IDE = unname(IDE), IIE = unname(IIE), R = unname(R),
       theta = th, method = "onestep-crossfit", n = as.integer(n),
-      ci_level = ci_level, call = match.call()
+      ci_level = ci_level, se_method = se_method, reps = as.integer(reps),
+      call = match.call()
     )
   }
 
