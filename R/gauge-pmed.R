@@ -91,6 +91,14 @@ GaugePmedResult <- S7::new_class(
 #'   away from 0 -- see the Fieller diagnostic for the near-null case.
 #' @param B Integer: number of bootstrap resamples when `se_method = "bootstrap"`
 #'   (default `200`). Cost is `B` (x `reps`) refits.
+#' @param a0,a1 Reference and comparison exposure levels (defaults `0`/`1`). `A`
+#'   may use any two-level coding (factor, `{1,2}`, `{-1,1}`); it is recoded to
+#'   the binary indicator `(A == a1)`. The gauge `W = R/OE` is invariant to
+#'   swapping `a0`/`a1` (both `R` and `OE` flip sign). An `A` with **more than
+#'   two** levels is an error, not a silent subset: restricting to `{a0,a1}`
+#'   would shift the covariate-averaging population and estimate a different
+#'   (sub-population) gauge. Pre-filter to the two intended levels first.
+#'   Multi-valued / continuous exposures are future work.
 #' @param ... Unused.
 #'
 #' @return A [GaugePmedResult] object.
@@ -108,17 +116,39 @@ ward_residual <- S7::new_generic(
   "ward_residual", dispatch_args = "object",
   fun = function(object, covars = "C", K = 5L, ci_level = 0.95,
                  seed = 1L, fieller = TRUE, reps = 1L,
-                 se_method = c("analytic", "bootstrap"), B = 200L, ...) {
+                 se_method = c("analytic", "bootstrap"), B = 200L,
+                 a0 = 0, a1 = 1, ...) {
     S7::S7_dispatch()
   })
 
 #' @export
 S7::method(ward_residual, S7::class_data.frame) <-
   function(object, covars = "C", K = 5L, ci_level = 0.95, seed = 1L, fieller = TRUE,
-           reps = 1L, se_method = c("analytic", "bootstrap"), B = 200L, ...) {
+           reps = 1L, se_method = c("analytic", "bootstrap"), B = 200L,
+           a0 = 0, a1 = 1, ...) {
     stopifnot(all(c("A", "M", "Y") %in% names(object)), all(covars %in% names(object)))
     se_method <- match.arg(se_method)
     reps <- max(1L, as.integer(reps))
+    ## ---- two-level exposure contrast (a0 reference, a1 comparison).
+    ## A may use any two-level coding (factor, {1,2}, {-1,1}); it is recoded to the
+    ## binary indicator (A == a1) for the corner machinery. A guard rejects >2 levels:
+    ## subsetting a multi-valued A to {a0,a1} would silently shift the C-averaging
+    ## population and estimate a restricted sub-population gauge, not the population
+    ## gauge. Multi-valued / continuous A is future work (see manuscript sec-extensions).
+    a_levels <- unique(object$A)
+    if (!all(c(a0, a1) %in% a_levels))
+      stop("a0 / a1 not found among the levels of A: have {",
+           paste(a_levels, collapse = ", "), "}.", call. = FALSE)
+    if (identical(a0, a1))
+      stop("a0 and a1 must differ.", call. = FALSE)
+    extra <- setdiff(a_levels, c(a0, a1))
+    if (length(extra))
+      stop("A has more than two levels (extra: {", paste(extra, collapse = ", "),
+           "}). ward_residual contrasts exactly two levels; subsetting a multi-valued ",
+           "A would change the estimand. Pre-filter to the two levels you intend, or ",
+           "see the manuscript for the multi-valued generalization (not yet implemented).",
+           call. = FALSE)
+    object$A <- as.integer(object$A == a1)
     set.seed(seed)
     binY <- all(object$Y %in% 0:1); n <- nrow(object)
 

@@ -119,3 +119,45 @@ test_that("print labels the interval by construction (Wald vs percentile)", {
   expect_match(ob, "percentile")
   expect_no_match(ob, "Wald")
 })
+
+## ---- non-binary-coded (two-level) exposure: a0 / a1 contrast ----
+
+test_that("a0/a1 default reproduces the 0/1 binary result", {
+  d <- .gp_gen(1200, 0.5, FALSE)
+  r_default <- ward_residual(d, seed = 3L)
+  r_explicit <- ward_residual(d, a0 = 0, a1 = 1, seed = 3L)
+  expect_equal(r_default@W, r_explicit@W)
+  expect_equal(r_default@p_med, r_explicit@p_med)
+})
+
+test_that("factor / non-0-1 coding matches the recoded 0/1 fit", {
+  d <- .gp_gen(1200, 0.5, FALSE)
+  d_fac <- d; d_fac$A <- factor(ifelse(d$A == 1, "trt", "ctrl"))
+  d_num <- d; d_num$A <- ifelse(d$A == 1, 2L, 1L)
+  r01 <- ward_residual(d, seed = 5L)
+  rfac <- ward_residual(d_fac, a0 = "ctrl", a1 = "trt", seed = 5L)
+  rnum <- ward_residual(d_num, a0 = 1L, a1 = 2L, seed = 5L)
+  expect_equal(rfac@W, r01@W, tolerance = 1e-8)
+  expect_equal(rnum@p_med, r01@p_med, tolerance = 1e-8)
+})
+
+test_that("reversing a0/a1 flips the sign of W but preserves |W|", {
+  d <- .gp_gen(1200, 0.5, FALSE)
+  r_fwd <- ward_residual(d, a0 = 0, a1 = 1, seed = 9L)
+  r_rev <- ward_residual(d, a0 = 1, a1 = 0, seed = 9L)
+  ## W = R/OE: the mixed 2nd difference R is invariant to the swap, OE flips sign,
+  ## so W flips sign while |W| (the non-decomposability magnitude) is preserved.
+  expect_equal(r_fwd@W, -r_rev@W, tolerance = 1e-6)
+  expect_equal(abs(r_fwd@W), abs(r_rev@W), tolerance = 1e-6)
+})
+
+test_that("A with >2 levels errors (no silent restricted-estimand)", {
+  d <- .gp_gen(1200, 0.5, FALSE)
+  d$A[1:50] <- 2L                       # introduce a third level
+  expect_error(ward_residual(d, a0 = 0, a1 = 1), "level")
+})
+
+test_that("a0/a1 not present in A errors", {
+  d <- .gp_gen(800, 0.5, FALSE)
+  expect_error(ward_residual(d, a0 = 0, a1 = 5), "not found|level")
+})

@@ -14,6 +14,8 @@ ward_residual(
   reps = 1L,
   se_method = c("analytic", "bootstrap"),
   B = 200L,
+  a0 = 0,
+  a1 = 1,
   ...
 )
 }
@@ -55,6 +57,15 @@ away from 0 -- see the Fieller diagnostic for the near-null case.}
 
 \item{B}{Integer: number of bootstrap resamples when \code{se_method = "bootstrap"}
 (default \code{200}). Cost is \code{B} (x \code{reps}) refits.}
+
+\item{a0, a1}{Reference and comparison exposure levels (defaults \code{0}/\code{1}). \code{A}
+may use any two-level coding (factor, \verb{\{1,2\}}, \verb{\{-1,1\}}); it is recoded to
+the binary indicator \code{(A == a1)}. The gauge \code{W = R/OE} is invariant to
+swapping \code{a0}/\code{a1} (both \code{R} and \code{OE} flip sign). An \code{A} with \strong{more than
+two} levels is an error, not a silent subset: restricting to \verb{\{a0,a1\}}
+would shift the covariate-averaging population and estimate a different
+(sub-population) gauge. Pre-filter to the two intended levels first.
+Multi-valued / continuous exposures are future work.}
 
 \item{...}{Unused.}
 }
