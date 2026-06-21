@@ -76,13 +76,19 @@ GaugePmedResult <- S7::new_class(
 #'   matrix over independent fold assignments, removing the fold-split component
 #'   of the variance; the analytic se then adds the residual fold Monte-Carlo
 #'   variance of the averaged point.
-#' @param se_method Character: `"analytic"` (default, influence-function se) or
-#'   `"bootstrap"`. The analytic se for `W` and `P_med` is mildly
-#'   **anti-conservative** in finite samples (it under-estimates the empirical SD,
-#'   giving sub-nominal coverage \eqn{\approx 0.85}-\eqn{0.90}); the nonparametric
-#'   bootstrap (resample rows, refit the cross-fit estimator) restores valid --
-#'   but mildly **conservative** -- coverage. `reps > 1` and `se_method =
-#'   "bootstrap"` compose.
+#' @param se_method Character: `"analytic"` (default, influence-function se,
+#'   symmetric Wald CI) or `"bootstrap"`. The analytic se for the ratios `W` and
+#'   `P_med` is right-skewed with a median below the empirical SD, so the
+#'   symmetric Wald CI is mildly **anti-conservative** (sub-nominal coverage
+#'   \eqn{\approx 0.85}-\eqn{0.90}). Under `"bootstrap"` the CIs for `W` and
+#'   `P_med` are the tail-aware **percentile** intervals of the nonparametric
+#'   bootstrap (resample rows, refit) -- the appropriate construction for a
+#'   skewed ratio (widening a symmetric se mis-covers it); `W_se`/`p_med` se are
+#'   still reported as bootstrap dispersion summaries. `reps > 1` and
+#'   `se_method = "bootstrap"` compose. Bootstrap validity follows from the
+#'   estimator being a Neyman-orthogonal cross-fit (DML-type) functional
+#'   (Lin et al. 2026); it requires the ratio to be regular, i.e. `OE` bounded
+#'   away from 0 -- see the Fieller diagnostic for the near-null case.
 #' @param B Integer: number of bootstrap resamples when `se_method = "bootstrap"`
 #'   (default `200`). Cost is `B` (x `reps`) refits.
 #' @param ... Unused.
@@ -143,15 +149,22 @@ S7::method(ward_residual, S7::class_data.frame) <-
     pOE <- phi[, "11"] - phi[, "00"]; pIDE <- phi[, "10"] - phi[, "00"]
     pIIE <- phi[, "01"] - phi[, "00"]; pR <- pOE - pIDE - pIIE
     se <- function(x) stats::sd(x) / sqrt(n); zc <- stats::qnorm(1 - (1 - ci_level) / 2)
+    alpha <- 1 - ci_level
     seP <- se((pIIE - Pmed * pOE) / OE); seW <- se((pR - W * pOE) / OE)
     ## reps aggregation: add the residual fold Monte-Carlo variance of the averaged point.
     if (reps > 1L) {
       seW <- sqrt(seW^2 + stats::var(W_reps) / reps)
       seP <- sqrt(seP^2 + stats::var(P_reps) / reps)
     }
-    ## ---- bootstrap se (near-null remedy): the analytic IF se for W and P_med is
-    ## ~0.8x anti-conservative; a nonparametric bootstrap (resample rows, refit) gives
-    ## a valid -- mildly conservative -- se. Cost is B (x reps) refits.
+    ## analytic (symmetric Wald) intervals -- the default.
+    W_ci     <- c(W - zc * seW, W + zc * seW)
+    p_med_ci <- c(Pmed - zc * seP, Pmed + zc * seP)
+    ## ---- bootstrap (near-null remedy): the analytic IF se for W and P_med is
+    ## right-skewed and median-below the empirical SD, so the symmetric Wald CI
+    ## under-covers (~0.85-0.90). W = R/OE and P_med = IIE/OE are ratios, so we use
+    ## the tail-aware *percentile* bootstrap interval (resample rows, refit) rather
+    ## than widening a symmetric se -- the latter mis-covers a skewed ratio. Cost is
+    ## B (x reps) refits. seW/seP are still reported as bootstrap dispersion summaries.
     if (se_method == "bootstrap") {
       bsamp <- vapply(seq_len(B), function(b) {
         db <- object[sample.int(n, n, replace = TRUE), , drop = FALSE]
@@ -161,6 +174,8 @@ S7::method(ward_residual, S7::class_data.frame) <-
         .gp_WP(pb)
       }, numeric(2))
       seW <- stats::sd(bsamp["W", ]); seP <- stats::sd(bsamp["P", ])
+      W_ci     <- stats::quantile(bsamp["W", ], c(alpha / 2, 1 - alpha / 2), names = FALSE)
+      p_med_ci <- stats::quantile(bsamp["P", ], c(alpha / 2, 1 - alpha / 2), names = FALSE)
     }
     z <- W / seW
 
@@ -185,9 +200,9 @@ S7::method(ward_residual, S7::class_data.frame) <-
     }
 
     GaugePmedResult(
-      p_med = unname(Pmed), p_med_ci = unname(c(Pmed - zc * seP, Pmed + zc * seP)),
+      p_med = unname(Pmed), p_med_ci = unname(p_med_ci),
       p_med_fieller = unname(fbounds), fieller_type = ftype,
-      W = unname(W), W_ci = unname(c(W - zc * seW, W + zc * seW)), W_se = unname(seW),
+      W = unname(W), W_ci = unname(W_ci), W_se = unname(seW),
       W_p = unname(2 * stats::pnorm(-abs(z))),
       OE = unname(OE), IDE = unname(IDE), IIE = unname(IIE), R = unname(R),
       theta = th, method = "onestep-crossfit", n = as.integer(n),

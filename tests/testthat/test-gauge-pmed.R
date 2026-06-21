@@ -70,7 +70,26 @@ test_that("se_method='bootstrap' yields a different, positive W_se than analytic
   rb <- ward_residual(d, se_method = "bootstrap", B = 150L)
   expect_gt(rb@W_se, 0)
   expect_false(isTRUE(all.equal(ra@W_se, rb@W_se)))
-  ## bootstrap CI is rebuilt from the bootstrap se (not the analytic one)
+})
+
+test_that("bootstrap W_ci is the percentile interval, not the symmetric Wald form", {
+  d <- .gp_gen(800, 0, FALSE)
+  rb <- ward_residual(d, se_method = "bootstrap", B = 200L)
+  ## percentile interval contains the point and is NOT W +/- z*se (analytic-style)
+  expect_lte(rb@W_ci[1], rb@W); expect_gte(rb@W_ci[2], rb@W)
+  wald <- c(rb@W - qnorm(0.975) * rb@W_se, rb@W + qnorm(0.975) * rb@W_se)
+  expect_false(isTRUE(all.equal(rb@W_ci, wald, tolerance = 1e-6)))
+})
+
+test_that("bootstrap intervals are reproducible under a fixed seed", {
+  d <- .gp_gen(800, 0, FALSE)
+  r1 <- ward_residual(d, se_method = "bootstrap", B = 120L, seed = 7L)
+  r2 <- ward_residual(d, se_method = "bootstrap", B = 120L, seed = 7L)
+  expect_equal(r1@W_ci, r2@W_ci); expect_equal(r1@p_med_ci, r2@p_med_ci)
+})
+
+test_that("analytic W_ci remains the symmetric Wald interval", {
+  rb <- ward_residual(.gp_gen(1500, 0.3, FALSE))   # default analytic
   expect_equal(rb@W_ci, c(rb@W - qnorm(0.975) * rb@W_se,
                           rb@W + qnorm(0.975) * rb@W_se), tolerance = 1e-8)
 })

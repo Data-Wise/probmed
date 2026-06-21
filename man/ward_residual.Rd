@@ -39,12 +39,19 @@ matrix over independent fold assignments, removing the fold-split component
 of the variance; the analytic se then adds the residual fold Monte-Carlo
 variance of the averaged point.}
 
-\item{se_method}{Character: \code{"analytic"} (default, influence-function se) or
-\code{"bootstrap"}. The analytic se for \code{W} and \code{P_med} is mildly
-\strong{anti-conservative} in finite samples (it under-estimates the empirical SD,
-giving sub-nominal coverage \eqn{\approx 0.85}-\eqn{0.90}); the nonparametric
-bootstrap (resample rows, refit the cross-fit estimator) restores valid --
-but mildly \strong{conservative} -- coverage. \code{reps > 1} and \code{se_method = "bootstrap"} compose.}
+\item{se_method}{Character: \code{"analytic"} (default, influence-function se,
+symmetric Wald CI) or \code{"bootstrap"}. The analytic se for the ratios \code{W} and
+\code{P_med} is right-skewed with a median below the empirical SD, so the
+symmetric Wald CI is mildly \strong{anti-conservative} (sub-nominal coverage
+\eqn{\approx 0.85}-\eqn{0.90}). Under \code{"bootstrap"} the CIs for \code{W} and
+\code{P_med} are the tail-aware \strong{percentile} intervals of the nonparametric
+bootstrap (resample rows, refit) -- the appropriate construction for a
+skewed ratio (widening a symmetric se mis-covers it); \code{W_se}/\code{p_med} se are
+still reported as bootstrap dispersion summaries. \code{reps > 1} and
+\code{se_method = "bootstrap"} compose. Bootstrap validity follows from the
+estimator being a Neyman-orthogonal cross-fit (DML-type) functional
+(Lin et al. 2026); it requires the ratio to be regular, i.e. \code{OE} bounded
+away from 0 -- see the Fieller diagnostic for the near-null case.}
 
 \item{B}{Integer: number of bootstrap resamples when \code{se_method = "bootstrap"}
 (default \code{200}). Cost is \code{B} (x \code{reps}) refits.}
