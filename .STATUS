@@ -15,11 +15,20 @@ Status: active
 Progress: 85
 
 🌿 ACTIVE WORKTREE
-feature/gauge-bootstrap-se — ~/projects/r-packages/active/probmed (THIS checkout, 443b9d5)
-   Gauge SE work (R/gauge-pmed.R, ward_residual). 2 commits ahead of dev (held):
+feature/gauge-bootstrap-se — ~/projects/r-packages/active/probmed (THIS checkout)
+   Gauge SE + remaining-TODO work (R/gauge-pmed.R, ward_residual). Ahead of dev (held):
    (1) 9a6b853 — `reps` arg + `se_method="bootstrap"` for ward_residual;
-   (2) 443b9d5 — percentile bootstrap CI for the ratios W (=R/OE) and P_med.
-   Companion to the gauge-pmed line merged via PR #8.
+   (2) 443b9d5 — percentile bootstrap CI for the ratios W (=R/OE) and P_med;
+   (3) 0cb0421 — print labels CI by construction (Wald vs percentile).
+   ✅ ALL THREE pre-CRAN gauge TODOs done (2026-06-21):
+   • non-binary A → a0/a1 two-level contrast (factor/{1,2}/{-1,1}); >2 levels is an
+     ERROR not a silent subset (would shift the C-averaging population → wrong estimand).
+   • coverage → inst/sim/gauge_coverage.R, closed-form truth W=tau*aM/(bA+(bM+tau)*aM),
+     SLURM-array grid (nsim=1000) staged for cluster; smoke confirms analytic under-covers,
+     bootstrap restores (NOT yet a validated number — MCSE large at nsim=30).
+   • vignette → vignettes/gauge-residual.qmd (registered in _pkgdown.yml).
+   Full suite green (0 fail; only skip_on_cran g-score sims skipped).
+   Companion to the gauge-pmed line merged via PR #8; manuscript 01-gauge-pmed sec-extensions.
 
 feature/sobol-pmed — ~/projects/r-packages/worktrees/probmed-sobol (1edac0b)
 feature/wasserstein-pmed — ~/projects/r-packages/worktrees/probmed-wasserstein-pmed (634e95c)
@@ -59,7 +68,9 @@ feature/my-sensitivity — ~/projects/r-packages/worktrees/probmed-sensitivity (
    symptom but wrong component — the dominant term was algorithmic fold-split variance, not an EIF gap.)
 (merged — 2026-06-19: feature/gauge-pmed → PR #8 squash-merged to dev:
    ward_residual()/GaugePmedResult on R/gauge-pmed.R + tests (gauge-calibrated P_med, W=R/OE).
-   Open TODO before CRAN: generalize density-ratio to non-binary A; coverage tuning; vignette.)
+   Pre-CRAN TODOs (non-binary A / coverage / vignette) ✅ all done on feature/gauge-bootstrap-se,
+   2026-06-21 — see that worktree block above. Remaining gauge extension (continuous/local
+   cross-partial gauge) is genuine research, deferred.)
 (prior — 2026-06-14: feature/fix-win-vignette → PR #5; feature/ci-dev-triggers → PR #7)
 
 ────────────────────────────────────────────────
