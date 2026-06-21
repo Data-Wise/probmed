@@ -7,6 +7,8 @@ DOP
 EIF
 Erlbaum
 FIML
+Fieller
+IIE
 Imai
 Keele
 LM
@@ -34,11 +36,13 @@ VanderWeele
 Vm
 Vy
 Wald
+additively
 al
 ast
 behaviour
 coords
 crit
+decomposability
 estimand
 et
 extensibility
@@ -46,6 +50,7 @@ frac
 glm
 ie
 integrations
+interventional
 lavaan
 lm
 mathrm
@@ -62,6 +67,7 @@ pretest
 qquad
 qstar
 rightarrow
+se
 textstyle
 uniroot
 varepsilon

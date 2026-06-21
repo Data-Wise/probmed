@@ -23,7 +23,7 @@ if (!requireNamespace("probmed", quietly = TRUE)) {
 
 ## The problem with a single proportion-mediated number
 
-The interventional proportion mediated `P_med = IIE / OE` summarises mediation
+The interventional proportion mediated `P_med = IIE / OE` summarizes mediation
 in one number. That summary is only trustworthy when the overall effect
 **decomposes additively** into a direct and an indirect part. With a
 treatment-by-mediator interaction (or intermediate confounding) the additive
@@ -33,7 +33,7 @@ $$
 R = \mathrm{OE} - \mathrm{IDE} - \mathrm{IIE},
 $$
 
-the **non-decomposability remainder**. When $R \neq 0$, `IIE / OE` is reporting a
+the **non-decomposability remainder**. When $R$ is nonzero, `IIE / OE` is reporting a
 fraction of a quantity that was never the sum of its parts.
 
 `ward_residual()` estimates `P_med` *and* the **gauge residual**
@@ -98,7 +98,7 @@ while leaving its magnitude — the thing you interpret — unchanged.
 A treatment with **more than two** levels is rejected rather than silently
 subsetted: restricting the data to two of several levels would change the
 population the corner means are averaged over, estimating a different
-(sub-population) gauge. Pre-filter to the two levels you intend to contrast.
+(sub-population) gauge. Filter to the two levels you intend to contrast first.
 
 ```{r}
 #| label: multi-level-error
@@ -114,8 +114,8 @@ default `se_method = "analytic"` reports the influence-function standard error
 and a symmetric Wald interval, which is convenient but mildly anti-conservative
 for the ratio near the null. Setting `se_method = "bootstrap"` switches the `W`
 and `P_med` intervals to the tail-aware **percentile** bootstrap — the
-appropriate construction for a skewed ratio (widening a symmetric SE mis-covers
-it). The printed label tracks which construction produced the interval.
+appropriate construction for a skewed ratio (widening a symmetric SE fails to
+cover it). The printed label tracks which construction produced the interval.
 
 ```{r}
 #| label: bootstrap

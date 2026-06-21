@@ -83,7 +83,7 @@ GaugePmedResult <- S7::new_class(
 #'   \eqn{\approx 0.85}-\eqn{0.90}). Under `"bootstrap"` the CIs for `W` and
 #'   `P_med` are the tail-aware **percentile** intervals of the nonparametric
 #'   bootstrap (resample rows, refit) -- the appropriate construction for a
-#'   skewed ratio (widening a symmetric se mis-covers it); `W_se`/`p_med` se are
+#'   skewed ratio (widening a symmetric se fails to cover it); `W_se`/`p_med` se are
 #'   still reported as bootstrap dispersion summaries. `reps > 1` and
 #'   `se_method = "bootstrap"` compose. Bootstrap validity follows from the
 #'   estimator being a Neyman-orthogonal cross-fit (DML-type) functional
@@ -97,7 +97,7 @@ GaugePmedResult <- S7::new_class(
 #'   swapping `a0`/`a1` (both `R` and `OE` flip sign). An `A` with **more than
 #'   two** levels is an error, not a silent subset: restricting to `{a0,a1}`
 #'   would shift the covariate-averaging population and estimate a different
-#'   (sub-population) gauge. Pre-filter to the two intended levels first.
+#'   (sub-population) gauge. Filter to the two intended levels first.
 #'   Multi-valued / continuous exposures are future work.
 #' @param ... Unused.
 #'

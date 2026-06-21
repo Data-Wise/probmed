@@ -9,9 +9,15 @@
   interaction (non-decomposability) term. A nonzero `W` flags that the additive
   split fails and the single-number `P_med` is unreliable. Cross-fitted one-step
   estimator built on the triply-robust EIFs of the corner means
-  `theta(a,a') = E[Y(a, M(a'))]`; analytic sqrt(n) confidence intervals via the
-  ratio identity. Binary treatment; general covariates; binary or continuous
-  outcome. (feature/gauge-pmed; companion manuscript: pmed-modern/01-gauge-pmed.)
+  `theta(a,a') = E[Y(a, M(a'))]`. Inference for the skewed ratios `W` and `P_med`:
+  analytic sqrt(n) Wald intervals by default, or tail-aware **percentile**
+  intervals via `se_method = "bootstrap"`; repeated cross-fitting (`reps`) to
+  remove fold-split variance; and a **Fieller** confidence set that is honest
+  about being unbounded when the total effect is not significant. Any two-level
+  exposure coding is supported through `a0` (reference) / `a1` (comparison) — a
+  factor, `{1,2}`, `{-1,1}` — with `>2` levels rejected rather than silently
+  subsetted. General covariates; binary or continuous outcome. (feature/gauge-pmed
+  + feature/gauge-bootstrap-se; companion manuscript: pmed-modern/01-gauge-pmed.)
 
 * `incr_pmed()` and the `IncrPmedResult` class add the **incremental mediated
   elasticity** `P_med^delta(delta)` — the derivative-scale proportion mediated as
