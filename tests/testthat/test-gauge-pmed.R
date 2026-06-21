@@ -107,3 +107,15 @@ test_that("bootstrap se preserves the identity R = OE - IDE - IIE", {
   r <- ward_residual(.gp_gen(1500, 0.5, FALSE), se_method = "bootstrap", B = 100L)
   expect_equal(r@R, r@OE - r@IDE - r@IIE, tolerance = 1e-8)
 })
+
+test_that("print labels the interval by construction (Wald vs percentile)", {
+  d <- .gp_gen(800, 0.5, FALSE)
+  ra <- ward_residual(d, se_method = "analytic")
+  rb <- ward_residual(d, se_method = "bootstrap", B = 80L)
+  oa <- paste(capture.output(print(ra)), collapse = "\n")
+  ob <- paste(capture.output(print(rb)), collapse = "\n")
+  expect_match(oa, "Wald")
+  expect_no_match(oa, "percentile")
+  expect_match(ob, "percentile")
+  expect_no_match(ob, "Wald")
+})

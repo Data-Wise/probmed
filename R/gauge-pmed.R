@@ -213,8 +213,9 @@ S7::method(ward_residual, S7::class_data.frame) <-
 
 #' @export
 S7::method(print, GaugePmedResult) <- function(x, ...) {
+  lab <- if (identical(x@se_method, "bootstrap")) "percentile" else "Wald"
   cat("Gauge-calibrated proportion mediated (", x@method, ", n=", x@n, ")\n", sep = "")
-  cat(sprintf("  P_med = %.3f  Wald [%.3f, %.3f]\n", x@p_med, x@p_med_ci[1], x@p_med_ci[2]))
+  cat(sprintf("  P_med = %.3f  %s [%.3f, %.3f]\n", x@p_med, lab, x@p_med_ci[1], x@p_med_ci[2]))
   if (!is.na(x@fieller_type)) {
     fb <- x@p_med_fieller
     cat(switch(x@fieller_type,
@@ -225,7 +226,8 @@ S7::method(print, GaugePmedResult) <- function(x, ...) {
       "all-real" = "    Fieller 95% set = all of R (OE indistinguishable from 0)\n",
       "empty" = "    Fieller set empty (degenerate)\n", ""))
   }
-  cat(sprintf("  W=R/OE = %.3f  [%.3f, %.3f]  (p=%.3g)\n", x@W, x@W_ci[1], x@W_ci[2], x@W_p))
+  cat(sprintf("  W=R/OE = %.3f  %s [%.3f, %.3f]  (p=%.3g)\n",
+              x@W, lab, x@W_ci[1], x@W_ci[2], x@W_p))
   cat(sprintf("  OE=%.3f  IDE=%.3f  IIE=%.3f  R=%.3f\n", x@OE, x@IDE, x@IIE, x@R))
   if (abs(x@W) > 0.1)
     cat("  ! |W| large: additive split unreliable; interpret P_med with care.\n")
