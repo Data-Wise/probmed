@@ -220,4 +220,9 @@ Branch protection on `main` was added 2026-05-09 via `gh api repos/Data-Wise/pro
 
 ---
 
-**Version**: 0.1.0 (first GitHub release; non-CRAN) · **Last Updated**: 2026-06-06
+**Version**: 0.2.0.9000 (dev; last GitHub release 0.2.0, non-CRAN; pins medfit@v0.3.0) · **Last Updated**: 2026-06-21
+
+> Active research lines beyond the merged core (see `.STATUS` for worktree detail):
+> gauge-calibrated P_med (`ward_residual`/`GaugePmedResult`, PR #8 + bootstrap-SE follow-up),
+> incremental P_med^δ (`incr_pmed`, g-score EIF merged via PR #10), Sobol variance-scale
+> (`sobol_pmed`), Wasserstein, and the shared M–Y sensitivity helper (`pmed_sensitivity`).

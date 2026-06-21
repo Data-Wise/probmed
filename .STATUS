@@ -5,7 +5,7 @@
 ~/projects/r-packages/active/probmed/
 
 ⏰ LAST UPDATED
-2026-06-19
+2026-06-21
 
 ────────────────────────────────────────────────
 
@@ -15,6 +15,16 @@ Status: active
 Progress: 85
 
 🌿 ACTIVE WORKTREE
+feature/gauge-bootstrap-se — ~/projects/r-packages/active/probmed (THIS checkout, 443b9d5)
+   Gauge SE work (R/gauge-pmed.R, ward_residual). 2 commits ahead of dev (held):
+   (1) 9a6b853 — `reps` arg + `se_method="bootstrap"` for ward_residual;
+   (2) 443b9d5 — percentile bootstrap CI for the ratios W (=R/OE) and P_med.
+   Companion to the gauge-pmed line merged via PR #8.
+
+feature/sobol-pmed — ~/projects/r-packages/worktrees/probmed-sobol (1edac0b)
+feature/wasserstein-pmed — ~/projects/r-packages/worktrees/probmed-wasserstein-pmed (634e95c)
+   (both present in `git worktree list`; sobol's A-15 work is summarized below)
+
 feature/incremental-pmed — ~/projects/r-packages/worktrees/probmed-incremental-pmed
    Paper 2 (incremental mediated elasticity, P_med^δ). PR-READY (2026-06-19):
    incr_pmed()/IncrPmedResult promoted to R/incremental-pmed.R; 17 tests (Thm 1
@@ -25,7 +35,11 @@ feature/incremental-pmed — ~/projects/r-packages/worktrees/probmed-incremental
    → oracle test kept; Thm 2 + curve-bending genuinely covered.
    PR-READY but HELD: PR #9 was opened then CLOSED (2026-06-19) to honor the plan below.
    ⚠️ HOLD the PR until you intend to integrate — do not open speculatively.
-   Open TODO before CRAN: g-score EIF term (SE treats fitted g(C) as fixed → conservative).
+   ✅ RESOLVED (2026-06-21, dba585c / PR #10): g-score EIF term added. psi (ratio IF for
+   Pmed=med/tot) gains dqg*(A-g)*(dir*gamma_med - med*gamma_dir)/tot^2 (T2 layer), mean-zero by
+   E[A-g|C]=0 → restores Neyman orthogonality w.r.t. the propensity (CI consistent under
+   nonparametric g). Point estimates keep T1-only weight so Thm 2 flat-curve holds at finite n.
+   +4 tests (internal orthogonality t-stat, oracle coverage at delta=1, positive SE, 80% sim).
    companion manuscript: ~/projects/research/pmed-modern/02-incremental-pmed.
 
 feature/my-sensitivity — ~/projects/r-packages/worktrees/probmed-sensitivity (commit 96d2a0d)
