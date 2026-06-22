@@ -22,8 +22,17 @@ R/sobol-pmed.R all present on dev). Worktrees are leftover dirs, safe to prune. 
 dev: feature/wasserstein-pmed (4 commits, "CRAN-ready", sim validating). main is 90 commits
 stale (still v0.2.0).
 
+🚀 RELEASE 0.3.0 IN PROGRESS (2026-06-21, prep-only — no merge/push to main)
+- Version bumped 0.2.0.9000 → 0.3.0 on feature/gauge-bootstrap-se (3f9eef6); NEWS heading
+  finalized; CLAUDE.md footer synced. Non-CRAN GitHub release (Remotes pin retained).
+- PR #12 OPEN: feature/gauge-bootstrap-se → dev (gauge bootstrap-SE + a0/a1 + vignette +
+  0.3.0 prep). MERGE THIS FIRST.
+- THEN open the release PR (staged): gh pr create --base main --head dev
+  --title "Release: v0.3.0". main needs CI check "ubuntu-latest (release)" green before merge.
+- After main merge: tag v0.3.0 + GitHub release + r-universe picks up main. (user-driven)
+
 🎯 NEXT NON-BLOCKED STEPS (plan, 2026-06-21)
-1. Merge feature/gauge-bootstrap-se → dev (green, --as-cran clean). [user triggers]
+1. Merge PR #12 (gauge → dev), then open dev→main 0.3.0 release PR. [user triggers]
 2. Package-wide spell cleanup on dev: 15 flags in incr_pmed/sobol_pmed/pmed_sensitivity
    Rd + NEWS (gauge surface already clean). Small hygiene branch → dev.
 3. Reconcile coverage grids: gaugeboot (64-cell) + in-repo analytic (12-cell, nsim=1000)
