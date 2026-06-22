@@ -43,48 +43,6 @@ IncrPmedResult <- S7::new_class(
   }
 )
 
-# internal: cross-fit one-step corner pseudo-outcomes phi[i, (a, a')].
-# Identical machinery to .gauge_fit(): the conditional mean of phi[, "aa'"] given C
-# is the nested corner mean nu(a, a', C). Returns the influence matrix and the
-# fitted propensity g(C) = P(A = 1 | C) used to build the tilt weights.
-.incr_fit <- function(d, K, binY, covars) {
-  cf <- paste(covars, collapse = " + ")
-  f_pi <- stats::as.formula(paste("A ~", cf))
-  f_q  <- stats::as.formula(paste("A ~ M +", cf))
-  f_om <- stats::as.formula(paste("Y ~ A * M +", cf))
-  n <- nrow(d); folds <- sample(rep(1:K, length.out = n))
-  nm <- c("11", "10", "01", "00"); cor <- list(c(1, 1), c(1, 0), c(0, 1), c(0, 0))
-  phi <- matrix(0, n, 4, dimnames = list(NULL, nm))
-  gC <- numeric(n)
-  for (k in 1:K) {
-    tr <- d[folds != k, , drop = FALSE]
-    te_i <- which(folds == k); te <- d[te_i, , drop = FALSE]
-    pim <- stats::glm(f_pi, data = tr, family = stats::binomial())
-    qm  <- stats::glm(f_q,  data = tr, family = stats::binomial())
-    om  <- stats::glm(f_om, data = tr,
-                      family = if (binY) stats::binomial() else stats::gaussian())
-    p1 <- stats::predict(pim, newdata = te, type = "response"); gC[te_i] <- p1
-    pa <- function(z) ifelse(z == 1, p1, 1 - p1)
-    q1 <- stats::predict(qm, newdata = te, type = "response")
-    qa <- function(z) ifelse(z == 1, q1, 1 - q1)
-    mu <- function(z) stats::predict(om, newdata = transform(te, A = z), type = "response")
-    for (j in 1:4) {
-      a <- cor[[j]][1]; ap <- cor[[j]][2]
-      muAM <- mu(a)
-      ratio <- (qa(ap) / qa(a)) * (pa(a) / pa(ap))
-      muAM_tr <- stats::predict(om, newdata = transform(tr, A = a), type = "response")
-      sub <- tr$A == ap
-      etam <- stats::lm(stats::reformulate(covars, "yy"),
-                        data = cbind(data.frame(yy = muAM_tr[sub]),
-                                     tr[sub, covars, drop = FALSE]))
-      eta <- stats::predict(etam, newdata = te)
-      phi[te_i, j] <- (te$A == a) / pa(a) * ratio * (te$Y - muAM) +
-                      (te$A == ap) / pa(ap) * (muAM - eta) + eta
-    }
-  }
-  list(phi = phi, g = gC)
-}
-
 #' Incremental Mediated Elasticity Curve
 #'
 #' @description
@@ -102,13 +60,15 @@ IncrPmedResult <- S7::new_class(
 #' pseudo-outcomes by `q` and `q'`; by Theorem 1 (multivariate chain rule) they
 #' sum to the total elasticity exactly, so `P_med^delta = med / (dir + med)`.
 #'
-#' **Standard-error caveat.** The reported SE uses the ratio-identity influence
-#' function for the corner-mean pseudo-outcomes but treats the estimated
-#' propensity `g(C)` entering the tilt weights `q`, `q'` as fixed. The interval is
-#' valid when `g` is correctly specified (as here, a logistic working model that
-#' is also the data-generating mechanism in the package tests) and is mildly
-#' conservative otherwise. The full efficient influence function carries an
-#' additional g-score term; adding it is tracked for a future release.
+#' **Inference.** Point estimates use the tilt-derivative weight
+#' `q' = g(1 - g) / (delta g + 1 - g)^2` (Kennedy 2019, Corollary 2, Term I).
+#' Standard errors use the full efficient influence function for the ratio
+#' `P_med = med / tot`, which adds the g-score correction
+#' `(dq/dg) * (A - g(C)) * (dir * gamma_med - med * gamma_dir) / tot^2`
+#' with `dq/dg = delta / (delta g + 1 - g)^2` (Term II). Term II is
+#' mean-zero (by `E[A - g(C) | C] = 0`), so it does not shift the point
+#' estimate but restores Neyman orthogonality w.r.t. the propensity score,
+#' ensuring the CI is consistent under nonparametric estimation of `g`.
 #'
 #' @param object A data frame with columns `A` (binary treatment), `M`
 #'   (mediator), `Y` (outcome), and the covariates named in `covars`.
@@ -149,17 +109,27 @@ S7::method(incr_pmed, S7::class_data.frame) <-
     set.seed(seed)
     n <- nrow(object)
     binY <- all(object$Y %in% 0:1)
-    fit <- .incr_fit(object, K, binY, covars)
+    fit <- .corner_fit(object, K, binY, covars)
     phi <- fit$phi; g <- fit$g
     zc <- stats::qnorm(1 - (1 - ci_level) / 2)
     rows <- lapply(deltas, function(del) {
-      q  <- del * g / (del * g + 1 - g)
-      qp <- g * (1 - g) / (del * g + 1 - g)^2
-      a_dir <- qp * (q * (phi[, "11"] - phi[, "01"]) + (1 - q) * (phi[, "10"] - phi[, "00"]))
-      a_med <- qp * (q * (phi[, "11"] - phi[, "10"]) + (1 - q) * (phi[, "01"] - phi[, "00"]))
+      q   <- del * g / (del * g + 1 - g)
+      qp  <- g * (1 - g) / (del * g + 1 - g)^2  # dq/d(delta)
+      dqg <- del / (del * g + 1 - g)^2            # dq/dg — Kennedy (2019) Cor. 2 term II
+      # d(Theta_comp)/d(q_delta): corner contrast for each component
+      gamma_dir <- q * (phi[, "11"] - phi[, "01"]) + (1 - q) * (phi[, "10"] - phi[, "00"])
+      gamma_med <- q * (phi[, "11"] - phi[, "10"]) + (1 - q) * (phi[, "01"] - phi[, "00"])
+      # point estimates: T1 only (qp weight); g-score term is mean-zero so safe to omit here
+      a_dir <- gamma_dir * qp
+      a_med <- gamma_med * qp
       dir <- mean(a_dir); med <- mean(a_med); tot <- dir + med; Pmed <- med / tot
-      a_tot <- a_dir + a_med
-      psi <- ((a_med - med) - Pmed * (a_tot - tot)) / tot   # ratio-identity IF
+      # efficient IF for Pmed (ratio): T1 ratio-IF + T2 g-score correction
+      # T2 enters psi as: dqg*(A-g)*(dir*gamma_med - med*gamma_dir) / tot^2
+      # This is Neyman-orthogonal w.r.t. g: E[T2] = 0, so point estimate unchanged
+      resid <- object$A - g
+      psi_base  <- ((a_med - med) - Pmed * (a_dir + a_med - tot)) / tot
+      psi_gscore <- dqg * resid * (dir * gamma_med - med * gamma_dir) / tot^2
+      psi <- psi_base + psi_gscore
       se <- stats::sd(psi) / sqrt(n)
       data.frame(delta = del, dir = dir, med = med, tot = tot, Pmed = Pmed,
                  se = se, lo = Pmed - zc * se, hi = Pmed + zc * se)

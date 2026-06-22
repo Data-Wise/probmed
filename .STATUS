@@ -5,16 +5,79 @@
 ~/projects/r-packages/active/probmed/
 
 ⏰ LAST UPDATED
-2026-06-19
+2026-06-22
 
 ────────────────────────────────────────────────
 
 🎯 CURRENT STATUS
 Priority: P1
 Status: active
-Progress: 85
+Progress: 90
+
+🧭 INTEGRATION STATE (2026-06-22 — v0.3.0 SHIPPED)
+main == dev at v0.3.0 (merge commit 0486b01, released 2026-06-22). main carries all four
+estimators: gauge (#8), incremental/g-score (#10), sobol, sensitivity. main CI green
+(R-CMD-check, pkgdown, test-coverage). Not yet on dev: feature/wasserstein-pmed (34
+behind / 4 ahead of dev). CORRECTION (2026-06-22, verified via git merge-tree): a normal
+merge does NOT delete sobol — merge-base 0f8b0df predates sobol, so wasserstein never had
+it and cannot delete it; dry-run merge keeps both sobol-pmed.R and wasserstein-pmed.R. The
+only real friction is a roxygen NAMESPACE conflict (auto-resolves via devtools::document())
+plus a stale DESCRIPTION (Version: 0.2.0). Prep = merge dev in, regenerate docs, bump
+version. Leftover worktree dirs (incremental-pmed / my-sensitivity / sobol-pmed) safe to prune.
+
+🚀 RELEASE 0.3.0 SHIPPED (2026-06-22)
+- Pipeline: PR #12 (gauge → dev) → PR #14 (rhub-v2 + cran-comments → dev) → PR #13
+  (dev → main) → tag v0.3.0 + GitHub release. All CI green at every stage.
+  Release: https://github.com/Data-Wise/probmed/releases/tag/v0.3.0
+- Local R CMD check --as-cran: 0E / 0W / 1 NOTE (expected: Remotes pin + new submission;
+  documented in cran-comments.md, buildignored).
+- rhub-v2 workflow_dispatch now live on main; hosted rhub::rhub_check() dispatches
+  (linux/windows/macos) — legacy r-lib template (no dispatch) was the prior blocker.
+- r-universe picks up the v0.3.0 tag on its next build.
+
+🎯 NEXT NON-BLOCKED STEPS (plan, 2026-06-22)
+1. Package-wide spell cleanup on dev: 15 flags in incr_pmed/sobol_pmed/pmed_sensitivity
+   Rd + NEWS (gauge surface already clean). Small hygiene branch → dev.
+2. Reconcile coverage grids: gaugeboot (64-cell) + in-repo analytic (12-cell, nsim=1000)
+   → one manuscript coverage table/figure. Design now; numbers when gaugeboot finishes.
+3. Wasserstein merge-prep: merge origin/dev INTO feature/wasserstein-pmed (34 behind/4
+   ahead), resolve the single NAMESPACE conflict via devtools::document(), bump DESCRIPTION
+   0.2.0 → 0.3.0.9000, R CMD check, then PR → dev. (Sobol is NOT at risk — verified.)
+4. Manuscript 01-gauge-pmed: cite implemented a0/a1 + validated analytic coverage.
+BLOCKED (not actionable): probmed→CRAN (needs medfit 0.3.x on CRAN, then drop Remotes +
+cran-comments + bump version); bootstrap coverage NUMBERS (hopper CPU, gaugeboot queued).
 
 🌿 ACTIVE WORKTREE
+feature/gauge-bootstrap-se — ~/projects/r-packages/active/probmed (THIS checkout)
+   Gauge SE + remaining-TODO work (R/gauge-pmed.R, ward_residual). Ahead of dev (held):
+   (1) 9a6b853 — `reps` arg + `se_method="bootstrap"` for ward_residual;
+   (2) 443b9d5 — percentile bootstrap CI for the ratios W (=R/OE) and P_med;
+   (3) 0cb0421 — print labels CI by construction (Wald vs percentile).
+   ✅ ALL THREE pre-CRAN gauge TODOs done (2026-06-21):
+   • non-binary A → a0/a1 two-level contrast (factor/{1,2}/{-1,1}); >2 levels is an
+     ERROR not a silent subset (would shift the C-averaging population → wrong estimand).
+   • coverage → inst/sim/gauge_coverage.R, closed-form truth W=tau*aM/(bA+(bM+tau)*aM).
+     ANALYTIC half VALIDATED locally (nsim=1000, MCSE~0.01, inst/sim/results/
+     analytic_coverage_nsim1000.csv): W-CI coverage 0.855-0.887 near null, FLAT across
+     n=500->4000 (NOT finite-n → ratio-skew shape problem, widening won't fix it); rises to
+     ~0.90-0.92 at tau=0.8; P_med-CI 0.90-0.935. Confirms the docstring's ~0.85-0.90.
+     BOOTSTRAP half: CANONICAL run is the user's pre-existing hopper setup
+     ~/gauge_boot/ (64-cell array `gaugeboot` 4239663 + collator `gbcollate` 4239664),
+     which uses the REAL installed gauge feature-branch package (R_LIBS=$HOME/Rlib/4.4-gauge),
+     PENDING behind wassgrid/a15grid (QOSMaxCpuPerUserLimit) — starts as CPU frees naturally
+     (user chose not to trim research jobs, 2026-06-21). My duplicate 24-cell standalone array
+     (4239667) was CANCELLED as redundant. The in-repo standalone runner
+     (inst/sim/gauge_coverage_standalone.R, verified == ward_residual via
+     check_standalone_equiv.R) is kept as an install-free reproduction. COLLECT gaugeboot:
+     ~/gauge_boot/ collate_gauge_boot.R / submit_collate.sh (gbcollate handles it on finish).
+   • vignette → vignettes/gauge-residual.qmd (registered in _pkgdown.yml).
+   Full suite green (0 fail; only skip_on_cran g-score sims skipped).
+   Companion to the gauge-pmed line merged via PR #8; manuscript 01-gauge-pmed sec-extensions.
+
+feature/sobol-pmed — ~/projects/r-packages/worktrees/probmed-sobol (1edac0b)
+feature/wasserstein-pmed — ~/projects/r-packages/worktrees/probmed-wasserstein-pmed (634e95c)
+   (both present in `git worktree list`; sobol's A-15 work is summarized below)
+
 feature/incremental-pmed — ~/projects/r-packages/worktrees/probmed-incremental-pmed
    Paper 2 (incremental mediated elasticity, P_med^δ). PR-READY (2026-06-19):
    incr_pmed()/IncrPmedResult promoted to R/incremental-pmed.R; 17 tests (Thm 1
@@ -25,7 +88,11 @@ feature/incremental-pmed — ~/projects/r-packages/worktrees/probmed-incremental
    → oracle test kept; Thm 2 + curve-bending genuinely covered.
    PR-READY but HELD: PR #9 was opened then CLOSED (2026-06-19) to honor the plan below.
    ⚠️ HOLD the PR until you intend to integrate — do not open speculatively.
-   Open TODO before CRAN: g-score EIF term (SE treats fitted g(C) as fixed → conservative).
+   ✅ RESOLVED (2026-06-21, dba585c / PR #10): g-score EIF term added. psi (ratio IF for
+   Pmed=med/tot) gains dqg*(A-g)*(dir*gamma_med - med*gamma_dir)/tot^2 (T2 layer), mean-zero by
+   E[A-g|C]=0 → restores Neyman orthogonality w.r.t. the propensity (CI consistent under
+   nonparametric g). Point estimates keep T1-only weight so Thm 2 flat-curve holds at finite n.
+   +4 tests (internal orthogonality t-stat, oracle coverage at delta=1, positive SE, 80% sim).
    companion manuscript: ~/projects/research/pmed-modern/02-incremental-pmed.
 
 feature/my-sensitivity — ~/projects/r-packages/worktrees/probmed-sensitivity (commit 96d2a0d)
@@ -34,12 +101,20 @@ feature/my-sensitivity — ~/projects/r-packages/worktrees/probmed-sensitivity (
    limit). Suite 174/0. P1/P2 ready; P3 variance-share call is a flagged placeholder (deferred).
    Pushed origin/feature/my-sensitivity; PR-ready but HELD until integrating.
 
-⚠️ INCOMING (from pmed-modern R4/A-12): sobol_pmed()'s cross-fit IF SE is anti-conservative at the
-   true null (se_Dm/empSD≈0.56 @ n=2000 → split-guard over-rejects). When sobol_pmed() is promoted
-   here (R2), check for a missing IF-variance term before trusting near-boundary Wald SEs.
+✅ RESOLVED (A-15, 2026-06-20): the near-null sobol_pmed() se is now mechanism-pinned by variance
+   decomposition (data vs fold-split) — THREE components, not one: (1) a single cross-fitting fold
+   partition is ~81% of Var(Δ̂m) near null (persistent n=2000→8000) → fixed by repeated cross-fitting
+   (new `reps` arg, mean DML); (2) Δ̂m is normal at the null (oracle-SD coverage ~0.95 → Wald shape OK);
+   (3) residual ~0.8× analytic-se bias near null → fixed by `se_method="bootstrap"` (valid, ~1.25×
+   conservative). Defaults unchanged (reps=1, analytic). sobol tests 63→77/0. Full coverage-grid
+   validation is a large sim → Hopper (run_grid.R/medsim + SLURM array; staged for user launch).
+   (Earlier A-12 framing "se_Dm/empSD≈0.56 under-estimate, missing IF-variance term" was the right
+   symptom but wrong component — the dominant term was algorithmic fold-split variance, not an EIF gap.)
 (merged — 2026-06-19: feature/gauge-pmed → PR #8 squash-merged to dev:
    ward_residual()/GaugePmedResult on R/gauge-pmed.R + tests (gauge-calibrated P_med, W=R/OE).
-   Open TODO before CRAN: generalize density-ratio to non-binary A; coverage tuning; vignette.)
+   Pre-CRAN TODOs (non-binary A / coverage / vignette) ✅ all done on feature/gauge-bootstrap-se,
+   2026-06-21 — see that worktree block above. Remaining gauge extension (continuous/local
+   cross-partial gauge) is genuine research, deferred.)
 (prior — 2026-06-14: feature/fix-win-vignette → PR #5; feature/ci-dev-triggers → PR #7)
 
 ────────────────────────────────────────────────
@@ -61,11 +136,19 @@ Version: 0.2.0 (GitHub release 2026-06-11, non-CRAN; pins medfit@v0.3.0)
 ────────────────────────────────────────────────
 
 Next:
-⛔ BLOCKED ON CRAN (2026-06-19): Imports medfit >= 0.3.0; CRAN has medfit 0.2.1; dev has
-  medfit 0.3.1. DESCRIPTION has `Remotes: data-wise/medfit@v0.3.0` — must be cleared before
-  CRAN submission. Unblock path: (1) medfit 0.3.x submitted + accepted on CRAN; (2) drop
-  Remotes entry from probmed DESCRIPTION; (3) CRAN-check probmed; (4) submit. Cascade position:
-  Phase 3 of 4 (medrobust → medsim → probmed → mediationverse).
+✅ LOCAL CRAN CHECK CLEAN (2026-06-20): `R CMD check --as-cran` = 0 errors / 0 warnings /
+  0 notes (devtools::check(cran=TRUE), R 4.6.0, medfit 0.3.0 installed). Fixed: sobol_pmed
+  Rd `\usage` WARNING (added `procedure` to the S7 generic signature, 805b4f3). Hygiene done
+  on dev: Version 0.2.0 → 0.2.0.9000; added `Language: en-US` + `cph` role (clears the two
+  cranlint advisories); NEWS dev-section now covers the `sobol_*` exports.
+  ⚠️ LOCAL-CLEAN ≠ SUBMITTABLE: the local check + r-universe are green ONLY because they honor
+  `Remotes:`/the installed medfit 0.3.0 — they mask the CRAN gate. rforge: probmed has ZERO hard
+  reverse-deps; release sequence is strictly medfit → probmed.
+⛔ STILL BLOCKED ON CRAN: Imports medfit >= 0.3.0; CRAN has medfit 0.2.1; dev has medfit 0.3.1.
+  `Remotes: data-wise/medfit@v0.3.0` must be cleared before submission. Unblock path (maintainer):
+  (1) medfit 0.3.x ACCEPTED on CRAN; (2) drop Remotes from DESCRIPTION; (3) write cran-comments.md
+  + bump to a release version (0.3.0); (4) final --as-cran; (5) submit. Cascade: Phase 3 of 4
+  (medrobust → medsim → probmed → mediationverse).
 - Feature: P_med for sequential structures (deferred); path-specific parallel P_med; non-Gaussian parallel.
 Blocked: medfit >= 0.3.x on CRAN (hard gate — Imports, not Suggests)
 

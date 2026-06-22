@@ -122,3 +122,53 @@ test_that("print method runs and returns invisibly", {
   expect_output(print(r), "Incremental mediated elasticity")
   expect_identical(withVisible(print(r))$visible, FALSE)
 })
+
+# ---- Kennedy (2019) Cor. 2 g-score term validation ----
+
+test_that("g-score correction: internal terms are mean-zero (Neyman orthogonality)", {
+  # E[(dq/dg)*(A - g(C))*gamma(C)] = 0 when g is correctly specified.
+  # With correctly specified g and large n, the t-stat should be < 3.5.
+  skip_on_cran()
+  set.seed(99); n <- 8000L
+  d <- .ip_gen(n, 0.0)
+  fit <- probmed:::.corner_fit(d, K = 5L, binY = FALSE, covars = "C")
+  phi <- fit$phi; g <- fit$g; del <- 1.0
+  q    <- del * g / (del * g + 1 - g)
+  dqg  <- del / (del * g + 1 - g)^2
+  resid <- d$A - g
+  gamma_dir <- q * (phi[, "11"] - phi[, "01"]) + (1 - q) * (phi[, "10"] - phi[, "00"])
+  gamma_med <- q * (phi[, "11"] - phi[, "10"]) + (1 - q) * (phi[, "01"] - phi[, "00"])
+  gterm_dir <- dqg * gamma_dir * resid
+  gterm_med <- dqg * gamma_med * resid
+  t_dir <- abs(mean(gterm_dir)) * sqrt(n) / sd(gterm_dir)
+  t_med <- abs(mean(gterm_med)) * sqrt(n) / sd(gterm_med)
+  expect_lt(t_dir, 3.5)
+  expect_lt(t_med, 3.5)
+})
+
+test_that("g-score EIF: CI covers oracle truth at delta=1 in large-n no-interaction DGP", {
+  skip_on_cran()
+  classical <- 0.6 * 0.7 / (0.5 + 0.6 * 0.7)
+  r <- incr_pmed(.ip_gen(12000, 0.0), deltas = 1, K = 5L)
+  expect_gte(r@curve$hi[1], classical)
+  expect_lte(r@curve$lo[1], classical)
+})
+
+test_that("g-score EIF: SE is positive and plausible after adding g-score correction", {
+  skip_on_cran()
+  r <- incr_pmed(.ip_gen(6000, 0.4), deltas = c(0.5, 1, 2), K = 5L)
+  expect_true(all(is.finite(r@curve$se) & r@curve$se > 0))
+  expect_true(all(r@curve$se < 0.3))  # implausibly large SE would signal a bug
+})
+
+test_that("g-score EIF: nominal 95% CI achieves coverage >= 80% in small simulation", {
+  skip_on_cran()
+  classical <- 0.6 * 0.7 / (0.5 + 0.6 * 0.7)
+  set.seed(77)
+  seeds <- sample.int(1e5, 25)
+  covered <- vapply(seeds, function(s) {
+    r <- incr_pmed(.ip_gen(2500, 0.0, seed = s), deltas = 1, K = 5L)
+    r@curve$lo[1] <= classical && classical <= r@curve$hi[1]
+  }, logical(1))
+  expect_gte(mean(covered), 0.80)
+})

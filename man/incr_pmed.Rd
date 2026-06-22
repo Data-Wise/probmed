@@ -50,13 +50,15 @@ direct and mediated elasticities are weighted contrasts of the four corner
 pseudo-outcomes by \code{q} and \verb{q'}; by Theorem 1 (multivariate chain rule) they
 sum to the total elasticity exactly, so \code{P_med^delta = med / (dir + med)}.
 
-\strong{Standard-error caveat.} The reported SE uses the ratio-identity influence
-function for the corner-mean pseudo-outcomes but treats the estimated
-propensity \code{g(C)} entering the tilt weights \code{q}, \verb{q'} as fixed. The interval is
-valid when \code{g} is correctly specified (as here, a logistic working model that
-is also the data-generating mechanism in the package tests) and is mildly
-conservative otherwise. The full efficient influence function carries an
-additional g-score term; adding it is tracked for a future release.
+\strong{Inference.} Point estimates use the tilt-derivative weight
+\verb{q' = g(1 - g) / (delta g + 1 - g)^2} (Kennedy 2019, Corollary 2, Term I).
+Standard errors use the full efficient influence function for the ratio
+\code{P_med = med / tot}, which adds the g-score correction
+\code{(dq/dg) * (A - g(C)) * (dir * gamma_med - med * gamma_dir) / tot^2}
+with \verb{dq/dg = delta / (delta g + 1 - g)^2} (Term II). Term II is
+mean-zero (by \code{E[A - g(C) | C] = 0}), so it does not shift the point
+estimate but restores Neyman orthogonality w.r.t. the propensity score,
+ensuring the CI is consistent under nonparametric estimation of \code{g}.
 }
 \examples{
 set.seed(1)
