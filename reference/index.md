@@ -39,11 +39,26 @@ summary, and visualization functions.
 Low-level computational functions. These functions are exported for
 transparency but are not intended for direct use by end users.
 
+- [`GaugePmedResult()`](https://data-wise.github.io/probmed/reference/GaugePmedResult.md)
+  : Gauge-Calibrated Proportion Mediated Result
+
+- [`IncrPmedResult()`](https://data-wise.github.io/probmed/reference/IncrPmedResult.md)
+  : Incremental Mediated Elasticity Result
+
 - [`PmedResult()`](https://data-wise.github.io/probmed/reference/PmedResult.md)
   : P_med Result Class
 
+- [`PmedSensitivity()`](https://data-wise.github.io/probmed/reference/PmedSensitivity.md)
+  : P_med Sensitivity Result (M–Y Confounding)
+
+- [`SobolPmedResult()`](https://data-wise.github.io/probmed/reference/SobolPmedResult.md)
+  : Sobol / Variance-Scale Proportion Mediated Result
+
 - [`extract_mediation`](https://data-wise.github.io/probmed/reference/extract_mediation.md)
   : Re-export extract_mediation from medfit
+
+- [`incr_pmed()`](https://data-wise.github.io/probmed/reference/incr_pmed.md)
+  : Incremental Mediated Elasticity Curve
 
 - [`plot-PmedResult`](https://data-wise.github.io/probmed/reference/plot-PmedResult.md)
   : Plot Bootstrap Distribution
@@ -60,11 +75,23 @@ transparency but are not intended for direct use by end users.
 - [`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md) :
   Compute P_med: Probabilistic Effect Size for Mediation
 
+- [`pmed_sensitivity()`](https://data-wise.github.io/probmed/reference/pmed_sensitivity.md)
+  : M–Y Confounding Sensitivity for a Proportion-Mediated Estimand
+
 - [`print-PmedResult`](https://data-wise.github.io/probmed/reference/print-PmedResult.md)
   : Print PmedResult
 
+- [`sobol_from_theta()`](https://data-wise.github.io/probmed/reference/sobol_from_theta.md)
+  : Map corner means to the Sobol variance decomposition
+
+- [`sobol_pmed()`](https://data-wise.github.io/probmed/reference/sobol_pmed.md)
+  : Sobol / Variance-Scale Proportion Mediated
+
 - [`summary-PmedResult`](https://data-wise.github.io/probmed/reference/summary-PmedResult.md)
   : Summary Method
+
+- [`ward_residual()`](https://data-wise.github.io/probmed/reference/ward_residual.md)
+  : Gauge-Calibrated Proportion Mediated
 
 - [`.is_gaussian()`](https://data-wise.github.io/probmed/reference/dot-is_gaussian.md)
   : Is a family Gaussian (NULL is treated as Gaussian)?
