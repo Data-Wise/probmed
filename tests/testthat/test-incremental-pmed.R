@@ -131,7 +131,7 @@ test_that("g-score correction: internal terms are mean-zero (Neyman orthogonalit
   skip_on_cran()
   set.seed(99); n <- 8000L
   d <- .ip_gen(n, 0.0)
-  fit <- probmed:::.incr_fit(d, K = 5L, binY = FALSE, covars = "C")
+  fit <- probmed:::.corner_fit(d, K = 5L, binY = FALSE, covars = "C")
   phi <- fit$phi; g <- fit$g; del <- 1.0
   q    <- del * g / (del * g + 1 - g)
   dqg  <- del / (del * g + 1 - g)^2

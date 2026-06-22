@@ -21,6 +21,8 @@ GaugePmedResult(
   method = character(0),
   n = integer(0),
   ci_level = integer(0),
+  se_method = "analytic",
+  reps = 1L,
   call = NULL
 )
 }
@@ -53,6 +55,12 @@ indirect effects and the remainder.}
 \item{n}{Integer: sample size.}
 
 \item{ci_level}{Numeric: confidence level.}
+
+\item{se_method}{Character: \code{"analytic"} (influence-function se) or
+\code{"bootstrap"} (nonparametric, valid but mildly conservative).}
+
+\item{reps}{Integer: number of repeated cross-fitting fold draws averaged for
+the point estimate.}
 
 \item{call}{Call: original call.}
 }

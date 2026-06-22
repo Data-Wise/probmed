@@ -11,6 +11,11 @@ ward_residual(
   ci_level = 0.95,
   seed = 1L,
   fieller = TRUE,
+  reps = 1L,
+  se_method = c("analytic", "bootstrap"),
+  B = 200L,
+  a0 = 0,
+  a1 = 1,
   ...
 )
 }
@@ -29,6 +34,38 @@ ward_residual(
 \item{fieller}{Logical: also compute the Fieller confidence set for the ratio
 \code{P_med = IIE/OE}, which is unbounded when the total effect \code{OE} is not
 significant (default \code{TRUE}).}
+
+\item{reps}{Integer: number of repeated cross-fitting fold draws averaged for
+the point estimate (default \code{1}). \code{reps > 1} averages the corner influence
+matrix over independent fold assignments, removing the fold-split component
+of the variance; the analytic se then adds the residual fold Monte-Carlo
+variance of the averaged point.}
+
+\item{se_method}{Character: \code{"analytic"} (default, influence-function se,
+symmetric Wald CI) or \code{"bootstrap"}. The analytic se for the ratios \code{W} and
+\code{P_med} is right-skewed with a median below the empirical SD, so the
+symmetric Wald CI is mildly \strong{anti-conservative} (sub-nominal coverage
+\eqn{\approx 0.85}-\eqn{0.90}). Under \code{"bootstrap"} the CIs for \code{W} and
+\code{P_med} are the tail-aware \strong{percentile} intervals of the nonparametric
+bootstrap (resample rows, refit) -- the appropriate construction for a
+skewed ratio (widening a symmetric se fails to cover it); \code{W_se}/\code{p_med} se are
+still reported as bootstrap dispersion summaries. \code{reps > 1} and
+\code{se_method = "bootstrap"} compose. Bootstrap validity follows from the
+estimator being a Neyman-orthogonal cross-fit (DML-type) functional
+(Lin et al. 2026); it requires the ratio to be regular, i.e. \code{OE} bounded
+away from 0 -- see the Fieller diagnostic for the near-null case.}
+
+\item{B}{Integer: number of bootstrap resamples when \code{se_method = "bootstrap"}
+(default \code{200}). Cost is \code{B} (x \code{reps}) refits.}
+
+\item{a0, a1}{Reference and comparison exposure levels (defaults \code{0}/\code{1}). \code{A}
+may use any two-level coding (factor, \verb{\{1,2\}}, \verb{\{-1,1\}}); it is recoded to
+the binary indicator \code{(A == a1)}. The gauge \code{W = R/OE} is invariant to
+swapping \code{a0}/\code{a1} (both \code{R} and \code{OE} flip sign). An \code{A} with \strong{more than
+two} levels is an error, not a silent subset: restricting to \verb{\{a0,a1\}}
+would shift the covariate-averaging population and estimate a different
+(sub-population) gauge. Filter to the two intended levels first.
+Multi-valued / continuous exposures are future work.}
 
 \item{...}{Unused.}
 }

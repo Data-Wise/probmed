@@ -24,6 +24,10 @@
 #' @param method Character: estimation method.
 #' @param n Integer: sample size.
 #' @param ci_level Numeric: confidence level.
+#' @param se_method Character: `"analytic"` (influence-function se) or
+#'   `"bootstrap"` (nonparametric, valid but mildly conservative).
+#' @param reps Integer: number of repeated cross-fitting fold draws averaged for
+#'   the point estimate.
 #' @param call Call: original call.
 #'
 #' @export
@@ -39,6 +43,8 @@ GaugePmedResult <- S7::new_class(
     IIE = S7::class_numeric, R = S7::class_numeric,
     theta = S7::class_numeric, method = S7::class_character,
     n = S7::class_integer, ci_level = S7::class_numeric,
+    se_method = S7::new_property(class = S7::class_character, default = "analytic"),
+    reps = S7::new_property(class = S7::class_integer, default = 1L),
     call = S7::new_property(class = S7::class_any, default = NULL)
   ),
   validator = function(self) {
@@ -65,6 +71,34 @@ GaugePmedResult <- S7::new_class(
 #' @param fieller Logical: also compute the Fieller confidence set for the ratio
 #'   `P_med = IIE/OE`, which is unbounded when the total effect `OE` is not
 #'   significant (default `TRUE`).
+#' @param reps Integer: number of repeated cross-fitting fold draws averaged for
+#'   the point estimate (default `1`). `reps > 1` averages the corner influence
+#'   matrix over independent fold assignments, removing the fold-split component
+#'   of the variance; the analytic se then adds the residual fold Monte-Carlo
+#'   variance of the averaged point.
+#' @param se_method Character: `"analytic"` (default, influence-function se,
+#'   symmetric Wald CI) or `"bootstrap"`. The analytic se for the ratios `W` and
+#'   `P_med` is right-skewed with a median below the empirical SD, so the
+#'   symmetric Wald CI is mildly **anti-conservative** (sub-nominal coverage
+#'   \eqn{\approx 0.85}-\eqn{0.90}). Under `"bootstrap"` the CIs for `W` and
+#'   `P_med` are the tail-aware **percentile** intervals of the nonparametric
+#'   bootstrap (resample rows, refit) -- the appropriate construction for a
+#'   skewed ratio (widening a symmetric se fails to cover it); `W_se`/`p_med` se are
+#'   still reported as bootstrap dispersion summaries. `reps > 1` and
+#'   `se_method = "bootstrap"` compose. Bootstrap validity follows from the
+#'   estimator being a Neyman-orthogonal cross-fit (DML-type) functional
+#'   (Lin et al. 2026); it requires the ratio to be regular, i.e. `OE` bounded
+#'   away from 0 -- see the Fieller diagnostic for the near-null case.
+#' @param B Integer: number of bootstrap resamples when `se_method = "bootstrap"`
+#'   (default `200`). Cost is `B` (x `reps`) refits.
+#' @param a0,a1 Reference and comparison exposure levels (defaults `0`/`1`). `A`
+#'   may use any two-level coding (factor, `{1,2}`, `{-1,1}`); it is recoded to
+#'   the binary indicator `(A == a1)`. The gauge `W = R/OE` is invariant to
+#'   swapping `a0`/`a1` (both `R` and `OE` flip sign). An `A` with **more than
+#'   two** levels is an error, not a silent subset: restricting to `{a0,a1}`
+#'   would shift the covariate-averaging population and estimate a different
+#'   (sub-population) gauge. Filter to the two intended levels first.
+#'   Multi-valued / continuous exposures are future work.
 #' @param ... Unused.
 #'
 #' @return A [GaugePmedResult] object.
@@ -81,17 +115,63 @@ GaugePmedResult <- S7::new_class(
 ward_residual <- S7::new_generic(
   "ward_residual", dispatch_args = "object",
   fun = function(object, covars = "C", K = 5L, ci_level = 0.95,
-                 seed = 1L, fieller = TRUE, ...) {
+                 seed = 1L, fieller = TRUE, reps = 1L,
+                 se_method = c("analytic", "bootstrap"), B = 200L,
+                 a0 = 0, a1 = 1, ...) {
     S7::S7_dispatch()
   })
 
 #' @export
 S7::method(ward_residual, S7::class_data.frame) <-
-  function(object, covars = "C", K = 5L, ci_level = 0.95, seed = 1L, fieller = TRUE, ...) {
+  function(object, covars = "C", K = 5L, ci_level = 0.95, seed = 1L, fieller = TRUE,
+           reps = 1L, se_method = c("analytic", "bootstrap"), B = 200L,
+           a0 = 0, a1 = 1, ...) {
     stopifnot(all(c("A", "M", "Y") %in% names(object)), all(covars %in% names(object)))
+    se_method <- match.arg(se_method)
+    reps <- max(1L, as.integer(reps))
+    ## ---- two-level exposure contrast (a0 reference, a1 comparison).
+    ## A may use any two-level coding (factor, {1,2}, {-1,1}); it is recoded to the
+    ## binary indicator (A == a1) for the corner machinery. A guard rejects >2 levels:
+    ## subsetting a multi-valued A to {a0,a1} would silently shift the C-averaging
+    ## population and estimate a restricted sub-population gauge, not the population
+    ## gauge. Multi-valued / continuous A is future work (see manuscript sec-extensions).
+    a_levels <- unique(object$A)
+    if (!all(c(a0, a1) %in% a_levels))
+      stop("a0 / a1 not found among the levels of A: have {",
+           paste(a_levels, collapse = ", "), "}.", call. = FALSE)
+    if (identical(a0, a1))
+      stop("a0 and a1 must differ.", call. = FALSE)
+    extra <- setdiff(a_levels, c(a0, a1))
+    if (length(extra))
+      stop("A has more than two levels (extra: {", paste(extra, collapse = ", "),
+           "}). ward_residual contrasts exactly two levels; subsetting a multi-valued ",
+           "A would change the estimand. Pre-filter to the two levels you intend, or ",
+           "see the manuscript for the multi-valued generalization (not yet implemented).",
+           call. = FALSE)
+    object$A <- as.integer(object$A == a1)
     set.seed(seed)
-    binY <- all(object$Y %in% 0:1)
-    phi <- .corner_fit(object, K, binY, covars)$phi; n <- nrow(object)
+    binY <- all(object$Y %in% 0:1); n <- nrow(object)
+
+    ## ---- repeated cross-fitting (reps): average the corner influence matrix over
+    ## `reps` independent fold draws, removing the fold-split variance component.
+    ## reps = 1 reproduces the single-draw estimator exactly.
+    .gp_WP <- function(p) {                       # (W, P_med) from a corner-influence matrix
+      t <- colMeans(p); oe <- t["11"] - t["00"]
+      c(W = unname((oe - (t["10"] - t["00"]) - (t["01"] - t["00"])) / oe),
+        P = unname((t["01"] - t["00"]) / oe))
+    }
+    W_reps <- P_reps <- NULL
+    if (reps == 1L) {
+      phi <- .corner_fit(object, K, binY, covars)$phi
+    } else {
+      phis <- vector("list", reps); W_reps <- P_reps <- numeric(reps)
+      for (r in seq_len(reps)) {
+        set.seed(seed + r)
+        phis[[r]] <- .corner_fit(object, K, binY, covars)$phi
+        wp <- .gp_WP(phis[[r]]); W_reps[r] <- wp["W"]; P_reps[r] <- wp["P"]
+      }
+      phi <- Reduce(`+`, phis) / reps
+    }
     th <- colMeans(phi)
     OE <- th["11"] - th["00"]; IDE <- th["10"] - th["00"]
     IIE <- th["01"] - th["00"]; R <- OE - IDE - IIE
@@ -99,7 +179,35 @@ S7::method(ward_residual, S7::class_data.frame) <-
     pOE <- phi[, "11"] - phi[, "00"]; pIDE <- phi[, "10"] - phi[, "00"]
     pIIE <- phi[, "01"] - phi[, "00"]; pR <- pOE - pIDE - pIIE
     se <- function(x) stats::sd(x) / sqrt(n); zc <- stats::qnorm(1 - (1 - ci_level) / 2)
-    seP <- se((pIIE - Pmed * pOE) / OE); seW <- se((pR - W * pOE) / OE); z <- W / seW
+    alpha <- 1 - ci_level
+    seP <- se((pIIE - Pmed * pOE) / OE); seW <- se((pR - W * pOE) / OE)
+    ## reps aggregation: add the residual fold Monte-Carlo variance of the averaged point.
+    if (reps > 1L) {
+      seW <- sqrt(seW^2 + stats::var(W_reps) / reps)
+      seP <- sqrt(seP^2 + stats::var(P_reps) / reps)
+    }
+    ## analytic (symmetric Wald) intervals -- the default.
+    W_ci     <- c(W - zc * seW, W + zc * seW)
+    p_med_ci <- c(Pmed - zc * seP, Pmed + zc * seP)
+    ## ---- bootstrap (near-null remedy): the analytic IF se for W and P_med is
+    ## right-skewed and median-below the empirical SD, so the symmetric Wald CI
+    ## under-covers (~0.85-0.90). W = R/OE and P_med = IIE/OE are ratios, so we use
+    ## the tail-aware *percentile* bootstrap interval (resample rows, refit) rather
+    ## than widening a symmetric se -- the latter mis-covers a skewed ratio. Cost is
+    ## B (x reps) refits. seW/seP are still reported as bootstrap dispersion summaries.
+    if (se_method == "bootstrap") {
+      bsamp <- vapply(seq_len(B), function(b) {
+        db <- object[sample.int(n, n, replace = TRUE), , drop = FALSE]
+        pb <- if (reps == 1L) .corner_fit(db, K, binY, covars)$phi
+              else Reduce(`+`, lapply(seq_len(reps),
+                            function(r) .corner_fit(db, K, binY, covars)$phi)) / reps
+        .gp_WP(pb)
+      }, numeric(2))
+      seW <- stats::sd(bsamp["W", ]); seP <- stats::sd(bsamp["P", ])
+      W_ci     <- stats::quantile(bsamp["W", ], c(alpha / 2, 1 - alpha / 2), names = FALSE)
+      p_med_ci <- stats::quantile(bsamp["P", ], c(alpha / 2, 1 - alpha / 2), names = FALSE)
+    }
+    z <- W / seW
 
     ## Fieller confidence set for P_med = IIE/OE. When the denominator OE is not
     ## significant the set is unbounded; the Wald interval understates this.
@@ -122,20 +230,22 @@ S7::method(ward_residual, S7::class_data.frame) <-
     }
 
     GaugePmedResult(
-      p_med = unname(Pmed), p_med_ci = unname(c(Pmed - zc * seP, Pmed + zc * seP)),
+      p_med = unname(Pmed), p_med_ci = unname(p_med_ci),
       p_med_fieller = unname(fbounds), fieller_type = ftype,
-      W = unname(W), W_ci = unname(c(W - zc * seW, W + zc * seW)), W_se = unname(seW),
+      W = unname(W), W_ci = unname(W_ci), W_se = unname(seW),
       W_p = unname(2 * stats::pnorm(-abs(z))),
       OE = unname(OE), IDE = unname(IDE), IIE = unname(IIE), R = unname(R),
       theta = th, method = "onestep-crossfit", n = as.integer(n),
-      ci_level = ci_level, call = match.call()
+      ci_level = ci_level, se_method = se_method, reps = as.integer(reps),
+      call = match.call()
     )
   }
 
 #' @export
 S7::method(print, GaugePmedResult) <- function(x, ...) {
+  lab <- if (identical(x@se_method, "bootstrap")) "percentile" else "Wald"
   cat("Gauge-calibrated proportion mediated (", x@method, ", n=", x@n, ")\n", sep = "")
-  cat(sprintf("  P_med = %.3f  Wald [%.3f, %.3f]\n", x@p_med, x@p_med_ci[1], x@p_med_ci[2]))
+  cat(sprintf("  P_med = %.3f  %s [%.3f, %.3f]\n", x@p_med, lab, x@p_med_ci[1], x@p_med_ci[2]))
   if (!is.na(x@fieller_type)) {
     fb <- x@p_med_fieller
     cat(switch(x@fieller_type,
@@ -146,7 +256,8 @@ S7::method(print, GaugePmedResult) <- function(x, ...) {
       "all-real" = "    Fieller 95% set = all of R (OE indistinguishable from 0)\n",
       "empty" = "    Fieller set empty (degenerate)\n", ""))
   }
-  cat(sprintf("  W=R/OE = %.3f  [%.3f, %.3f]  (p=%.3g)\n", x@W, x@W_ci[1], x@W_ci[2], x@W_p))
+  cat(sprintf("  W=R/OE = %.3f  %s [%.3f, %.3f]  (p=%.3g)\n",
+              x@W, lab, x@W_ci[1], x@W_ci[2], x@W_p))
   cat(sprintf("  OE=%.3f  IDE=%.3f  IIE=%.3f  R=%.3f\n", x@OE, x@IDE, x@IIE, x@R))
   if (abs(x@W) > 0.1)
     cat("  ! |W| large: additive split unreliable; interpret P_med with care.\n")
