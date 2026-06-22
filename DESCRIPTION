@@ -1,6 +1,6 @@
 Package: probmed
 Title: Probabilistic Effect Sizes for Causal Mediation Analysis
-Version: 0.3.0
+Version: 0.3.0.9000
 Authors@R: person(given = "Davood", family = "Tofighi",
     email = "dtofighi@gmail.com",
     role = c("aut", "cre", "cph"),
@@ -28,7 +28,8 @@ Imports:
     medfit (>= 0.3.0),
     methods,
     S7 (>= 0.2.1),
-    stats
+    stats,
+    utils
 Remotes:
     data-wise/medfit@v0.3.0
 VignetteBuilder: knitr, quarto
