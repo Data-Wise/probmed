@@ -17,9 +17,13 @@ Progress: 90
 🧭 INTEGRATION STATE (2026-06-22 — v0.3.0 SHIPPED)
 main == dev at v0.3.0 (merge commit 0486b01, released 2026-06-22). main carries all four
 estimators: gauge (#8), incremental/g-score (#10), sobol, sensitivity. main CI green
-(R-CMD-check, pkgdown, test-coverage). Not yet on dev: feature/wasserstein-pmed (≥11
-commits BEHIND current dev — needs rebase onto dev before any PR or it would delete sobol).
-Leftover worktree dirs (incremental-pmed / my-sensitivity / sobol-pmed) safe to prune.
+(R-CMD-check, pkgdown, test-coverage). Not yet on dev: feature/wasserstein-pmed (34
+behind / 4 ahead of dev). CORRECTION (2026-06-22, verified via git merge-tree): a normal
+merge does NOT delete sobol — merge-base 0f8b0df predates sobol, so wasserstein never had
+it and cannot delete it; dry-run merge keeps both sobol-pmed.R and wasserstein-pmed.R. The
+only real friction is a roxygen NAMESPACE conflict (auto-resolves via devtools::document())
+plus a stale DESCRIPTION (Version: 0.2.0). Prep = merge dev in, regenerate docs, bump
+version. Leftover worktree dirs (incremental-pmed / my-sensitivity / sobol-pmed) safe to prune.
 
 🚀 RELEASE 0.3.0 SHIPPED (2026-06-22)
 - Pipeline: PR #12 (gauge → dev) → PR #14 (rhub-v2 + cran-comments → dev) → PR #13
@@ -36,8 +40,9 @@ Leftover worktree dirs (incremental-pmed / my-sensitivity / sobol-pmed) safe to 
    Rd + NEWS (gauge surface already clean). Small hygiene branch → dev.
 2. Reconcile coverage grids: gaugeboot (64-cell) + in-repo analytic (12-cell, nsim=1000)
    → one manuscript coverage table/figure. Design now; numbers when gaugeboot finishes.
-3. Wasserstein merge-prep: REBASE feature/wasserstein-pmed onto current dev FIRST (it is
-   ≥11 commits behind and would delete sobol otherwise), then review for dev.
+3. Wasserstein merge-prep: merge origin/dev INTO feature/wasserstein-pmed (34 behind/4
+   ahead), resolve the single NAMESPACE conflict via devtools::document(), bump DESCRIPTION
+   0.2.0 → 0.3.0.9000, R CMD check, then PR → dev. (Sobol is NOT at risk — verified.)
 4. Manuscript 01-gauge-pmed: cite implemented a0/a1 + validated analytic coverage.
 BLOCKED (not actionable): probmed→CRAN (needs medfit 0.3.x on CRAN, then drop Remotes +
 cran-comments + bump version); bootstrap coverage NUMBERS (hopper CPU, gaugeboot queued).
