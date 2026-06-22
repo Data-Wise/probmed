@@ -4,7 +4,7 @@
 \alias{sinkhorn_div}
 \title{Debiased Sinkhorn Divergence}
 \usage{
-sinkhorn_div(X, Y, eps = 0.1, iters = 400L)
+sinkhorn_div(X, Y, eps = 0.1, iters = 2000L)
 }
 \arguments{
 \item{X, Y}{Numeric matrices (rows = samples, columns = dimensions).}

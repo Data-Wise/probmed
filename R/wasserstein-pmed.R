@@ -190,17 +190,24 @@ pmedW_dr <- function(d, covars = "C", K = 5L, misspec = "none", G = 300L, seed =
 ## ===================== entropic OT (Sinkhorn) for d > 1 =========================
 
 # Log-domain Sinkhorn iteration (Genevay et al.). Returns transport cost.
-.sinkhorn_cost <- function(X, Y, eps, iters = 400L, tol = 1e-9) {
+.sinkhorn_cost <- function(X, Y, eps, iters = 2000L, tol = 1e-6) {
   X <- as.matrix(X); Y <- as.matrix(Y); n <- nrow(X); m <- nrow(Y)
   C <- outer(rowSums(X^2), rowSums(Y^2), "+") - 2 * X %*% t(Y); C[C < 0] <- 0
   la <- log(rep(1 / n, n)); lb <- log(rep(1 / m, m)); f <- numeric(n); g <- numeric(m)
   lse <- function(v) { mx <- max(v); mx + log(sum(exp(v - mx))) }
+  conv <- FALSE
   for (it in seq_len(iters)) {
     fo <- f
     for (i in seq_len(n)) f[i] <- -eps * lse(lb + (g - C[i, ]) / eps)
     for (j in seq_len(m)) g[j] <- -eps * lse(la + (f - C[, j]) / eps)
-    if (max(abs(f - fo)) < tol) break
+    if (max(abs(f - fo)) < tol) { conv <- TRUE; break }
   }
+  ## A non-converged Sinkhorn cost returns a plausible-but-wrong value silently;
+  ## flag it (convergence slows as eps -> 0). The caller can raise `iters` or `eps`.
+  if (!conv)
+    warning(sprintf(paste0("sinkhorn: not converged in %d iterations ",
+                           "(last change %.2e > tol %.0e); raise iters or eps."),
+                    iters, max(abs(f - fo)), tol), call. = FALSE)
   sum(exp((outer(f, g, "+") - C) / eps + outer(la, lb, "+")) * C)
 }
 
@@ -218,7 +225,7 @@ pmedW_dr <- function(d, covars = "C", K = 5L, misspec = "none", G = 300L, seed =
 #' @return Non-negative scalar.
 #'
 #' @export
-sinkhorn_div <- function(X, Y, eps = 0.1, iters = 400L) {
+sinkhorn_div <- function(X, Y, eps = 0.1, iters = 2000L) {
   max(.sinkhorn_cost(X, Y, eps, iters) -
       0.5 * .sinkhorn_cost(X, X, eps, iters) -
       0.5 * .sinkhorn_cost(Y, Y, eps, iters), 0)
