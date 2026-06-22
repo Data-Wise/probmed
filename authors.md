@@ -11,7 +11,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/data-wise/probmed/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/data-wise/probmed/blob/v0.3.0/DESCRIPTION)
 
 Tofighi D (2026). *probmed: Probabilistic Effect Sizes for Causal
 Mediation Analysis*. R package version 0.3.0,
