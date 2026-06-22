@@ -10,7 +10,13 @@ probmed.code-workspace
 *.tar.gz
 README.html
 README_files/
+# pkgdown re-renders these from root CLAUDE.md; deliberately de-published (6c0e523)
+docs/CLAUDE.md
+docs/dev/CLAUDE.md
 planning/*
 !planning/SPEC-estimand-fix.md
-CLAUDE.md
+!planning/pmed-extensions/
+!planning/pmed-extensions/**
 .claude/worktrees/
+.claude/guard-session-counts
+.claude/settings.local.json

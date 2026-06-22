@@ -1,3 +1,56 @@
+# probmed 0.3.0
+
+## New features
+
+* `ward_residual()` and the `GaugePmedResult` class add the **gauge-calibrated
+  proportion mediated** for interventional/stochastic effects. Alongside the
+  interventional proportion mediated `P_med = IIE/OE`, it reports the **gauge
+  residual** `W = R/OE` with `R = OE - IDE - IIE`, the treatment-by-mediator
+  interaction (non-decomposability) term. A nonzero `W` flags that the additive
+  split fails and the single-number `P_med` is unreliable. Cross-fitted one-step
+  estimator built on the triply-robust EIFs of the corner means
+  `theta(a,a') = E[Y(a, M(a'))]`. Inference for the skewed ratios `W` and `P_med`:
+  analytic sqrt(n) Wald intervals by default, or tail-aware **percentile**
+  intervals via `se_method = "bootstrap"`; repeated cross-fitting (`reps`) to
+  remove fold-split variance; and a **Fieller** confidence set that is honest
+  about being unbounded when the total effect is not significant. Any two-level
+  exposure coding is supported through `a0` (reference) / `a1` (comparison) — a
+  factor, `{1,2}`, `{-1,1}` — with `>2` levels rejected rather than silently
+  subsetted. General covariates; binary or continuous outcome. (feature/gauge-pmed
+  + feature/gauge-bootstrap-se; companion manuscript: pmed-modern/01-gauge-pmed.)
+
+* `incr_pmed()` and the `IncrPmedResult` class add the **incremental mediated
+  elasticity** `P_med^delta(delta)` — the derivative-scale proportion mediated as
+  a function of the treatment-tilt factor `delta`. Unlike a single number it is a
+  *curve*; by the multivariate chain rule its direct and mediated elasticities sum
+  to the total exactly (remainder zero for every `delta`), and the curve is flat at
+  the classical `P_med` when there is no treatment-by-mediator interaction. Same
+  cross-fitted one-step machinery as `ward_residual()`; ratio-identity SEs (the
+  propensity in the tilt weights is treated as fixed — valid under correct
+  propensity, mildly conservative otherwise). (feature/incremental-pmed; companion
+  manuscript: pmed-modern/02-incremental-pmed.)
+
+* `sobol_pmed()`, `sobol_from_theta()` and the `SobolPmedResult` class add the
+  **Sobol / functional-ANOVA variance share** `P_med^{sigma^2} = V_med / V_T` — the
+  fraction of the intervention-induced outcome variance carried by the mediator
+  pathway, with `V_med = c_m * Delta_m^2`. Same cross-fitted one-step corner-EIF
+  machinery as `ward_residual()`. At the no-mediation boundary the variance share is
+  non-regular (`V_med = c_m Delta_m^2` is degenerate at `Delta_m = 0`), so inference
+  reduces to the regular contrast `Delta_m`. Two interval procedures: the default
+  **Procedure B** (`procedure = "B"`, the image of the regular `Delta_m` Wald CI under
+  the squared map — no pre-test) and the legacy gated **Procedure A**
+  (`procedure = "A"`). Near-boundary inference adds two options (A-15): **`reps`**
+  (repeated cross-fitting — averages the corner influence matrix over `reps` fold
+  draws, removing the ~80% fold-split Monte-Carlo variance that dominates
+  `Var(Delta_m_hat)` near the null and yielding a reproducible point estimate), and
+  **`se_method = "bootstrap"`** (nonparametric resample-and-refit se — valid, mildly
+  conservative near the non-regular boundary where the analytic influence-function se
+  is ~0.8x anti-conservative). Defaults (`reps = 1`, `se_method = "analytic"`) are
+  unchanged. `Delta_m_hat` is approximately normal at the null (oracle-SD coverage
+  ~0.95), so the Wald shape is correct — the near-null issue is interval width, not
+  shape; see `?SobolPmedResult`. (feature/sobol-pmed; companion manuscript:
+  pmed-modern/03-sobol-pmed.)
+
 # probmed 0.2.0 (2026-06-11)
 
 ## Features

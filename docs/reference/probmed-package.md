@@ -64,7 +64,6 @@ The basic workflow involves three steps:
 
 3.  Interpret results (both \\P\_{med}\\ and Indirect Effect)
 
-
     # Example workflow
     library(probmed)
 

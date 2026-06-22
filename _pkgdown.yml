@@ -59,6 +59,8 @@ navbar:
       - text: "Methods"
       - text: "Parallel Mediation: joint P_med"
         href: articles/parallel-mediation.html
+      - text: "Gauge residual: when P_med is unreliable"
+        href: articles/gauge-residual.html
       - text: "─────────────"
       - text: "Integration Guides"
       - text: "lavaan Integration"
@@ -149,6 +151,7 @@ articles:
     navbar: ~
     contents:
       - parallel-mediation
+      - gauge-residual
   - title: "Integration Guides"
     navbar: ~
     contents:
