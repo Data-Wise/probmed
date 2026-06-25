@@ -1,3 +1,18 @@
+test_that("incr_sensitivity runs end-to-end on an incr_pmed fit", {
+  set.seed(1)
+  n <- 800
+  C <- rnorm(n)
+  A <- rbinom(n, 1, plogis(-0.2 + 0.8 * C))
+  M <- 0.6 * A + 0.4 * C + rnorm(n)
+  Y <- 0.5 * A + 0.7 * M + 0.3 * C + rnorm(n)
+  fit <- incr_pmed(data.frame(A, M, Y, C), deltas = c(0.5, 1, 2))
+  sens <- incr_sensitivity(fit, threshold = 0)
+  expect_s3_class(sens, "data.frame")
+  expect_equal(nrow(sens), 3L)
+  expect_equal(sens$tipping, -fit@curve$med)
+  expect_true(all(is.finite(sens$tipping)))
+})
+
 test_that("incr_sensitivity returns one row per delta with closed-form tipping bias", {
   curve <- data.frame(
     delta = c(0.5, 1, 2),
