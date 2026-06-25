@@ -30,6 +30,13 @@ test_that("incr_sensitivity returns one row per delta with closed-form tipping b
   expect_equal(res$Pmed, curve$med / curve$tot)
 })
 
+test_that("incr_sensitivity rejects non-IncrPmedResult input", {
+  expect_error(
+    incr_sensitivity(data.frame(delta = 1, med = 0.1, tot = 0.3)),
+    "must be an IncrPmedResult"
+  )
+})
+
 test_that("incr_sensitivity tipping_threshold is distinct from tipping when threshold != 0", {
   curve <- data.frame(
     delta = c(0.5, 1, 2),
