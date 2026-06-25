@@ -48,6 +48,14 @@ BLOCKED (not actionable): probmed→CRAN (needs medfit 0.3.x on CRAN, then drop 
 cran-comments + bump version); bootstrap coverage NUMBERS (hopper CPU, gaugeboot queued).
 
 🌿 ACTIVE WORKTREE
+🧹 BRANCH/WORKTREE CLEANUP (2026-06-25): pruned 4 merged/redundant lines — main checkout is now `dev`.
+   • feature/incremental-pmed-p2 — incr_sensitivity + P_med^δ vignette + scope note → MERGED to dev (PR #18, squash 1419eb2, CI 8/8). Branch deleted.
+   • feature/my-sensitivity, feature/sobol-pmed — worktrees removed, local+remote deleted (both merged to dev).
+   • feature/incremental-pmed — worktree removed, deleted (g-score EIF already on dev via PR #10).
+   • feature/gauge-bootstrap-se — remote deleted; all 19 ahead-of-dev commits redundant (gauge SE + incr on dev, wasserstein safe on its branch). Local ref deletion BLOCKED by branch-guard (-D on dev) — run `git branch -D feature/gauge-bootstrap-se` manually.
+   • REMAINING worktree: feature/wasserstein-pmed (active Paper 4, 6 ahead of dev).
+   The historical per-line detail below is retained for reference but those worktrees no longer exist.
+
 feature/gauge-bootstrap-se — ~/projects/r-packages/active/probmed (THIS checkout)
    Gauge SE + remaining-TODO work (R/gauge-pmed.R, ward_residual). Ahead of dev (held):
    (1) 9a6b853 — `reps` arg + `se_method="bootstrap"` for ward_residual;
