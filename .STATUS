@@ -5,7 +5,7 @@
 ~/projects/r-packages/active/probmed/
 
 ⏰ LAST UPDATED
-2026-06-22
+2026-06-25
 
 ────────────────────────────────────────────────
 
@@ -73,6 +73,19 @@ feature/gauge-bootstrap-se — ~/projects/r-packages/active/probmed (THIS checko
    • vignette → vignettes/gauge-residual.qmd (registered in _pkgdown.yml).
    Full suite green (0 fail; only skip_on_cran g-score sims skipped).
    Companion to the gauge-pmed line merged via PR #8; manuscript 01-gauge-pmed sec-extensions.
+   ➕ RECENTLY DONE (2026-06-25, P2 submission waves via subagent-driven TDD on this branch):
+   • Wave 1 — incr_sensitivity() exported (R/incremental-sensitivity.R, commits 3082801/43f35c7):
+     per-δ M–Y tipping bias over an IncrPmedResult curve (delegates row-wise to pmed_sensitivity();
+     tipping=-med, tipping_threshold=threshold*tot-med). +test-incremental-sensitivity.R (7 assert,
+     incl. non-zero-threshold block). NEWS entry + incr_pmed SE wording corrected (g-score term II).
+   • Wave 2 — vignettes/incremental-pmed.qmd (commit 0f6707a): P_med^δ curve walkthrough
+     (why-a-curve, A*M-interaction worked example, term-II inference, incr_sensitivity). Renders clean.
+   • rforge document+test green: suite 337/0 (up from 326); no tracked-Rd regeneration (docs current).
+   ⚠️ This work logically belongs to the Paper-2 (incremental) line, not gauge SE — it accreted here
+     because this is the active checkout. Split into its own feature branch before integrating to dev
+     if you want a clean per-paper PR history.
+   GATED (needs user decision + cross-repo permission): Wave 3 (issue #6 continuous-exposure extension);
+     pmed-modern manuscript halves of issues #4/#5 + SUBMISSION.md checkbox flips.
 
 feature/sobol-pmed — ~/projects/r-packages/worktrees/probmed-sobol (1edac0b)
 feature/wasserstein-pmed — ~/projects/r-packages/worktrees/probmed-wasserstein-pmed (634e95c)

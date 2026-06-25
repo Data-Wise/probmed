@@ -10,6 +10,7 @@ probmed.code-workspace
 *.tar.gz
 README.html
 README_files/
+vignettes/*_files/
 # pkgdown re-renders these from root CLAUDE.md; deliberately de-published (6c0e523)
 docs/CLAUDE.md
 docs/dev/CLAUDE.md
