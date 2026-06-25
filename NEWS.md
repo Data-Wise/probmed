@@ -25,10 +25,20 @@
   *curve*; by the multivariate chain rule its direct and mediated elasticities sum
   to the total exactly (remainder zero for every `delta`), and the curve is flat at
   the classical `P_med` when there is no treatment-by-mediator interaction. Same
-  cross-fitted one-step machinery as `ward_residual()`; ratio-identity SEs (the
-  propensity in the tilt weights is treated as fixed — valid under correct
-  propensity, mildly conservative otherwise). (feature/incremental-pmed; companion
+  cross-fitted one-step machinery as `ward_residual()`; ratio-identity SEs use the
+  full efficient influence function including the g-score (propensity) term
+  (Kennedy 2019, Cor. 2 term II) with the propensity cross-fit, making the
+  estimator Neyman-orthogonal in the propensity score (efficient under
+  all-nuisance convergence at `n^{-1/4}`). (feature/incremental-pmed; companion
   manuscript: pmed-modern/02-incremental-pmed.)
+
+* `incr_sensitivity()` adds per-`delta` M–Y unmeasured-confounding sensitivity for
+  an `IncrPmedResult`. For each tilt factor it reports the additive numerator bias
+  that zeroes the incremental mediated share (`tipping = -med`) and, optionally,
+  the bias driving `P_med^delta` to a user `threshold` (`threshold*tot - med`).
+  A thin wrapper over `pmed_sensitivity()`; the additive-offset model is exact for
+  the mean-based Paper 2 share. (feature/gauge-bootstrap-se; companion manuscript:
+  pmed-modern/02-incremental-pmed, issue #4.)
 
 * `sobol_pmed()`, `sobol_from_theta()` and the `SobolPmedResult` class add the
   **Sobol / functional-ANOVA variance share** `P_med^{sigma^2} = V_med / V_T` — the
