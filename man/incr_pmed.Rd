@@ -66,7 +66,7 @@ requires \code{g = P(A = 1 | C)} to be a Bernoulli probability. Continuous or
 multi-valued exposures are a distinct object requiring a \emph{modified treatment
 policy} (shift) intervention with its own estimand and efficient influence
 function; they are deliberately out of scope here (deferred to future work --
-the Paper-3 MTP-mediation line).
+a separate MTP-mediation paper).
 }
 \examples{
 set.seed(1)

@@ -8,7 +8,7 @@ exposure extension for the incremental mediated elasticity `P_med^δ`.
 ## Decision
 
 **Hybrid: scope-limiting statement for the Paper-2 submission now; the full
-continuous-exposure method becomes a separately-tracked Paper-3 line.**
+continuous-exposure method becomes a separately-tracked future MTP-mediation paper.**
 Cross-repo work is dispatched via **GitHub issues** on `Data-Wise/pmed-modern`,
 not direct edits (standing no-cross-repo-edit rule).
 
@@ -27,7 +27,7 @@ is a **modified treatment policy (MTP)** / shift intervention `A → A + δ`
 (Díaz & van der Laan 2012/2018; Haneuse & Rotnitzky 2013) — a *different*
 estimand, EIF, mediation decomposition, identification set, and simulation suite.
 
-Therefore continuous-exposure incremental `P_med` is **Paper-3-magnitude
+Therefore continuous-exposure incremental `P_med` is **separate-paper-magnitude
 methodology, not a Wave-3 patch to Paper 2**. Paper 2's identity is binary-exposure
 incremental elasticity; bolting on a half-built second estimand mid-submission
 delays a ready paper and invites reviewer scope-creep.
@@ -43,13 +43,15 @@ Rejected alternatives:
 | # | Deliverable | Location | Channel | Status |
 |---|-------------|----------|---------|--------|
 | 1 | Scope paragraph (Discussion/Limitations) + SUBMISSION.md line-19 flip | `pmed-modern/02-incremental-pmed/` | **GitHub issue** | filed |
-| 2 | Paper-3 stub spec — MTP-mediation estimand (shift intervention, EIF to derive, sim plan) | research repo | **GitHub issue** | filed |
+| 2 | Future MTP-mediation paper stub — estimand (shift intervention, EIF to derive, sim plan); unnumbered (03/04 = sobol/wasserstein) | pmed-modern | **GitHub issue** | filed |
 | 3 | Roxygen "Scope (exposure type)" note — binary-by-construction | `probmed/R/incremental-pmed.R` | direct (this repo) | done (this branch) |
 
-Note: issue #6's other two open items (M–Y sensitivity, vignette) were **already
-closed** by Wave 1 (`incr_sensitivity`) and Wave 2 (`incremental-pmed.qmd`). The
-scope statement is the single remaining item between current state and a complete
-P2 checklist.
+Note (corrected 2026-06-25 after verifying `SUBMISSION.md`): the M–Y sensitivity
+and vignette items have **code** (`incr_sensitivity`, `incremental-pmed.qmd`) but
+that code is on `feature/gauge-bootstrap-se`, **not merged**, and `SUBMISSION.md`
+lines 20–21 are still unchecked. So **three** boxes remain open (L19 scope, L20
+sensitivity, L21 vignette), not one. L19 is closable now via the scope paragraph;
+L20/L21 require the probmed incr work to integrate first (tracked in pmed-modern #7).
 
 ## Content for the scope paragraph (drop-in)
 
@@ -64,4 +66,4 @@ P2 checklist.
 ## Out of scope (explicitly)
 
 - No continuous-exposure code in `probmed` for Paper 2.
-- No MTP EIF derivation in this cycle (it is the Paper-3 deliverable, tracked by issue #2 above).
+- No MTP EIF derivation in this cycle (it is the future MTP-paper deliverable, tracked by pmed-modern #8).

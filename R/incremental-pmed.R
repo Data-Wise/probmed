@@ -76,7 +76,7 @@ IncrPmedResult <- S7::new_class(
 #' multi-valued exposures are a distinct object requiring a *modified treatment
 #' policy* (shift) intervention with its own estimand and efficient influence
 #' function; they are deliberately out of scope here (deferred to future work --
-#' the Paper-3 MTP-mediation line).
+#' a separate MTP-mediation paper).
 #'
 #' @param object A data frame with columns `A` (binary treatment), `M`
 #'   (mediator), `Y` (outcome), and the covariates named in `covars`.
