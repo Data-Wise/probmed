@@ -59,6 +59,14 @@ with \verb{dq/dg = delta / (delta g + 1 - g)^2} (Term II). Term II is
 mean-zero (by \code{E[A - g(C) | C] = 0}), so it does not shift the point
 estimate but restores Neyman orthogonality w.r.t. the propensity score,
 ensuring the CI is consistent under nonparametric estimation of \code{g}.
+
+\strong{Scope (exposure type).} The incremental intervention is defined only for a
+\strong{binary} treatment \code{A}: the odds-ratio tilt \verb{q = delta g / (delta g + 1 - g)}
+requires \code{g = P(A = 1 | C)} to be a Bernoulli probability. Continuous or
+multi-valued exposures are a distinct object requiring a \emph{modified treatment
+policy} (shift) intervention with its own estimand and efficient influence
+function; they are deliberately out of scope here (deferred to future work --
+the Paper-3 MTP-mediation line).
 }
 \examples{
 set.seed(1)

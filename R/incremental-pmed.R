@@ -70,6 +70,14 @@ IncrPmedResult <- S7::new_class(
 #' estimate but restores Neyman orthogonality w.r.t. the propensity score,
 #' ensuring the CI is consistent under nonparametric estimation of `g`.
 #'
+#' **Scope (exposure type).** The incremental intervention is defined only for a
+#' **binary** treatment `A`: the odds-ratio tilt `q = delta g / (delta g + 1 - g)`
+#' requires `g = P(A = 1 | C)` to be a Bernoulli probability. Continuous or
+#' multi-valued exposures are a distinct object requiring a *modified treatment
+#' policy* (shift) intervention with its own estimand and efficient influence
+#' function; they are deliberately out of scope here (deferred to future work --
+#' the Paper-3 MTP-mediation line).
+#'
 #' @param object A data frame with columns `A` (binary treatment), `M`
 #'   (mediator), `Y` (outcome), and the covariates named in `covars`.
 #' @param deltas Numeric: tilt factors at which to evaluate the curve.
