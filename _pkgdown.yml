@@ -152,6 +152,7 @@ articles:
     contents:
       - parallel-mediation
       - gauge-residual
+      - incremental-pmed
   - title: "Integration Guides"
     navbar: ~
     contents:
