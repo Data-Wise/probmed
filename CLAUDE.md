@@ -8,8 +8,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **probmed** is an R package for computing P_med, a scale-free probabilistic effect size for causal mediation analysis. P_med quantifies mediation as the probability that the outcome under treatment with the mediator at its **treated** level exceeds the outcome with the mediator at its **control** level (treatment held fixed for both, so the direct effect cancels). See the P_med Definition section below.
 
-> ⚠️ **In-flight (2026-06-19, see `.STATUS`):** `feature/incremental-pmed` promotes `incr_pmed()`/`IncrPmedResult` (Paper 2, P_med^δ; 169/0, CI-clean, PR-ready). **Hold the PR until you intend to integrate.** Pre-CRAN TODO: g-score EIF term (SE currently treats fitted g(C) as fixed → conservative). Companion manuscript: `~/projects/research/pmed-modern/02-incremental-pmed`.
-
 ### Core Mission
 
 Provide researchers with a scale-free, interpretable effect size measure (P_med in [0, 1]) for mediation analysis that works consistently across mixed variable types and avoids limitations of traditional mean-difference approaches.
