@@ -1,90 +1,96 @@
 # Mediationverse CRAN Cascade — Task Checklist (2026-06-25)
 
-> Ecosystem-wide release coordination. Single gate: **medfit → CRAN**. probmed's
-> `incr_sensitivity` (PR #18, on dev) is additive — it rides probmed's pending 0.4.0
-> bump, not a new cascade. Authoritative state: each package's `.STATUS`.
-> Mirror copy may also belong in `~/mediation-planning/`.
+> Ecosystem-wide release coordination. **Two independent arms**, joining only at the
+> mediationverse meta-package: **Arm A** (medrobust → medsim, ready now) and **Arm B**
+> (medfit 0.3.1 → probmed, cadence-locked to ~07-18). probmed's `incr_sensitivity`
+> (PR #18, on dev) is additive — it rides probmed's pending 0.4.0 bump, not a new cascade.
+> **Highest-leverage action right now: submit medrobust 0.4.0.** Authoritative state: each
+> package's own `.STATUS`. Mirror in `~/mediation-planning/`.
 
-## Dependency topology (Imports)
+## Dependency topology / two arms
 ```
-medfit ──┬─→ probmed (>=0.3.0, PINNED) ──→ medsim ──→ mediationverse
-         ├─→ missingmed (>=0.3.1, PINNED)        ↑
-         ├─→ RMediation ──────────────────────────┤
-         └─→ medrobust (independent) ─────────────┘
+Arm A (ready):   medrobust ──► medsim ──┐
+Arm B (locked):  medfit 0.3.1 ──► probmed ──┤──► mediationverse (Phase 4, last)
+done:            RMediation ✅ on CRAN ──────┘
+off-cascade:     missingmed ✅ (r-universe, general toolkit)
 ```
 
 ## Version / CRAN snapshot
 | Package | Local | CRAN | Gate |
 |---------|-------|------|------|
 | medfit | 0.3.1 (dev) | 0.2.1 ✅ | submit 0.3.1 cadence-held → ~2026-07-18 |
-| RMediation | 1.5.0 | submitted ⏳ | awaiting acceptance (pkg_id 345448) |
-| medrobust | 0.4.0 | — | independent CRAN prep (6 TODOs) |
+| RMediation | 1.5.0 | **on CRAN** ✅ | accepted/published 2026-06-20 (pkg_id 345448) — DONE |
+| medrobust | 0.4.0 | — | **✅ READY TO SUBMIT** (P0): released dev→main PR #21, 0E/0W/1N. Maintainer `submit_cran()`. **Cascade bottleneck.** |
 | probmed | 0.3.0.9000 | — | blocked: Imports medfit≥0.3.0 + Remotes pin |
-| missingmed | 0.2.0 | — | blocked: Imports medfit≥0.3.1 |
-| medsim | 0.3.1 | — | downstream (Imports medfit/probmed/RMediation/medrobust) |
-| mediationverse | 0.1.0 | — | meta, last |
+| missingmed | 0.2.0 (released) | r-universe | **OFF the cascade** — general toolkit, not CRAN-bound now |
+| medsim | 0.3.1 | — | blocked on **medrobust acceptance only**, then `submit_cran()` |
+| mediationverse | 0.0.0.9000 | — | meta, Phase 4 last (needs medrobust/medsim/probmed on CRAN) |
+
+> **Reconciled 2026-06-25** against `MediationVerse_Dashboard.md` + raw `.STATUS`. Corrected 4 stale rows
+> (medrobust, RMediation, missingmed, medsim) from this doc's first draft, which had leaned on medfit's
+> secondary view. Each package's **own** `.STATUS` is authoritative; cross-package mentions go stale.
 
 ---
 
 ## Phase 0 — NOW → ~2026-07-18 (parallel; cadence clock running)
 
-### medfit (gating prerequisite)
-- [ ] PR `feature/fit-weights` (carries 0.3.1) → dev
-- [ ] dev → main release PR; tag/prep
-- [ ] Finalize `cran-comments.md` for 0.3.1
-- [ ] `R CMD check --as-cran` 0/0/0
+### 🎯 medrobust 0.4.0 — SUBMIT NOW (highest-leverage, unblocked, P0 bottleneck)
+- [ ] Build tarball from `main` (submission worktree `~/.git-worktrees/medrobust-cran`)
+- [ ] `devtools::submit_cran()` (interactive + click the CRAN confirmation email)
+- [ ] Flip its `.STATUS` next: → "SUBMITTED — awaiting acceptance"
+- [ ] Do NOT touch `feature/cran-prep-0.4.0` worktree (superseded — reintroduces the 482s NOTE)
+- Already done: revisions (PR #21, 0E/0W/1N strict `--run-donttest`), dev/main synced at 0.4.0.
 
-### probmed (pre-stage, can't submit yet)
-- [ ] Draft `cran-comments.md` (note: new submission, 5 estimators incl. incr_sensitivity)
+### medfit (gating prerequisite for the probmed arm — but cadence-locked)
+- [ ] PR `feature/fit-weights` (carries 0.3.1) → dev → main
+- [ ] Finalize `cran-comments.md` for 0.3.1
+- [ ] `R CMD check --as-cran` 0/0/0 — then WAIT until ~07-18 to submit (1-mo CRAN policy)
+
+### probmed (pre-stage, can't submit until medfit 0.3.x on CRAN)
+- [ ] Draft `cran-comments.md` (new submission, 5 estimators incl. incr_sensitivity)
 - [ ] Confirm `--as-cran` clean **with pin still in** (baseline)
-- [ ] Decide 0.4.0 NEWS section content (gauge, incr+g-score, sobol, sensitivity, incr_sensitivity, wasserstein)
+- [ ] Decide 0.4.0 NEWS content (gauge, incr+g-score, sobol, sensitivity, incr_sensitivity, wasserstein)
 - [ ] Do NOT drop Remotes or bump version yet (Phase 2)
 
-### medrobust 0.4.0 (independent — not gated)
-- [ ] Clear 6 CRAN TODOs
-- [ ] Reconcile NEWS / DESCRIPTION drift
-- [ ] `--as-cran` 0/0/0 → submit (independent of medfit timing)
+### RMediation — ✅ DONE (on CRAN, no action)
+### missingmed — ✅ off the cascade (v0.2.0 released; general-toolkit roadmap is separate)
 
-### RMediation (passive)
-- [ ] Watch daily `medfit-cran-watch` routine for acceptance
+_(RMediation watcher retired — it's already accepted.)_
 
----
-
-## Phase 1 — ~2026-07-18: medfit 0.3.1 → CRAN  ← critical-path event
-- [ ] Submit medfit 0.3.1 (earliest date per CRAN 1-month policy after 0.2.1 accepted 2026-06-18)
-- [ ] Await acceptance (watcher routine)
+> **Two independent arms** (they do NOT serialize through each other):
+> - **Arm A (ready now):** medrobust → medsim → mediationverse
+> - **Arm B (cadence-locked):** medfit 0.3.1 → probmed
+> mediationverse (Phase 4) is the single join point that waits on both arms.
 
 ---
 
-## Phase 2 — after medfit 0.3.1 ACCEPTED: the pinned pair
+## Arm A — medrobust → medsim (starts NOW)
+**A1. medrobust** → submit_cran (Phase 0 above). Await acceptance.
+**A2. medsim** (99%, gated on medrobust acceptance only — NOT probmed):
+- [ ] After medrobust accepted: bump DESCRIPTION → 0.4.0 at next dev→main
+- [ ] `devtools::submit_cran()`
 
-### probmed → 0.4.0
-- [ ] Drop `Remotes: data-wise/medfit@v0.3.0` from DESCRIPTION
-- [ ] Bump Version 0.3.0.9000 → **0.4.0**
-- [ ] Grep repo for old version strings; sync
-- [ ] Final `R CMD check --as-cran` 0/0/0 (real CRAN gate now)
-- [ ] dev → main release PR → submit
+## Arm B — medfit → probmed (cadence-locked to ~07-18)
+**B1. medfit 0.3.1 → CRAN** ← critical-path event
+- [ ] Submit on/after ~2026-07-18 (CRAN 1-mo policy after 0.2.1 accepted 06-18); await acceptance
+**B2. probmed → 0.4.0** (after medfit 0.3.x accepted):
+- [ ] Drop `Remotes: data-wise/medfit@v0.3.0`; bump 0.3.0.9000 → **0.4.0** (atomic)
+- [ ] `install.packages("medfit")` (CRAN copy) → final `R CMD check --as-cran` 0/0/0
+- [ ] dev → main release PR → `submit_cran()`
 
-### missingmed
-- [ ] Same unblock (Imports medfit≥0.3.1); drop Remotes, bump, `--as-cran`, submit
-
----
-
-## Phase 3 — medsim
-- [ ] After probmed + RMediation + medrobust all on CRAN
-- [ ] Verify medfit/probmed/RMediation/medrobust pins resolve from CRAN
-- [ ] `--as-cran` → submit
-
-## Phase 4 — mediationverse (meta)
-- [ ] Align all dependency versions to CRAN releases
+## Phase 4 (join) — mediationverse (meta, LAST)
+- [ ] Precondition: medrobust + medsim + probmed all on CRAN (RMediation already ✅)
+- [ ] Drop Remotes entries
+- [ ] **Expand the thin test suite (currently 1 `test_that`)** ← dashboard flag
 - [ ] `--as-cran` → submit
 
 ---
 
 ## Blockers (ordered)
-1. **medfit 0.3.1 not on dev/main** — stuck on `feature/fit-weights`, no PR. Resolve first.
-2. **CRAN cadence ~2026-07-18** — hard, policy-driven, non-compressible.
-3. **probmed Remotes pin** — mechanically blocked until 1 + 2 clear.
+1. **medrobust not yet submitted** — it's READY (PR #21); maintainer-manual `submit_cran()`. **The one unblocked bottleneck.** Do first.
+2. **medfit 0.3.1 not on dev/main** — on `feature/fit-weights`, no PR. Prep now; submission still waits on #3.
+3. **CRAN cadence ~2026-07-18** — hard, policy-driven, non-compressible (gates medfit→probmed arm).
+4. **probmed Remotes pin** — mechanically blocked until #2 + #3 clear.
 
 ## Watch-outs
 - probmed DESCRIPTION is 0.3.0.9000 — the 0.4.0 bump + Remotes-drop must land **together** in Phase 2, or a `.9000` dev version ships to CRAN.
