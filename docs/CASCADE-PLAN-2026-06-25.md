@@ -90,3 +90,52 @@ medfit ──┬─→ probmed (>=0.3.0, PINNED) ──→ medsim ──→ medi
 - probmed DESCRIPTION is 0.3.0.9000 — the 0.4.0 bump + Remotes-drop must land **together** in Phase 2, or a `.9000` dev version ships to CRAN.
 - probmed is non-CRAN today by design (GitHub release pins medfit@v0.3.0); local `--as-cran` + r-universe pass only because they honor the pin — they mask the real CRAN gate.
 - pmed-modern P2 manuscript submission is **independent** of this CRAN cascade (don't couple them).
+
+---
+
+## Appendix A — probmed Phase-2 CRAN command sequence (exact)
+
+**PRECONDITION: medfit 0.3.1 ACCEPTED on CRAN.**
+
+**0. Precondition check** — medfit must resolve from CRAN, not the pin:
+```r
+install.packages("medfit")     # pull CRAN copy
+packageVersion("medfit")       # must be >= 0.3.1
+```
+
+**1. Branch + DESCRIPTION edits** (atomic — land together):
+```bash
+git checkout dev && git pull
+git checkout -b feature/cran-0.4.0
+```
+In `DESCRIPTION`:
+- Delete the entire `Remotes:` block (`data-wise/medfit@v0.3.0`)
+- Bump `Version: 0.3.0.9000` -> `Version: 0.4.0`
+- Keep `Imports: medfit (>= 0.3.0)` (CRAN 0.3.1 satisfies it)
+
+**2. Supporting files**
+- `cran-comments.md` — resubmission note (0.4.0; 5 estimators; medfit now on CRAN, Remotes dropped)
+- `NEWS.md` — `# probmed 0.4.0` section (gauge, incr+g-score, sobol, sensitivity, incr_sensitivity, wasserstein)
+- `grep -rn "0.3.0.9000" .` -> sync stragglers
+
+**3. Regenerate + check** (real CRAN gate now, no pin masking):
+```r
+devtools::document()
+rcmdcheck::rcmdcheck(args = c("--as-cran"), error_on = "warning")
+# Target: 0 / 0 / 0. Prior "1 NOTE" (Remotes pin + new submission) should be gone.
+```
+
+**4. Integrate + submit**
+```bash
+git commit -am "release: probmed 0.4.0 (drop medfit Remotes pin; CRAN-ready)"
+gh pr create --base main --head feature/cran-0.4.0 --title "Release: v0.4.0"
+# after merge + CI green on main:
+```
+```r
+devtools::submit_cran()
+```
+
+**Two traps**
+1. Bump version but forget to drop Remotes -> check passes (pin masks it) but CRAN rejects.
+   Verify `grep -i remotes DESCRIPTION` returns nothing.
+2. Re-run `--as-cran` ONLY after `install.packages` pulls the CRAN medfit, else you test the old pinned dep.
