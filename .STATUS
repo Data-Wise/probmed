@@ -1,3 +1,11 @@
+status: active
+priority: P1
+progress: 90
+cran_state: dev
+next: STILL BLOCKED ON CRAN — Imports medfit >= 0.3.0; CRAN has medfit 0.2.1, dev has medfit 0.3.1. Unblock path: medfit 0.3.x accepted on CRAN → drop Remotes → cran-comments.md → submit. Full detail in prose below.
+
+────────────────────────────────────────────────
+
 📦 probmed - Probabilistic Effect Sizes for Mediation
 ────────────────────────────────────────────────
 
