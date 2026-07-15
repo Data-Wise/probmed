@@ -64,7 +64,10 @@ IncrPmedResult <- S7::new_class(
 #' `q' = g(1 - g) / (delta g + 1 - g)^2` (Kennedy 2019, Corollary 2, Term I).
 #' Standard errors use the full efficient influence function for the ratio
 #' `P_med = med / tot`, which adds the g-score correction
-#' `(dq/dg) * (A - g(C)) * (dir * gamma_med - med * gamma_dir) / tot^2`
+#' `(dq/dg) * (A - g(C)) * (dir * a_med - med * a_dir) / tot^2`, where
+#' `a_med = q' * gamma_med` and `a_dir = q' * gamma_dir` are the same
+#' tilt-weighted corner contrasts used in the point estimate (the g-score
+#' term must carry the `q'` weight to match the units of `dir`/`med`/`tot`),
 #' with `dq/dg = delta / (delta g + 1 - g)^2` (Term II). Term II is
 #' mean-zero (by `E[A - g(C) | C] = 0`), so it does not shift the point
 #' estimate but restores Neyman orthogonality w.r.t. the propensity score,
@@ -132,11 +135,12 @@ S7::method(incr_pmed, S7::class_data.frame) <-
       a_med <- gamma_med * qp
       dir <- mean(a_dir); med <- mean(a_med); tot <- dir + med; Pmed <- med / tot
       # efficient IF for Pmed (ratio): T1 ratio-IF + T2 g-score correction
-      # T2 enters psi as: dqg*(A-g)*(dir*gamma_med - med*gamma_dir) / tot^2
+      # T2 enters psi as: dqg*(A-g)*(dir*a_med - med*a_dir) / tot^2
+      # (a_med/a_dir carry the q' weight, matching dir/med/tot units — issue #20)
       # This is Neyman-orthogonal w.r.t. g: E[T2] = 0, so point estimate unchanged
       resid <- object$A - g
       psi_base  <- ((a_med - med) - Pmed * (a_dir + a_med - tot)) / tot
-      psi_gscore <- dqg * resid * (dir * gamma_med - med * gamma_dir) / tot^2
+      psi_gscore <- dqg * resid * (dir * a_med - med * a_dir) / tot^2
       psi <- psi_base + psi_gscore
       se <- stats::sd(psi) / sqrt(n)
       data.frame(delta = del, dir = dir, med = med, tot = tot, Pmed = Pmed,
