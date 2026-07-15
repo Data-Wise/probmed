@@ -1,5 +1,16 @@
 # probmed 0.3.0.9000 (development)
 
+## New features
+
+* `wasserstein_pmed()` and the `WassersteinPmedResult` class add the
+  **Wasserstein / transport-scale proportion mediated** (`P_med^W`), an
+  optimal-transport effect size decomposing the total transport cost into
+  natural indirect (`NIE^W`), natural direct (`NDE^W`), and synergy (`G^W`)
+  components. Supports the 1-D quantile-coupling path, an entropic-OT
+  (Sinkhorn) path for multivariate mediators (`d > 1`), and a doubly-robust
+  corner-LAW estimator (`method = "dr"`) with an automatic bootstrap-CI
+  fallback near the `NIE^W = 0` boundary (#16, #19).
+
 ## Bug fixes
 
 * `incr_pmed()`: the g-score term of the efficient influence function now

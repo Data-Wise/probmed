@@ -21,3 +21,5 @@
 ^vignettes/lavaan-integration_files$
 ^vignettes/mediation-integration\.qmd$
 ^vignettes/mediation-integration_files$
+^\.remember$
+^\.superpowers$
