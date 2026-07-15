@@ -234,3 +234,16 @@ test_that("gate thresholds are tunable via arguments", {
   r_lenient <- ward_residual(d, oe_snr_threshold = 0)
   expect_true(isTRUE(r_lenient@oe_regular))  # threshold=0 always passes
 })
+
+test_that("print() surfaces the weak-ID and near-singular-OE flags", {
+  r_weak <- suppressWarnings(
+    ward_residual(.gp_gen(1200, 0.9, FALSE), se_method = "bootstrap", B = 100L,
+                  weak_id_ratio_threshold = 1)
+  )
+  expect_output(print(r_weak), "weak-ID.*wider than Wald")
+
+  r_nonreg <- suppressWarnings(
+    ward_residual(.gp_null(800), se_method = "bootstrap", B = 60L)
+  )
+  expect_output(print(r_nonreg), "near-singular OE.*non-regular")
+})
