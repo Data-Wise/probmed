@@ -16,6 +16,8 @@ ward_residual(
   B = 200L,
   a0 = 0,
   a1 = 1,
+  weak_id_ratio_threshold = 3,
+  oe_snr_threshold = 2,
   ...
 )
 }
@@ -66,6 +68,16 @@ two} levels is an error, not a silent subset: restricting to \verb{\{a0,a1\}}
 would shift the covariate-averaging population and estimate a different
 (sub-population) gauge. Filter to the two intended levels first.
 Multi-valued / continuous exposures are future work.}
+
+\item{weak_id_ratio_threshold}{Numeric: the \code{weak_id} flag fires when the
+percentile \code{W}-CI is at least this many times wider than the Wald interval
+(default \code{3}). \strong{Provisional} -- calibrated on a single near-null scenario;
+the definitive value awaits the coverage grid (medsim#24). Exposed so it can
+be tuned without editing the source.}
+
+\item{oe_snr_threshold}{Numeric: the \code{oe_regular} guard flags a near-singular
+denominator when \code{|OE|/se(OE)} falls below this (default \code{2}). \strong{Provisional}
+(see \code{weak_id_ratio_threshold}).}
 
 \item{...}{Unused.}
 }

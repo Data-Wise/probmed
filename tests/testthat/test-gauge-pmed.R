@@ -222,3 +222,15 @@ test_that("gate fields are present on the result", {
   for (f in c("weak_id", "weak_id_ratio", "oe_snr", "oe_regular"))
     expect_true(f %in% S7::prop_names(r))
 })
+
+test_that("gate thresholds are tunable via arguments", {
+  d <- .gp_gen(1200, 0.9, FALSE)
+  r_default <- suppressWarnings(ward_residual(d, se_method = "bootstrap", B = 100L))
+  expect_false(r_default@weak_id)  # default threshold=3, well-ID case
+  r_strict <- suppressWarnings(
+    ward_residual(d, se_method = "bootstrap", B = 100L, weak_id_ratio_threshold = 1)
+  )
+  expect_true(r_strict@weak_id)  # threshold=1 must trip on any width inflation
+  r_lenient <- ward_residual(d, oe_snr_threshold = 0)
+  expect_true(isTRUE(r_lenient@oe_regular))  # threshold=0 always passes
+})
