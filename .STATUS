@@ -1,6 +1,7 @@
 status: active
 priority: P1
 progress: 90
+kind: package
 cran_state: dev
 next: STILL BLOCKED ON CRAN — Imports medfit >= 0.3.0; CRAN has medfit 0.2.1, dev has medfit 0.3.1. Unblock path: medfit 0.3.x accepted on CRAN → drop Remotes → cran-comments.md → submit. Full detail in prose below.
 
@@ -21,6 +22,14 @@ next: STILL BLOCKED ON CRAN — Imports medfit >= 0.3.0; CRAN has medfit 0.2.1, 
 Priority: P1
 Status: active
 Progress: 90
+
+✅ FIXED ON DEV (2026-07-15) — incr_pmed() g-score SE mis-weighting (issue #20)
+PR #21 squash-merged to dev (f9bac34), 8/8 CI green. The g-score EIF term now
+carries the q' tilt weight (a_med/a_dir) instead of bare gamma; CIs were
+over-covering (se_ratio up to ~4.6 at δ=2), now calibrated (1.09/1.09/1.00 at
+δ=0.5/1/2). Point estimate unchanged (T2 mean-zero). Added SE-calibration
+regression test. Spec: docs/specs/SPEC-2026-07-15-incr-se-fix.md. Issue #20
+stays OPEN until dev→main (Closes keyword only auto-fires on default branch).
 
 🧭 INTEGRATION STATE (2026-06-22 — v0.3.0 SHIPPED)
 main == dev at v0.3.0 (merge commit 0486b01, released 2026-06-22). main carries all four
