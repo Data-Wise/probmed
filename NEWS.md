@@ -11,6 +11,15 @@
   corner-LAW estimator (`method = "dr"`) with an automatic bootstrap-CI
   fallback near the `NIE^W = 0` boundary (#16, #19).
 
+* `ward_residual()` gains two identification diagnostics for the gauge residual
+  `W = R/OE`, reported as new `GaugePmedResult` fields with matching `warning()`s:
+  a **weak-identification flag** (`weak_id` / `weak_id_ratio`) that fires when the
+  percentile CI for `W` is >= 3x wider than the symmetric Wald interval — a
+  Wald-vs-percentile divergence diagnostic (Zhan 2026) — and a **regularity
+  guard** (`oe_regular` / `oe_snr`) flagging a near-singular denominator
+  (`|OE|/se(OE) < 2`), where the bootstrap CI for `W` is not valid
+  (Lin et al. 2026). The Wald interval is retained as `W_ci_wald` (#11).
+
 ## Bug fixes
 
 * `incr_pmed()`: the g-score term of the efficient influence function now

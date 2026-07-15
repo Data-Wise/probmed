@@ -18,6 +18,22 @@
 #' @param W_ci Numeric length-2: confidence interval for `W`.
 #' @param W_se Numeric: standard error of `W`.
 #' @param W_p Numeric: two-sided p-value for `H0: W = 0`.
+#' @param W_ci_wald Numeric length-2: symmetric Wald interval for `W`, retained
+#'   as the reference for the weak-identification diagnostic even under
+#'   `se_method = "bootstrap"` (where `W_ci` holds the percentile interval).
+#' @param weak_id Logical: weak-identification flag -- `TRUE` when the percentile
+#'   CI for `W` is at least 3x wider than the symmetric Wald interval, the regime
+#'   where the ratio `W = R/OE` is least trustworthy (Zhan 2026). `NA` unless
+#'   `se_method = "bootstrap"` (both intervals are required to compare). The 3x
+#'   threshold is calibrated above the ~2x width gap that the anti-conservative
+#'   Wald interval shows even under strong identification.
+#' @param weak_id_ratio Numeric: ratio of the percentile `W`-interval width to the
+#'   Wald `W`-interval width; `NA` if not computed.
+#' @param oe_snr Numeric: signal-to-noise of the denominator, `|OE| / se(OE)`.
+#'   Small values indicate `OE` near 0, where `W = R/OE` is non-regular.
+#' @param oe_regular Logical: `TRUE` when `oe_snr >= 2`; `FALSE` flags a
+#'   near-singular `OE` for which the bootstrap CI for `W` may be invalid
+#'   (Lin et al. 2026).
 #' @param OE,IDE,IIE,R Numeric: overall, interventional direct, interventional
 #'   indirect effects and the remainder.
 #' @param theta Numeric length-4: corner means `theta(a, a')`.
@@ -39,6 +55,11 @@ GaugePmedResult <- S7::new_class(
     fieller_type = S7::new_property(class = S7::class_character, default = NA_character_),
     W = S7::class_numeric, W_ci = S7::class_numeric,
     W_se = S7::class_numeric, W_p = S7::class_numeric,
+    W_ci_wald = S7::new_property(class = S7::class_numeric, default = numeric(0)),
+    weak_id = S7::new_property(class = S7::class_logical, default = NA),
+    weak_id_ratio = S7::new_property(class = S7::class_numeric, default = NA_real_),
+    oe_snr = S7::new_property(class = S7::class_numeric, default = NA_real_),
+    oe_regular = S7::new_property(class = S7::class_logical, default = NA),
     OE = S7::class_numeric, IDE = S7::class_numeric,
     IIE = S7::class_numeric, R = S7::class_numeric,
     theta = S7::class_numeric, method = S7::class_character,
@@ -99,6 +120,14 @@ GaugePmedResult <- S7::new_class(
 #'   would shift the covariate-averaging population and estimate a different
 #'   (sub-population) gauge. Filter to the two intended levels first.
 #'   Multi-valued / continuous exposures are future work.
+#' @param weak_id_ratio_threshold Numeric: the `weak_id` flag fires when the
+#'   percentile `W`-CI is at least this many times wider than the Wald interval
+#'   (default `3`). **Provisional** -- calibrated on a single near-null scenario;
+#'   the definitive value awaits the coverage grid (medsim#24). Exposed so it can
+#'   be tuned without editing the source.
+#' @param oe_snr_threshold Numeric: the `oe_regular` guard flags a near-singular
+#'   denominator when `|OE|/se(OE)` falls below this (default `2`). **Provisional**
+#'   (see `weak_id_ratio_threshold`).
 #' @param ... Unused.
 #'
 #' @return A [GaugePmedResult] object.
@@ -117,7 +146,8 @@ ward_residual <- S7::new_generic(
   fun = function(object, covars = "C", K = 5L, ci_level = 0.95,
                  seed = 1L, fieller = TRUE, reps = 1L,
                  se_method = c("analytic", "bootstrap"), B = 200L,
-                 a0 = 0, a1 = 1, ...) {
+                 a0 = 0, a1 = 1, weak_id_ratio_threshold = 3,
+                 oe_snr_threshold = 2, ...) {
     S7::S7_dispatch()
   })
 
@@ -125,7 +155,7 @@ ward_residual <- S7::new_generic(
 S7::method(ward_residual, S7::class_data.frame) <-
   function(object, covars = "C", K = 5L, ci_level = 0.95, seed = 1L, fieller = TRUE,
            reps = 1L, se_method = c("analytic", "bootstrap"), B = 200L,
-           a0 = 0, a1 = 1, ...) {
+           a0 = 0, a1 = 1, weak_id_ratio_threshold = 3, oe_snr_threshold = 2, ...) {
     stopifnot(all(c("A", "M", "Y") %in% names(object)), all(covars %in% names(object)))
     se_method <- match.arg(se_method)
     reps <- max(1L, as.integer(reps))
@@ -186,9 +216,27 @@ S7::method(ward_residual, S7::class_data.frame) <-
       seW <- sqrt(seW^2 + stats::var(W_reps) / reps)
       seP <- sqrt(seP^2 + stats::var(P_reps) / reps)
     }
-    ## analytic (symmetric Wald) intervals -- the default.
-    W_ci     <- c(W - zc * seW, W + zc * seW)
+    ## analytic (symmetric Wald) intervals -- the default, and the A2 reference.
+    W_ci_wald <- c(W - zc * seW, W + zc * seW)  # retained for the weak-ID diagnostic
+    W_ci     <- W_ci_wald
     p_med_ci <- c(Pmed - zc * seP, Pmed + zc * seP)
+    ## A1 regularity precondition: OE signal-to-noise |OE| / se(OE). W = R/OE is a
+    ## non-regular functional as OE -> 0, where bootstrap consistency for this
+    ## Neyman-orthogonal cross-fit estimator fails (Lin et al. 2026). oe_snr below
+    ## oe_snr_threshold flags OE statistically indistinguishable from 0.
+    ## A gradient DGM sweep (A-effect scale s=0..1) confirmed weak_id_ratio is
+    ## monotone decreasing in oe_snr, not merely bimodal: ratio ~4-5.5x at oe_snr
+    ## ~0.7-1.2, crossing the default threshold=3 between oe_snr~1.7 and ~2.2, down
+    ## to ~1.2x at oe_snr~12+. A2 (weak_id) can clear before A1 (oe_regular) as OE
+    ## strengthens -- e.g. weak_id turns off at oe_snr~1.7 while oe_regular only
+    ## turns on at oe_snr~2.2 -- so the two gates are not redundant restatements of
+    ## each other; A2 is the earlier/stricter signal near the boundary, consistent
+    ## with Zhan (2026)'s premise that CI divergence carries information beyond a
+    ## point signal-to-noise ratio. Both thresholds are provisional pending the
+    ## medsim#24 coverage grid.
+    seOE       <- se(pOE)
+    oe_snr     <- unname(abs(OE) / seOE)
+    oe_regular <- isTRUE(oe_snr >= oe_snr_threshold)
     ## ---- bootstrap (near-null remedy): the analytic IF se for W and P_med is
     ## right-skewed and median-below the empirical SD, so the symmetric Wald CI
     ## under-covers (~0.85-0.90). W = R/OE and P_med = IIE/OE are ratios, so we use
@@ -208,6 +256,35 @@ S7::method(ward_residual, S7::class_data.frame) <-
       p_med_ci <- stats::quantile(bsamp["P", ], c(alpha / 2, 1 - alpha / 2), names = FALSE)
     }
     z <- W / seW
+
+    ## A2 weak-identification flag: Wald-vs-percentile CI divergence is itself a
+    ## weak-ID diagnostic (Zhan 2026). Computable only when both intervals exist,
+    ## i.e. under se_method = "bootstrap" (W_ci is then the percentile interval,
+    ## W_ci_wald the symmetric Wald). We flag when the percentile interval is >= 3x
+    ## wider than the Wald. The symmetric Wald interval for W is *anti-conservative*
+    ## by construction (a skewed ratio; ~0.85-0.90 coverage), so the percentile is
+    ## routinely ~2x wider even under strong identification -- the 3x threshold is
+    ## calibrated to fire only on the marginal inflation beyond that baseline, where
+    ## the percentile interval starts tracking the ratio's exploding tail as OE->0.
+    ## (An overlap metric is not separable here: it sits near 0.5 in both regimes.)
+    weak_id <- NA; weak_id_ratio <- NA_real_
+    if (se_method == "bootstrap") {
+      wald_w <- W_ci_wald[2] - W_ci_wald[1]
+      weak_id_ratio <- if (wald_w > 0) (W_ci[2] - W_ci[1]) / wald_w else NA_real_
+      weak_id <- isTRUE(weak_id_ratio >= weak_id_ratio_threshold)
+    }
+    ## Gate warnings (A1 fires only when a bootstrap CI for W is actually being
+    ## reported; A2 whenever the divergence is detected).
+    if (!oe_regular && se_method == "bootstrap")
+      warning("Near-singular OE (|OE|/se = ", round(oe_snr, 2), " < ",
+              oe_snr_threshold, "): W = R/OE is non-regular, so the bootstrap CI ",
+              "for W may be invalid (Lin et al. 2026). Prefer the Fieller set for ",
+              "the near-null case.", call. = FALSE)
+    if (isTRUE(weak_id))
+      warning("Weak-identification flag: the percentile CI for W is ",
+              round(weak_id_ratio, 1), "x wider than the Wald interval (>= ",
+              weak_id_ratio_threshold, "x); W is weakly identified and its CI is ",
+              "least trustworthy here (Zhan 2026).", call. = FALSE)
 
     ## Fieller confidence set for P_med = IIE/OE. When the denominator OE is not
     ## significant the set is unbounded; the Wald interval understates this.
@@ -234,6 +311,8 @@ S7::method(ward_residual, S7::class_data.frame) <-
       p_med_fieller = unname(fbounds), fieller_type = ftype,
       W = unname(W), W_ci = unname(W_ci), W_se = unname(seW),
       W_p = unname(2 * stats::pnorm(-abs(z))),
+      W_ci_wald = unname(W_ci_wald), weak_id = weak_id,
+      weak_id_ratio = weak_id_ratio, oe_snr = oe_snr, oe_regular = oe_regular,
       OE = unname(OE), IDE = unname(IDE), IIE = unname(IIE), R = unname(R),
       theta = th, method = "onestep-crossfit", n = as.integer(n),
       ci_level = ci_level, se_method = se_method, reps = as.integer(reps),
@@ -261,5 +340,12 @@ S7::method(print, GaugePmedResult) <- function(x, ...) {
   cat(sprintf("  OE=%.3f  IDE=%.3f  IIE=%.3f  R=%.3f\n", x@OE, x@IDE, x@IIE, x@R))
   if (abs(x@W) > 0.1)
     cat("  ! |W| large: additive split unreliable; interpret P_med with care.\n")
+  if (isTRUE(x@weak_id))
+    cat(sprintf(paste0("  ! weak-ID: percentile CI for W is %.1fx wider than Wald",
+                       " [%.3f, %.3f] (>= 3x); W CI least trustworthy here.\n"),
+                x@weak_id_ratio, x@W_ci_wald[1], x@W_ci_wald[2]))
+  if (isFALSE(x@oe_regular))
+    cat(sprintf(paste0("  ! near-singular OE (|OE|/se = %.2f < 2): W = R/OE",
+                       " non-regular; bootstrap CI may be invalid.\n"), x@oe_snr))
   invisible(x)
 }

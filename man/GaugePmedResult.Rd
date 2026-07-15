@@ -13,6 +13,11 @@ GaugePmedResult(
   W_ci = integer(0),
   W_se = integer(0),
   W_p = integer(0),
+  W_ci_wald = numeric(0),
+  weak_id = NA,
+  weak_id_ratio = NA_real_,
+  oe_snr = NA_real_,
+  oe_regular = NA,
   OE = integer(0),
   IDE = integer(0),
   IIE = integer(0),
@@ -44,6 +49,27 @@ unbounded, or empty); \code{NA} if not computed.}
 \item{W_se}{Numeric: standard error of \code{W}.}
 
 \item{W_p}{Numeric: two-sided p-value for \code{H0: W = 0}.}
+
+\item{W_ci_wald}{Numeric length-2: symmetric Wald interval for \code{W}, retained
+as the reference for the weak-identification diagnostic even under
+\code{se_method = "bootstrap"} (where \code{W_ci} holds the percentile interval).}
+
+\item{weak_id}{Logical: weak-identification flag -- \code{TRUE} when the percentile
+CI for \code{W} is at least 3x wider than the symmetric Wald interval, the regime
+where the ratio \code{W = R/OE} is least trustworthy (Zhan 2026). \code{NA} unless
+\code{se_method = "bootstrap"} (both intervals are required to compare). The 3x
+threshold is calibrated above the ~2x width gap that the anti-conservative Wald
+interval shows even under strong identification.}
+
+\item{weak_id_ratio}{Numeric: ratio of the percentile \code{W}-interval width to the
+Wald \code{W}-interval width; \code{NA} if not computed.}
+
+\item{oe_snr}{Numeric: signal-to-noise of the denominator, \code{|OE| / se(OE)}.
+Small values indicate \code{OE} near 0, where \code{W = R/OE} is non-regular.}
+
+\item{oe_regular}{Logical: \code{TRUE} when \code{oe_snr >= 2}; \code{FALSE} flags a
+near-singular \code{OE} for which the bootstrap CI for \code{W} may be invalid
+(Lin et al. 2026).}
 
 \item{OE, IDE, IIE, R}{Numeric: overall, interventional direct, interventional
 indirect effects and the remainder.}
