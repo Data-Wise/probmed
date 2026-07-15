@@ -161,3 +161,64 @@ test_that("a0/a1 not present in A errors", {
   d <- .gp_gen(800, 0.5, FALSE)
   expect_error(ward_residual(d, a0 = 0, a1 = 5), "not found|level")
 })
+
+# ---- Issue #11: weak-identification flag (A2) + regularity guard (A1) --------
+
+# near-null DGM: A affects neither M nor Y, so OE -> 0 (non-regular ratio).
+.gp_null <- function(n, seed = 1) {
+  set.seed(seed)
+  C <- rnorm(n); A <- rbinom(n, 1, 0.5)
+  M <- 0.4 * C + rnorm(n); Y <- 0.7 * M + 0.3 * C + rnorm(n)
+  data.frame(A, M, Y, C)
+}
+
+test_that("A1: well-identified OE gives oe_regular = TRUE, high oe_snr", {
+  r <- ward_residual(.gp_gen(2000, 0.9, FALSE))
+  expect_true(is.finite(r@oe_snr) && r@oe_snr > 2)
+  expect_true(isTRUE(r@oe_regular))
+})
+
+test_that("A1: near-singular OE flags oe_regular = FALSE and warns under bootstrap", {
+  ws <- character()
+  r <- withCallingHandlers(
+    ward_residual(.gp_null(800), se_method = "bootstrap", B = 60L),
+    warning = function(w) { ws <<- c(ws, conditionMessage(w)); invokeRestart("muffleWarning") }
+  )
+  expect_true(any(grepl("near-singular|non-regular", ws, ignore.case = TRUE)))
+  expect_false(isTRUE(r@oe_regular))
+  expect_lt(r@oe_snr, 2)
+})
+
+test_that("A1: near-singular OE does NOT warn under analytic (no bootstrap CI reported)", {
+  expect_no_warning(ward_residual(.gp_null(800), se_method = "analytic", fieller = FALSE))
+})
+
+test_that("A2: weak_id is NA under analytic (no percentile interval to compare)", {
+  r <- ward_residual(.gp_gen(1500, 0.5, FALSE), se_method = "analytic")
+  expect_true(is.na(r@weak_id))
+  expect_true(is.na(r@weak_id_ratio))
+})
+
+test_that("A2: strongly-identified case does NOT trip the weak-ID flag", {
+  # well-identified: percentile is ~2x wider than Wald (anti-conservatism), below 3x
+  r <- ward_residual(.gp_gen(3000, 0.9, FALSE), se_method = "bootstrap", B = 200L)
+  expect_true(is.logical(r@weak_id) && !is.na(r@weak_id))
+  expect_true(is.finite(r@weak_id_ratio) && r@weak_id_ratio > 0)
+  expect_false(r@weak_id)
+  expect_lt(r@weak_id_ratio, 3)
+})
+
+test_that("A2: near-singular case trips the weak-ID flag (percentile >= 3x Wald)", {
+  suppressWarnings(
+    r <- ward_residual(.gp_null(800), se_method = "bootstrap", B = 200L)
+  )
+  expect_true(r@weak_id_ratio >= 3)
+  expect_true(isTRUE(r@weak_id))
+})
+
+test_that("gate fields are present on the result", {
+  r <- ward_residual(.gp_gen(800, 0.5, FALSE))
+  expect_length(r@W_ci_wald, 2)
+  for (f in c("weak_id", "weak_id_ratio", "oe_snr", "oe_regular"))
+    expect_true(f %in% S7::prop_names(r))
+})
