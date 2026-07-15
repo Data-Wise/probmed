@@ -1,3 +1,13 @@
+# probmed 0.3.0.9000 (development)
+
+## Bug fixes
+
+* `incr_pmed()`: the g-score term of the efficient influence function now
+  carries the tilt-derivative (`q'`) weight, matching the point estimate.
+  Previously it used the bare corner contrasts, inflating standard errors
+  with `delta` and causing confidence intervals to over-cover (se_ratio up
+  to ~4.6). CIs are now calibrated across `delta` (#20).
+
 # probmed 0.3.0
 
 ## New features

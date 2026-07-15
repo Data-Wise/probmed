@@ -54,7 +54,10 @@ sum to the total elasticity exactly, so \code{P_med^delta = med / (dir + med)}.
 \verb{q' = g(1 - g) / (delta g + 1 - g)^2} (Kennedy 2019, Corollary 2, Term I).
 Standard errors use the full efficient influence function for the ratio
 \code{P_med = med / tot}, which adds the g-score correction
-\code{(dq/dg) * (A - g(C)) * (dir * gamma_med - med * gamma_dir) / tot^2}
+\code{(dq/dg) * (A - g(C)) * (dir * a_med - med * a_dir) / tot^2}, where
+\verb{a_med = q' * gamma_med} and \verb{a_dir = q' * gamma_dir} are the same
+tilt-weighted corner contrasts used in the point estimate (the g-score
+term must carry the \verb{q'} weight to match the units of \code{dir}/\code{med}/\code{tot}),
 with \verb{dq/dg = delta / (delta g + 1 - g)^2} (Term II). Term II is
 mean-zero (by \code{E[A - g(C) | C] = 0}), so it does not shift the point
 estimate but restores Neyman orthogonality w.r.t. the propensity score,

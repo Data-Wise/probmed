@@ -172,3 +172,32 @@ test_that("g-score EIF: nominal 95% CI achieves coverage >= 80% in small simulat
   }, logical(1))
   expect_gte(mean(covered), 0.80)
 })
+
+# Regression guard for issue #20: the g-score EIF term must carry the q'
+# (tilt-derivative) weight, matching the point estimate. With the pre-fix
+# BARE gamma the SE inflates ~delta / (g(1-g)), so se_ratio = mean(se) /
+# empSD(Pmed) blows up with delta (1.4 -> 4.6). The fix (a_med/a_dir) holds
+# se_ratio near 1 across delta. This test FAILS on the pre-fix code
+# (se_ratio > 2 at delta = 2) and PASSES after the fix.
+test_that("g-score EIF: SE is calibrated across delta (issue #20)", {
+  skip_on_cran()
+  deltas <- c(0.5, 1, 2)
+  n_reps <- 200L
+  set.seed(2026)
+  seeds <- sample.int(1e6, n_reps)
+  mat <- vapply(seeds, function(s) {
+    r <- incr_pmed(.ip_gen(1000, 0.0, seed = s), deltas = deltas, K = 5L)
+    c(r@curve$Pmed, r@curve$se)
+  }, numeric(2 * length(deltas)))
+  k <- length(deltas)
+  pmed_hat <- mat[seq_len(k), , drop = FALSE]
+  se_hat   <- mat[k + seq_len(k), , drop = FALSE]
+  emp_sd   <- apply(pmed_hat, 1, stats::sd)
+  mean_se  <- rowMeans(se_hat)
+  se_ratio <- mean_se / emp_sd
+  # Calibrated ~1 (verified 1.09/1.09/1.00 at these settings); band [0.85,
+  # 1.20] absorbs Monte-Carlo noise at n_reps = 200. Pre-fix this hits ~4.6.
+  expect_true(all(se_ratio >= 0.85 & se_ratio <= 1.20),
+              info = paste0("se_ratio = ",
+                            paste(round(se_ratio, 3), collapse = ", ")))
+})
