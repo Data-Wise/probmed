@@ -68,13 +68,40 @@ A threshold calibrated on `se_ratio` therefore says little about the same
 threshold on the shipped width ratio. Hence this grid, which records the shipped
 fields verbatim.
 
+### Running it
+
+The sbatch files invoke `$HOME/weakid_val/<script>.R`, so the scripts must be
+**deployed to the cluster first** — `~/weakid_val/` does not exist until you make
+it. Skipping this queues 192 tasks that each fail instantly with "file not found".
+
 ```bash
-sbatch submit_weakid_validation.sh   # 192-task array
-sbatch submit_weakid_collate.sh      # after it completes
+# 1. deploy (from a checkout of this package, on your workstation)
+ssh hopper 'mkdir -p ~/weakid_val/{parts,logs}'
+scp inst/sim/hopper/run_weakid_validation.R \
+    inst/sim/hopper/collate_weakid_validation.R \
+    inst/sim/hopper/submit_weakid_validation.sh \
+    inst/sim/hopper/submit_weakid_collate.sh   hopper:~/weakid_val/
+
+# 2. install probmed >= PR #23 onto R_LIBS (the weak-ID fields must exist);
+#    both the runner and the collator abort loudly if they do not.
+
+# 3. submit
+ssh hopper 'cd ~/weakid_val && sbatch submit_weakid_validation.sh'   # 192-task array
+ssh hopper 'cd ~/weakid_val && sbatch submit_weakid_collate.sh'      # AFTER it completes
 ```
 
-Requires a probmed **>= PR #23** first on `R_LIBS` (the weak-ID fields must
-exist); both the runner and the collator abort loudly otherwise.
+Sanity-check one task before committing the whole array:
+
+```bash
+ssh hopper 'cd ~/weakid_val && SLURM_ARRAY_TASK_ID=1 Rscript run_weakid_validation.R'
+```
+
+Outputs land in `~/weakid_val/parts/`; the collator writes
+`weakid_validation_cells.csv`, `weakid_threshold_sweep.csv`,
+`oe_snr_threshold_sweep.csv`, and `weakid_validation_raw.rds` to `~/weakid_val/`.
+Copy the CSVs back into `../results/` and commit them **together with any script
+change**, or the numbers become unreproducible (the mistake this directory exists
+to prevent — see the coverage grid's history below).
 
 ---
 
