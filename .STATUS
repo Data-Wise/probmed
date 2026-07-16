@@ -14,7 +14,7 @@ next: STILL BLOCKED ON CRAN — Imports medfit >= 0.3.0; CRAN has medfit 0.2.1, 
 ~/projects/r-packages/active/probmed/
 
 ⏰ LAST UPDATED
-2026-06-25
+2026-07-16
 
 ────────────────────────────────────────────────
 
@@ -52,26 +52,37 @@ version. Leftover worktree dirs (incremental-pmed / my-sensitivity / sobol-pmed)
   (linux/windows/macos) — legacy r-lib template (no dispatch) was the prior blocker.
 - r-universe picks up the v0.3.0 tag on its next build.
 
-🎯 NEXT NON-BLOCKED STEPS (plan, 2026-06-22)
+✅ DONE (2026-07-15/16, superseding the 2026-06-22 plan below):
+   #20 incr_pmed SE fix (PR #21), #19 Wasserstein CRAN-readiness verified + closed,
+   #11 gauge weak-ID/regularity gates (PR #22 + review-driven follow-up PR #23),
+   #17 closed (stale, already integrated), CRAN-compliance audit (PR #24: unjustified
+   \dontrun{} fixed; 0E/0W/1N confirmed clean otherwise). feature/wasserstein-pmed
+   closed out as fully redundant with dev (see ACTIVE WORKTREE above) — item 3 below
+   is DONE, not merge-prep (branch had zero unique content left).
+
+🎯 NEXT NON-BLOCKED STEPS (plan, 2026-06-22 — items 1-2 still open, item 3 superseded)
 1. Package-wide spell cleanup on dev: 15 flags in incr_pmed/sobol_pmed/pmed_sensitivity
    Rd + NEWS (gauge surface already clean). Small hygiene branch → dev.
 2. Reconcile coverage grids: gaugeboot (64-cell) + in-repo analytic (12-cell, nsim=1000)
    → one manuscript coverage table/figure. Design now; numbers when gaugeboot finishes.
-3. Wasserstein merge-prep: merge origin/dev INTO feature/wasserstein-pmed (34 behind/4
-   ahead), resolve the single NAMESPACE conflict via devtools::document(), bump DESCRIPTION
-   0.2.0 → 0.3.0.9000, R CMD check, then PR → dev. (Sobol is NOT at risk — verified.)
+3. ~~Wasserstein merge-prep~~ SUPERSEDED — branch closed out, no unique content remained.
 4. Manuscript 01-gauge-pmed: cite implemented a0/a1 + validated analytic coverage.
 BLOCKED (not actionable): probmed→CRAN (needs medfit 0.3.x on CRAN, then drop Remotes +
 cran-comments + bump version); bootstrap coverage NUMBERS (hopper CPU, gaugeboot queued).
 
 🌿 ACTIVE WORKTREE
-🧹 BRANCH/WORKTREE CLEANUP (2026-06-25): pruned 4 merged/redundant lines — main checkout is now `dev`.
-   • feature/incremental-pmed-p2 — incr_sensitivity + P_med^δ vignette + scope note → MERGED to dev (PR #18, squash 1419eb2, CI 8/8). Branch deleted.
-   • feature/my-sensitivity, feature/sobol-pmed — worktrees removed, local+remote deleted (both merged to dev).
-   • feature/incremental-pmed — worktree removed, deleted (g-score EIF already on dev via PR #10).
-   • feature/gauge-bootstrap-se — remote deleted; all 19 ahead-of-dev commits redundant (gauge SE + incr on dev, wasserstein safe on its branch). Local ref deletion BLOCKED by branch-guard (-D on dev) — run `git branch -D feature/gauge-bootstrap-se` manually.
-   • REMAINING worktree: feature/wasserstein-pmed (active Paper 4, 6 ahead of dev).
-   The historical per-line detail below is retained for reference but those worktrees no longer exist.
+🧹 BRANCH/WORKTREE CLEANUP (2026-07-15/16): main checkout is `dev` (no other worktrees).
+   • feature/wasserstein-pmed — CLOSED OUT (was previously listed active): file-by-file diff vs
+     dev confirmed zero unique content (all wasserstein files byte-identical to dev via PR #16);
+     worktree removed, remote branch deleted. Local ref force-delete blocked by branch-guard
+     (needs live confirm) — run `git branch -D feature/wasserstein-pmed` manually if desired.
+   • feature/incr-se-fix (PR #21, #20 fix), feature/gauge-weakid (PR #22, #11),
+     feature/gauge-weakid-fix (PR #23, review follow-up), feature/example-dontrun-fix
+     (PR #24, CRAN-compliance audit) — all merged to dev this session, worktrees + branches
+     cleaned up (local+remote).
+   The historical per-line detail below is retained for reference but those worktrees/lines
+   (feature/incremental-pmed-p2, feature/my-sensitivity, feature/sobol-pmed,
+   feature/incremental-pmed, feature/gauge-bootstrap-se) no longer exist.
 
 feature/gauge-bootstrap-se — ~/projects/r-packages/active/probmed (THIS checkout)
    Gauge SE + remaining-TODO work (R/gauge-pmed.R, ward_residual). Ahead of dev (held):
