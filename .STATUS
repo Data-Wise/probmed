@@ -59,6 +59,13 @@ version. Leftover worktree dirs (incremental-pmed / my-sensitivity / sobol-pmed)
    \dontrun{} fixed; 0E/0W/1N confirmed clean otherwise). feature/wasserstein-pmed
    closed out as fully redundant with dev (see ACTIVE WORKTREE above) — item 3 below
    is DONE, not merge-prep (branch had zero unique content left).
+   Also: PR #26 (GAUGE_SIM_OUT default aligned across the 3 sim scripts; spawned
+   session). PR #25 — PmedResult validator's ci_lower<=ci_upper check was SILENTLY
+   INERT (an S7 validator returns only its last expression, so independent if-blocks
+   discard all but the final message); now accumulates + returns all. Found by
+   closing a 0% coverage gap on the core print/summary/plot methods, which are now
+   tested. PR #27 (hopper coverage grid + provenance retrieved). PR #28 (weak_id
+   guidance corrected; #11 validation grid scripted — see item 5).
 
 🎯 NEXT NON-BLOCKED STEPS (plan, 2026-06-22 — items 1-2 still open, item 3 superseded)
 1. Package-wide spell cleanup on dev: 15 flags in incr_pmed/sobol_pmed/pmed_sensitivity
@@ -75,18 +82,35 @@ version. Leftover worktree dirs (incremental-pmed / my-sensitivity / sobol-pmed)
    8-cell, nsim=2000, MC truth, includes binary-Y and reports both arms per row.
 3. ~~Wasserstein merge-prep~~ SUPERSEDED — branch closed out, no unique content remained.
 4. Manuscript 01-gauge-pmed: cite implemented a0/a1 + validated analytic coverage.
-5. #11 threshold validation (partial evidence now in hand): the gaugeboot collate
-   guard reports median seW_bt/seW_an = 1.82 across all 16,000 reps, independently
-   corroborating the ~2x routine anti-conservatism gap that weak_id_ratio_threshold=3
-   was calibrated to clear. NOT a full validation — the grid measures an SE ratio
-   and a max-endpoint divergence (divW_med), while the shipped flag uses a
-   percentile/Wald CI-WIDTH ratio; the raw parts do not retain CI widths, so an
-   exact check needs a re-run recording width-ratio (a hopper job).
+5. #11 threshold validation — SCRIPTED, NOT RUN (PR #28, 2026-07-16).
+   ⚠️ CORRECTION of an earlier entry here: I previously wrote that the gaugeboot
+   grid's median seW_bt/seW_an = 1.82 "independently corroborates"
+   weak_id_ratio_threshold=3. That claim is WITHDRAWN — the transfer does not hold.
+   The stored grid has NO CI widths (verified against the artifact's own columns,
+   not the script): only seW_an, seW_bt, and divW = a max endpoint DISPLACEMENT.
+   Wald width is recoverable (2*z*seW_an, symmetric); percentile width is NOT
+   (quantile-based; seW_bt is a replicate SD, and the skew between them IS the
+   phenomenon). A sweep on the se_ratio = seW_bt/seW_an stand-in looks encouraging
+   (separation peaks near 3) but a direct 64-rep check found se_ratio correlates
+   with the shipped weak_id_ratio at only r ~ 0.41 (Spearman 0.53), different scale
+   (medians 2.39 vs 1.66), agreeing on ">= 3" ~72% of the time. So the shipped
+   threshold remains UNVALIDATED and the hopper grid is still required.
+   Scripts ready at inst/sim/hopper/run_weakid_validation.R (+ collate + 2 sbatch),
+   smoke-tested as SLURM invokes them; 192-task array deliberately NOT submitted
+   (maintainer's CPU allocation to spend): `sbatch submit_weakid_validation.sh`.
+   ✅ What IS established (metric-independent, from the 16k reps): Wald coverage
+   ~0.88 overall, never nominal in ANY cell — so an absent weak_id flag does not
+   buy nominal coverage. Now documented user-facing (PR #28).
 BLOCKED (not actionable): probmed→CRAN (needs medfit 0.3.x on CRAN, then drop Remotes +
 cran-comments + bump version).
 
 🌿 ACTIVE WORKTREE
-🧹 BRANCH/WORKTREE CLEANUP (2026-07-15/16): main checkout is `dev` (no other worktrees).
+🧹 BRANCH/WORKTREE CLEANUP (2026-07-15/16): main checkout is `dev`.
+   ONE leftover: ~/.git-worktrees/probmed/sleepy-kowalevski-43379e (detached HEAD
+   6fd517b, branch claude/sleepy-kowalevski-43379e) — created by a spawned task
+   session that has since ended. It is CLEAN and its work is on dev (squash-merged
+   as f8c3ff4 / PR #26), so it is safe to prune; left in place only because it
+   belongs to another session. Remove with `git worktree remove` when convenient.
    • feature/wasserstein-pmed — CLOSED OUT (was previously listed active): file-by-file diff vs
      dev confirmed zero unique content (all wasserstein files byte-identical to dev via PR #16);
      worktree removed, remote branch deleted. Local ref force-delete blocked by branch-guard
