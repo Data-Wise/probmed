@@ -16,16 +16,25 @@ cat(sprintf("[GUARD] weak_id fires in %.1f%% of %d reps; weak_id_ratio range [%.
 ## ---------------- per-cell summary ----------------
 agg <- do.call(rbind, by(df, df[c("cell", "n", "s", "binY")], function(g) {
   ns <- nrow(g)
+  ## The truth is exact (quadrature), so every chunk in a cell MUST agree. If it
+  ## ever does not, a per-chunk/random truth has crept back in and coverage was
+  ## scored against differing targets -- refuse to report rather than silently
+  ## take the first chunk's value.
+  if (diff(range(g$trW)) > 1e-9)
+    stop(sprintf("cell %d: trW varies across chunks (range %.2e) -- truth is not deterministic. DO NOT TRUST.",
+                 g$cell[1], diff(range(g$trW))))
   data.frame(n = g$n[1], s = g$s[1], binY = g$binY[1], nsim = ns,
-    trW = round(g$trW[1], 3),
-    oe_snr_mn   = round(mean(g$oe_snr), 2),
+    trW = round(g$trW[1], 4),
+    oe_snr_mn   = round(mean(g$oe_snr, na.rm = TRUE), 2),
     ratio_mn    = round(mean(g$weak_id_ratio, na.rm = TRUE), 2),
     ratio_sd    = round(sd(g$weak_id_ratio, na.rm = TRUE), 2),
     pct_weak_id = round(mean(g$weak_id, na.rm = TRUE), 3),
     pct_oe_irreg= round(mean(!g$oe_regular, na.rm = TRUE), 3),
-    covW_an     = round(mean(g$covW_an), 3),
-    mcse_covW_an= round(mcse(mean(g$covW_an), ns), 4),
-    covW_pct    = round(mean(g$covW_pct), 3),
+    covW_an     = round(mean(g$covW_an, na.rm = TRUE), 3),
+    ## MCSE must use the number of reps the mean was ACTUALLY taken over, not
+    ## nrow(g) -- otherwise any NA rep silently understates the uncertainty.
+    mcse_covW_an= round(mcse(mean(g$covW_an, na.rm = TRUE), sum(!is.na(g$covW_an))), 4),
+    covW_pct    = round(mean(g$covW_pct, na.rm = TRUE), 3),
     row.names = NULL) }))
 agg <- agg[order(agg$binY, agg$n, agg$s), ]
 
@@ -39,26 +48,34 @@ sweep <- do.call(rbind, lapply(seq(1.5, 6, by = 0.25), function(t) {
   if (sum(fl) < 50 || sum(!fl) < 50) return(NULL)   # too lopsided to read
   data.frame(threshold = t,
     pct_flagged   = round(mean(fl), 3),
-    covW_flagged  = round(mean(df$covW_an[fl]), 3),
-    covW_unflagged= round(mean(df$covW_an[!fl]), 3),
-    separation    = round(mean(df$covW_an[!fl]) - mean(df$covW_an[fl]), 3),
+    covW_flagged  = round(mean(df$covW_an[fl], na.rm = TRUE), 3),
+    covW_unflagged= round(mean(df$covW_an[!fl], na.rm = TRUE), 3),
+    separation    = round(mean(df$covW_an[!fl], na.rm = TRUE) -
+                          mean(df$covW_an[fl], na.rm = TRUE), 3),
     row.names = NULL) }))
 
-## Same for the regularity gate, on its own scale.
+## Same for the regularity gate, on its own scale. Both sweeps NA-guard the
+## subset mask AND the covW_an means: a single NaN oe_snr (se(OE) == 0 --
+## degenerate, but R/gauge-pmed.R explicitly handles it, so it is reachable)
+## would otherwise make `if (sum(fl) < 50)` throw "missing value where
+## TRUE/FALSE needed" and kill the collate AFTER the multi-day array has run;
+## an NA covW_an would silently poison a mean.
 sweep_snr <- do.call(rbind, lapply(seq(1, 4, by = 0.25), function(t) {
   fl <- df$oe_snr < t
+  fl[is.na(fl)] <- FALSE
   if (sum(fl) < 50 || sum(!fl) < 50) return(NULL)
   data.frame(threshold = t,
     pct_flagged   = round(mean(fl), 3),
-    covW_flagged  = round(mean(df$covW_an[fl]), 3),
-    covW_unflagged= round(mean(df$covW_an[!fl]), 3),
-    separation    = round(mean(df$covW_an[!fl]) - mean(df$covW_an[fl]), 3),
+    covW_flagged  = round(mean(df$covW_an[fl], na.rm = TRUE), 3),
+    covW_unflagged= round(mean(df$covW_an[!fl], na.rm = TRUE), 3),
+    separation    = round(mean(df$covW_an[!fl], na.rm = TRUE) -
+                          mean(df$covW_an[fl], na.rm = TRUE), 3),
     row.names = NULL) }))
 
 ## ---------------- sensitivity / specificity at the SHIPPED defaults ---------
 ## "weak regime" = the cells the flag is meant to catch; "strong" = it must not.
-weak   <- df$oe_snr <= 1.2
-strong <- df$oe_snr >= 3
+weak   <- df$oe_snr <= 1.2; weak[is.na(weak)]     <- FALSE
+strong <- df$oe_snr >= 3;   strong[is.na(strong)] <- FALSE
 oc <- data.frame(
   sensitivity_at_3 = round(mean(df$weak_id[weak],   na.rm = TRUE), 3),  # want high
   fpr_at_3         = round(mean(df$weak_id[strong], na.rm = TRUE), 3),  # want ~0

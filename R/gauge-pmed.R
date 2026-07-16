@@ -36,22 +36,29 @@
 #'   nominal 0.95 in any cell. So `weak_id = FALSE` cannot mean "this interval is
 #'   trustworthy" -- at best it means "not the worst tail of an already
 #'   sub-nominal default". If you need coverage you can rely on, use
-#'   `se_method = "bootstrap"`: the percentile interval is conservative
-#'   (~1.00 on the same grid). The flag's own operating characteristics against
-#'   coverage are **not yet quantified** -- see the validation grid scripted at
-#'   `inst/sim/hopper/run_weakid_validation.R`.
+#'   `se_method = "bootstrap"` -- but know what you are buying: the percentile
+#'   interval covered **1.00** in all 8 cells of that grid, which is not "mildly"
+#'   conservative, it is uncalibrated in the safe direction. You get a guarantee
+#'   at the cost of an interval wide enough to be uninformative near the null.
+#'   Neither arm is nominal; pick the error you can live with. The flag's own
+#'   operating characteristics against coverage are **not yet quantified** -- see
+#'   the validation grid scripted at `inst/sim/hopper/run_weakid_validation.R`.
 #'
-#'   **It is also specific but insensitive.** In a pilot (20 draws per point,
-#'   n = 1500, `B = 200`, continuous `Y`) it fired in **0%** of
-#'   strongly-identified draws (`oe_snr >= 3`) -- essentially no false alarms --
-#'   but in only ~**50%** of genuinely weakly-identified ones (`oe_snr <= 1.2`),
-#'   because `weak_id_ratio` is highly variable draw-to-draw in the weak regime
-#'   (SD ~= its mean). It therefore misses roughly half the cases it targets.
-#'   That is a deliberate trade -- a diagnostic that cries wolf is worse than
-#'   useless -- but it means `weak_id = FALSE` is *uninformative*, not
-#'   reassuring. Consult `oe_snr` and the Fieller set alongside it; `oe_regular`
-#'   demonstrably catches draws that `weak_id` misses, so the two gates are
-#'   complementary rather than redundant.
+#'   **It also appears to trade sensitivity for specificity -- provisionally.**
+#'   A small pilot (`inst/sim/pilot/weak_id_pilot.R`: 20 draws per point,
+#'   n = 1500, `B = 200`, continuous `Y`) saw no false alarms among
+#'   strongly-identified draws (`oe_snr >= 3`), and roughly half of the
+#'   weakly-identified ones flagged (`oe_snr <= 1.2`). **Read those as
+#'   indications, not measurements.** At 20 draws a "50%" rate carries an exact
+#'   95% interval of about `[0.27, 0.73]`, and 0 alarms in 20 draws bounds the
+#'   false-alarm rate only at roughly **17%** (exact 95% upper) -- not at zero. The
+#'   *mechanism* is better established than the magnitude: `weak_id_ratio` is
+#'   highly variable draw-to-draw in the weak regime (SD approaching its mean),
+#'   which necessarily costs detection. Pending the grid, the safe reading is
+#'   that `weak_id = FALSE` is *uninformative* rather than reassuring. Consult
+#'   `oe_snr` and the Fieller set alongside it; `oe_regular` is observed to catch
+#'   draws that `weak_id` misses, so the two gates look complementary rather than
+#'   redundant.
 #' @param weak_id_ratio Numeric: ratio of the percentile `W`-interval width to the
 #'   Wald `W`-interval width; `NA` if not computed.
 #' @param oe_snr Numeric: signal-to-noise of the denominator, `|OE| / se(OE)`.
@@ -158,7 +165,8 @@ GaugePmedResult <- S7::new_class(
 #' @param weak_id_ratio_threshold Numeric: the `weak_id` flag fires when the
 #'   percentile `W`-CI is at least this many times wider than the Wald interval
 #'   (default `3`). **Provisional** -- calibrated on a single near-null scenario;
-#'   the definitive value awaits the coverage grid (medsim#24). Exposed so it can
+#'   the definitive value awaits the validation grid scripted at
+#'   `inst/sim/hopper/run_weakid_validation.R`. Exposed so it can
 #'   be tuned without editing the source.
 #' @param oe_snr_threshold Numeric: the `oe_regular` guard flags a near-singular
 #'   denominator when `|OE|/se(OE)` falls below this (default `2`). **Provisional**
@@ -259,16 +267,18 @@ S7::method(ward_residual, S7::class_data.frame) <-
     ## non-regular functional as OE -> 0, where bootstrap consistency for this
     ## Neyman-orthogonal cross-fit estimator fails (Lin et al. 2026). oe_snr below
     ## oe_snr_threshold flags OE statistically indistinguishable from 0.
-    ## A gradient DGM sweep (A-effect scale s=0..1) confirmed weak_id_ratio is
-    ## monotone decreasing in oe_snr, not merely bimodal: ratio ~4-5.5x at oe_snr
-    ## ~0.7-1.2, crossing the default threshold=3 between oe_snr~1.7 and ~2.2, down
-    ## to ~1.2x at oe_snr~12+. A2 (weak_id) can clear before A1 (oe_regular) as OE
-    ## strengthens -- e.g. weak_id turns off at oe_snr~1.7 while oe_regular only
-    ## turns on at oe_snr~2.2 -- so the two gates are not redundant restatements of
-    ## each other; A2 is the earlier/stricter signal near the boundary, consistent
-    ## with Zhan (2026)'s premise that CI divergence carries information beyond a
-    ## point signal-to-noise ratio. Both thresholds are provisional pending the
-    ## medsim#24 coverage grid.
+    ## A gradient DGM sweep (A-effect scale s) shows weak_id_ratio decreasing in
+    ## oe_snr ON AVERAGE -- ~3.4 at oe_snr~0.7 down to ~1.4 at oe_snr~12 (20 draws
+    ## per point; inst/sim/pilot/weak_id_pilot.R) -- so the flag grades rather than
+    ## merely detecting the near-null. Do NOT read exact crossover points off that
+    ## sweep: the per-draw SD approaches the mean in the weak regime, so a
+    ## single-draw sweep traces a clean curve by luck (an earlier version of this
+    ## comment quoted such points as if stable; they did not reproduce). A2
+    ## (weak_id) and A1 (oe_regular) are observed to fire on DIFFERENT draws, so
+    ## they are complementary rather than redundant restatements -- consistent with
+    ## Zhan (2026)'s premise that CI divergence carries information beyond a point
+    ## signal-to-noise ratio. Both thresholds remain PROVISIONAL pending
+    ## inst/sim/hopper/run_weakid_validation.R.
     seOE       <- se(pOE)
     oe_snr     <- unname(abs(OE) / seOE)
     ## NA-preserving: a degenerate se(OE) == 0 yields oe_snr = NaN, which must

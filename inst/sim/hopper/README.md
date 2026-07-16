@@ -40,13 +40,16 @@ collator sweeps candidate thresholds and reports `covW | flagged` vs
 the flagged group clearly degraded. It also reports sensitivity/FPR at the
 shipped defaults.
 
-**Known going in** (local pilot, 20 draws/point, n=1500, continuous Y): the flag
-is **specific but insensitive** -- ~0% false positives at `oe_snr >= 3`, but only
-~50% detection at `oe_snr <= 1.2`, because `weak_id_ratio`'s draw-to-draw SD
-approaches its mean in the weak regime. The grid's job is to pin these down per
-cell and say whether a different threshold trades better. Note A1 (`oe_regular`)
-and A2 (`weak_id`) demonstrably **catch different draws** -- they are
-complementary, not redundant.
+**Indications going in** (`../pilot/weak_id_pilot.R`: 20 draws/point, n=1500,
+continuous Y) -- these are *why the grid is needed*, not results it can assume:
+the flag *appears* specific but insensitive (no false alarms seen at high
+`oe_snr`; roughly half the weak draws flagged). **20 draws cannot pin a rate to
+better than about +/-0.2**, so treat both as directional. The firmer part is the
+mechanism: `weak_id_ratio`'s draw-to-draw SD approaches its mean in the weak
+regime, which necessarily costs detection. A1 (`oe_regular`) and A2 (`weak_id`)
+are *observed* to fire on different draws, suggesting they are complementary
+rather than redundant. The grid's job is to turn every one of these hedges into
+a number.
 
 ### Why the existing coverage grid cannot substitute for this one
 
