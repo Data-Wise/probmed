@@ -1,4 +1,84 @@
-# Hopper (HPC) gauge coverage grid
+# Hopper (HPC) gauge grids
+
+This directory holds two independent SLURM studies:
+
+| Grid | Scripts | Question |
+|---|---|---|
+| **Coverage** (done 2026-06-23) | `run_gauge_boot_grid.R`, `collate_gauge_boot.R`, `submit_gauge_boot.sh`, `submit_collate.sh` | What is the CI coverage of `W` / `P_med`? |
+| **#11 threshold validation** (not yet run) | `run_weakid_validation.R`, `collate_weakid_validation.R`, `submit_weakid_validation.sh`, `submit_weakid_collate.sh` | Are `weak_id_ratio_threshold = 3` / `oe_snr_threshold = 2` the right defaults? |
+
+---
+
+## #11 threshold-validation grid (`run_weakid_validation.R`)
+
+**Status: scripts ready, NOT submitted.** 192 tasks consume a real share of the
+CPU allocation and queue behind other work -- submit deliberately.
+
+**Why a second grid.** The coverage grid varies `n x tint x binY`, which lands
+`oe_snr` at the *extremes* (~1 or ~12). A threshold arbitrates in the *middle*
+(`oe_snr` ~1.5-5), which no coverage cell samples. This grid sweeps the A-effect
+**scale `s`**, the axis that moves `oe_snr` monotonically through the crossover.
+
+**Design:** `s` {0.05,0.10,0.15,0.20,0.30,0.50} x `n` {800,3000} x `binY` {F,T}
+= **24 cells** x 8 chunks x 250 reps = **nsim 2000/cell** (48,000 reps).
+`B = 200` -- deliberately `ward_residual()`'s **default**, since the threshold
+governs a user-facing flag and must be calibrated under the conditions users
+actually run (a probe showed `B=999` raises the ratio only ~6-8%).
+
+**Records the shipped fields verbatim** (`weak_id`, `weak_id_ratio`, `oe_snr`,
+`oe_regular`) rather than a re-derived proxy, so it validates exactly what users
+get. It also stores `wid_wald`/`wid_pct`, so the threshold sweep can be redone
+without re-running the grid.
+
+**The analysis (`collate_weakid_validation.R`).** Percentile coverage is ~1.00
+everywhere, so the flag *cannot* be validated against percentile under-coverage.
+Its real claim is "W's CI is least trustworthy here", and the CI users get **by
+default is the analytic Wald** one (~0.86-0.91). So the test is an operating
+characteristic: **is Wald coverage materially worse when the flag fires?** The
+collator sweeps candidate thresholds and reports `covW | flagged` vs
+`covW | unflagged`; a validated threshold leaves the unflagged group ~nominal and
+the flagged group clearly degraded. It also reports sensitivity/FPR at the
+shipped defaults.
+
+**Known going in** (local pilot, 20 draws/point, n=1500, continuous Y): the flag
+is **specific but insensitive** -- ~0% false positives at `oe_snr >= 3`, but only
+~50% detection at `oe_snr <= 1.2`, because `weak_id_ratio`'s draw-to-draw SD
+approaches its mean in the weak regime. The grid's job is to pin these down per
+cell and say whether a different threshold trades better. Note A1 (`oe_regular`)
+and A2 (`weak_id`) demonstrably **catch different draws** -- they are
+complementary, not redundant.
+
+### Why the existing coverage grid cannot substitute for this one
+
+Tempting shortcut, ruled out empirically. The coverage grid's raw data
+(`~/gauge_boot/gauge_boot_raw.rds`, 16,000 reps) stores **no CI widths** -- only
+`seW_an`, `seW_bt`, and `divW_WaldVsPct` (a max endpoint *displacement*, not a
+ratio). The Wald width is recoverable (`2*z*seW_an`, symmetric by construction)
+but the **percentile width is not**: it is quantile-based, and `seW_bt` is a
+replicate SD, not the quantile spread -- and the skew that separates them is
+precisely the phenomenon under study.
+
+You can still run the threshold sweep on that data using
+`se_ratio = seW_bt/seW_an` as a stand-in, and it looks encouraging (separation
+peaks near 3). **Do not trust that transfer.** A direct check (64 reps spanning
+the identification range) found `se_ratio` correlates with the shipped
+`weak_id_ratio` at only **Pearson r ~ 0.41 / Spearman ~ 0.53**, on a different
+scale (medians 2.39 vs 1.66), agreeing on the ">= 3" call just ~72% of the time.
+A threshold calibrated on `se_ratio` therefore says little about the same
+threshold on the shipped width ratio. Hence this grid, which records the shipped
+fields verbatim.
+
+```bash
+sbatch submit_weakid_validation.sh   # 192-task array
+sbatch submit_weakid_collate.sh      # after it completes
+```
+
+Requires a probmed **>= PR #23** first on `R_LIBS` (the weak-ID fields must
+exist); both the runner and the collator abort loudly otherwise.
+
+---
+
+## Gauge coverage grid
 
 The bootstrap arm of the gauge coverage study is CPU-expensive (each rep costs
 `B` bootstrap refits x cross-fitting), so it runs as a SLURM array on **hopper**
