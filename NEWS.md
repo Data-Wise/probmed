@@ -22,6 +22,15 @@
 
 ## Bug fixes
 
+* `ward_residual()`: `print()` for the weak-ID / near-singular-OE diagnostics
+  (added above) now reports the threshold actually applied to the result
+  (`weak_id_ratio_threshold` / `oe_snr_threshold`, retained as new
+  `GaugePmedResult` fields) instead of the hardcoded defaults ("3x" / "< 2"),
+  which misreported the gate whenever a non-default threshold was passed to
+  `ward_residual()`. `weak_id`/`oe_regular` also now stay `NA` (rather than a
+  false-confident `FALSE`) in the degenerate case of a zero-width Wald interval
+  or zero se(OE) (#11).
+
 * `incr_pmed()`: the g-score term of the efficient influence function now
   carries the tilt-derivative (`q'`) weight, matching the point estimate.
   Previously it used the bare corner contrasts, inflating standard errors

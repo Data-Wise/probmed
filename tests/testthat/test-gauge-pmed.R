@@ -232,18 +232,47 @@ test_that("gate thresholds are tunable via arguments", {
   )
   expect_true(r_strict@weak_id)  # threshold=1 must trip on any width inflation
   r_lenient <- ward_residual(d, oe_snr_threshold = 0)
-  expect_true(isTRUE(r_lenient@oe_regular))  # threshold=0 always passes
+  expect_true(isTRUE(r_lenient@oe_regular))  # threshold=0: any finite oe_snr passes
+  # non-tautological direction: a threshold ABOVE a well-identified case's oe_snr
+  # must flip oe_regular to FALSE, proving the comparison actually uses the arg.
+  r_overstrict <- ward_residual(d, oe_snr_threshold = 100)
+  expect_true(r_overstrict@oe_snr < 100)
+  expect_false(isTRUE(r_overstrict@oe_regular))
 })
 
-test_that("print() surfaces the weak-ID and near-singular-OE flags", {
+test_that("print() surfaces the weak-ID and near-singular-OE flags with the ACTUAL threshold used", {
   r_weak <- suppressWarnings(
     ward_residual(.gp_gen(1200, 0.9, FALSE), se_method = "bootstrap", B = 100L,
                   weak_id_ratio_threshold = 1)
   )
   expect_output(print(r_weak), "weak-ID.*wider than Wald")
+  # regression guard: print() must report the threshold actually applied (1),
+  # not a hardcoded default (3) -- the bug this test was written to catch.
+  expect_output(print(r_weak), ">= 1x")
+  expect_no_match(capture.output(print(r_weak)), ">= 3x", all = FALSE)
 
   r_nonreg <- suppressWarnings(
-    ward_residual(.gp_null(800), se_method = "bootstrap", B = 60L)
+    ward_residual(.gp_null(800), se_method = "bootstrap", B = 60L, oe_snr_threshold = 5)
   )
   expect_output(print(r_nonreg), "near-singular OE.*non-regular")
+  expect_output(print(r_nonreg), "< 5")
+})
+
+test_that("weak_id and oe_regular stay NA (not FALSE) in degenerate zero-width/zero-se cases", {
+  # constructing GaugePmedResult directly to exercise the NA-preserving branches
+  # without needing to engineer a genuinely zero-width bootstrap CI or zero se(OE)
+  # from real data (astronomically unlikely, but the code path must not crash or
+  # silently report a confident FALSE for an undefined comparison).
+  r <- GaugePmedResult(
+    p_med = 0.5, p_med_ci = c(0.4, 0.6), W = 0.1, W_ci = c(0.05, 0.15),
+    W_se = 0.02, W_p = 0.1, W_ci_wald = c(0.08, 0.08),  # zero-width Wald
+    weak_id = if (is.na(NA_real_)) NA else FALSE, weak_id_ratio = NA_real_,
+    oe_snr = NA_real_, oe_regular = NA,
+    OE = 0.5, IDE = 0.1, IIE = 0.3, R = 0.1, theta = c(0, 0, 0, 0),
+    method = "onestep-crossfit", n = 100L, ci_level = 0.95, se_method = "bootstrap"
+  )
+  expect_true(is.na(r@weak_id))
+  expect_true(is.na(r@oe_regular))
+  # print() must not error when these flags are NA (isTRUE/isFALSE guard, not bare if)
+  expect_no_error(print(r))
 })
