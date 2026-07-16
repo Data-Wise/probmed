@@ -62,7 +62,31 @@ where the ratio \code{W = R/OE} is least trustworthy (Zhan 2026). \code{NA} unle
 \code{se_method = "bootstrap"} (both intervals are required to compare), and also
 \code{NA} (not \code{FALSE}) in the degenerate case where the Wald interval has
 zero width. The 3x threshold is calibrated above the ~2x width gap that the
-anti-conservative Wald interval shows even under strong identification.}
+anti-conservative Wald interval shows even under strong identification.
+
+\strong{An absent flag does not buy nominal coverage.} Independently of the
+flag, the symmetric Wald interval for \code{W} is anti-conservative
+\emph{everywhere}: \strong{~0.88} overall across the 16,000-rep coverage grid
+(\code{inst/sim/results/gauge_boot_coverage_nsim2000.csv}), never reaching the
+nominal 0.95 in any cell. So \code{weak_id = FALSE} cannot mean "this interval
+is trustworthy" -- at best it means "not the worst tail of an already
+sub-nominal default". If you need coverage you can rely on, use
+\code{se_method = "bootstrap"}: the percentile interval is conservative (~1.00
+on the same grid). The flag's own operating characteristics against coverage are
+\strong{not yet quantified} -- see the validation grid scripted at
+\code{inst/sim/hopper/run_weakid_validation.R}.
+
+\strong{It is also specific but insensitive.} In a pilot (20 draws per point,
+n = 1500, \code{B = 200}, continuous \code{Y}) it fired in \strong{0\%} of
+strongly-identified draws (\code{oe_snr >= 3}) -- essentially no false alarms --
+but in only ~\strong{50\%} of genuinely weakly-identified ones
+(\code{oe_snr <= 1.2}), because \code{weak_id_ratio} is highly variable
+draw-to-draw in the weak regime (SD ~= its mean). It therefore misses roughly
+half the cases it targets. That is a deliberate trade -- a diagnostic that cries
+wolf is worse than useless -- but it means \code{weak_id = FALSE} is
+\emph{uninformative}, not reassuring. Consult \code{oe_snr} and the Fieller set
+alongside it; \code{oe_regular} demonstrably catches draws that \code{weak_id}
+misses, so the two gates are complementary rather than redundant.}
 
 \item{weak_id_ratio}{Numeric: ratio of the percentile \code{W}-interval width to the
 Wald \code{W}-interval width; \code{NA} if not computed.}

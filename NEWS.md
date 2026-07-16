@@ -1,5 +1,22 @@
 # probmed 0.3.0.9000 (development)
 
+## Documentation
+
+* `ward_residual()` / `GaugePmedResult`: document what the `weak_id` flag does
+  and does **not** tell you. Two things a user needs and the docs did not say:
+  (1) **an absent flag does not buy nominal coverage** — independently of the
+  flag, the Wald interval for `W` is anti-conservative everywhere (~0.88 across
+  the 16,000-rep coverage grid, never nominal in any cell), so
+  `weak_id = FALSE` at best means "not the worst tail of an already sub-nominal
+  default"; use `se_method = "bootstrap"` (percentile, ~1.00) if you need
+  reliable coverage. (2) The flag is **specific but insensitive** — ~0% false
+  positives at strong identification, but only ~50% detection in the weak
+  regime, since `weak_id_ratio`'s draw-to-draw SD approaches its mean there.
+  `oe_regular` catches draws `weak_id` misses, so the two gates are
+  complementary. The flag's operating characteristics against coverage are not
+  yet quantified; the validation grid is scripted at
+  `inst/sim/hopper/run_weakid_validation.R` (#11).
+
 ## New features
 
 * `wasserstein_pmed()` and the `WassersteinPmedResult` class add the
