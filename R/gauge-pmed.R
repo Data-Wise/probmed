@@ -44,21 +44,26 @@
 #'   operating characteristics against coverage are **not yet quantified** -- see
 #'   the validation grid scripted at `inst/sim/hopper/run_weakid_validation.R`.
 #'
-#'   **It also appears to trade sensitivity for specificity -- provisionally.**
-#'   A small pilot (`inst/sim/pilot/weak_id_pilot.R`: 20 draws per point,
-#'   n = 1500, `B = 200`, continuous `Y`) saw no false alarms among
-#'   strongly-identified draws (`oe_snr >= 3`), and roughly half of the
-#'   weakly-identified ones flagged (`oe_snr <= 1.2`). **Read those as
-#'   indications, not measurements.** At 20 draws a "50%" rate carries an exact
-#'   95% interval of about `[0.27, 0.73]`, and 0 alarms in 20 draws bounds the
-#'   false-alarm rate only at roughly **17%** (exact 95% upper) -- not at zero. The
-#'   *mechanism* is better established than the magnitude: `weak_id_ratio` is
-#'   highly variable draw-to-draw in the weak regime (SD approaching its mean),
-#'   which necessarily costs detection. Pending the grid, the safe reading is
-#'   that `weak_id = FALSE` is *uninformative* rather than reassuring. Consult
-#'   `oe_snr` and the Fieller set alongside it; `oe_regular` is observed to catch
-#'   draws that `weak_id` misses, so the two gates look complementary rather than
-#'   redundant.
+#'   **It trades sensitivity for specificity -- provisionally.** A pilot
+#'   (`inst/sim/pilot/weak_id_pilot.R`; 120 draws, n = 1500, `B = 200`,
+#'   continuous `Y`) gives, conditioning per draw:
+#'   \itemize{
+#'     \item false alarms, `flag | oe_snr >= 3`: **0/58**, exact 95% CI
+#'       `[0.00, 0.06]` -- so the false-alarm rate is bounded near 6%, not shown
+#'       to be zero.
+#'     \item detection, `flag | oe_snr <= 1.2`: **12/28 = 0.43**, exact 95% CI
+#'       `[0.24, 0.63]` -- it misses roughly half the cases it targets, though
+#'       the interval is wide.
+#'   }
+#'   **These are pilot indications, not settled operating characteristics** (a
+#'   further 34 draws fall between the two regimes and are not summarised by
+#'   either figure). The *mechanism* is firmer than the magnitudes:
+#'   `weak_id_ratio` is highly variable draw-to-draw in the weak regime (SD
+#'   approaching its mean), which necessarily costs detection. Pending the grid,
+#'   the safe reading is that `weak_id = FALSE` is *uninformative* rather than
+#'   reassuring. Consult `oe_snr` and the Fieller set alongside it; `oe_regular`
+#'   is observed to catch draws that `weak_id` misses, so the two gates look
+#'   complementary rather than redundant.
 #' @param weak_id_ratio Numeric: ratio of the percentile `W`-interval width to the
 #'   Wald `W`-interval width; `NA` if not computed.
 #' @param oe_snr Numeric: signal-to-noise of the denominator, `|OE| / se(OE)`.

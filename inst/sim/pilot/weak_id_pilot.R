@@ -1,13 +1,18 @@
 ## Pilot: how variable is weak_id_ratio across draws, and how often does the
 ## weak_id flag actually fire?  (Cited in ?GaugePmedResult.)
 ##
-## PROVENANCE / STATUS: this is a 20-draw-per-point PILOT, not a measurement.
-## At 20 draws a "50%" firing rate has a 95% interval of about [0.28, 0.72], and
-## 0/20 alarms is only consistent with a false-alarm rate below ~15% -- NOT with
-## zero. Committed so the numbers quoted in the roxygen are reproducible and so
-## their weakness is auditable. The real study is
-## ../hopper/run_weakid_validation.R (nsim = 2000/cell). Do not cite this file
-## as validation.
+## PROVENANCE / STATUS: a PILOT (120 draws total), not a measurement. Committed so
+## the figures quoted in ?GaugePmedResult are reproducible and their weakness is
+## auditable. Output as of 2026-07-16, conditioning PER DRAW (which is what the
+## docs claim -- an earlier version of this script printed only per-s means and so
+## never computed the quantity the prose cited):
+##   false alarms, flag | oe_snr >= 3 : 0/58,  exact 95% CI [0.00, 0.06]
+##   detection,  flag | oe_snr <= 1.2 : 12/28 = 0.43, exact 95% CI [0.24, 0.63]
+##   (34 further draws fall between the regimes and are in neither figure)
+## Cite the INTERVALS, not the point estimates -- and note the false-alarm rate is
+## bounded near 6%, NOT shown to be zero. The real study is
+## ../hopper/run_weakid_validation.R (nsim = 2000/cell). Do not cite this file as
+## validation.
 ##
 ## Run:  Rscript inst/sim/pilot/weak_id_pilot.R     (120 fits; ~25 min)
 suppressMessages(devtools::load_all(quiet = TRUE))

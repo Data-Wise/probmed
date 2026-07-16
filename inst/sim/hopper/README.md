@@ -40,16 +40,22 @@ collator sweeps candidate thresholds and reports `covW | flagged` vs
 the flagged group clearly degraded. It also reports sensitivity/FPR at the
 shipped defaults.
 
-**Indications going in** (`../pilot/weak_id_pilot.R`: 20 draws/point, n=1500,
-continuous Y) -- these are *why the grid is needed*, not results it can assume:
-the flag *appears* specific but insensitive (no false alarms seen at high
-`oe_snr`; roughly half the weak draws flagged). **20 draws cannot pin a rate to
-better than about +/-0.2**, so treat both as directional. The firmer part is the
+**Indications going in** (`../pilot/weak_id_pilot.R`, 120 draws, n=1500,
+continuous Y) -- these are *why the grid is needed*, not results it may assume:
+
+| per-draw | pilot | exact 95% CI |
+|---|---|---|
+| false alarms (`flag \| oe_snr >= 3`) | 0/58 | `[0.00, 0.06]` |
+| detection (`flag \| oe_snr <= 1.2`) | 12/28 = 0.43 | `[0.24, 0.63]` |
+
+So the flag looks specific but insensitive -- but the detection interval spans
+0.24 to 0.63, which is not a measurement of anything, and 34 further draws sit
+between the regimes and are summarised by neither row. The firmer part is the
 mechanism: `weak_id_ratio`'s draw-to-draw SD approaches its mean in the weak
 regime, which necessarily costs detection. A1 (`oe_regular`) and A2 (`weak_id`)
 are *observed* to fire on different draws, suggesting they are complementary
 rather than redundant. The grid's job is to turn every one of these hedges into
-a number.
+a number -- at nsim=2000/cell the same rates carry a CI of roughly +/-0.02.
 
 ### Why the existing coverage grid cannot substitute for this one
 

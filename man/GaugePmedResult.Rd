@@ -80,16 +80,20 @@ operating characteristics against coverage are \strong{not yet quantified} --
 see the validation grid scripted at
 \code{inst/sim/hopper/run_weakid_validation.R}.
 
-\strong{It also appears to trade sensitivity for specificity -- provisionally.}
-A small pilot (\code{inst/sim/pilot/weak_id_pilot.R}: 20 draws per point,
-n = 1500, \code{B = 200}, continuous \code{Y}) saw no false alarms among
-strongly-identified draws (\code{oe_snr >= 3}), and roughly half of the
-weakly-identified ones flagged (\code{oe_snr <= 1.2}). \strong{Read those as
-indications, not measurements.} At 20 draws a "50\%" rate carries an exact 95\%
-interval of about \code{[0.27, 0.73]}, and 0 alarms in 20 draws bounds the
-false-alarm rate only at roughly \strong{17\%} (exact 95\% upper) -- not at
-zero. The
-\emph{mechanism} is better established than the magnitude:
+\strong{It trades sensitivity for specificity -- provisionally.} A pilot
+(\code{inst/sim/pilot/weak_id_pilot.R}; 120 draws, n = 1500, \code{B = 200},
+continuous \code{Y}) gives, conditioning per draw:
+\itemize{
+\item false alarms, \code{flag | oe_snr >= 3}: \strong{0/58}, exact 95\% CI
+\code{[0.00, 0.06]} -- so the false-alarm rate is bounded near 6\%, not shown to
+be zero.
+\item detection, \code{flag | oe_snr <= 1.2}: \strong{12/28 = 0.43}, exact 95\%
+CI \code{[0.24, 0.63]} -- it misses roughly half the cases it targets, though the
+interval is wide.
+}
+\strong{These are pilot indications, not settled operating characteristics} (a
+further 34 draws fall between the two regimes and are not summarised by either
+figure). The \emph{mechanism} is firmer than the magnitudes:
 \code{weak_id_ratio} is highly variable draw-to-draw in the weak regime (SD
 approaching its mean), which necessarily costs detection. Pending the grid, the
 safe reading is that \code{weak_id = FALSE} is \emph{uninformative} rather than
