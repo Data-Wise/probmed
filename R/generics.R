@@ -78,11 +78,9 @@ NULL
 #' )
 #' print(result)
 #'
-#' \dontrun{
 #' # View bootstrap distribution
 #' summary(result)
 #' plot(result)
-#' }
 #'
 #' @seealso \code{\link{extract_mediation}} for extracting from fitted models
 #' @export
