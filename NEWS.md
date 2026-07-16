@@ -22,6 +22,14 @@
 
 ## Bug fixes
 
+* `PmedResult` validator: the `ci_lower <= ci_upper` check was silently
+  inert -- an S7 validator returns only its last expression's value, so with
+  the checks written as separate `if`-blocks the bounds-order message was
+  computed and discarded, and only the final `ci_level` check could error.
+  The validator now accumulates all messages and returns them together, so a
+  reversed confidence interval is correctly rejected. Found while closing a
+  test-coverage gap on the core `PmedResult` print/summary/plot methods.
+
 * `ward_residual()`: `print()` for the weak-ID / near-singular-OE diagnostics
   (added above) now reports the threshold actually applied to the result
   (`weak_id_ratio_threshold` / `oe_snr_threshold`, retained as new
