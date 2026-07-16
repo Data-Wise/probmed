@@ -63,12 +63,27 @@ version. Leftover worktree dirs (incremental-pmed / my-sensitivity / sobol-pmed)
 🎯 NEXT NON-BLOCKED STEPS (plan, 2026-06-22 — items 1-2 still open, item 3 superseded)
 1. Package-wide spell cleanup on dev: 15 flags in incr_pmed/sobol_pmed/pmed_sensitivity
    Rd + NEWS (gauge surface already clean). Small hygiene branch → dev.
-2. Reconcile coverage grids: gaugeboot (64-cell) + in-repo analytic (12-cell, nsim=1000)
-   → one manuscript coverage table/figure. Design now; numbers when gaugeboot finishes.
+2. Reconcile coverage grids → one manuscript coverage table/figure. UNBLOCKED
+   (2026-07-16): the gaugeboot numbers are DONE — the 64-task array finished
+   2026-06-23 and is now retrieved into the repo as
+   inst/sim/results/gauge_boot_coverage_nsim2000.csv (8 cells, nsim=2000,
+   16,000 reps, stale-package guard PASSED). Generating scripts also brought
+   in under inst/sim/hopper/ (were cluster-only ⇒ results were unreproducible).
+   Remaining: merge it with the local analytic 12-cell grid into the manuscript
+   table. NOTE the two grids are different designs (see inst/sim/hopper/README.md):
+   local = 24-cell, nsim=1000, closed-form truth, continuous-Y only; hopper =
+   8-cell, nsim=2000, MC truth, includes binary-Y and reports both arms per row.
 3. ~~Wasserstein merge-prep~~ SUPERSEDED — branch closed out, no unique content remained.
 4. Manuscript 01-gauge-pmed: cite implemented a0/a1 + validated analytic coverage.
+5. #11 threshold validation (partial evidence now in hand): the gaugeboot collate
+   guard reports median seW_bt/seW_an = 1.82 across all 16,000 reps, independently
+   corroborating the ~2x routine anti-conservatism gap that weak_id_ratio_threshold=3
+   was calibrated to clear. NOT a full validation — the grid measures an SE ratio
+   and a max-endpoint divergence (divW_med), while the shipped flag uses a
+   percentile/Wald CI-WIDTH ratio; the raw parts do not retain CI widths, so an
+   exact check needs a re-run recording width-ratio (a hopper job).
 BLOCKED (not actionable): probmed→CRAN (needs medfit 0.3.x on CRAN, then drop Remotes +
-cran-comments + bump version); bootstrap coverage NUMBERS (hopper CPU, gaugeboot queued).
+cran-comments + bump version).
 
 🌿 ACTIVE WORKTREE
 🧹 BRANCH/WORKTREE CLEANUP (2026-07-15/16): main checkout is `dev` (no other worktrees).
@@ -97,11 +112,17 @@ feature/gauge-bootstrap-se — ~/projects/r-packages/active/probmed (THIS checko
      analytic_coverage_nsim1000.csv): W-CI coverage 0.855-0.887 near null, FLAT across
      n=500->4000 (NOT finite-n → ratio-skew shape problem, widening won't fix it); rises to
      ~0.90-0.92 at tau=0.8; P_med-CI 0.90-0.935. Confirms the docstring's ~0.85-0.90.
-     BOOTSTRAP half: CANONICAL run is the user's pre-existing hopper setup
+     BOOTSTRAP half: ✅ COMPLETE (finished 2026-06-23; retrieved into the repo
+     2026-07-16 → inst/sim/results/gauge_boot_coverage_nsim2000.csv + generating
+     scripts under inst/sim/hopper/). Results: analytic W-CI 0.859–0.913 (confirms
+     the anti-conservative ~0.85–0.90 claim on an independent nsim=2000 grid),
+     percentile W-CI 1.000 (over-covers / conservative), P_med analytic 0.899–0.934.
+     Guard PASSED (bootstrap≠analytic in 100% of reps, median seW_bt/seW_an=1.82).
+     CANONICAL run was the user's pre-existing hopper setup
      ~/gauge_boot/ (64-cell array `gaugeboot` 4239663 + collator `gbcollate` 4239664),
-     which uses the REAL installed gauge feature-branch package (R_LIBS=$HOME/Rlib/4.4-gauge),
-     PENDING behind wassgrid/a15grid (QOSMaxCpuPerUserLimit) — starts as CPU frees naturally
-     (user chose not to trim research jobs, 2026-06-21). My duplicate 24-cell standalone array
+     which uses the REAL installed gauge feature-branch package (R_LIBS=$HOME/Rlib/4.4-gauge).
+     [HISTORICAL: was PENDING behind wassgrid/a15grid (QOSMaxCpuPerUserLimit) as of
+     2026-06-21; that queue has long since drained.] My duplicate 24-cell standalone array
      (4239667) was CANCELLED as redundant. The in-repo standalone runner
      (inst/sim/gauge_coverage_standalone.R, verified == ward_residual via
      check_standalone_equiv.R) is kept as an install-free reproduction. COLLECT gaugeboot:
