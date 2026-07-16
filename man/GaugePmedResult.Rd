@@ -71,22 +71,35 @@ flag, the symmetric Wald interval for \code{W} is anti-conservative
 nominal 0.95 in any cell. So \code{weak_id = FALSE} cannot mean "this interval
 is trustworthy" -- at best it means "not the worst tail of an already
 sub-nominal default". If you need coverage you can rely on, use
-\code{se_method = "bootstrap"}: the percentile interval is conservative (~1.00
-on the same grid). The flag's own operating characteristics against coverage are
-\strong{not yet quantified} -- see the validation grid scripted at
+\code{se_method = "bootstrap"} -- but know what you are buying: the percentile
+interval covered \strong{1.00} in all 8 cells of that grid, which is not
+"mildly" conservative, it is uncalibrated in the safe direction. You get a
+guarantee at the cost of an interval wide enough to be uninformative near the
+null. Neither arm is nominal; pick the error you can live with. The flag's own
+operating characteristics against coverage are \strong{not yet quantified} --
+see the validation grid scripted at
 \code{inst/sim/hopper/run_weakid_validation.R}.
 
-\strong{It is also specific but insensitive.} In a pilot (20 draws per point,
-n = 1500, \code{B = 200}, continuous \code{Y}) it fired in \strong{0\%} of
-strongly-identified draws (\code{oe_snr >= 3}) -- essentially no false alarms --
-but in only ~\strong{50\%} of genuinely weakly-identified ones
-(\code{oe_snr <= 1.2}), because \code{weak_id_ratio} is highly variable
-draw-to-draw in the weak regime (SD ~= its mean). It therefore misses roughly
-half the cases it targets. That is a deliberate trade -- a diagnostic that cries
-wolf is worse than useless -- but it means \code{weak_id = FALSE} is
-\emph{uninformative}, not reassuring. Consult \code{oe_snr} and the Fieller set
-alongside it; \code{oe_regular} demonstrably catches draws that \code{weak_id}
-misses, so the two gates are complementary rather than redundant.}
+\strong{It trades sensitivity for specificity -- provisionally.} A pilot
+(\code{inst/sim/pilot/weak_id_pilot.R}; 120 draws, n = 1500, \code{B = 200},
+continuous \code{Y}) gives, conditioning per draw:
+\itemize{
+\item false alarms, \code{flag | oe_snr >= 3}: \strong{0/58}, exact 95\% CI
+\code{[0.00, 0.06]} -- so the false-alarm rate is bounded near 6\%, not shown to
+be zero.
+\item detection, \code{flag | oe_snr <= 1.2}: \strong{12/28 = 0.43}, exact 95\%
+CI \code{[0.24, 0.63]} -- it misses roughly half the cases it targets, though the
+interval is wide.
+}
+\strong{These are pilot indications, not settled operating characteristics} (a
+further 34 draws fall between the two regimes and are not summarised by either
+figure). The \emph{mechanism} is firmer than the magnitudes:
+\code{weak_id_ratio} is highly variable draw-to-draw in the weak regime (SD
+approaching its mean), which necessarily costs detection. Pending the grid, the
+safe reading is that \code{weak_id = FALSE} is \emph{uninformative} rather than
+reassuring. Consult \code{oe_snr} and the Fieller set alongside it;
+\code{oe_regular} is observed to catch draws that \code{weak_id} misses, so the
+two gates look complementary rather than redundant.}
 
 \item{weak_id_ratio}{Numeric: ratio of the percentile \code{W}-interval width to the
 Wald \code{W}-interval width; \code{NA} if not computed.}

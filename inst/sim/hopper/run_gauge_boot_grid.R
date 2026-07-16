@@ -1,7 +1,19 @@
 ## Gauge bootstrap-CI coverage grid (Hopper). Analytic (Wald) vs percentile bootstrap
 ## for the ratios W=R/OE and P_med=IIE/OE. nsim=2000 per cell (8 chunks x 250).
 ## Gates: per-cell MCSE, weak-ID (Wald-vs-percentile divergence), failed-run logging,
-## known-answer (tau=0 => W=0), SE-vs-estimate data. SEE SIM-REQUEST-gauge-bootstrap-grid.md
+## known-answer, SE-vs-estimate data. SEE SIM-REQUEST-gauge-bootstrap-grid.md
+##
+## CORRECTION (2026-07-16): the known-answer gate is "tint=0 => W=0" for CONTINUOUS Y
+## ONLY. It does NOT hold for binY=TRUE -- the logit link is nonlinear, so the corner
+## means do not cancel and the exact W at tint=0 is about -0.033, not 0. The shipped
+## results agree (trW = -0.035 in BOTH binY=TRUE/tint=0 cells of
+## ../results/gauge_boot_coverage_nsim2000.csv), i.e. this grid's own data always
+## contradicted the comment. Do not "correct" a nonzero binary trW at tint=0.
+##
+## This grid's MC truth is nonetheless sound: its axis is tint, so OE = 0.92 + 0.6*tint
+## never approaches 0, and the stored trW is off by only ~0.002 (<= 0.04 of empSD_W).
+## Contrast run_weakid_validation.R, which sweeps the A-effect toward the null and so
+## MUST use the exact/quadrature truth -- MC there is wrong by 3-4x and sign-unstable.
 suppressMessages(library(probmed))
 ## --- stale-package guard (A1): abort unless the bootstrap arm is live ---
 .chk <- local({ set.seed(99); n<-300; C<-rnorm(n); A<-rbinom(n,1,plogis(0.3*C))

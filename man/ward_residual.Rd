@@ -72,7 +72,8 @@ Multi-valued / continuous exposures are future work.}
 \item{weak_id_ratio_threshold}{Numeric: the \code{weak_id} flag fires when the
 percentile \code{W}-CI is at least this many times wider than the Wald interval
 (default \code{3}). \strong{Provisional} -- calibrated on a single near-null scenario;
-the definitive value awaits the coverage grid (medsim#24). Exposed so it can
+the definitive value awaits the validation grid scripted at
+\code{inst/sim/hopper/run_weakid_validation.R}. Exposed so it can
 be tuned without editing the source.}
 
 \item{oe_snr_threshold}{Numeric: the \code{oe_regular} guard flags a near-singular

@@ -57,15 +57,43 @@ gen <- function(n, s, binY) {
   data.frame(A, M, Y, C)
 }
 
-## Monte-Carlo truth (no closed form once binY = TRUE).
-truth <- function(s, binY, N = 2e6) {
-  C <- rnorm(N)
-  th <- function(a, ap) {
-    M <- s * 0.6 * ap + 0.4 * C + rnorm(N)
-    lin <- s * 0.5 * a + 0.7 * M + s * 0.4 * a * M + 0.3 * C
-    mean(if (binY) expit(lin) else lin)
-  }
-  t11 <- th(1, 1); t10 <- th(1, 0); t01 <- th(0, 1); t00 <- th(0, 0)
+## EXACT truth -- no Monte Carlo. `lin` is a linear combination of normals, so it
+## is exactly Gaussian even in the binary case:
+##   lin = 0.5s*a + b*M + 0.3C,   b = 0.7 + 0.4*s*a,   M = 0.6s*ap + 0.4C + eM
+##       = 0.5s*a + 0.6s*b*ap + (0.4b + 0.3)C + b*eM,  C, eM ~ iid N(0,1)
+##   => lin ~ N(mu, sd^2),  mu = 0.5s*a + 0.6s*b*ap,  var = (0.4b+0.3)^2 + b^2
+## Continuous Y: theta = mu. Binary Y: theta = E[expit(lin)] -- a 1-D Gaussian
+## integral, by quadrature to ~1e-10.
+##
+## WHY NOT MONTE CARLO (do not reintroduce it): an earlier version drew N = 2e6
+## per corner. W = R/OE divides by OE -> 0, so MC error in the denominator
+## explodes the ratio exactly where this grid is trying to measure -- and the
+## call was unseeded, so each of the 8 chunks in a cell scored coverage against
+## a DIFFERENT draw of the truth (the collator then reported only the first).
+## Scale of the problem at s = 0.05, measured over repeated MC runs: the MC
+## truth has SD ~0.017-0.019 and ranges roughly [-0.015, +0.045] -- larger than
+## the estimand itself (exact: 0.0129 continuous / 0.0101 binary) and unstable
+## in SIGN. (One MC run returned 0.043 vs exact 0.0129; quoting that single draw
+## as "the" MC value would repeat exactly the single-draw error this comment
+## warns about -- the point is the spread, not any one number.) MC converges
+## only at large s, e.g. s = 0.5: MC ~0.118 vs exact 0.1154.
+##
+## NOTE the sibling grid (run_gauge_boot_grid.R) legitimately keeps MC: its axis
+## is `tint`, so OE = 0.92 + 0.6*tint is never near 0, and its stored trW is off
+## by only ~0.002 (<= 0.04 of empSD_W). The hazard is specific to sweeping
+## toward the null.
+theta_exact <- function(a, ap, s, binY) {
+  b  <- 0.7 + 0.4 * s * a
+  mu <- 0.5 * s * a + 0.6 * s * b * ap
+  sd <- sqrt((0.4 * b + 0.3)^2 + b^2)
+  if (!binY) return(mu)
+  stats::integrate(function(x) expit(x) * stats::dnorm(x, mu, sd),
+                   lower = mu - 12 * sd, upper = mu + 12 * sd,
+                   rel.tol = 1e-10)$value
+}
+truth <- function(s, binY) {
+  t11 <- theta_exact(1, 1, s, binY); t10 <- theta_exact(1, 0, s, binY)
+  t01 <- theta_exact(0, 1, s, binY); t00 <- theta_exact(0, 0, s, binY)
   OE <- t11 - t00
   c(W = (OE - (t10 - t00) - (t01 - t00)) / OE, P = (t01 - t00) / OE)
 }

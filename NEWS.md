@@ -8,14 +8,21 @@
   flag, the Wald interval for `W` is anti-conservative everywhere (~0.88 across
   the 16,000-rep coverage grid, never nominal in any cell), so
   `weak_id = FALSE` at best means "not the worst tail of an already sub-nominal
-  default"; use `se_method = "bootstrap"` (percentile, ~1.00) if you need
-  reliable coverage. (2) The flag is **specific but insensitive** — ~0% false
-  positives at strong identification, but only ~50% detection in the weak
-  regime, since `weak_id_ratio`'s draw-to-draw SD approaches its mean there.
-  `oe_regular` catches draws `weak_id` misses, so the two gates are
-  complementary. The flag's operating characteristics against coverage are not
-  yet quantified; the validation grid is scripted at
-  `inst/sim/hopper/run_weakid_validation.R` (#11).
+  default". `se_method = "bootstrap"` is the safer arm, but know what it costs:
+  the percentile interval covered **1.00** in all 8 cells — uncalibrated in the
+  safe direction, i.e. wide enough to be uninformative near the null. **Neither
+  arm is nominal**; pick the error you can live with. (2) The flag trades
+  sensitivity for specificity — but read the magnitudes as indications, not
+  measurements. A 120-draw pilot (`inst/sim/pilot/weak_id_pilot.R`), conditioning
+  per draw, gives false alarms `flag | oe_snr >= 3` of **0/58** (exact 95% CI
+  `[0.00, 0.06]` — bounded near 6%, *not* shown to be zero) and detection
+  `flag | oe_snr <= 1.2` of **12/28 = 0.43** (CI `[0.24, 0.63]`), with a further
+  34 draws in neither regime. The *mechanism* is firmer than the magnitudes —
+  `weak_id_ratio`'s draw-to-draw SD approaches its mean in the weak regime,
+  which necessarily costs detection. `oe_regular` is observed to catch draws
+  `weak_id` misses, so the two gates look complementary. The flag's operating
+  characteristics against coverage are **not yet quantified**; the validation
+  grid is scripted (unrun) at `inst/sim/hopper/run_weakid_validation.R` (#11).
 
 ## New features
 
