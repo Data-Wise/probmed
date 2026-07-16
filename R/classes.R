@@ -89,20 +89,23 @@ PmedResult <- S7::new_class(
     call = S7::new_property(class = S7::class_any, default = NULL)
   ),
   validator = function(self) {
+    # An S7 validator returns the value of its LAST expression, so independent
+    # if-blocks silently discard all but the final check's message. Accumulate
+    # every hard-invalidity message and return them together. (`estimate`
+    # outside [0,1] is a soft concern -- degenerate but not structurally
+    # invalid -- so it stays a warning, not a validation error.)
     if (self@estimate < 0 || self@estimate > 1) {
       warning("P_med outside [0,1]. Check model specification.")
     }
 
-    if (!is.na(self@ci_lower) && !is.na(self@ci_upper)) {
-      if (self@ci_lower > self@ci_upper) {
-        "ci_lower must be <= ci_upper"
-      }
+    errors <- character(0)
+    if (!is.na(self@ci_lower) && !is.na(self@ci_upper) &&
+        self@ci_lower > self@ci_upper) {
+      errors <- c(errors, "ci_lower must be <= ci_upper")
     }
-
-    if (!is.na(self@ci_level)) {
-      if (self@ci_level <= 0 || self@ci_level >= 1) {
-        "ci_level must be in (0, 1)"
-      }
+    if (!is.na(self@ci_level) && (self@ci_level <= 0 || self@ci_level >= 1)) {
+      errors <- c(errors, "ci_level must be in (0, 1)")
     }
+    if (length(errors)) errors else NULL
   }
 )
