@@ -70,11 +70,9 @@ result <- pmed(
 )
 print(result)
 
-\dontrun{
 # View bootstrap distribution
 summary(result)
 plot(result)
-}
 
 }
 \seealso{
