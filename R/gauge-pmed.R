@@ -24,16 +24,25 @@
 #' @param weak_id Logical: weak-identification flag -- `TRUE` when the percentile
 #'   CI for `W` is at least 3x wider than the symmetric Wald interval, the regime
 #'   where the ratio `W = R/OE` is least trustworthy (Zhan 2026). `NA` unless
-#'   `se_method = "bootstrap"` (both intervals are required to compare). The 3x
-#'   threshold is calibrated above the ~2x width gap that the anti-conservative
-#'   Wald interval shows even under strong identification.
+#'   `se_method = "bootstrap"` (both intervals are required to compare), and
+#'   also `NA` (not `FALSE`) in the degenerate case where the Wald interval has
+#'   zero width. The 3x threshold is calibrated above the ~2x width gap that the
+#'   anti-conservative Wald interval shows even under strong identification.
 #' @param weak_id_ratio Numeric: ratio of the percentile `W`-interval width to the
 #'   Wald `W`-interval width; `NA` if not computed.
 #' @param oe_snr Numeric: signal-to-noise of the denominator, `|OE| / se(OE)`.
 #'   Small values indicate `OE` near 0, where `W = R/OE` is non-regular.
 #' @param oe_regular Logical: `TRUE` when `oe_snr >= 2`; `FALSE` flags a
 #'   near-singular `OE` for which the bootstrap CI for `W` may be invalid
-#'   (Lin et al. 2026).
+#'   (Lin et al. 2026). Computed unconditionally from the analytic se(OE)
+#'   regardless of `se_method` (only the accompanying `warning()` is gated on
+#'   `se_method = "bootstrap"`, since that's the only mode where a bootstrap CI
+#'   for `W` is actually being reported). `NA` only in the degenerate case
+#'   `se(OE) == 0`.
+#' @param weak_id_ratio_threshold,oe_snr_threshold Numeric: the threshold values
+#'   actually used for the `weak_id`/`oe_regular` gates on this result (see the
+#'   identically-named arguments of [ward_residual()]). Stored so `print()` can
+#'   report the threshold that was actually applied, not a hardcoded default.
 #' @param OE,IDE,IIE,R Numeric: overall, interventional direct, interventional
 #'   indirect effects and the remainder.
 #' @param theta Numeric length-4: corner means `theta(a, a')`.
@@ -60,6 +69,8 @@ GaugePmedResult <- S7::new_class(
     weak_id_ratio = S7::new_property(class = S7::class_numeric, default = NA_real_),
     oe_snr = S7::new_property(class = S7::class_numeric, default = NA_real_),
     oe_regular = S7::new_property(class = S7::class_logical, default = NA),
+    weak_id_ratio_threshold = S7::new_property(class = S7::class_numeric, default = 3),
+    oe_snr_threshold = S7::new_property(class = S7::class_numeric, default = 2),
     OE = S7::class_numeric, IDE = S7::class_numeric,
     IIE = S7::class_numeric, R = S7::class_numeric,
     theta = S7::class_numeric, method = S7::class_character,
@@ -236,7 +247,9 @@ S7::method(ward_residual, S7::class_data.frame) <-
     ## medsim#24 coverage grid.
     seOE       <- se(pOE)
     oe_snr     <- unname(abs(OE) / seOE)
-    oe_regular <- isTRUE(oe_snr >= oe_snr_threshold)
+    ## NA-preserving: a degenerate se(OE) == 0 yields oe_snr = NaN, which must
+    ## stay NA (undefined), not collapse to a confident FALSE via isTRUE(NA).
+    oe_regular <- if (is.na(oe_snr)) NA else isTRUE(oe_snr >= oe_snr_threshold)
     ## ---- bootstrap (near-null remedy): the analytic IF se for W and P_med is
     ## right-skewed and median-below the empirical SD, so the symmetric Wald CI
     ## under-covers (~0.85-0.90). W = R/OE and P_med = IIE/OE are ratios, so we use
@@ -271,11 +284,15 @@ S7::method(ward_residual, S7::class_data.frame) <-
     if (se_method == "bootstrap") {
       wald_w <- W_ci_wald[2] - W_ci_wald[1]
       weak_id_ratio <- if (wald_w > 0) (W_ci[2] - W_ci[1]) / wald_w else NA_real_
-      weak_id <- isTRUE(weak_id_ratio >= weak_id_ratio_threshold)
+      ## NA-preserving: a degenerate (zero-width) Wald interval leaves the
+      ## ratio undefined -- isTRUE(NA >= x) would silently report "not weakly
+      ## identified" (FALSE), which is a false confident claim.
+      weak_id <- if (is.na(weak_id_ratio)) NA else isTRUE(weak_id_ratio >= weak_id_ratio_threshold)
     }
     ## Gate warnings (A1 fires only when a bootstrap CI for W is actually being
-    ## reported; A2 whenever the divergence is detected).
-    if (!oe_regular && se_method == "bootstrap")
+    ## reported; A2 whenever the divergence is detected). isFALSE()/isTRUE() (not
+    ## bare negation) since oe_regular/weak_id may now be NA in degenerate cases.
+    if (isFALSE(oe_regular) && se_method == "bootstrap")
       warning("Near-singular OE (|OE|/se = ", round(oe_snr, 2), " < ",
               oe_snr_threshold, "): W = R/OE is non-regular, so the bootstrap CI ",
               "for W may be invalid (Lin et al. 2026). Prefer the Fieller set for ",
@@ -313,6 +330,8 @@ S7::method(ward_residual, S7::class_data.frame) <-
       W_p = unname(2 * stats::pnorm(-abs(z))),
       W_ci_wald = unname(W_ci_wald), weak_id = weak_id,
       weak_id_ratio = weak_id_ratio, oe_snr = oe_snr, oe_regular = oe_regular,
+      weak_id_ratio_threshold = weak_id_ratio_threshold,
+      oe_snr_threshold = oe_snr_threshold,
       OE = unname(OE), IDE = unname(IDE), IIE = unname(IIE), R = unname(R),
       theta = th, method = "onestep-crossfit", n = as.integer(n),
       ci_level = ci_level, se_method = se_method, reps = as.integer(reps),
@@ -342,10 +361,11 @@ S7::method(print, GaugePmedResult) <- function(x, ...) {
     cat("  ! |W| large: additive split unreliable; interpret P_med with care.\n")
   if (isTRUE(x@weak_id))
     cat(sprintf(paste0("  ! weak-ID: percentile CI for W is %.1fx wider than Wald",
-                       " [%.3f, %.3f] (>= 3x); W CI least trustworthy here.\n"),
-                x@weak_id_ratio, x@W_ci_wald[1], x@W_ci_wald[2]))
+                       " [%.3f, %.3f] (>= %gx); W CI least trustworthy here.\n"),
+                x@weak_id_ratio, x@W_ci_wald[1], x@W_ci_wald[2], x@weak_id_ratio_threshold))
   if (isFALSE(x@oe_regular))
-    cat(sprintf(paste0("  ! near-singular OE (|OE|/se = %.2f < 2): W = R/OE",
-                       " non-regular; bootstrap CI may be invalid.\n"), x@oe_snr))
+    cat(sprintf(paste0("  ! near-singular OE (|OE|/se = %.2f < %g): W = R/OE",
+                       " non-regular; bootstrap CI may be invalid.\n"),
+                x@oe_snr, x@oe_snr_threshold))
   invisible(x)
 }

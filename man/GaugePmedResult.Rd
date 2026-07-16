@@ -18,6 +18,8 @@ GaugePmedResult(
   weak_id_ratio = NA_real_,
   oe_snr = NA_real_,
   oe_regular = NA,
+  weak_id_ratio_threshold = 3,
+  oe_snr_threshold = 2,
   OE = integer(0),
   IDE = integer(0),
   IIE = integer(0),
@@ -57,9 +59,10 @@ as the reference for the weak-identification diagnostic even under
 \item{weak_id}{Logical: weak-identification flag -- \code{TRUE} when the percentile
 CI for \code{W} is at least 3x wider than the symmetric Wald interval, the regime
 where the ratio \code{W = R/OE} is least trustworthy (Zhan 2026). \code{NA} unless
-\code{se_method = "bootstrap"} (both intervals are required to compare). The 3x
-threshold is calibrated above the ~2x width gap that the anti-conservative Wald
-interval shows even under strong identification.}
+\code{se_method = "bootstrap"} (both intervals are required to compare), and also
+\code{NA} (not \code{FALSE}) in the degenerate case where the Wald interval has
+zero width. The 3x threshold is calibrated above the ~2x width gap that the
+anti-conservative Wald interval shows even under strong identification.}
 
 \item{weak_id_ratio}{Numeric: ratio of the percentile \code{W}-interval width to the
 Wald \code{W}-interval width; \code{NA} if not computed.}
@@ -69,7 +72,17 @@ Small values indicate \code{OE} near 0, where \code{W = R/OE} is non-regular.}
 
 \item{oe_regular}{Logical: \code{TRUE} when \code{oe_snr >= 2}; \code{FALSE} flags a
 near-singular \code{OE} for which the bootstrap CI for \code{W} may be invalid
-(Lin et al. 2026).}
+(Lin et al. 2026). Computed unconditionally from the analytic se(OE) regardless
+of \code{se_method} (only the accompanying \code{warning()} is gated on
+\code{se_method = "bootstrap"}, since that's the only mode where a bootstrap CI
+for \code{W} is actually being reported). \code{NA} only in the degenerate case
+\code{se(OE) == 0}.}
+
+\item{weak_id_ratio_threshold, oe_snr_threshold}{Numeric: the threshold values
+actually used for the \code{weak_id}/\code{oe_regular} gates on this result (see
+the identically-named arguments of \code{\link{ward_residual}}). Stored so
+\code{print()} can report the threshold that was actually applied, not a
+hardcoded default.}
 
 \item{OE, IDE, IIE, R}{Numeric: overall, interventional direct, interventional
 indirect effects and the remainder.}
