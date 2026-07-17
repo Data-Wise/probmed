@@ -138,11 +138,16 @@ submitter's environment, so submitting from a login shell that had *already*
 module-loaded R masked the bug; submitting the same script over plain `ssh` killed
 all 192 tasks in 0s. Keep the `source` line in any new sbatch file here.
 
-**Sanity-check before committing the whole array.** Note `REPS_PER` is 250, so
-running a task verbatim is a *full chunk* (hours) — not a smoke test. Use a
-reduced-rep copy writing to a throwaway dir, and check **both** branches: task 1
-(`binY=FALSE`) and task 97 (`binY=TRUE`, the first binary cell). Task 1 never
-touches the binary quadrature, so it alone proves nothing about that path.
+**Always pilot before submitting the full array — in BOTH tiers.** Standing rule.
+The two tiers catch disjoint failure classes, and tier 1 alone is what let job
+4277033 die 192/192: it passed cleanly on the login node while the real job could
+not even start.
+
+*Tier 1 — login-node probe (logic).* Catches estimand/output/arithmetic errors.
+`REPS_PER` is 250, so running a task verbatim is a *full chunk* (hours), not a
+smoke test — use a reduced-rep copy writing to a throwaway dir. Check **both**
+branches: task 1 (`binY=FALSE`) and task 97 (`binY=TRUE`, first binary cell).
+Task 1 never touches the binary quadrature, so it alone proves nothing there.
 
 ```bash
 ssh hopper 'cd ~/weakid_val && mkdir -p /tmp/probe_parts \
@@ -152,6 +157,26 @@ ssh hopper 'cd ~/weakid_val && mkdir -p /tmp/probe_parts \
 # then, with R_LIBS set as in step 2, for TASK in 1 and 97:
 #   SLURM_ARRAY_TASK_ID=$TASK Rscript /tmp/probe_run.R
 ```
+
+*Tier 2 — `sbatch` pilot (environment).* **Does not substitute for tier 1, and is
+not substituted by it.** A login shell has `module` defined and R on `PATH`; a
+SLURM batch shell has neither. Only a real submission tests module init, `PATH`,
+`R_LIBS` resolution, node filesystem, and memory. Submit the actual script with a
+one-task array and confirm it reaches `RUNNING` with **non-zero elapsed** — an
+instant `FAILED` at `00:00:00` is the signature of an environment bug, not a code
+bug (exit 127 = command not found).
+
+```bash
+ssh hopper 'cd ~/weakid_val \
+  && sed "s/--array=1-192/--array=1-1/" submit_weakid_validation.sh > probe_submit.sh \
+  && sbatch probe_submit.sh'
+ssh hopper 'sacct -j <id> --format=JobID%14,State%12,ExitCode,Elapsed -X'
+# RUNNING at 00:00:10 => environment OK. Then scancel and submit the full array.
+```
+
+When reading logs for failures, do not grep only for `error|abort|cannot` —
+`Rscript: command not found` matches none of those and an all-failed run looks
+clean.
 
 Known-answer check on the output: at `s = 0.05` the exact truth is
 `trW = 0.01287554` (continuous) and `0.0100586` (binary), and `trW` must be a
