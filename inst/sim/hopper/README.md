@@ -220,18 +220,47 @@ The bootstrap arm of the gauge coverage study is CPU-expensive (each rep costs
 
 ## Relationship to the local grid
 
-This is **not** the same design as the in-repo local study
-(`../gauge_coverage.R`, 24 cells: n {500,1000,2000,4000} x tau {0,0.2,0.8} x
-se_method, nsim=1000, closed-form truth, continuous Y only). The two are
-complementary:
+**The two share a data-generating process** — an earlier version of this section
+claimed they were "not the same design ... complementary", which is wrong and
+undersells them. `../gauge_coverage.R`'s `.pars` is
+`g0=-0.2, gC=0.8, aM=0.6, aC=0.4, bA=0.5, bM=0.7, bC=0.3`, and
+`run_gauge_boot_grid.R` hardcodes exactly those (`expit(-0.2+0.8*C)`,
+`M <- 0.6*A + 0.4*C`, `lin <- 0.5*A + 0.7*M + tint*A*M + 0.3*C`). **`tau` and
+`tint` are the same parameter** (the A x M coefficient); both grids reduce to
+`OE = 0.92 + 0.6*tau`, so `W = 0.6*tau / (0.92 + 0.6*tau)` in both. They differ
+only in `n`, `nsim`, truth method, and which arms were kept.
 
 | | Local (`analytic_coverage_nsim1000.csv`) | Hopper (`gauge_boot_coverage_nsim2000.csv`) |
 |---|---|---|
 | Cells | 24 (4 n x 3 tau x 2 se_method) | 8 (2 n x 2 tint x 2 binY) |
-| nsim | 1000 | 2000 |
+| `n` | 500, 1000, 2000, 4000 | 800, 3000 (**no overlap with local**) |
+| nsim | 1000 (MCSE ~0.010) | 2000 (MCSE ~0.007) |
 | Truth | closed-form | Monte-Carlo (N=2e6) |
 | Binary Y | no | **yes** |
 | Arms reported | analytic only (committed half) | analytic **and** percentile, per row |
+
+**They cross-validate.** Because the DGP is shared, the continuous-Y analytic arm
+is the *same quantity* measured twice, by independent truth methods, at
+interleaved `n`. At `tau = 0` the local grid gives 0.887 / 0.866 / 0.855 / 0.857
+(n = 500 / 1000 / 2000 / 4000) and hopper gives 0.867 (n=800) and 0.859 (n=3000) —
+on one curve. Closed-form and MC truth agreeing is real evidence, and it is the
+strongest check either file contains. (Consistent with hopper's stored `trW` being
+off by only ~0.002: exact `W` at `tint=0.8` is `0.48/1.4 = 0.342857`, stored as
+0.341.)
+
+**Building the manuscript table: never aggregate.** Rows are `tau x n`; each cell
+stands alone. Pooling these 20 continuous cells yields ~0.88 and **hides that
+coverage degrades as n grows** (0.887 -> 0.857 at `tau = 0`) — the marginal
+reverses the conditional, the same Simpson's-paradox trap that makes the `weak_id`
+flag look inverted when read across cells instead of within them. Keep binary-Y in
+a **separate panel**: `trW` there is -0.035 at `tint=0` (not 0), so those are a
+different estimand value, not comparable cells. And local's percentile column is
+*absent*, not zero — only its analytic half was committed.
+
+**The finding both grids carry:** analytic/Wald coverage for `W` is sub-nominal in
+**every** continuous cell (0.855-0.923, n=20 cells), never reaching 0.95, and it
+gets *worse* with n. Percentile over-covers (~1.000). This is metric-independent
+and does not depend on any threshold.
 
 ## Two guards worth knowing about
 
