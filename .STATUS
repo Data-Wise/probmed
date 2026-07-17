@@ -95,10 +95,26 @@ version. Leftover worktree dirs (incremental-pmed / my-sensitivity / sobol-pmed)
    with the shipped weak_id_ratio at only r ~ 0.41 (Spearman 0.53), different scale
    (medians 2.39 vs 1.66), agreeing on ">= 3" ~72% of the time. So the shipped
    threshold remains UNVALIDATED and the hopper grid is still required.
-   SUBMITTED 2026-07-16 as hopper job 4277259 (192 tasks, nsim 2000/cell). NOT yet
-   collated -- the threshold stays UNVALIDATED until the CSVs land in inst/sim/results/.
-   Next: `sbatch submit_weakid_collate.sh` once the array completes, then copy
-   weakid_validation_cells.csv + the two sweeps back and commit them WITH the scripts.
+   COMPLETE 2026-07-16 (hopper job 4277259, 192/192 tasks, 0 failures, 48,000 reps
+   across 24 cells; collate 4277455). CSVs committed to inst/sim/results/:
+   weakid_validation_cells.csv, weakid_threshold_sweep.csv, oe_snr_threshold_sweep.csv.
+   RESULT -- the two gates behave DIFFERENTLY, and only A2 does what the docs claim:
+     * A2 (weak_id, ratio >= 3): VALIDATED IN DIRECTION. Flagged draws have worse
+       Wald coverage in ALL 24 cells. Within-cell effect -0.045 at t=3 vs -0.016
+       pooled: pooling across s ATTENUATES it ~3x (does not reverse it). Separation
+       is FLAT over t in 1.75-4 (-0.058 to -0.045), so the data does not single out
+       3 -- it rules out neither. t=3 flags 35% of draws; t=1.75 flags 61%.
+     * A1 (oe_regular, oe_snr < 2): PREMISE IS WRONG for coverage. Flagged draws
+       OVER-cover -- contrast +0.101 within cell at t=2, positive in 22/22 cells
+       (pooled agrees, so this is NOT confounding). Mechanism verified: A1 fires as
+       OE -> 0, which inflates W = R/OE and its Wald CI 2.2x-5.2x; a uselessly wide
+       interval covers everything. So A1 marks intervals that are untrustworthy in
+       the WIDTH sense, not the coverage sense. The README's stated test ("flagged
+       group clearly degraded") is simply the wrong criterion for A1 -- it is not
+       evidence A1 is broken, but the user-facing claim needs restating.
+   OPEN: decide whether to (a) restate A1's documented claim as width/uninformativeness
+   rather than coverage, (b) keep t=3 as a flat-region convention and say so, (c) both.
+   User-facing roxygen in R/gauge-pmed.R + man/ + NEWS still carry the old framing.
    Deploying it surfaced two script bugs, both now fixed (see inst/sim/hopper/README.md):
      - hopper's R_LIBS held probmed 0.2.0.9000, which predates the weak-ID fields;
        0.3.0.9000 now installed to ~/Rlib/4.4-weakid (4.4-gauge left intact so the
