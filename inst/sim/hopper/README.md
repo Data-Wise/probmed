@@ -5,14 +5,15 @@ This directory holds two independent SLURM studies:
 | Grid | Scripts | Question |
 |---|---|---|
 | **Coverage** (done 2026-06-23) | `run_gauge_boot_grid.R`, `collate_gauge_boot.R`, `submit_gauge_boot.sh`, `submit_collate.sh` | What is the CI coverage of `W` / `P_med`? |
-| **#11 threshold validation** (not yet run) | `run_weakid_validation.R`, `collate_weakid_validation.R`, `submit_weakid_validation.sh`, `submit_weakid_collate.sh` | Are `weak_id_ratio_threshold = 3` / `oe_snr_threshold = 2` the right defaults? |
+| **#11 threshold validation** (submitted 2026-07-16, job `4277259`; not yet collated) | `run_weakid_validation.R`, `collate_weakid_validation.R`, `submit_weakid_validation.sh`, `submit_weakid_collate.sh` | Are `weak_id_ratio_threshold = 3` / `oe_snr_threshold = 2` the right defaults? |
 
 ---
 
 ## #11 threshold-validation grid (`run_weakid_validation.R`)
 
-**Status: scripts ready, NOT submitted.** 192 tasks consume a real share of the
-CPU allocation and queue behind other work -- submit deliberately.
+**Status: SUBMITTED 2026-07-16** as job `4277259` (192 tasks). Results are not yet
+collated; until the CSVs land in `../results/`, the #11 thresholds remain
+provisional and nothing here should be cited as validation.
 
 **Why a second grid.** The coverage grid varies `n x tint x binY`, which lands
 `oe_snr` at the *extremes* (~1 or ~12). A threshold arbitrates in the *middle*
@@ -83,6 +84,14 @@ The sbatch files invoke `$HOME/weakid_val/<script>.R`, so the scripts must be
 **deployed to the cluster first** — `~/weakid_val/` does not exist until you make
 it. Skipping this queues 192 tasks that each fail instantly with "file not found".
 
+Two more failure modes, both found the hard way on 2026-07-16 (job `4277033`:
+192/192 FAILED, exit 127, 0s elapsed — see step 2 and the note below step 3):
+
+- **The installed package predates the weak-ID fields.** `~/Rlib/4.4-gauge` holds
+  probmed 0.2.0.9000, which has none of them; the runner's guard aborts every task.
+- **`module` is undefined in SLURM's batch shell.** Fixed in the scripts, but the
+  same trap applies to any new sbatch file here — see the note below.
+
 ```bash
 # 1. deploy (from a checkout of this package, on your workstation)
 ssh hopper 'mkdir -p ~/weakid_val/{parts,logs}'
@@ -91,19 +100,63 @@ scp inst/sim/hopper/run_weakid_validation.R \
     inst/sim/hopper/submit_weakid_validation.sh \
     inst/sim/hopper/submit_weakid_collate.sh   hopper:~/weakid_val/
 
-# 2. install probmed >= PR #23 onto R_LIBS (the weak-ID fields must exist);
-#    both the runner and the collator abort loudly if they do not.
+# 2. install probmed >= 0.3.0 into ~/Rlib/4.4-weakid (the weak-ID fields must
+#    exist; both the runner and the collator abort loudly if they do not).
+#    Install into 4.4-weakid, NOT 4.4-gauge -- the latter still holds the
+#    0.2.0.9000 that produced the coverage grid and is kept intact for its
+#    reproducibility. Both submit scripts already put 4.4-weakid first.
+R CMD build --no-build-vignettes --no-manual .        # do NOT document() first:
+                                                      # roxygen 8.0.0 corrupts the
+                                                      # S7 docs (DESCRIPTION pins 7.3.3)
+scp probmed_*.tar.gz hopper:/tmp/
+ssh hopper 'bash -lc "mkdir -p \$HOME/Rlib/4.4-weakid && module load r/4.4.0-ytj2 \
+  && R CMD INSTALL --library=\$HOME/Rlib/4.4-weakid /tmp/probmed_*.tar.gz"'
+# verify the fields actually landed. The version string alone does NOT prove it --
+# check the properties themselves. Write the probe to a file rather than fighting
+# nested ssh/R quoting:
+cat > /tmp/probe.R <<'EOF'
+need <- c("weak_id", "weak_id_ratio", "oe_snr", "oe_regular",
+          "W_ci_wald", "weak_id_ratio_threshold", "oe_snr_threshold")
+cat("MISSING:", paste(setdiff(need, names(probmed::GaugePmedResult@properties)),
+                      collapse = ", "), "\n")
+EOF
+scp /tmp/probe.R hopper:/tmp/probe.R
+ssh hopper 'bash -lc "module load r/4.4.0-ytj2 \
+  && export R_LIBS=\$HOME/Rlib/4.4-weakid:\$HOME/Rlib/4.4-gauge:\$HOME/Rlib/4.4-a15 \
+  && Rscript /tmp/probe.R"'        # must print an empty MISSING: list
 
 # 3. submit
 ssh hopper 'cd ~/weakid_val && sbatch submit_weakid_validation.sh'   # 192-task array
 ssh hopper 'cd ~/weakid_val && sbatch submit_weakid_collate.sh'      # AFTER it completes
 ```
 
-Sanity-check one task before committing the whole array:
+**Note on `module`.** SLURM runs the batch script in a *non-login* shell, where
+`module` does not exist. The scripts here therefore `source /etc/profile.d/modules.sh`
+before `module load`, and hard-fail if `Rscript` is still off `PATH`. The earlier
+form (`module load ... 2>/dev/null`) worked only because `sbatch` exports the
+submitter's environment, so submitting from a login shell that had *already*
+module-loaded R masked the bug; submitting the same script over plain `ssh` killed
+all 192 tasks in 0s. Keep the `source` line in any new sbatch file here.
+
+**Sanity-check before committing the whole array.** Note `REPS_PER` is 250, so
+running a task verbatim is a *full chunk* (hours) — not a smoke test. Use a
+reduced-rep copy writing to a throwaway dir, and check **both** branches: task 1
+(`binY=FALSE`) and task 97 (`binY=TRUE`, the first binary cell). Task 1 never
+touches the binary quadrature, so it alone proves nothing about that path.
 
 ```bash
-ssh hopper 'cd ~/weakid_val && SLURM_ARRAY_TASK_ID=1 Rscript run_weakid_validation.R'
+ssh hopper 'cd ~/weakid_val && mkdir -p /tmp/probe_parts \
+  && sed -e "s/REPS_PER <- 250L/REPS_PER <- 2L/" \
+         -e "s|~/weakid_val/parts|/tmp/probe_parts|g" \
+         run_weakid_validation.R > /tmp/probe_run.R'
+# then, with R_LIBS set as in step 2, for TASK in 1 and 97:
+#   SLURM_ARRAY_TASK_ID=$TASK Rscript /tmp/probe_run.R
 ```
+
+Known-answer check on the output: at `s = 0.05` the exact truth is
+`trW = 0.01287554` (continuous) and `0.0100586` (binary), and `trW` must be a
+**single** value per cell — chunk-to-chunk variation would mean the MC truth is
+back (see the git history of `run_weakid_validation.R`).
 
 Outputs land in `~/weakid_val/parts/`; the collator writes
 `weakid_validation_cells.csv`, `weakid_threshold_sweep.csv`,

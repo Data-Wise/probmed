@@ -95,9 +95,18 @@ version. Leftover worktree dirs (incremental-pmed / my-sensitivity / sobol-pmed)
    with the shipped weak_id_ratio at only r ~ 0.41 (Spearman 0.53), different scale
    (medians 2.39 vs 1.66), agreeing on ">= 3" ~72% of the time. So the shipped
    threshold remains UNVALIDATED and the hopper grid is still required.
-   Scripts ready at inst/sim/hopper/run_weakid_validation.R (+ collate + 2 sbatch),
-   smoke-tested as SLURM invokes them; 192-task array deliberately NOT submitted
-   (maintainer's CPU allocation to spend): `sbatch submit_weakid_validation.sh`.
+   SUBMITTED 2026-07-16 as hopper job 4277259 (192 tasks, nsim 2000/cell). NOT yet
+   collated -- the threshold stays UNVALIDATED until the CSVs land in inst/sim/results/.
+   Next: `sbatch submit_weakid_collate.sh` once the array completes, then copy
+   weakid_validation_cells.csv + the two sweeps back and commit them WITH the scripts.
+   Deploying it surfaced two script bugs, both now fixed (see inst/sim/hopper/README.md):
+     - hopper's R_LIBS held probmed 0.2.0.9000, which predates the weak-ID fields;
+       0.3.0.9000 now installed to ~/Rlib/4.4-weakid (4.4-gauge left intact so the
+       coverage grid stays reproducible), and both sbatch files prepend it.
+     - `module load ... 2>/dev/null` silently failed in SLURM's non-login batch shell,
+       killing a first submission (job 4277033) 192/192 at exit 127 in 0s. The scripts
+       now source /etc/profile.d/modules.sh and hard-fail if Rscript is off PATH. The
+       same latent bug was fixed in the coverage grid's sbatch files.
    ✅ What IS established (metric-independent, from the 16k reps): Wald coverage
    ~0.88 overall, never nominal in ANY cell — so an absent weak_id flag does not
    buy nominal coverage. Now documented user-facing (PR #28).
