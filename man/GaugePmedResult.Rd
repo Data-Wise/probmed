@@ -57,8 +57,9 @@ as the reference for the weak-identification diagnostic even under
 \code{se_method = "bootstrap"} (where \code{W_ci} holds the percentile interval).}
 
 \item{weak_id}{Logical: weak-identification flag -- \code{TRUE} when the percentile
-CI for \code{W} is at least 3x wider than the symmetric Wald interval, the regime
-where the ratio \code{W = R/OE} is least trustworthy (Zhan 2026). \code{NA} unless
+CI for \code{W} is at least 3x wider than the symmetric Wald interval, the
+regime where the default Wald interval is most under-covering (Zhan 2026; see
+below for what the grid showed this does and does not mean). \code{NA} unless
 \code{se_method = "bootstrap"} (both intervals are required to compare), and also
 \code{NA} (not \code{FALSE}) in the degenerate case where the Wald interval has
 zero width. The 3x threshold is calibrated above the ~2x width gap that the
@@ -75,31 +76,26 @@ sub-nominal default". If you need coverage you can rely on, use
 interval covered \strong{1.00} in all 8 cells of that grid, which is not
 "mildly" conservative, it is uncalibrated in the safe direction. You get a
 guarantee at the cost of an interval wide enough to be uninformative near the
-null. Neither arm is nominal; pick the error you can live with. The flag's own
-operating characteristics against coverage are \strong{not yet quantified} --
-see the validation grid scripted at
-\code{inst/sim/hopper/run_weakid_validation.R}.
+null. Neither arm is nominal; pick the error you can live with.
 
-\strong{It trades sensitivity for specificity -- provisionally.} A pilot
-(\code{inst/sim/pilot/weak_id_pilot.R}; 120 draws, n = 1500, \code{B = 200},
-continuous \code{Y}) gives, conditioning per draw:
-\itemize{
-\item false alarms, \code{flag | oe_snr >= 3}: \strong{0/58}, exact 95\% CI
-\code{[0.00, 0.06]} -- so the false-alarm rate is bounded near 6\%, not shown to
-be zero.
-\item detection, \code{flag | oe_snr <= 1.2}: \strong{12/28 = 0.43}, exact 95\%
-CI \code{[0.24, 0.63]} -- it misses roughly half the cases it targets, though the
-interval is wide.
-}
-\strong{These are pilot indications, not settled operating characteristics} (a
-further 34 draws fall between the two regimes and are not summarised by either
-figure). The \emph{mechanism} is firmer than the magnitudes:
-\code{weak_id_ratio} is highly variable draw-to-draw in the weak regime (SD
-approaching its mean), which necessarily costs detection. Pending the grid, the
-safe reading is that \code{weak_id = FALSE} is \emph{uninformative} rather than
-reassuring. Consult \code{oe_snr} and the Fieller set alongside it;
-\code{oe_regular} is observed to catch draws that \code{weak_id} misses, so the
-two gates look complementary rather than redundant.}
+\strong{What the 48,000-rep validation grid established} (24 cells,
+\code{inst/sim/results/weakid_validation_cells.csv} + the two sweep files;
+adversarially re-verified from the raw reps): draws with \code{weak_id = TRUE}
+do have worse Wald coverage in \strong{all 24 cells} (within-cell contrast
+-0.03 to -0.07 depending on aggregation). But that separation is
+\strong{explained almost entirely by the Wald interval's own width} -- under a
+flexible width control the flag's coverage effect collapses to ~0 (-0.002,
+SE 0.003), and the bootstrap numerator of the ratio contributes nothing
+detectable. Read \code{weak_id} as a \strong{self-contained proxy for "your
+analytic interval is narrow, and narrow analytic intervals under-cover"} --
+useful precisely because a single fitted result offers no reference to judge
+"narrow" against -- not as evidence that the bootstrap-vs-Wald comparison
+detects a distinct pathology. The default threshold of 3 is a
+\strong{convention}: thresholds 1.75-4 were not distinguishable in the grid,
+and all 24 cells share one simulation design, so the number has no claim to
+transfer across data-generating processes. \code{oe_regular} is the gate that
+carries information \emph{beyond} interval width (see below); consult it and
+the Fieller set alongside this flag.}
 
 \item{weak_id_ratio}{Numeric: ratio of the percentile \code{W}-interval width to the
 Wald \code{W}-interval width; \code{NA} if not computed.}
@@ -108,12 +104,23 @@ Wald \code{W}-interval width; \code{NA} if not computed.}
 Small values indicate \code{OE} near 0, where \code{W = R/OE} is non-regular.}
 
 \item{oe_regular}{Logical: \code{TRUE} when \code{oe_snr >= 2}; \code{FALSE} flags a
-near-singular \code{OE} for which the bootstrap CI for \code{W} may be invalid
-(Lin et al. 2026). Computed unconditionally from the analytic se(OE) regardless
-of \code{se_method} (only the accompanying \code{warning()} is gated on
-\code{se_method = "bootstrap"}, since that's the only mode where a bootstrap CI
-for \code{W} is actually being reported). \code{NA} only in the degenerate case
-\code{se(OE) == 0}.}
+near-singular \code{OE} (Lin et al. 2026). Computed unconditionally from the
+analytic se(OE) regardless of \code{se_method} (only the accompanying
+\code{warning()} is gated on \code{se_method = "bootstrap"}). \code{NA} only in
+the degenerate case \code{se(OE) == 0}.
+
+\strong{What \code{FALSE} means -- width, not under-coverage.} In the
+48,000-rep validation grid, draws flagged by this gate did \strong{not}
+under-cover; they \emph{over}-covered (+0.10, in 22/22 qualifying cells, stable
+across every design slice). The mechanism: as \code{OE} approaches 0 the ratio
+\code{W = R/OE} and its intervals blow up -- flagged Wald intervals were a
+median \strong{21x wider than the true |W|} (vs 3x unflagged). Such an interval
+contains the truth and nearly everything else; it is untrustworthy because it
+is \strong{uninformative}, not because it misses. Of the two gates this is the
+stronger diagnostic -- its effect survives controlling for interval width
+(+0.036, SE 0.003), unlike \code{weak_id}'s. Treat \code{oe_regular = FALSE}
+as "the point estimate and CI for \code{W} are numerically meaningless here",
+not as a coverage warning.}
 
 \item{weak_id_ratio_threshold, oe_snr_threshold}{Numeric: the threshold values
 actually used for the \code{weak_id}/\code{oe_regular} gates on this result (see

@@ -19,10 +19,27 @@
   `flag | oe_snr <= 1.2` of **12/28 = 0.43** (CI `[0.24, 0.63]`), with a further
   34 draws in neither regime. The *mechanism* is firmer than the magnitudes —
   `weak_id_ratio`'s draw-to-draw SD approaches its mean in the weak regime,
-  which necessarily costs detection. `oe_regular` is observed to catch draws
-  `weak_id` misses, so the two gates look complementary. The flag's operating
-  characteristics against coverage are **not yet quantified**; the validation
-  grid is scripted (unrun) at `inst/sim/hopper/run_weakid_validation.R` (#11).
+  which necessarily costs detection.
+
+* The **#11 validation grid ran** (48,000 reps, 24 cells,
+  `inst/sim/hopper/run_weakid_validation.R`; results in `inst/sim/results/`,
+  adversarially re-verified from the raw reps) and settled the two gates'
+  division of labour — differently from what the docs had anticipated:
+  - `weak_id` (percentile/Wald width ratio ≥ 3): flagged draws do have worse
+    Wald coverage in **all 24 cells**, but that separation is **almost entirely
+    explained by the Wald interval's own width** (the flag's effect collapses
+    to ~0 under a flexible width control; the bootstrap numerator adds nothing
+    detectable). The docs now present it as a **self-contained narrowness
+    proxy** — useful because a single fit offers no reference for "narrow" —
+    not as evidence the bootstrap-vs-Wald comparison detects a distinct
+    pathology. The threshold 3 is a **convention**: 1.75–4 were not
+    distinguishable, and the grid spans one simulation design.
+  - `oe_regular` (`oe_snr < 2`): its flagged draws ***over*-cover** (+0.10, in
+    22/22 qualifying cells) — as `OE → 0` the intervals blow up (median 21×
+    wider than the true `|W|`) and cover everything. The docs now state it
+    flags **uninformatively wide** intervals, not under-coverage — and note it
+    is the *stronger* diagnostic, retaining an effect beyond width alone
+    (unlike `weak_id`).
 
 ## New features
 

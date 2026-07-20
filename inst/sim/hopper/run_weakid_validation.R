@@ -3,6 +3,12 @@
 ## Purpose: move ward_residual()'s `weak_id_ratio_threshold` (default 3) and
 ## `oe_snr_threshold` (default 2) from PROVISIONAL to validated (or corrected).
 ##
+## OUTCOME (ran 2026-07-16, job 4277259, 48k reps; "corrected" is what happened):
+## A2's coverage separation is real in all 24 cells but ~97% width-tautological;
+## A1 flags OVER-covering (uninformatively wide) intervals and is the stronger
+## gate; t in 1.75-4 indistinguishable, 3 kept as convention. See
+## ../README.md "What the grid found" and ../results/weakid_validation_cells.csv.
+##
 ## Design notes (why this grid differs from run_gauge_boot_grid.R):
 ##  * Axis. The gaugeboot grid varies n x tint x binY, which lands oe_snr at the
 ##    EXTREMES (~1 or ~12). A threshold arbitrates in the MIDDLE (oe_snr ~1.5-5),

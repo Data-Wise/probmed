@@ -71,14 +71,18 @@ Multi-valued / continuous exposures are future work.}
 
 \item{weak_id_ratio_threshold}{Numeric: the \code{weak_id} flag fires when the
 percentile \code{W}-CI is at least this many times wider than the Wald interval
-(default \code{3}). \strong{Provisional} -- calibrated on a single near-null scenario;
-the definitive value awaits the validation grid scripted at
-\code{inst/sim/hopper/run_weakid_validation.R}. Exposed so it can
-be tuned without editing the source.}
+(default \code{3}). \strong{A convention, not a calibrated optimum}: in the
+48,000-rep validation grid (\code{inst/sim/hopper/run_weakid_validation.R}) no
+threshold in 1.75-4 was distinguishable, and the grid spans a single simulation
+design -- see the \code{weak_id} property documentation of
+\code{\link{GaugePmedResult}} for what the flag does and does not detect.
+Exposed so it can be tuned without editing the source.}
 
 \item{oe_snr_threshold}{Numeric: the \code{oe_regular} guard flags a near-singular
-denominator when \code{|OE|/se(OE)} falls below this (default \code{2}). \strong{Provisional}
-(see \code{weak_id_ratio_threshold}).}
+denominator when \code{|OE|/se(OE)} falls below this (default \code{2}). Validated
+in the same grid as marking \strong{uninformatively wide} (over-covering)
+intervals, not under-coverage -- see the \code{oe_regular} property
+documentation of \code{\link{GaugePmedResult}}.}
 
 \item{...}{Unused.}
 }

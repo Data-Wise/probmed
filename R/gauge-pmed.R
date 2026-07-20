@@ -22,8 +22,9 @@
 #'   as the reference for the weak-identification diagnostic even under
 #'   `se_method = "bootstrap"` (where `W_ci` holds the percentile interval).
 #' @param weak_id Logical: weak-identification flag -- `TRUE` when the percentile
-#'   CI for `W` is at least 3x wider than the symmetric Wald interval, the regime
-#'   where the ratio `W = R/OE` is least trustworthy (Zhan 2026). `NA` unless
+#'   CI for `W` is at least 3x wider than the symmetric Wald interval, the
+#'   regime where the default Wald interval is most under-covering (Zhan 2026;
+#'   see below for what the grid showed this does and does not mean). `NA` unless
 #'   `se_method = "bootstrap"` (both intervals are required to compare), and
 #'   also `NA` (not `FALSE`) in the degenerate case where the Wald interval has
 #'   zero width. The 3x threshold is calibrated above the ~2x width gap that the
@@ -38,43 +39,49 @@
 #'   sub-nominal default". If you need coverage you can rely on, use
 #'   `se_method = "bootstrap"` -- but know what you are buying: the percentile
 #'   interval covered **1.00** in all 8 cells of that grid, which is not "mildly"
-#'   conservative, it is uncalibrated in the safe direction. You get a guarantee
-#'   at the cost of an interval wide enough to be uninformative near the null.
-#'   Neither arm is nominal; pick the error you can live with. The flag's own
-#'   operating characteristics against coverage are **not yet quantified** -- see
-#'   the validation grid scripted at `inst/sim/hopper/run_weakid_validation.R`.
+#'   conservative, it is uncalibrated in the safe direction. Neither arm is
+#'   nominal; pick the error you can live with.
 #'
-#'   **It trades sensitivity for specificity -- provisionally.** A pilot
-#'   (`inst/sim/pilot/weak_id_pilot.R`; 120 draws, n = 1500, `B = 200`,
-#'   continuous `Y`) gives, conditioning per draw:
-#'   \itemize{
-#'     \item false alarms, `flag | oe_snr >= 3`: **0/58**, exact 95% CI
-#'       `[0.00, 0.06]` -- so the false-alarm rate is bounded near 6%, not shown
-#'       to be zero.
-#'     \item detection, `flag | oe_snr <= 1.2`: **12/28 = 0.43**, exact 95% CI
-#'       `[0.24, 0.63]` -- it misses roughly half the cases it targets, though
-#'       the interval is wide.
-#'   }
-#'   **These are pilot indications, not settled operating characteristics** (a
-#'   further 34 draws fall between the two regimes and are not summarised by
-#'   either figure). The *mechanism* is firmer than the magnitudes:
-#'   `weak_id_ratio` is highly variable draw-to-draw in the weak regime (SD
-#'   approaching its mean), which necessarily costs detection. Pending the grid,
-#'   the safe reading is that `weak_id = FALSE` is *uninformative* rather than
-#'   reassuring. Consult `oe_snr` and the Fieller set alongside it; `oe_regular`
-#'   is observed to catch draws that `weak_id` misses, so the two gates look
-#'   complementary rather than redundant.
+#'   **What the 48,000-rep validation grid established** (24 cells,
+#'   `inst/sim/results/weakid_validation_cells.csv` + the two sweep files;
+#'   adversarially re-verified from the raw reps): draws with `weak_id = TRUE`
+#'   do have worse Wald coverage in **all 24 cells** (within-cell contrast
+#'   -0.03 to -0.07 depending on aggregation). But that separation is
+#'   **explained almost entirely by the Wald interval's own width** -- under a
+#'   flexible width control the flag's coverage effect collapses to ~0 (-0.002,
+#'   SE 0.003), and the bootstrap numerator of the ratio contributes nothing
+#'   detectable. Read `weak_id` as a **self-contained proxy for "your analytic
+#'   interval is narrow, and narrow analytic intervals under-cover"** -- useful
+#'   precisely because a single fitted result offers no reference to judge
+#'   "narrow" against -- not as evidence that the bootstrap-vs-Wald comparison
+#'   detects a distinct pathology. The default threshold of 3 is a
+#'   **convention**: thresholds 1.75-4 were not distinguishable in the grid, and
+#'   all 24 cells share one simulation design, so the number has no claim to
+#'   transfer across data-generating processes. `oe_regular` is the gate that
+#'   carries information *beyond* interval width (see below); consult it and the
+#'   Fieller set alongside this flag.
 #' @param weak_id_ratio Numeric: ratio of the percentile `W`-interval width to the
 #'   Wald `W`-interval width; `NA` if not computed.
 #' @param oe_snr Numeric: signal-to-noise of the denominator, `|OE| / se(OE)`.
 #'   Small values indicate `OE` near 0, where `W = R/OE` is non-regular.
 #' @param oe_regular Logical: `TRUE` when `oe_snr >= 2`; `FALSE` flags a
-#'   near-singular `OE` for which the bootstrap CI for `W` may be invalid
-#'   (Lin et al. 2026). Computed unconditionally from the analytic se(OE)
-#'   regardless of `se_method` (only the accompanying `warning()` is gated on
-#'   `se_method = "bootstrap"`, since that's the only mode where a bootstrap CI
-#'   for `W` is actually being reported). `NA` only in the degenerate case
-#'   `se(OE) == 0`.
+#'   near-singular `OE` (Lin et al. 2026). Computed unconditionally from the
+#'   analytic se(OE) regardless of `se_method` (only the accompanying
+#'   `warning()` is gated on `se_method = "bootstrap"`). `NA` only in the
+#'   degenerate case `se(OE) == 0`.
+#'
+#'   **What `FALSE` means -- width, not under-coverage.** In the 48,000-rep
+#'   validation grid, draws flagged by this gate did **not** under-cover; they
+#'   *over*-covered (+0.10, in 22/22 qualifying cells, stable across every
+#'   design slice). The mechanism: as `OE` approaches 0 the ratio `W = R/OE`
+#'   and its intervals blow up -- flagged Wald intervals were a median **21x
+#'   wider than the true |W|** (vs 3x unflagged). Such an interval contains the
+#'   truth and nearly everything else; it is untrustworthy because it is
+#'   **uninformative**, not because it misses. Of the two gates this is the
+#'   stronger diagnostic -- its effect survives controlling for interval width
+#'   (+0.036, SE 0.003), unlike `weak_id`'s. Treat `oe_regular = FALSE` as
+#'   "the point estimate and CI for `W` are numerically meaningless here", not
+#'   as a coverage warning.
 #' @param weak_id_ratio_threshold,oe_snr_threshold Numeric: the threshold values
 #'   actually used for the `weak_id`/`oe_regular` gates on this result (see the
 #'   identically-named arguments of [ward_residual()]). Stored so `print()` can
@@ -169,13 +176,17 @@ GaugePmedResult <- S7::new_class(
 #'   Multi-valued / continuous exposures are future work.
 #' @param weak_id_ratio_threshold Numeric: the `weak_id` flag fires when the
 #'   percentile `W`-CI is at least this many times wider than the Wald interval
-#'   (default `3`). **Provisional** -- calibrated on a single near-null scenario;
-#'   the definitive value awaits the validation grid scripted at
-#'   `inst/sim/hopper/run_weakid_validation.R`. Exposed so it can
-#'   be tuned without editing the source.
+#'   (default `3`). **A convention, not a calibrated optimum**: in the 48,000-rep
+#'   validation grid (`inst/sim/hopper/run_weakid_validation.R`) no threshold in
+#'   1.75-4 was distinguishable, and the grid spans a single simulation design --
+#'   see the `weak_id` property documentation of [GaugePmedResult] for what the
+#'   flag does and does not detect. Exposed so it can be tuned without editing
+#'   the source.
 #' @param oe_snr_threshold Numeric: the `oe_regular` guard flags a near-singular
-#'   denominator when `|OE|/se(OE)` falls below this (default `2`). **Provisional**
-#'   (see `weak_id_ratio_threshold`).
+#'   denominator when `|OE|/se(OE)` falls below this (default `2`). Validated in
+#'   the same grid as marking **uninformatively wide** (over-covering) intervals,
+#'   not under-coverage -- see the `oe_regular` property documentation of
+#'   [GaugePmedResult].
 #' @param ... Unused.
 #'
 #' @return A [GaugePmedResult] object.
@@ -278,12 +289,16 @@ S7::method(ward_residual, S7::class_data.frame) <-
     ## merely detecting the near-null. Do NOT read exact crossover points off that
     ## sweep: the per-draw SD approaches the mean in the weak regime, so a
     ## single-draw sweep traces a clean curve by luck (an earlier version of this
-    ## comment quoted such points as if stable; they did not reproduce). A2
-    ## (weak_id) and A1 (oe_regular) are observed to fire on DIFFERENT draws, so
-    ## they are complementary rather than redundant restatements -- consistent with
-    ## Zhan (2026)'s premise that CI divergence carries information beyond a point
-    ## signal-to-noise ratio. Both thresholds remain PROVISIONAL pending
-    ## inst/sim/hopper/run_weakid_validation.R.
+    ## comment quoted such points as if stable; they did not reproduce).
+    ## The 48k-rep validation grid (inst/sim/hopper/run_weakid_validation.R,
+    ## 2026-07-16) settled the gates' division of labour, OPPOSITE to the naive
+    ## reading: A2's coverage separation is ~97% explained by wid_wald alone
+    ## (flag coef -0.051 -> -0.002 under a flexible width control), so A2 is a
+    ## self-contained narrowness proxy, NOT evidence that CI divergence carries
+    ## information beyond width -- Zhan (2026)'s premise did not survive for
+    ## coverage. A1 is the gate with above-width content (+0.036 residual, SE
+    ## 0.003) and flags OVER-covering, uninformatively wide intervals (median 21x
+    ## wider than |truth|). t=3 is a convention (1.75-4 indistinguishable).
     seOE       <- se(pOE)
     oe_snr     <- unname(abs(OE) / seOE)
     ## NA-preserving: a degenerate se(OE) == 0 yields oe_snr = NaN, which must
@@ -333,14 +348,16 @@ S7::method(ward_residual, S7::class_data.frame) <-
     ## bare negation) since oe_regular/weak_id may now be NA in degenerate cases.
     if (isFALSE(oe_regular) && se_method == "bootstrap")
       warning("Near-singular OE (|OE|/se = ", round(oe_snr, 2), " < ",
-              oe_snr_threshold, "): W = R/OE is non-regular, so the bootstrap CI ",
-              "for W may be invalid (Lin et al. 2026). Prefer the Fieller set for ",
-              "the near-null case.", call. = FALSE)
+              oe_snr_threshold, "): W = R/OE is non-regular (Lin et al. 2026); ",
+              "its point estimate and CI are numerically meaningless here -- ",
+              "expect an interval many times wider than the estimand. Prefer ",
+              "the Fieller set for the near-null case.", call. = FALSE)
     if (isTRUE(weak_id))
       warning("Weak-identification flag: the percentile CI for W is ",
               round(weak_id_ratio, 1), "x wider than the Wald interval (>= ",
-              weak_id_ratio_threshold, "x); W is weakly identified and its CI is ",
-              "least trustworthy here (Zhan 2026).", call. = FALSE)
+              weak_id_ratio_threshold, "x). The default Wald CI is narrow here, ",
+              "and narrow Wald intervals for W under-cover -- treat it with ",
+              "suspicion (Zhan 2026).", call. = FALSE)
 
     ## Fieller confidence set for P_med = IIE/OE. When the denominator OE is not
     ## significant the set is unbounded; the Wald interval understates this.
@@ -400,11 +417,11 @@ S7::method(print, GaugePmedResult) <- function(x, ...) {
     cat("  ! |W| large: additive split unreliable; interpret P_med with care.\n")
   if (isTRUE(x@weak_id))
     cat(sprintf(paste0("  ! weak-ID: percentile CI for W is %.1fx wider than Wald",
-                       " [%.3f, %.3f] (>= %gx); W CI least trustworthy here.\n"),
+                       " [%.3f, %.3f] (>= %gx); Wald CI likely too narrow (under-covers).\n"),
                 x@weak_id_ratio, x@W_ci_wald[1], x@W_ci_wald[2], x@weak_id_ratio_threshold))
   if (isFALSE(x@oe_regular))
     cat(sprintf(paste0("  ! near-singular OE (|OE|/se = %.2f < %g): W = R/OE",
-                       " non-regular; bootstrap CI may be invalid.\n"),
+                       " non-regular; estimate and CI uninformative here.\n"),
                 x@oe_snr, x@oe_snr_threshold))
   invisible(x)
 }

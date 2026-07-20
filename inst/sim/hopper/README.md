@@ -11,9 +11,13 @@ This directory holds two independent SLURM studies:
 
 ## #11 threshold-validation grid (`run_weakid_validation.R`)
 
-**Status: SUBMITTED 2026-07-16** as job `4277259` (192 tasks). Results are not yet
-collated; until the CSVs land in `../results/`, the #11 thresholds remain
-provisional and nothing here should be cited as validation.
+**Status: COMPLETE 2026-07-16** (job `4277259`, 192/192 tasks, 0 failures; collate
+`4277455`). CSVs in `../results/`: `weakid_validation_cells.csv`,
+`weakid_threshold_sweep.csv`, `oe_snr_threshold_sweep.csv`; raw per-rep data
+(`weakid_validation_raw.rds`, 2 MB) stays on hopper in `~/weakid_val/`.
+**Findings below** ("What the grid found") — read them before citing either
+threshold; the results validate *less* than this section's original test
+anticipated, and one gate's semantics inverted.
 
 **Why a second grid.** The coverage grid varies `n x tint x binY`, which lands
 `oe_snr` at the *extremes* (~1 or ~12). A threshold arbitrates in the *middle*
@@ -37,9 +41,47 @@ Its real claim is "W's CI is least trustworthy here", and the CI users get **by
 default is the analytic Wald** one (~0.86-0.91). So the test is an operating
 characteristic: **is Wald coverage materially worse when the flag fires?** The
 collator sweeps candidate thresholds and reports `covW | flagged` vs
-`covW | unflagged`; a validated threshold leaves the unflagged group ~nominal and
-the flagged group clearly degraded. It also reports sensitivity/FPR at the
-shipped defaults.
+`covW | unflagged`. *(Post-run caveats: this criterion turned out to be the wrong
+test for A1 — see the findings — and the collator's pooled conditioning
+understates the A2 contrast ~3x relative to within-cell; fixing it to report
+pooled + within-cell + per-cell is an open item.)*
+
+### What the grid found (2026-07-16, adversarially re-verified 2026-07-19)
+
+All numbers recomputed independently from the raw 48,000 reps by a second
+analysis attacking the first; where they disagreed, the numbers here are the
+corrected ones.
+
+**A2 (`weak_id`, ratio >= 3): direction real, but ~97% width-tautology.**
+Flagged draws have worse Wald coverage in **24/24 cells** (each individually
+> 2xSE; sign-test p = 6e-8; pooled contrast -0.016, within-cell -0.030..-0.073
+depending on cell weighting). But `weak_id_ratio = wid_pct/wid_wald` shares
+`wid_wald` with the outcome: in a regression of `covW_an` on flag + cell fixed
+effects, the flag coefficient (-0.051) collapses to **-0.002 (SE 0.003)** under a
+flexible `log(wid_wald)` control — while controlling `log(wid_pct)` instead makes
+it *stronger*. The bootstrap numerator contributes nothing detectable; the flag
+operates purely through "the analytic interval is narrow". The honest claim is:
+narrow Wald intervals under-cover in this DGP, and the ratio is a usable
+**self-contained proxy** for narrowness (a user has no cell reference to judge
+"narrow" against). It is NOT evidence that the bootstrap-vs-Wald comparison
+detects a pathology beyond width. Thresholds **1.75-4 are not distinguished**;
+apparent flatness of the separation was an artifact of min-n weighting (under
+equal cell weights separation grows monotonically, -0.056 -> -0.079 over
+t = 1.75 -> 4). **t = 3 is a convention**, kept as one.
+
+**A1 (`oe_regular`, `oe_snr` < 2): the stronger diagnostic — with semantics
+opposite to its documentation.** Flagged draws **over**-cover: +0.10 (22/22
+qualifying cells; stable +0.099..+0.104 across binY, s-range, and n slices).
+Mechanism verified: A1 fires as `OE -> 0`, where flagged Wald intervals are
+2.0x-5.2x wider (per-cell median) and median **21x wider than |truth|** vs 3x
+unflagged. Unlike A2, A1 **survives the width control** (+0.036, SE 0.003
+residual effect), i.e. it carries information beyond width alone. So A1 flags
+intervals untrustworthy in the *width/informativeness* sense, not the coverage
+sense — "flagged group degraded in coverage" was the wrong criterion for it.
+
+**Scope:** all 24 cells share one DGP family (the same one as the coverage
+grids). Nothing here supports transferring either numeric threshold to other
+DGPs.
 
 **Indications going in** (`../pilot/weak_id_pilot.R`, 120 draws, n=1500,
 continuous Y) -- these are *why the grid is needed*, not results it may assume:
