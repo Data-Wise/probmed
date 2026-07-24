@@ -1,9 +1,9 @@
-status: active
+status: on-hold
 priority: P1
 progress: 90
 kind: package
 cran_state: unblocked
-next: ✅ UNBLOCKED (2026-07-23) — medfit 0.3.2 accepted + published on CRAN (confirmed live at https://cran.r-project.org/web/packages/medfit/index.html), satisfying `Imports: medfit (>= 0.3.0)`. (1) DONE 2026-07-24 (`b552b88`) — dropped `Remotes: data-wise/medfit@v0.3.0` from DESCRIPTION; verified `devtools::load_all()` loads cleanly against CRAN-installed medfit 0.3.2. Remaining CRAN-prep checklist (not started): (2) bump 0.3.0.9000 → 0.3.0 release version, (3) resync cran-comments.md, (4) fresh `R CMD check --as-cran` against the CRAN copy of medfit (should drop from 0/0/1-NOTE to fewer, since the Remotes-pin NOTE goes away), (5) win-builder + submit. ~2-3hr — most other pre-CRAN TODOs (gauge, coverage, vignette) already closed per prose below. Full detail in prose below.
+next: ⏸️ ON HOLD (2026-07-24, per user) — pending manuscript submission (same hold reason as medrobust, see medfit CLAUDE.md's ecosystem note). Dependency-wise UNBLOCKED (2026-07-23): medfit 0.3.2 accepted + published on CRAN, satisfying `Imports: medfit (>= 0.3.0)`; the `Remotes: data-wise/medfit@v0.3.0` pin was already dropped (`b552b88`, 2026-07-24), verified `devtools::load_all()` loads cleanly against CRAN medfit 0.3.2. Remaining CRAN-prep checklist, deferred until hold lifts: (1) bump 0.3.0.9000 → 0.3.0 release version, (2) resync cran-comments.md, (3) fresh `R CMD check --as-cran` against the CRAN copy of medfit (should drop from 0/0/1-NOTE to fewer, since the Remotes-pin NOTE goes away), (4) win-builder + submit. ~2-3hr — most other pre-CRAN TODOs (gauge, coverage, vignette) already closed per prose below. Full detail in prose below.
 
 ────────────────────────────────────────────────
 
