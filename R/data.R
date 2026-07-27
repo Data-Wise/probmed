@@ -1,3 +1,9 @@
+# NOTE: man/multilevel_designs.Rd was hand-reverted after being generated with
+# a locally-installed roxygen2 8.0.0, to avoid smuggling an unrelated 10-file
+# `Config/roxygen2/version` churn into this PR. DESCRIPTION still declares
+# RoxygenNote: 7.3.3. Running `devtools::document()` with roxygen2 8.x
+# installed will regenerate this Rd (and the others) again; do it as its own
+# PR, not a drive-by of an unrelated change.
 #' Design metadata for candidate multilevel studies
 #'
 #' Publicly documented design metadata for a small set of clustered
