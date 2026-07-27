@@ -226,7 +226,7 @@ Branch protection on `main` was added 2026-05-09 via `gh api repos/Data-Wise/pro
 > `incr_sensitivity`, feature/gauge-bootstrap-se), Sobol variance-scale (`sobol_pmed`),
 > Wasserstein, and the shared M–Y sensitivity helper (`pmed_sensitivity`).
 >
-> Two additions merged 2026-07-26/27, deliberately **not** P_med variants:
+> Two additions merged 2026-07-26, deliberately **not** P_med variants:
 > `rg_flow_contrast()`/`RgFlowResult` (PR #30) — scale-indexed classical proportion
 > mediated (NIE/TE) with cluster-robust EIF inference, probmed's first multilevel
 > estimator; the data-contract question (raw clustered data vs. extending

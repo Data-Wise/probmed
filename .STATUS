@@ -14,7 +14,7 @@ next: ⏸️ ON HOLD (2026-07-24, per user) — pending manuscript submission (s
 ~/projects/r-packages/active/probmed/
 
 ⏰ LAST UPDATED
-2026-07-27
+2026-07-26
 
 ────────────────────────────────────────────────
 
@@ -23,7 +23,7 @@ Priority: P1
 Status: active
 Progress: 90
 
-✅ MERGED TO DEV (2026-07-26/27) — two features, while the CRAN-prep hold stands
+✅ MERGED TO DEV (2026-07-26) — two features, while the CRAN-prep hold stands
 PR #30 `rg_flow_contrast()`/`RgFlowResult` (d8fd376) — scale-indexed classical
 proportion mediated (NIE/TE ratio, NOT P_med) with cluster-robust EIF inference;
 probmed's first multilevel estimator. 458/458 tests passing (+44 over the 414
