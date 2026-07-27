@@ -233,4 +233,7 @@ Branch protection on `main` was added 2026-05-09 via `gh api repos/Data-Wise/pro
 > `medfit::MediationData` with a cluster slot) is open, deliberately unresolved.
 > `multilevel_designs` (PR #31) — the package's first shipped dataset, cluster-design
 > metadata for ECLS-K:1998-99/2011 + `mediation::student`; the naming convention (D1)
-> and whether the table grows beyond 3 rows (Q6) are open follow-ups from the PR.
+> and whether the table grows beyond 3 rows (Q6) are open follow-ups from the PR. Three
+> other PR-body questions were resolved at merge, not left open: the R >= 3.5 floor (D7),
+> the free-text `sampling_note` schema over structured columns (D2), and keeping the
+> `mediation::student` row beside the two NCES cohorts (D6) — all kept as merged.
