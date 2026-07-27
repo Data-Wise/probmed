@@ -43,6 +43,17 @@
 
 ## New features
 
+* New data set `multilevel_designs` (the package's first shipped data): design
+  metadata for three clustered study designs -- ECLS-K:1998-99, ECLS-K:2011
+  (kindergarten class of 2010-11), and the public `mediation::student`
+  teaching data -- so users planning a
+  clustered mediation analysis can start from documented cluster counts rather
+  than round numbers. Records sampled and participating cluster counts
+  separately, since the participating count (the one that describes the
+  analyzable data) is well below the sampled count in both ECLS-K cohorts.
+  Every value is transcribed from the public source cited in the row; the
+  reproducible build script lives in `data-raw/multilevel_designs.R`.
+
 * `wasserstein_pmed()` and the `WassersteinPmedResult` class add the
   **Wasserstein / transport-scale proportion mediated** (`P_med^W`), an
   optimal-transport effect size decomposing the total transport cost into

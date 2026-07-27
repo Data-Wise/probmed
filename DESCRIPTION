@@ -10,9 +10,12 @@ Description: Compute P_med, a scale-free probabilistic effect size for
 License: MIT + file LICENSE
 URL: https://data-wise.github.io/probmed/, https://github.com/data-wise/probmed
 BugReports: https://github.com/data-wise/probmed/issues
+Depends:
+    R (>= 3.5)
 Encoding: UTF-8
 Language: en-US
 Roxygen: list(markdown = TRUE)
+LazyData: true
 Suggests:
     alabama,
     EValue (>= 4.1.0),

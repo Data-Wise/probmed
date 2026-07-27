@@ -121,6 +121,12 @@ reference:
       - starts_with("summary")
       - starts_with("plot")
 
+  - title: "Datasets"
+    desc: >
+      Reference data shipped with the package.
+    contents:
+      - multilevel_designs
+
   - title: "Internal Functions"
     desc: >
       Low-level computational functions. These functions are exported
