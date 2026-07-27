@@ -55,6 +55,10 @@ sample. This reference table records both, so that planning can start from
 documented figures rather than round numbers.
 }
 \details{
+NCES names the second cohort's study "ECLS-K:2011"; its \code{cohort} value here
+is \code{"2010-11"}, the kindergarten class year. The two labels refer to the
+same cohort.
+
 Two points about how the numbers should be read.
 
 \emph{Participating versus sampled.} For both ECLS-K cohorts the participating

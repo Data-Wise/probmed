@@ -44,8 +44,9 @@
 ## New features
 
 * New data set `multilevel_designs` (the package's first shipped data): design
-  metadata for three clustered study designs -- ECLS-K:1998-99, ECLS-K:2010-11,
-  and the public `mediation::student` teaching data -- so users planning a
+  metadata for three clustered study designs -- ECLS-K:1998-99, ECLS-K:2011
+  (kindergarten class of 2010-11), and the public `mediation::student`
+  teaching data -- so users planning a
   clustered mediation analysis can start from documented cluster counts rather
   than round numbers. Records sampled and participating cluster counts
   separately, since the participating count (the one that describes the

@@ -38,6 +38,10 @@
 #' }
 #'
 #' @details
+#' NCES names the second cohort's study "ECLS-K:2011"; its `cohort` value here
+#' is `"2010-11"`, the kindergarten class year. The two labels refer to the
+#' same cohort.
+#'
 #' Two points about how the numbers should be read.
 #'
 #' *Participating versus sampled.* For both ECLS-K cohorts the participating
