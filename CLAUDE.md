@@ -218,10 +218,19 @@ Branch protection on `main` was added 2026-05-09 via `gh api repos/Data-Wise/pro
 
 ---
 
-**Version**: 0.3.0 (release-prep; non-CRAN GitHub release, pins medfit@v0.3.0) · **Last Updated**: 2026-06-25
+**Version**: 0.3.0 (release-prep; non-CRAN GitHub release, pins medfit@v0.3.0) · **Last Updated**: 2026-07-26
 
 > Active research lines beyond the merged core (see `.STATUS` for worktree detail):
 > gauge-calibrated P_med (`ward_residual`/`GaugePmedResult`, PR #8 + bootstrap-SE follow-up),
 > incremental P_med^δ (`incr_pmed`, g-score EIF merged via PR #10; per-δ M–Y tipping via
 > `incr_sensitivity`, feature/gauge-bootstrap-se), Sobol variance-scale (`sobol_pmed`),
 > Wasserstein, and the shared M–Y sensitivity helper (`pmed_sensitivity`).
+>
+> Two additions merged 2026-07-26/27, deliberately **not** P_med variants:
+> `rg_flow_contrast()`/`RgFlowResult` (PR #30) — scale-indexed classical proportion
+> mediated (NIE/TE) with cluster-robust EIF inference, probmed's first multilevel
+> estimator; the data-contract question (raw clustered data vs. extending
+> `medfit::MediationData` with a cluster slot) is open, deliberately unresolved.
+> `multilevel_designs` (PR #31) — the package's first shipped dataset, cluster-design
+> metadata for ECLS-K:1998-99/2011 + `mediation::student`; the naming convention (D1)
+> and whether the table grows beyond 3 rows (Q6) are open follow-ups from the PR.
