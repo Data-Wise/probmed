@@ -249,6 +249,19 @@ each resample; the replacement reuses the `phi` matrix from the point estimate:
 
 **Cost:** strictly cheaper than the current arm — `B` refits per call become zero.
 
+**And it unlocks the procedure Hall actually recommends.** Hall & Martin, in the
+published discussion of DiCiccio & Efron (pp. 212-214), favor "a calibrated version of
+a simple method such as percentile," noting it is transformation-respecting and "not
+hindered by problems associated with ratios of random variables." Calibration means a
+double bootstrap, which under the *current* refit scheme would cost `B^2` full
+cross-fit refits — prohibitive. Under the no-refit scheme it is `B^2` reweightings of
+an already-computed `phi` matrix, which is affordable.
+
+So calibrated percentile becomes a live third option beside the plain no-refit interval
+and Fieller. Not scoped into this phase, but Phase 4 should carry a calibrated arm if
+the plain no-refit arm still miscovers — and the choice should be made there, on
+evidence, rather than assumed now.
+
 **Known theory gap to record in the roxygen, not paper over.** Lin & Han's estimator
 is `(1/K) sum_k theta-hat_{0,k}` — fold-wise solutions averaged. `ward_residual()`
 pools first (`th <- colMeans(phi)`, `R/gauge-pmed.R:336`) then divides. For a ratio
@@ -368,6 +381,13 @@ the defect it was filed against, and the Owen 2025 argument originally offered f
 is scoped to the univariate mean at `n <= 20` (and rates percentile *below* BCa).
 Record the influence-function shortcut so the finding survives if BCa is ever wanted
 for another reason.
+
+Add Hall & Martin's independent objection, which carries further than Owen's because
+it has no small-`n`-mean scope limit: BC_a intervals "are **not monotone in coverage
+level**" (Statistical Science 11(3):212-214, §5). Their preferred alternative is a
+*calibrated percentile*, which is the option Phase 2 makes affordable — so the honest
+close-out is "BC_a is not the fix, and there is a better-supported candidate," not
+simply "no."
 
 Also inform `medsim#35`, on two counts: its gate-A3 arm was predicated on BCa being
 the cross-check, and if Phase 2 renames `se_method`'s `"bootstrap"` value, medsim's

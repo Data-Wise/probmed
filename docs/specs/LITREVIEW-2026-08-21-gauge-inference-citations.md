@@ -217,11 +217,62 @@ correctness." The instability warnings in the paper attach to **bootstrap-t** ("
 numerically unstable, resulting in very long confidence intervals... a particular
 danger in nonparametric situations," p. 199), not to BC_a — an easy misattribution.
 
+### The Hall & Martin discussion — and a correction to this review's synthesis
+
+Obtained 2026-08-21 (pp. 212-214, JSTOR 2246111). Hall is the author of the Hall
+(1988) Edgeworth comparisons that both DiCiccio & Efron and Owen (2025) build on, so
+his view carries particular weight here. §5 (The Double Bootstrap):
+
+> "One might summarize the respective theoretical drawbacks of percentile-t and BC_a
+> methods by noting that the former are not transformation invariant, and **the latter
+> are not monotone in coverage level**. As a utilitarian procedure **we favor a
+> calibrated version of a simple method such as percentile. The percentile method is
+> transformation respecting**; its calibrated form 'almost' respects transformations
+> and is monotone in coverage level. **Also, it is not hindered by problems associated
+> with ratios of random variables, which are sometimes the downfall of percentile-t.**"
+
+**This partially contradicts the synthesis below, and the correction matters.** An
+earlier version of this review concluded flatly that "the percentile bootstrap arm has
+no citation support." That was too strong. In the published discussion of the very
+paper the manuscript cites, Hall & Martin explicitly favor the percentile method and
+name **ratios of random variables** as a case where it beats percentile-t.
+
+Three scope conditions keep this from rescuing the manuscript's citation, but they
+must be stated rather than used to wave the finding away:
+
+1. **They favor a *calibrated* percentile**, not the raw quantile interval. Calibration
+   is the double-bootstrap adjustment (Loh 1987; Beran 1987). `ward_residual()`
+   implements raw percentile.
+2. **The ratio remark contrasts percentile with *percentile-t***, not with BC_a, and
+   the mechanism is percentile-t's dependence on a variance estimator — not a
+   denominator approaching zero. It is not a statement about the near-null regime.
+3. **The manuscript cites DiCiccio & Efron's main text**, which still does not present
+   a percentile method at all. A discussant's endorsement is not the cited source.
+
+**Two things this does change.**
+
+- *For #32:* Hall supplies an additional, independent argument against BC_a —
+  non-monotonicity in coverage level — from a source with no small-`n`-mean scope
+  limitation, unlike Owen.
+- *Constructively:* **calibration becomes a live third option** alongside the no-refit
+  bootstrap and Fieller. The double bootstrap is normally prohibitive here (`B^2`
+  full cross-fit refits), but under the no-refit reweighting scheme of Phase 2 it is
+  `B^2` reweightings of an already-computed `phi` matrix. **Phase 2 is what makes
+  Hall's recommended procedure affordable** — an argument for that phase that has
+  nothing to do with citation hygiene.
+
+Caveat on completeness: only Hall & Martin's comment was obtained. The remaining
+discussion pieces (pp. 214-228) and DiCiccio & Efron's rejoinder are still unread, and
+one of them may qualify or rebut this.
+
 ### Verdict
 
-**Premise supported; prescription inverted.** DiCiccio & Efron argue that being
-tail-aware means *estimating* `z_0` and `a` — not reading raw quantiles. The
-manuscript cites them for the rung of the ladder they treat as deficient.
+**Premise supported; prescription inverted — but see the Hall & Martin correction
+above.** DiCiccio & Efron's main text argues that being tail-aware means *estimating*
+`z_0` and `a`, not reading raw quantiles, and the manuscript cites them for the rung of
+the ladder they treat as deficient. What the discussion adds is that percentile is not
+therefore indefensible — in *calibrated* form it has Hall's explicit endorsement, and
+specifically for ratios.
 
 But the repair is not simply "switch to BC_a." §8's machinery presupposes asymptotic
 normality, Cornish-Fisher expansions, and twice-differentiable functionals. A
@@ -365,10 +416,18 @@ Four references, four different problems, all pointing one way.
 | Lin & Han 2026 | Bootstrap consistency for our refit-per-resample scheme | Consistency for a **no-refit** reweighting scheme |
 | Owen 2025 (issue #32) | BC_a under-covers, so prefer percentile | BC_a under-covers **the mean at n <= 20**; he rates percentile lower still |
 
-**The percentile bootstrap arm has no citation support in this manuscript.** Its three
-supporting references either argue for something else (DiCiccio & Efron), cover a
-different procedure (Lin & Han), or address a different question in a different model
-class (Zhan).
+**The percentile bootstrap arm, as implemented, has no citation support in this
+manuscript.** Its three supporting references either argue for something else
+(DiCiccio & Efron's main text), cover a different procedure (Lin & Han), or address a
+different question in a different model class (Zhan).
+
+**Qualification, added after reading the Hall & Martin discussion (see §2).** This is a
+claim about *raw* percentile and about *these citations* — not a claim that the
+percentile method is indefensible. Hall & Martin, discussing the very paper the
+manuscript cites, favor a **calibrated** percentile and name ratios of random variables
+as a case where it beats percentile-t. The gap is between what the code does (raw
+quantiles) and what the literature endorses (calibrated), not between percentile and
+everything else.
 
 This converges with the independent empirical finding (SPEC Phase 0): the percentile
 arm covers at **1.00 in 8 of 8 simulation cells**. Theory and evidence agree on which
@@ -416,10 +475,12 @@ The near-null regime is unsupported by all four.
 
 Status after the Zotero verification pass (see §Why this exists):
 
-1. **DiCiccio & Efron's discussion, pp. 213-228** — PARTIALLY OPEN. The local PDF
-   reaches only the first page of Hall & Martin's Comment. Hall is the author of the
-   Edgeworth results both this paper and Owen (2025) build on, so his comment is the
-   single most valuable unread item in this set. Obtain from JSTOR/Project Euclid.
+1. **DiCiccio & Efron's discussion** — MOSTLY CLOSED. **Hall & Martin's Comment
+   (pp. 212-214, JSTOR 2246111) obtained and read**; it materially qualified this
+   review's synthesis (see §2). Still unread: the remaining comments (pp. 214-228) and
+   DiCiccio & Efron's rejoinder. Lower priority now that the most authoritative
+   discussant is in hand, but the rejoinder would show whether the authors accepted
+   Hall's preference for calibrated percentile.
 2. ~~**Zhan's Supplementary Appendix A-F**~~ — **CLOSED.** Obtained via the T&F
    supplementary package, which also carried the version-of-record source
    (`main.tex`). All four claims re-verified; see the table in §1. Theorem 4's proof
