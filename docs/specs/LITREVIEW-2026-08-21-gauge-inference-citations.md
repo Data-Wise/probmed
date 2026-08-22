@@ -103,6 +103,31 @@ weak instruments."
 
 Ratios, Fieller, and cross-fitting appear nowhere.
 
+### Verified against the version-of-record source + Online Appendix (2026-08-21)
+
+The T&F supplementary package (`32399188.zip`) turned out to contain not only the
+Online Appendix but `main.tex`/`main.pdf` — the version-of-record source. Every
+finding above was re-checked against it, and all hold:
+
+| Claim | Status against VoR / Appendix |
+|---|---|
+| KS-distance definition | **CONFIRMED**, `main.tex:194`: "deemed weak iff the Kolmogorov-Smirnov (KS) distance below exceeds 5\%" |
+| Anti-pretest footnote not restored in the VoR | **CONFIRMED** — `pre-test`, `pretest`, `Guggenberger` all 0 hits in `main.tex`. The 2017 draft's caution genuinely did not survive into the published paper. |
+| Theorem 4 is a pattern result, not consistency-of-detection | **CONFIRMED** by reading the proof (Appendix D): it derives how `mu^2` and `mu*^2` behave across the three regimes `0 <= delta < 1/2`, `delta = 1/2`, `delta > 1/2` (the last giving an asymptotic difference of `chi^2_k`). It is a concentration-parameter behavior result. There is **no theorem stating the test detects weak identification with probability tending to one.** |
+| No ratios / DML in the appendix | **CONFIRMED** — `cross-fit`, `double/debiased`, `machine learning`, `semiparametric`: **0 hits**. The two `ratio`/`denominator` hits are incidental ("the concentration parameter divided by k"). |
+
+**One refinement to the "no percentile interval" claim.** The paper *does* use Efron's
+percentile interval — `main.tex:369`: "Such a confidence interval is called Efron's
+percentile interval." But its **object is the KS statistic itself**, not the structural
+parameter: the double bootstrap produces `KS**1,...,KS**B`, and their quantiles form a
+CI *for KS*. There is still no percentile interval for `theta`, and still no
+Wald-vs-percentile comparison of intervals for the estimand.
+
+This makes the manuscript's misreading more understandable — "percentile interval" and
+"weak identification" do co-occur in Zhan — but it does not rescue the citation. The
+gauge manuscript attributes to Zhan a comparison between two intervals *for the
+estimand*; Zhan builds one interval *for a distance measure*.
+
 ### Verdict
 
 **Misattributed on both mechanism and setting.** The manuscript attributes to Zhan a
@@ -395,11 +420,12 @@ Status after the Zotero verification pass (see §Why this exists):
    reaches only the first page of Hall & Martin's Comment. Hall is the author of the
    Edgeworth results both this paper and Owen (2025) build on, so his comment is the
    single most valuable unread item in this set. Obtain from JSTOR/Project Euclid.
-2. **Zhan's Supplementary Appendix A-F** — OPEN. Referenced throughout ("Proof. See
-   Supplementary Appendix A"), not bundled with the article PDF. Contains every proof
-   plus the many-instrument and wild-bootstrap simulations. (The related question of
-   whether the published version restores the 2017 draft's anti-pretest footnote is
-   now ANSWERED: it does not — zero hits for `pre-test`/`pretest`/`Guggenberger`.)
+2. ~~**Zhan's Supplementary Appendix A-F**~~ — **CLOSED.** Obtained via the T&F
+   supplementary package, which also carried the version-of-record source
+   (`main.tex`). All four claims re-verified; see the table in §1. Theorem 4's proof
+   confirms there is no consistency-of-detection theorem, and the appendix contains no
+   ratio, Fieller, or DML content. Extracted at scratchpad `zhan-suppl/`; the zip is
+   at `~/Downloads/32399188.zip`.
 3. ~~**Tang & Westling** (arXiv:2404.03064)~~ — **CLOSED.** Downloaded and read
    directly (v2, 142pp). Outcome reversed the plan: it does not license the refit
    procedure but names it as the at-risk case, and recommends `eta*_n = eta_n`. See §3
