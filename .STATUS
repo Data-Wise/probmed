@@ -246,8 +246,17 @@ BLOCKED (not actionable): probmed→CRAN (needs medfit 0.3.x on CRAN, then drop 
 cran-comments + bump version).
 
 🌿 ACTIVE WORKTREE
-📍 CURRENT (2026-08-22, later) — ~/.git-worktrees/probmed/feature-gauge-se-fullsample
-   (branch feature/gauge-se-fullsample, off dev b3ea449). Opened to ship the
+📍 CURRENT (2026-08-22, end of session) — NO active worktrees; main checkout is dev.
+   ✅ feature/gauge-se-fullsample — MERGED 2026-08-22 as PR #34 → dev, squash a73efc8
+   (8/8 CI green; 496 tests/0 fail NOT_CRAN; R CMD check --as-cran 0E/0W/2N benign).
+   Worktree removed, local + remote branch deleted (gate: head c99fbad == local tip,
+   merge commit on dev). Review finding (covariate named `v` shadowed the g-score
+   projection's response) fixed in c99fbad via lm.fit on the model matrix. Correction
+   comments posted to #11 and #32. Next (user's call): re-measure the bootstrap arm
+   and the weak_id/oe_regular gates post-fix; sobol_pmed/pmedW_dr coverage; the gauge
+   manuscript's coverage + weak-ID claims rest on the pre-fix grids; dev→main release
+   (puts the corrected docs online; package ON HOLD).
+   History of the branch: opened off dev b3ea449 to ship the
    full-sample-nuisance se for reps>1; the E2E of the shipped function FAILED
    (CV 0.99 vs the scratch 0.20), which exposed a CORNER-EIF WEIGHT BUG:
    `pa <- function(z) ifelse(z == 1, p1, 1 - p1)` with scalar z returns p1[1] —
