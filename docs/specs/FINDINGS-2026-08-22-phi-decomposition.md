@@ -19,9 +19,13 @@ missing variance come from?
    is only 14-33% of it.
 2. **The IF variance formula is exact.** With the DGP's true nuisances plugged into
    the same corner EIF, `se/sd = 1.01-1.07` and coverage is 0.94-0.97 in every cell.
-3. **`reps > 1` (already shipped) fixes the point estimator completely.** At
-   `reps = 10`, `empSD` falls from 0.121 to 0.057 vs oracle 0.056; kurtosis 4.9 ->
-   3.1; with a correctly sized SE, coverage would be 0.956.
+3. **`reps > 1` (already shipped) fixes the point estimator completely for
+   continuous Y.** At `reps = 10`, `empSD` falls from 0.121 to 0.057 vs oracle 0.056
+   (n=800) and 0.048 to 0.029 vs 0.027 (n=3000); kurtosis goes normal; with a
+   correctly sized SE, coverage would be 0.956. **For binary Y it helps but is not
+   enough**: a few partitions give a near-zero `OE_hat`, and the mean over 10
+   partitions still carries them (kurtosis 177 -> 67; `empSD` 0.66 -> 0.175 vs
+   oracle 0.126). That regime needs a robust aggregation across partitions.
 4. **`reps > 1` does NOT fix coverage (0.884 -> 0.884), because the SE estimator is
    the remaining defect.** Its distribution across datasets spans 0.40-2.36x the
    truth (CV 0.83 vs 0.17 for the oracle SE), is nearly uncorrelated with the actual
@@ -89,16 +93,32 @@ wild partition dominate. The median-based share is the conservative reading; eit
 way fold-split is the largest component. Nuisance vs fold is not cleanly separable at
 this precision, which is now a second-order question.
 
-## The remedy check (cell 1, same 250 datasets, shipped `ward_residual()`)
+## The remedy check (same 250 datasets per cell, shipped `ward_residual()`)
 
-| | empSD | se mean | se CV | Wald cov | kurt |
-|---|---|---|---|---|---|
-| `reps = 1` | 0.121 | 0.098 | 0.73 | 0.892 | 4.9 |
-| `reps = 10` | **0.057** | 0.059 | **0.66** | **0.884** | 3.1 |
-| oracle | 0.056 | 0.056 | 0.18 | 0.940 | 3.1 |
+| cell | arm | empSD | se mean | se CV | Wald cov | kurt |
+|---|---|---|---|---|---|---|
+| 1: n=800, cont | `reps = 1` | 0.121 | 0.098 | 0.73 | 0.892 | 4.9 |
+| | `reps = 10` | **0.057** | 0.059 | 0.66 | **0.884** | 3.1 |
+| | oracle | 0.056 | 0.056 | 0.18 | 0.940 | 3.1 |
+| 2: n=3000, cont | `reps = 1` | 0.048 | 0.039 | 0.55 | 0.852 | 5.1 |
+| | `reps = 10` | **0.029** | 0.025 | 0.51 | **0.844** | 4.2 |
+| | oracle | 0.027 | 0.029 | 0.11 | 0.968 | 2.9 |
+| 5: n=800, **binary** | `reps = 1` | 0.658 | 0.513 | **9.3** | 0.900 | **177** |
+| | `reps = 10` | 0.175 | 0.143 | 1.8 | 0.928 | 67 |
+| | oracle | 0.126 | 0.124 | 0.29 | 0.972 | 3.2 |
 
-Point estimator at `reps = 10`: coverage with a *fixed* `se = empSD` is **0.956**.
+**Continuous Y (cells 1, 2):** the point estimator at `reps = 10` reaches oracle
+efficiency at both n; with a *fixed* `se = empSD`, coverage at cell 1 is **0.956**.
 Solved. Cost: 10 cross-fits instead of 1 (~0.5 s at n = 800).
+
+**Binary Y (cell 5) is a different regime.** The single-partition estimator is
+catastrophically heavy-tailed (kurtosis 177; RMS of the reported SE is 4.8 = some
+datasets report an SE near 50): a few partitions yield a near-zero `OE_hat` and
+`W = R/OE` explodes. Averaging 10 partitions cuts `empSD` 4x and lifts coverage to
+0.93, but does **not** reach the oracle (kurtosis still 67) — a mean across partitions
+is not robust to one wild partition. Here the remedy needs either many more reps or a
+robust aggregation across partitions (median / trimmed mean of the per-partition
+corner means, or of `W` itself). The SE problem is correspondingly worse (CV 1.8).
 
 ## Anatomy of the `reps = 10` SE (60 datasets, cell 1)
 
@@ -167,9 +187,13 @@ widths.
    over-smoothing is in the averaging step); (c) a nonparametric bootstrap of the
    `reps = 10` estimator (cost `B x reps` cross-fits; the refit bootstrap's SD was
    already right at n = 3000 for reps = 1). The oracle benchmark is CV 0.17.
-2. **Binary-Y and near-null cells** (main run in progress; `--remedy 2` and `--remedy 5`
-   running). If `reps = 10` does not reach oracle efficiency there, nuisance cost is
-   regime-dependent.
+2. **Robust aggregation across partitions for binary Y** — `reps = 10` reaches the
+   oracle for continuous Y at both n but not for binary Y (cell 5: `empSD` 0.175 vs
+   0.126, kurtosis 67). Candidates: median of per-partition corner means before
+   forming the ratio; trimmed mean; or an explicit guard that drops partitions whose
+   `OE_hat` falls below a threshold. Each changes the estimand's finite-sample
+   behavior and needs its own coverage check. Near-null cells (9-12) still pending
+   from the main run.
 3. **Why does averaging `phi` over-smooth?** Likely because a fold-specific nuisance
    error is shared by every observation in that fold and so is correlated across
    observations — invisible to a per-observation sd. Testable by comparing
