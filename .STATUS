@@ -14,7 +14,7 @@ next: ⏸️ ON HOLD (2026-07-24, per user) — pending manuscript submission (s
 ~/projects/r-packages/active/probmed/
 
 ⏰ LAST UPDATED
-2026-07-26
+2026-08-21
 
 ────────────────────────────────────────────────
 
@@ -101,6 +101,46 @@ version. Leftover worktree dirs (incremental-pmed / my-sensitivity / sobol-pmed)
    8-cell, nsim=2000, MC truth, includes binary-Y and reports both arms per row.
 3. ~~Wasserstein merge-prep~~ SUPERSEDED — branch closed out, no unique content remained.
 4. Manuscript 01-gauge-pmed: cite implemented a0/a1 + validated analytic coverage.
+   ⚠️ TWO OPEN MANUSCRIPT-SIDE DISCREPANCIES (found 2026-08-21, auditing #11/#32
+   against ~/projects/research/pmed-modern/01-gauge-pmed/manuscript/gauge-pmed.qmd).
+   (b) is manuscript-text-only; (a) may imply a probmed code change depending on
+   how its diagnosis lands — see docs/specs/SPEC-2026-08-21-bootstrap-calibration.md.
+   NOT yet raised in the pmed-modern repo (cross-repo; needs explicit go-ahead there).
+   PRECONDITION VERIFIED: the two DGPs are the same family, so these are direct
+   comparisons, not cross-design analogies. Manuscript (gauge-pmed.qmd:207-212)
+   C~N(0,1), A~Bern(expit(-0.2+0.8C)), M=0.6A+0.4C+e, lp=0.5A+0.7M+tau*AM+0.3C;
+   grid (inst/sim/hopper/run_weakid_validation.R:58-64) is identical with an added
+   `s` scaling the A-paths to sweep identification strength toward OE->0. The 48k
+   grid is literally the manuscript's design continued into the weak-ID regime.
+   (a) PERCENTILE-AT-1.00 IS FRAMED AS SUCCESS. Manuscript Table 1 (tbl-sim) reports
+       percentile-bootstrap coverage of 1.00 in 8/8 cells at nominal 0.95, for BOTH
+       W and P_med (analytic: 0.86-0.91), and the prose reads "restores coverage to
+       nominal-or-above (~1.00), confirming the ratio diagnosis." But an interval at
+       1.00 in every cell — including the strong-ID ones — is uninformative, not
+       calibrated: it is exactly the condition this package's A1 gate (oe_regular)
+       was built to WARN about (flagged draws over-cover +0.10, median 21x wider
+       than |truth|; see item 5). Same phenomenon, opposite valence on the two
+       surfaces. Open question the manuscript does not ask: WHY does the percentile
+       arm sit at 1.00? A miscalibration that large is more consistent with an
+       over-dispersed resample distribution (per-resample nuisance refit error;
+       the fold-split variance component `reps > 1` exists to remove) than with
+       ratio skew, which is the explanation the text gives.
+   (b) THE ZHAN (2026) MECHANISM IS ASSERTED, BUT OUR OWN GRID FOUND IT
+       WIDTH-EXPLAINED. Supplement (gauge-pmed.qmd:422-424) states weak
+       identification is "signalled by divergence between the Wald and percentile
+       intervals [@zhan2026]" as established mechanism, and §Validation gates lists
+       it as gate (ii). Item 5's 48k-rep grid found that divergence ~97% explained
+       by Wald width alone (flag coef -0.051 -> -0.002 under a flexible width
+       control). R/gauge-pmed.R's own in-code comment already records this
+       ("Zhan (2026)'s premise did not survive for coverage") and the package docs
+       were rewritten to the corrected hierarchy 2026-07-19 (95dfc0f) — the
+       manuscript supplement was not. CAREFUL FRAMING: the grid tested
+       coverage-beyond-width, which is not identical to weak-ID detection per se,
+       so the honest claim is "the manuscript asserts a mechanism our grid found
+       width-explained," NOT "Zhan is wrong."
+   Bearing on the open issues: (a) is the prior question behind #32 (BCa reshapes
+   endpoints; it does not fix an over-dispersed resample distribution) and (b) is
+   the theory behind #11's A2 gate. Both issues carry this analysis in comments.
 5. #11 threshold validation — SCRIPTED, NOT RUN (PR #28, 2026-07-16).
    ⚠️ CORRECTION of an earlier entry here: I previously wrote that the gaugeboot
    grid's median seW_bt/seW_an = 1.82 "independently corroborates"
