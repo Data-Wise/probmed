@@ -14,7 +14,7 @@ next: ⏸️ ON HOLD (2026-07-24, per user) — pending manuscript submission (s
 ~/projects/r-packages/active/probmed/
 
 ⏰ LAST UPDATED
-2026-08-21
+2026-08-22
 
 ────────────────────────────────────────────────
 
@@ -244,6 +244,16 @@ cran-comments + bump version).
      problem: an SE estimator for the reps>1 point estimator (candidates ranked in
      FINDINGS §Open). Also delivered in PR #33: the A2/Zhan attribution fix in
      R/gauge-pmed.R + Rd (31/31 gauge tests), closing the correction sweep.
+   • Follow-up docs commit `4494d79` (2026-08-22, direct to dev, no PR — docs-only,
+     existing files) — landed after PR #33 merged: dropped the "Lin et al. 2026"
+     citation from oe_regular/weak_id docs (weak_id is a scale-only adaptation of
+     Zhan's idea, not his statistic; Lin and Han's bootstrap-consistency result
+     holds nuisances fixed and doesn't cover this package's refit-per-resample
+     bootstrap), reframed se_method coverage as fold-split noise/SE instability
+     rather than a biased formula (NEWS.md, R/gauge-pmed.R roxygen, both .Rd,
+     vignettes/gauge-residual.qmd). Also added pkgdown reference sections for
+     "Modern estimands" and "Sensitivity analysis" (_pkgdown.yml). Pushed to
+     origin/dev.
    • feature/no-refit-bootstrap — created for SPEC Phase 2, which was REFUTED before
      any code was written (reweighting a fixed phi reproduces the analytic variance
      and under-covers at 0.775-0.825). Zero unique commits (tip c264b34 is on dev),
