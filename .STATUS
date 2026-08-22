@@ -130,12 +130,17 @@ version. Leftover worktree dirs (incremental-pmed / my-sensitivity / sobol-pmed)
        The A1 "21x wider than |truth|" figure is NOT withdrawn: it comes from
        A1-flagged near-null draws in the 48k grid, a regime the review never entered.
        Unreplicated in the tested cells, not refuted — the two regimes can differ.
-       STILL OPEN, and now the governing question: WHY does the percentile arm sit
-       near 1? The review's measurement points at interval ASYMMETRY rather than
-       width (at n=3000 the error exceeds the symmetric half-width in 12.5% of reps
-       while coverage stays ~1.000), and at phi under-dispersing by 0.65-0.83x in
-       all 8 cells — which affects Wald, any phi-reweighted bootstrap, AND Fieller
-       alike. Decomposing that gap is the blocking measurement.
+       RESOLVED 2026-08-22 (PR #33, docs/specs/FINDINGS-2026-08-22-phi-decomposition.md):
+       the "0.65-0.83 under-dispersion" was a skewness artifact of an UNSTABLE SE
+       (RMS ratio ~1 at n=800), not a biased formula. In the manuscript's regime the
+       shipped estimator's excess variance is fold-split noise; reps>1 (shipped)
+       brings the point estimate to oracle efficiency; coverage stays ~0.88 only
+       because the SE estimator has CV 0.5-0.8 (oracle 0.17). Near the null, even
+       the oracle SE explodes — A1's regime, and the manuscript's Application-section
+       argument. The percentile arm's ~1.00 follows: each resample refits with a
+       fresh partition, so it carries the reps=1 fold-split noise. Open problem, now
+       well-posed: an SE estimator for the reps>1 point estimator; plus robust
+       partition aggregation for binary Y.
    (b) THE ZHAN (2026) MECHANISM IS ASSERTED, BUT OUR OWN GRID FOUND IT
        WIDTH-EXPLAINED. Supplement (gauge-pmed.qmd:422-424) states weak
        identification is "signalled by divergence between the Wald and percentile
@@ -217,10 +222,11 @@ cran-comments + bump version).
 🌿 ACTIVE WORKTREE
 📍 CURRENT (2026-08-22) — two worktrees, both off dev:
    • feature/phi-variance-decomposition — ~/.git-worktrees/probmed/feature-phi-variance-decomposition
-     (rebased onto dev 4c91f4f). MEASUREMENT COMPLETE 2026-08-22 — PR #33 → dev
-     (8 commits; 161 tests/482 expectations/0 fail; R CMD check --as-cran 0E/0W/2N,
-     the two benign NOTEs; also fixes a real top-level-files NOTE currently on dev
-     by buildignoring AGENTS.md + gauge_sim_out). Awaiting review/merge decision.
+     ✅ MERGED 2026-08-22 as PR #33 → dev, squash 76680a1 (8/8 CI green; 161
+     tests/482 expectations/0 fail; R CMD check --as-cran 0E/0W/2N benign; also
+     fixed the AGENTS.md/gauge_sim_out top-level-files NOTE). Remote branch deleted;
+     the worktree + local branch still exist (not removed — user's call).
+     FINDINGS now live on dev: docs/specs/FINDINGS-2026-08-22-phi-decomposition.md.
      Result (docs/specs/FINDINGS-2026-08-22-phi-decomposition.md on the branch):
      the "phi under-dispersion" was a skewness artifact of an UNSTABLE SE, not a
      biased formula. Two mechanisms, separated by oe_snr: (1) strong-ID cells —
