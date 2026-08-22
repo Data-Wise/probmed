@@ -20,15 +20,38 @@ treating abstract-level knowledge as if it were full-text knowledge.
 
 **What was NOT read, and matters:**
 
-- **DiCiccio & Efron:** the published *discussion* (pp. 213-228, by Hall, Casella,
-  Lee & Young et al.) was not retrieved — only the main article, pp. 189-212. A
-  percentile critique by the discussants would live exactly there.
+- **DiCiccio & Efron:** the published *discussion* (pp. 213-228) was not retrieved —
+  only the main article, pp. 189-212. A percentile critique by the discussants would
+  live exactly there.
 - **Zhan:** read in the author's accepted manuscript (faculty page, dated 2026-05-18),
   not the Taylor & Francis version of record. The Online Supplementary Appendix A-F,
   containing all proofs and the many-instrument/wild-bootstrap simulations, was not
   retrieved.
 - **Lin & Han:** read at arXiv:2604.17239v1; the SSRN copy returns 403, so the two
   versions could not be confirmed identical.
+
+### Verification pass against the Zotero PDFs (2026-08-21, later same day)
+
+PDFs were subsequently added to Zotero, allowing the agent-reported findings to be
+checked against local copies. Results:
+
+| Claim | Status |
+|---|---|
+| Lin & Han: "Without refitting the nuisance estimator" | **CONFIRMED** in the SSRN copy (Zotero `TKPBYGYN`, 30pp). "refit" occurs **exactly once** in the whole document; no simulation section. arXiv and SSRN agree on the decisive point — **gap 4 closed.** |
+| DiCiccio & Efron: no "percentile method" | **CONFIRMED** — "percentile method/interval/bootstrap" = **0 occurrences** in the JSTOR PDF (`MEIT8R7K`). "necessary and sufficient" present as quoted. |
+| Zhan: KS-distance mechanism, not interval comparison | **CONFIRMED** (`XPEQV45A`, 18pp): "instruments are deemed weak iff the Kolmogorov-Smirnov (KS) distance below exceeds..." |
+| Zhan: anti-pretest footnote removed in publication | **CONFIRMED** — `pre-test`, `pretest`, `Guggenberger` all return **0 hits** in the published version. |
+
+Two gaps narrowed but still open:
+
+- **The D&E discussion is partially present.** The PDF runs to p. 213 and includes the
+  opening page of **"Comment" by Peter Hall and Michael A. Martin** — but truncates
+  after ~24 lines, before any substance. Notably the discussant is Hall, author of the
+  Hall (1988) Edgeworth results that *both* DiCiccio & Efron and Owen (2025) build on.
+  No "percentile" hits in the fragment available. Worth obtaining in full.
+- **Zhan's Supplementary Appendix A-F is referenced but not included** ("Proof. See
+  Supplementary Appendix A/B/C/D"; simulation evidence in E and F). All proofs remain
+  unread. Available at the article DOI.
 
 ---
 
@@ -339,11 +362,23 @@ The near-null regime is unsupported by all four.
 
 ## Unverified, and worth closing
 
-1. DiCiccio & Efron's published **discussion** (pp. 213-228) — the most likely home of
-   a percentile critique, and cheap to obtain.
-2. Zhan's **Supplementary Appendix A-F** — all proofs; also whether the version of
-   record restores the 2017 draft's footnote advising against pretest-then-Wald
-   workflows (absent from the accepted manuscript).
-3. **Tang & Westling** (arXiv:2404.03064) — read directly before citing as the
-   refit-case authority.
-4. Whether the arXiv and SSRN versions of Lin & Han are identical.
+Status after the Zotero verification pass (see §Why this exists):
+
+1. **DiCiccio & Efron's discussion, pp. 213-228** — PARTIALLY OPEN. The local PDF
+   reaches only the first page of Hall & Martin's Comment. Hall is the author of the
+   Edgeworth results both this paper and Owen (2025) build on, so his comment is the
+   single most valuable unread item in this set. Obtain from JSTOR/Project Euclid.
+2. **Zhan's Supplementary Appendix A-F** — OPEN. Referenced throughout ("Proof. See
+   Supplementary Appendix A"), not bundled with the article PDF. Contains every proof
+   plus the many-instrument and wild-bootstrap simulations. (The related question of
+   whether the published version restores the 2017 draft's anti-pretest footnote is
+   now ANSWERED: it does not — zero hits for `pre-test`/`pretest`/`Guggenberger`.)
+3. **Tang & Westling** (arXiv:2404.03064) — OPEN, and now the main gap for the
+   constructive path. Metadata verified (Zhou Tang & Ted Westling; v1 2024-04-03,
+   v2 2024-04-18; no journal reference), but the content is known only via the reading
+   agent. It is the proposed replacement citation for the refit-per-resample
+   bootstrap, so it should be read directly before anything is written on its
+   authority. Not currently in Zotero.
+4. ~~Whether the arXiv and SSRN versions of Lin & Han are identical~~ — **CLOSED.**
+   The decisive no-refit sentence, the single occurrence of "refit", and the absence
+   of a simulation section all reproduce in the SSRN copy.
