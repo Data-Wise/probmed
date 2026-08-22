@@ -18,17 +18,14 @@ library. This review reads them.
 Provenance is labeled throughout, because the point of the exercise is to stop
 treating abstract-level knowledge as if it were full-text knowledge.
 
-**What was NOT read, and matters:**
-
-- **DiCiccio & Efron:** the published *discussion* (pp. 213-228) was not retrieved —
-  only the main article, pp. 189-212. A percentile critique by the discussants would
-  live exactly there.
-- **Zhan:** read in the author's accepted manuscript (faculty page, dated 2026-05-18),
-  not the Taylor & Francis version of record. The Online Supplementary Appendix A-F,
-  containing all proofs and the many-instrument/wild-bootstrap simulations, was not
-  retrieved.
-- **Lin & Han:** read at arXiv:2604.17239v1; the SSRN copy returns 403, so the two
-  versions could not be confirmed identical.
+**Retrieval history.** The first pass worked from whatever full texts could be reached
+on the open web, and three gaps were flagged as unread: DiCiccio & Efron's published
+discussion, Zhan's Online Supplementary Appendix, and confirmation that Lin & Han's
+SSRN and arXiv versions agreed. **All three were subsequently closed** as the sources
+were added to Zotero over the course of the session. Two of the closures changed
+conclusions in this review rather than merely confirming them — see the Hall & Martin
+correction and the rejoinder finding in §2. The sequence is left visible below because
+which claims rest on which reading is itself part of the record.
 
 ### Verification pass against the Zotero PDFs (2026-08-21, later same day)
 
@@ -42,16 +39,10 @@ checked against local copies. Results:
 | Zhan: KS-distance mechanism, not interval comparison | **CONFIRMED** (`XPEQV45A`, 18pp): "instruments are deemed weak iff the Kolmogorov-Smirnov (KS) distance below exceeds..." |
 | Zhan: anti-pretest footnote removed in publication | **CONFIRMED** — `pre-test`, `pretest`, `Guggenberger` all return **0 hits** in the published version. |
 
-Two gaps narrowed but still open:
-
-- **The D&E discussion is partially present.** The PDF runs to p. 213 and includes the
-  opening page of **"Comment" by Peter Hall and Michael A. Martin** — but truncates
-  after ~24 lines, before any substance. Notably the discussant is Hall, author of the
-  Hall (1988) Edgeworth results that *both* DiCiccio & Efron and Owen (2025) build on.
-  No "percentile" hits in the fragment available. Worth obtaining in full.
-- **Zhan's Supplementary Appendix A-F is referenced but not included** ("Proof. See
-  Supplementary Appendix A/B/C/D"; simulation evidence in E and F). All proofs remain
-  unread. Available at the article DOI.
+At that point two gaps remained; **both have since been closed** — Zhan's appendix
+arrived with the T&F supplementary package (which also carried the version-of-record
+source, see §1), and the full DiCiccio & Efron discussion was added piece by piece
+(§2). Nothing in this review now rests on an unread source.
 
 ---
 
@@ -297,9 +288,60 @@ percentile. Agreement on the mechanism, not on the base method. They also conced
 and ABC "tend to be rather cautious improvements, sometimes not improving enough on
 the standard intervals."
 
-Caveat on completeness: Hall & Martin's comment and the rejoinder are in hand. The
-remaining discussion pieces (pp. 214-223, including Gleser's, and Canty, Davison &
-Hinkley's, both of which the rejoinder answers) are still unread.
+### The complete discussion (pp. 212-228): three positions, no winner
+
+All remaining pieces obtained — Canty, Davison & Hinkley (214-219), Gleser (219-221),
+Lee & Young (221-223). With Hall & Martin (212-214) and the rejoinder (223-228) the
+discussion is now read in full, and the honest summary is that **the discussants do not
+agree**:
+
+| | Preferred method |
+|---|---|
+| Hall & Martin | calibrated **percentile** |
+| Canty, Davison & Hinkley | **Studentized** (bootstrap-*t*), with a transformation |
+| DiCiccio & Efron (rejoinder) | **BC_a / ABC**, plus calibration |
+
+Hall & Martin say so explicitly in their opening — the paper "point[s] out that there
+are no uniformly superior methods."
+
+**The CDH position is a direct counterweight to the rejoinder passage quoted above, and
+the two form an exchange worth reading together.** CDH (p. 218):
+
+> "**Far from being a drawback**, in this problem the fact that the Studentized
+> bootstrap method can give long confidence intervals **is precisely what gives it the
+> best coverage** of the methods considered in our simulation study, and the
+> 'conservativeness' of the BC_a method is what leads it to undercover."
+
+DiCiccio & Efron then reply with the interval-length-variability warning and the
+degenerate `(-inf, theta[alpha])` construction.
+
+**Neither side is simply right, and the synthesis is the useful part.** CDH are correct
+that length is not automatically a defect — it can be what legitimately buys coverage.
+D&E are correct that length can also manufacture coverage vacuously. What follows is
+not "long intervals are bad" but:
+
+> **A coverage number is uninterpretable without an accompanying length or
+> informativeness measure.**
+
+That is the claim the gauge manuscript's Table 1 violates — it reports coverage alone,
+in a design where the percentile arm hits 1.00 in every cell.
+
+And our situation is diagnosable on exactly that axis rather than by assertion: the
+flagged draws are median **21x wider than |truth|**, which places them in D&E's vacuous
+regime, not CDH's earned one. A1 already separates the two.
+
+One further CDH finding worth recording, since it cuts against BC_a independently of
+Hall's non-monotonicity point (p. 217): in their study "percentile methods do very
+poorly in the upper tail: the top endpoint of these intervals is too low. Unfortunately
+**the same is true of the BC_a and the ABC methods, which do only as well as the much
+simpler normal and basic bootstrap intervals.**"
+
+Gleser's comment (219-221) concerns reproducibility — the "first law of applied
+statistics," that a method should give the same answer on re-analysis, which Monte
+Carlo methods violate — not ratios. Despite Gleser & Hwang (1987) appearing in the
+rejoinder's bibliography, **no discussant raises the nonexistence of finite-length
+confidence sets for ratio-type estimands**, and Fieller is never mentioned by anyone.
+The connection to our near-null regime is ours to make, not something to cite them for.
 
 ### Verdict
 
@@ -457,13 +499,27 @@ manuscript.** Its three supporting references either argue for something else
 (DiCiccio & Efron's main text), cover a different procedure (Lin & Han), or address a
 different question in a different model class (Zhan).
 
-**Qualification, added after reading the Hall & Martin discussion (see §2).** This is a
-claim about *raw* percentile and about *these citations* — not a claim that the
-percentile method is indefensible. Hall & Martin, discussing the very paper the
-manuscript cites, favor a **calibrated** percentile and name ratios of random variables
-as a case where it beats percentile-t. The gap is between what the code does (raw
-quantiles) and what the literature endorses (calibrated), not between percentile and
-everything else.
+**Qualification, after reading the full discussion (see §2).** This is a claim about
+*raw* percentile and about *these citations* — not a claim that the percentile method
+is indefensible, and **not** a claim that some other method is established as correct
+here. The discussion of the very paper the manuscript cites contains three
+incompatible recommendations (Hall & Martin: calibrated percentile; Canty, Davison &
+Hinkley: Studentized; DiCiccio & Efron: BC_a/ABC with calibration), and states outright
+that "there are no uniformly superior methods."
+
+So the defensible conclusion is narrower and more useful than "percentile is wrong":
+
+1. **The manuscript asserts a resolution the literature does not support.** Its prose
+   presents the percentile bootstrap as *the* appropriate construction for a skewed
+   ratio, citing a paper whose own discussion could not agree on a winner.
+2. **It reads a coverage number without a length check** — the specific error D&E's
+   rejoinder warns against, and the one thing all sides of that exchange implicitly
+   agree matters.
+3. **Its bootstrap is separately unlicensed** by the DML citation (Lin & Han), which is
+   a procedural defect independent of which interval type is best.
+
+Points 2 and 3 stand regardless of how the method debate is settled. That is what makes
+them actionable.
 
 This converges with the independent empirical finding (SPEC Phase 0): the percentile
 arm covers at **1.00 in 8 of 8 simulation cells**. Theory and evidence agree on which
@@ -511,7 +567,7 @@ The near-null regime is unsupported by all four.
 
 Status after the Zotero verification pass (see §Why this exists):
 
-1. **DiCiccio & Efron's discussion** — MOSTLY CLOSED. **Hall & Martin's Comment
+1. ~~**DiCiccio & Efron's discussion**~~ — **CLOSED.** All five pieces read (Hall & Martin 212-214; Canty, Davison & Hinkley 214-219; Gleser 219-221; Lee & Young 221-223; Rejoinder 223-228). See §2.
    (pp. 212-214, JSTOR 2246111) obtained and read**; it materially qualified this
    review's synthesis (see §2). Still unread: the remaining comments (pp. 214-228) and
    DiCiccio & Efron's rejoinder. Lower priority now that the most authoritative
