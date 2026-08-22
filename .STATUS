@@ -217,11 +217,21 @@ cran-comments + bump version).
 🌿 ACTIVE WORKTREE
 📍 CURRENT (2026-08-22) — two worktrees, both off dev:
    • feature/phi-variance-decomposition — ~/.git-worktrees/probmed/feature-phi-variance-decomposition
-     (from dev a337b01). THE LIVE ONE. Purpose: decompose seW_an_ratio = 0.65-0.83
-     (phi under-dispersion, all 8 cells) into fold-split vs nuisance-refit vs
-     remainder. Blocking measurement for the whole bootstrap-calibration line —
-     Wald, any phi-reweighted bootstrap, and Fieller are all too narrow by this
-     factor. See docs/specs/REVIEW-2026-08-22-adversarial-refutation.md.
+     (from dev a337b01). MEASUREMENT COMPLETE 2026-08-22, 7 commits, not yet PR'd.
+     Result (docs/specs/FINDINGS-2026-08-22-phi-decomposition.md on the branch):
+     the "phi under-dispersion" was a skewness artifact of an UNSTABLE SE, not a
+     biased formula. Two mechanisms, separated by oe_snr: (1) strong-ID cells —
+     oracle nuisances give an exact SE and nominal coverage; the shipped estimator's
+     excess variance is fold-split noise (.corner_fit redraws folds per call), and
+     reps>1 (already shipped) brings the POINT estimate to oracle efficiency for
+     continuous Y, but coverage stays ~0.88 because the SE estimator itself has
+     CV 0.5-0.8 across datasets (oracle 0.17); (2) near-null cells — even the
+     oracle SE explodes (se/sd 591, 333): the ratio is non-regular, exactly A1's
+     regime. Binary tau=0 n=800 is a transition cell (dataset-level
+     near-singularity; reps=10 halves but does not finish). ONE well-posed open
+     problem: an SE estimator for the reps>1 point estimator (candidates ranked in
+     FINDINGS §Open). Also delivered on the branch: the A2/Zhan attribution fix in
+     R/gauge-pmed.R + Rd (31/31 gauge tests), closing the correction sweep.
    • feature/no-refit-bootstrap — ~/.git-worktrees/probmed/feature-no-refit-bootstrap
      (from dev c264b34). ⚠️ Created for SPEC Phase 2, which was REFUTED before any
      code was written (reweighting a fixed phi reproduces the analytic variance and
