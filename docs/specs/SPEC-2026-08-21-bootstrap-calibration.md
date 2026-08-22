@@ -364,6 +364,19 @@ unbounded-fraction that diverges from it means the wiring is wrong.
   coverage to nominal-or-above… confirming the ratio diagnosis." It reached 1.00 by
   being far wider than the sampling distribution warrants. Report the `seW_bt_ratio`
   evidence and the old-vs-new gap.
+
+  **Cite DiCiccio & Efron's own rejoinder for this** (Statist. Sci. 11(3):226) — it is
+  the strongest available support and it is already in the bibliography:
+
+  > "there is the question of **interval length variability. One way to get better
+  > coverage accuracy is to make your intervals longer and more variable.**"
+
+  followed by their degenerate `(-inf, theta[alpha])` construction attaining exact
+  nominal coverage while carrying no information. The cited authors pre-emptively
+  reject reading a coverage number without an accompanying length/informativeness
+  check. This converts the rewrite from "our simulation disagrees with our framing"
+  into "our framing contradicts the source we cite," which is both more defensible and
+  easier for a referee to check.
 - **Connect the Simulation and Application sections.** The Application already makes
   the right argument for `P_med` (Fieller, whole real line, "the honest report is the
   unnormalized effects"). The paper contains its own correction and does not join the

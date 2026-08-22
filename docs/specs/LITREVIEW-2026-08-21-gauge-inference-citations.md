@@ -261,9 +261,45 @@ must be stated rather than used to wave the finding away:
   Hall's recommended procedure affordable** — an argument for that phase that has
   nothing to do with citation hygiene.
 
-Caveat on completeness: only Hall & Martin's comment was obtained. The remaining
-discussion pieces (pp. 214-228) and DiCiccio & Efron's rejoinder are still unread, and
-one of them may qualify or rebut this.
+### The rejoinder: DiCiccio & Efron pre-emptively rebut the manuscript's reading
+
+Obtained 2026-08-21 (pp. 223-228). **This is the single most on-point passage in the
+entire citation set**, and it is in the article the manuscript already cites (p. 226):
+
+> "In fact it is difficult to run a good simulation study of confidence intervals
+> methods. Besides the pitfalls mentioned earlier, and the cruel computational burden,
+> there is the question of **interval length variability. One way to get better
+> coverage accuracy is to make your intervals longer and more variable.** As an extreme
+> example, one could choose `U` uniform on (0,1) and define [`theta[alpha] = 0` if
+> `U < alpha`, `infinity` if `U > alpha`]. Then the interval `(-inf, theta[alpha])`
+> would cover the true `theta` (or any other value) **with probability alpha**."
+
+The authors are warning, in the same article, that **coverage attained by making
+intervals longer is not evidence of anything** — and they give a degenerate construction
+that hits nominal coverage exactly while carrying no information.
+
+The gauge manuscript reports percentile-bootstrap coverage of 1.00 in 8 of 8 cells and
+reads it as success: the bootstrap "restores coverage to nominal-or-above ... confirming
+the ratio diagnosis." DiCiccio & Efron's rejoinder says in advance that this inference
+is a trap. This is no longer a matter of a citation being used loosely — **the cited
+source explicitly rebuts the conclusion drawn from it.**
+
+It also independently vindicates A1's semantics. A1 flags intervals that are
+uninformatively wide (flagged draws over-cover by +0.10, median 21x wider than
+|truth|). That is precisely the failure mode D&E name, which is why A1 carries
+information beyond width while A2 does not.
+
+**On whether they accepted Hall's preference for calibrated percentile: partially.**
+They endorse calibration as answering "how accurate are my confidence interval
+coverages for my particular statistic and sample size?" — "The calibration methods of
+Section 7 provide at least a partial answer" — but apply it to ABC/BCa rather than to
+percentile. Agreement on the mechanism, not on the base method. They also concede BCa
+and ABC "tend to be rather cautious improvements, sometimes not improving enough on
+the standard intervals."
+
+Caveat on completeness: Hall & Martin's comment and the rejoinder are in hand. The
+remaining discussion pieces (pp. 214-223, including Gleser's, and Canty, Davison &
+Hinkley's, both of which the rejoinder answers) are still unread.
 
 ### Verdict
 
