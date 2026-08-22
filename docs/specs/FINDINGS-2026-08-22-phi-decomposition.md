@@ -1,8 +1,8 @@
 # Findings: where `ward_residual()`'s variance comes from, and why its SE fails
 
-**Date:** 2026-08-22 (draft written while the 12-cell run was at cell 5; the
-mechanism results below are from completed cells and targeted diagnostics and will
-not change; the full table is appended when the run finishes)
+**Date:** 2026-08-22 (final: all 12 cells at nrep = 250 x 10 partitions, plus
+remedy checks on cells 1, 2, 5 and two targeted diagnostics; summary table promoted to
+`inst/sim/results/phi_decomp_summary.csv`)
 **Script:** `inst/sim/phi_decomposition.R` (modes: default / `--remedy` / `--collate`)
 **Question:** the published grid shows `seW_an / empSD = 0.65-0.83` in all 8
 manuscript cells and Wald coverage 0.86-0.91. `REVIEW-2026-08-22` called the
@@ -38,9 +38,21 @@ missing variance come from?
    n=3000). Coverage fails anyway because the reps=1 error distribution is kurtotic
    (6.6-20).
 
+6. **Two mechanisms, separated cleanly by `oe_snr`.** In the 8 strong-ID cells the
+   oracle is exact and the excess variance is cross-fitting noise. In the 2 near-null
+   cells (`oe_snr` ~1-1.7) **the oracle SE explodes as well** (se/sd 591 and 333;
+   coverage 0.98-1.00 from enormous intervals) and fold-split is 1-3% of the variance:
+   the ratio `W = R/OE` is non-regular there and no nuisance quality helps. That is
+   A1's regime, and it is the manuscript's own Application-section argument (Fieller
+   set unbounded; report the unnormalized effects). The manuscript's *Simulation*
+   section, by contrast, lives entirely in the first regime, where the story is
+   partition noise.
+
 So: **not a too-narrow SE; an unstable one, sitting on top of an estimator whose
-variance was mostly partition noise.** Half of this is already solved by an argument
-the package ships. The other half needs a different SE estimator.
+variance was mostly partition noise** — in the regime where the estimand is regular.
+Half of this is already solved by an argument the package ships. The other half needs
+a different SE estimator. Outside that regime the problem is the estimand, which A1
+already flags.
 
 ---
 
@@ -65,33 +77,76 @@ all 8 DGPs).
 **Positive controls — reproduced.** On the published grid's definition
 (`mean(seW_an)/sd(W)`, `collate_gauge_boot.R:12`):
 
-| cell | n | tau | Y | se ratio | published | Wald cov | published |
-|---|---|---|---|---|---|---|---|
-| 1 | 800 | 0 | cont | 0.805 | 0.65 | 0.884 | 0.867 |
-| 2 | 3000 | 0 | cont | 0.544 | 0.71 | 0.828 | 0.859 |
-| 3 | 800 | 0.8 | cont | 0.794 | 0.72 | 0.904 | 0.899 |
+| cell | n | tau | Y | se ratio | published | median ratio | Wald cov | published |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 800 | 0 | cont | 0.805 | 0.65 | 0.648 | 0.884 | 0.867 |
+| 2 | 3000 | 0 | cont | 0.544 | 0.71 | 0.466 | 0.828 | 0.859 |
+| 3 | 800 | 0.8 | cont | 0.794 | 0.72 | 0.672 | 0.904 | 0.899 |
+| 4 | 3000 | 0.8 | cont | 0.732 | 0.83 | 0.645 | 0.880 | 0.913 |
+| 5 | 800 | 0 | bin | 1.35* | 0.72 | 0.287 | 0.932 | 0.879 |
+| 6 | 3000 | 0 | bin | 0.763 | 0.74 | 0.654 | 0.856 | 0.869 |
+| 7 | 800 | 0.8 | bin | 0.707 | 0.74 | 0.535 | 0.888 | 0.892 |
+| 8 | 3000 | 0.8 | bin | 0.638 | 0.67 | 0.508 | 0.860 | 0.874 |
 
-(Cell 2's spread is within noise: `W_hat` has kurtosis 20 there, so `sd(W)` at 250
-reps carries ~28% relative SE.)
+Reproduced in 7 of 8 cells, within the noise of a 250-rep `sd(W)` under kurtosis
+7-20 (~20-30% relative SE). *Cell 5 is the explosive cell (kurtosis 130): a handful
+of datasets report SEs ~50x the empirical SD, so any mean-based ratio is meaningless
+there — the median ratio (0.29) is the readable number, and the published 0.72 at
+2000 reps was itself a mean over the same kind of tail.
 
 **A false alarm worth recording.** The first version of the script used the RMS ratio
 `sqrt(E[se^2])/sd(W)` and reported 0.99 for cell 1 — which looked like a failed
 reproduction. It was the statistic, not the wiring: `seW_an` is right-skewed across
 datasets (CV 0.5-0.7), so mean/sd and RMS/sd differ by 20-25%. Both are now reported.
 
-## The decomposition (cells completed so far)
+## The decomposition — all 12 cells
 
-| cell | n | tau | irreducible `V_or/V_cf` | fold, median / mean | nuisance | oracle se/sd | oracle cov | `W_hat` kurt |
-|---|---|---|---|---|---|---|---|---|
-| 1 | 800 | 0 | 0.23 | 0.53 / 1.08 | ~0 (noise) | 1.01 | 0.940 | 6.6 |
-| 2 | 3000 | 0 | 0.14 | 0.30 / 0.59 | 0.27 | 1.07 | 0.968 | 20 |
-| 3 | 800 | 0.8 | 0.33 | 0.36 / 0.72 | ~0 (noise) | 1.01 | 0.960 | 6.8 |
+| cell | regime | n | tau | Y | s | `oe_snr` med | irreducible `V_or/V_cf` | fold (median) | `F_tail` | oracle se/sd | oracle cov | `W_hat` kurt | SE CV |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | manuscript | 800 | 0 | cont | 1 | 8.3 | 0.23 | 0.53 | 2.1 | 1.01 | 0.940 | 6.6 | 0.72 |
+| 2 | manuscript | 3000 | 0 | cont | 1 | 17 | 0.14 | 0.30 | 2.0 | 1.07 | 0.968 | 20 | 0.58 |
+| 3 | manuscript | 800 | 0.8 | cont | 1 | 9.8 | 0.33 | 0.36 | 2.0 | 1.01 | 0.960 | 6.8 | 0.49 |
+| 4 | manuscript | 3000 | 0.8 | cont | 1 | 19.5 | 0.24 | 0.36 | 2.0 | 1.08 | 0.960 | 6.8 | 0.49 |
+| 5 | manuscript | 800 | 0 | bin | 1 | 4.5 | **0.05** | 0.11 | 3.1 | 1.02 | 0.972 | **130** | 10.7 |
+| 6 | manuscript | 3000 | 0 | bin | 1 | 8.7 | 0.23 | 0.45 | 3.2 | 0.98 | 0.944 | 10 | 0.67 |
+| 7 | manuscript | 800 | 0.8 | bin | 1 | 5.3 | 0.16 | 0.34 | 79 | 1.06 | 0.968 | 11 | 1.0 |
+| 8 | manuscript | 3000 | 0.8 | bin | 1 | 10.5 | 0.16 | 0.30 | 2.8 | 1.01 | 0.940 | 18 | 0.93 |
+| 9 | near-null | 800 | 0.4 | cont | 0.2 | 1.7 | 0.35 | **0.03** | 141 | **591** | 0.996 | 90 | 9.8 |
+| 10 | near-null | 800 | 0.4 | bin | 0.2 | 1.0 | 3.4 | **0.01** | 4420 | **333** | 0.980 | 70 | 7.4 |
+| 11 | intermediate | 800 | 0.4 | cont | 0.5 | 4.3 | 0.30 | 0.35 | 6.2 | 1.01 | 0.972 | 13 | 1.3 |
+| 12 | intermediate | 800 | 0.4 | bin | 0.5 | 2.5 | 0.18 | 0.26 | 48 | 1.52 | 0.988 | 27 | 5.5 |
 
-Mean-based fold shares overshoot (can exceed 1) because the within-dataset partition
-variance is heavy-tailed — mean/median ~2 in every cell — so a few datasets with one
-wild partition dominate. The median-based share is the conservative reading; either
-way fold-split is the largest component. Nuisance vs fold is not cleanly separable at
-this precision, which is now a second-order question.
+(`SE CV` = across-dataset CV of the shipped analytic SE. Mean-based fold shares are
+omitted: the within-dataset partition variance is heavy-tailed — `F_tail` = mean/median
+~2 in the well-behaved cells and 50-4000 in the explosive ones — so the median share is
+the only readable one. Full columns in `inst/sim/results/phi_decomp_summary.csv`.)
+
+### Three regimes
+
+**Strong identification, regular (cells 1-4, 6-8, 11; `oe_snr` ≳ 4).** Oracle exact
+(se/sd 0.98-1.08, coverage 0.94-0.97). Irreducible variance 14-33% of the shipped
+estimator's; fold-split the largest component (30-53% by median). `W_hat` kurtosis
+6.6-20; Wald coverage 0.83-0.90. **This is where the manuscript's Simulation section
+lives, and the story is partition noise.**
+
+**Near-null, non-regular (cells 9-10; `oe_snr` 1-1.7).** The oracle SE explodes (se/sd
+591, 333) and the oracle over-covers (0.98-1.00) through enormous intervals; fold-split
+is 1-3% of the variance. Even with true nuisances, `OE_hat` lands near zero in some
+datasets and `W = R/OE` blows up. **Nothing about cross-fitting matters here; the
+estimand is non-regular.** This is exactly A1's regime (`oe_snr < 2` -> `oe_regular =
+FALSE`), and it is the manuscript's own Application-section conclusion: report the
+unnormalized effects, the Fieller set is unbounded.
+
+**Transition (cell 5: binary, tau=0, n=800, `oe_snr` 4.5; cell 12, `oe_snr` 2.5).**
+Oracle fine, but the cross-fit estimator has 20x the oracle variance (cell 5), and the
+median fold share is small (0.11): the explosion is partly *dataset*-level (nuisance
+error pushes `OE_hat` toward zero for the whole dataset, every partition) rather than
+*partition*-level. That is why `reps = 10` halved `empSD` there but did not reach the
+oracle. Binary outcomes with a small true `OE` on the probability scale sit closest to
+this edge.
+
+Nuisance vs fold is not cleanly separable at this precision in the regular regime;
+that is now a second-order question.
 
 ## The remedy check (same 250 datasets per cell, shipped `ward_residual()`)
 
