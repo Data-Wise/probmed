@@ -27,7 +27,15 @@
 #       variance formula itself, at this n, for a ratio. Sub-split as
 #       (V_or - S_or) + (S_or - S_an): formula inadequacy with oracle nuisances,
 #       plus the effect of plugging estimated nuisances into the formula.
-# F + N + R = G by construction; the shares are reported.
+# F + N + R = G by construction; the shares are reported. BUT G can be ~0 even
+# when V_cf is several times V_or: the IF se is computed from the same phi that
+# produced W, so a damaging fold partition inflates both together and the se
+# "tracks" the partition (E[se^2] ~ Var(W) while coverage still fails, because
+# the error distribution is kurtotic). The informative decomposition is
+# therefore of the VARIANCE ITSELF,  V_cf = V_or + F + N,  reported as shares.
+# And the positive-control ratio must use the published grid's definition,
+# mean(seW_an)/sd(W) -- not the RMS ratio, which is ~1 precisely because
+# seW_an is right-skewed across datasets (CV ~0.7; median ratio ~0.65).
 #
 # Oracle nuisances (closed form from the DGP) ----------------------------------
 #   pi(C)      = plogis(-0.2 + 0.8 C)
@@ -188,6 +196,53 @@ oracle_check <- function(s, tau, binY, n = 2e5L) {
   err
 }
 
+## ---- summary statistics from the saved per-rep objects --------------------------
+## Kept separate from run_cell so --collate can recompute every summary from the
+## cell files without re-simulating (definitions were corrected after the first
+## full run was launched; the per-rep data is what is stored).
+summarise_cell <- function(rows, W_cf, se_cf, cl, nfail = 0L, elapsed = NA_real_) {
+  R_part <- ncol(W_cf); trW <- rows$trW[1]
+  V_cf  <- var(W_cf[, 1])                               # as shipped: one partition
+  Fv    <- apply(W_cf, 1, var); F <- mean(Fv); F_med <- median(Fv)
+  V_avg <- V_cf - F; V_avg2 <- var(rowMeans(W_cf)) - F / R_part
+  V_or  <- var(rows$W_or)
+  S_an  <- mean(rows$seW_an^2); S_or <- mean(rows$seW_or^2)
+  G <- V_cf - S_an; N <- V_avg - V_or; R <- V_or - S_an
+  e1 <- W_cf[, 1] - mean(W_cf[, 1])
+  data.frame(
+    cell = cl$id, regime = cl$regime, n = cl$n, tau = cl$tau, binY = cl$binY, s = cl$s,
+    nrep = nrow(rows), nfail = nfail, R_part = R_part, trW = trW,
+    oe_snr_med = median(rows$oe_snr), pct_oe_regular = mean(rows$oe_snr >= 2),
+    ## positive controls, on the PUBLISHED GRID's definitions
+    ## (collate_gauge_boot.R: mean(seW_an)/sd(W)). The RMS ratio sqrt(E[se^2]/Var)
+    ## is ~1 even where mean/sd is 0.8, because seW_an is right-skewed (CV ~0.7).
+    se_ratio_an  = mean(rows$seW_an) / sqrt(V_cf),      # expect 0.65-0.83
+    se_ratio_med = median(rows$seW_an) / sqrt(V_cf),
+    se_ratio_rms = sqrt(S_an / V_cf),                   # variance scale: E[se^2] vs Var(W)
+    cv_seW       = sd(rows$seW_an) / mean(rows$seW_an), # SE instability across datasets
+    covW_an = mean(rows$covW_an),                       # expect 0.86-0.91
+    bias_cf = mean(W_cf[, 1]) - trW, bias_or = mean(rows$W_or) - trW,
+    kurt_cf = mean(e1^4) / V_cf^2,                      # 3 = normal
+    ## WHERE THE SHIPPED ESTIMATOR'S VARIANCE COMES FROM:  V_cf = V_or + F + N
+    ## (shares of V_cf; the gap G = V_cf - S_an can be ~0 even when V_cf >> V_or,
+    ## because the IF se computed from the same phi tracks the partition's damage)
+    empSD = sqrt(V_cf), sd_or = sqrt(V_or), seW_an = sqrt(S_an), seW_or = sqrt(S_or),
+    V_cf = V_cf, V_or = V_or, F_fold = F, F_fold_med = F_med, N_nuis = N,
+    frac_irreducible = V_or / V_cf, frac_fold = F / V_cf, frac_fold_med = F_med / V_cf,
+    frac_nuis = N / V_cf, F_tail = F / F_med,           # >>1: partition noise is heavy-tailed
+    ## the SE-gap decomposition as originally specified (F + N + R = G)
+    gap = G, R_rem = R, R_formula = V_or - S_or, R_plugin = S_or - S_an,
+    share_F = F / G, share_N = N / G, share_R = R / G,
+    V_avg_ltv = V_avg, V_avg_direct = V_avg2,           # must agree
+    ## oracle arm: is the IF formula itself right when nuisances are known?
+    se_ratio_or = sqrt(S_or / V_or), covW_or = mean(rows$covW_or),
+    ## SE instability under re-partition of the SAME data
+    cv_seW_fold = mean(apply(se_cf, 1, sd) / rowMeans(se_cf)),
+    ## robust scale, for near-null cells where variances are outlier-driven
+    mad_cf = mad(W_cf[, 1]), mad_or = mad(rows$W_or), seW_an_med = median(rows$seW_an),
+    elapsed_s = round(elapsed, 1), row.names = NULL)
+}
+
 ## ---- one cell -----------------------------------------------------------------
 run_cell <- function(ci, nrep = NREP, R_part = R_PART) {
   cl <- cells[ci, ]; n <- cl$n; s <- cl$s; tau <- cl$tau; binY <- cl$binY
@@ -218,41 +273,10 @@ run_cell <- function(ci, nrep = NREP, R_part = R_PART) {
   rows <- do.call(rbind, rows); keep <- !is.na(W_cf[, 1])
   W_cf <- W_cf[keep, , drop = FALSE]; se_cf <- se_cf[keep, , drop = FALSE]
 
-  ## ---- the decomposition (variances across datasets) ----
-  V_cf   <- var(W_cf[, 1])                              # as shipped: one partition
-  Fv <- apply(W_cf, 1, var); F <- mean(Fv)              # E_data[Var_partition]
-  V_avg  <- V_cf - F                                    # law of total variance
-  V_avg2 <- var(rowMeans(W_cf)) - F / R_part            # direct cross-check
-  V_or   <- var(rows$W_or)
-  S_an   <- mean(rows$seW_an^2); S_or <- mean(rows$seW_or^2)
-  G <- V_cf - S_an; N <- V_avg - V_or; R <- V_or - S_an
   elapsed <- proc.time()[["elapsed"]] - t0
-
-  summary <- data.frame(
-    cell = ci, regime = cl$regime, n = n, tau = tau, binY = binY, s = s,
-    nrep = nrow(rows), nfail = nfail, R_part = R_part, trW = tr$W,
-    oe_snr_med = median(rows$oe_snr), pct_oe_regular = mean(rows$oe_snr >= 2),
-    ## positive controls -- must reproduce the published grid in manuscript cells
-    se_ratio_an = sqrt(S_an / V_cf),                    # expect 0.65-0.83
-    covW_an = mean(rows$covW_an),                       # expect 0.86-0.91
-    bias_cf = mean(W_cf[, 1]) - tr$W, bias_or = mean(rows$W_or) - tr$W,
-    ## the decomposition, on the SD scale and as shares of the gap
-    empSD = sqrt(V_cf), sd_or = sqrt(V_or), seW_an = sqrt(S_an), seW_or = sqrt(S_or),
-    gap = G, F_fold = F, N_nuis = N, R_rem = R,
-    F_fold_med = median(Fv), F_tail = F / median(Fv),   # >>1: partition noise is heavy-tailed
-    share_F = F / G, share_N = N / G, share_R = R / G,
-    R_formula = V_or - S_or, R_plugin = S_or - S_an,    # sub-split of R
-    V_avg_ltv = V_avg, V_avg_direct = V_avg2,           # must agree
-    ## diagnostics of the oracle arm and of SE instability under re-partition
-    se_ratio_or = sqrt(S_or / V_or),                    # ~1 if the IF formula is right
-    covW_or = mean(rows$covW_or),
-    cv_seW_fold = mean(apply(se_cf, 1, sd) / rowMeans(se_cf)),
-    ## robust scale, for the near-null cells where variances are outlier-driven
-    mad_cf = mad(W_cf[, 1]), mad_or = mad(rows$W_or),
-    seW_an_med = median(rows$seW_an),
-    se_ratio_an_robust = median(rows$seW_an) / mad(W_cf[, 1]),
-    elapsed_s = round(elapsed, 1), row.names = NULL)
-  out <- list(summary = summary, rows = rows, W_cf = W_cf, se_cf = se_cf, cell = cl)
+  summary <- summarise_cell(rows, W_cf, se_cf, cl, nfail, elapsed)
+  out <- list(summary = summary, rows = rows, W_cf = W_cf, se_cf = se_cf, cell = cl,
+              nfail = nfail, elapsed = elapsed)
   saveRDS(out, file.path(OUTDIR, sprintf("phi_decomp_cell_%02d.rds", ci)))
   summary
 }
@@ -261,13 +285,21 @@ run_cell <- function(ci, nrep = NREP, R_part = R_PART) {
 collate <- function() {
   fs <- list.files(OUTDIR, "^phi_decomp_cell_\\d+\\.rds$", full.names = TRUE)
   if (!length(fs)) stop("no cell files in ", OUTDIR)
-  S <- do.call(rbind, lapply(fs, function(f) readRDS(f)$summary))
+  ## recompute from the stored per-rep data, so the table reflects the current
+  ## definitions whichever script version produced each cell file
+  S <- do.call(rbind, lapply(fs, function(f) {
+    x <- readRDS(f)
+    summarise_cell(x$rows, x$W_cf, x$se_cf, x$cell,
+                   if (!is.null(x$nfail)) x$nfail else x$summary$nfail,
+                   if (!is.null(x$elapsed)) x$elapsed else x$summary$elapsed_s)
+  }))
   S <- S[order(S$cell), ]
   write.csv(S, file.path(OUTDIR, "phi_decomp_summary.csv"), row.names = FALSE)
   show <- c("cell", "regime", "n", "tau", "binY", "s", "nrep", "nfail",
-            "se_ratio_an", "covW_an", "empSD", "seW_an", "sd_or", "seW_or",
-            "share_F", "share_N", "share_R", "F_tail", "se_ratio_or", "cv_seW_fold",
-            "oe_snr_med", "se_ratio_an_robust")
+            "se_ratio_an", "se_ratio_med", "se_ratio_rms", "covW_an",
+            "empSD", "sd_or", "seW_or", "se_ratio_or", "covW_or",
+            "frac_irreducible", "frac_fold", "frac_fold_med", "frac_nuis", "F_tail",
+            "cv_seW", "cv_seW_fold", "kurt_cf", "oe_snr_med")
   num <- vapply(S[show], is.numeric, logical(1))
   S2 <- S[show]; S2[num] <- lapply(S2[num], function(x) signif(x, 3))
   print(S2, row.names = FALSE)
@@ -295,8 +327,11 @@ if (COLLATE) {
                     ci, nrow(cells), cells$n[ci], cells$tau[ci], cells$binY[ci],
                     cells$s[ci], cells$regime[ci], NREP, R_PART))
     s <- run_cell(ci)
-    message(sprintf("   se_ratio_an=%.3f covW_an=%.3f | shares F=%.2f N=%.2f R=%.2f | %.0fs",
-                    s$se_ratio_an, s$covW_an, s$share_F, s$share_N, s$share_R, s$elapsed_s))
+    message(sprintf(paste0("   se_ratio_an=%.3f (med %.3f, rms %.3f) covW_an=%.3f | ",
+                           "V_cf: irreducible=%.2f fold=%.2f (med %.2f) nuis=%.2f | %.0fs"),
+                    s$se_ratio_an, s$se_ratio_med, s$se_ratio_rms, s$covW_an,
+                    s$frac_irreducible, s$frac_fold, s$frac_fold_med, s$frac_nuis,
+                    s$elapsed_s))
   }
   if (length(ids) > 1L) collate()
 }
