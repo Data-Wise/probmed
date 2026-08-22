@@ -59,6 +59,7 @@
 #   One cell locally:                            Rscript inst/sim/phi_decomposition.R --cell 1 --nrep 250
 #   SLURM array, one cell per task:              $SLURM_ARRAY_TASK_ID selects the cell
 #   Collate all cell files into one table:       Rscript inst/sim/phi_decomposition.R --collate
+#   Remedy check (reps=1 vs reps=R_PART vs oracle):  Rscript inst/sim/phi_decomposition.R --remedy 1
 # Run from the package root. Uses the in-tree package via pkgload when a
 # DESCRIPTION is present, else the installed probmed. Per the hopper rule,
 # pilot with `sbatch --array=1-1` before a full array.
@@ -281,6 +282,45 @@ run_cell <- function(ci, nrep = NREP, R_part = R_PART) {
   summary
 }
 
+## ---- remedy check: does reps > 1 (the shipped repeated cross-fitting) fix it? ----
+## The decomposition says fold-split noise dominates V_cf and the IF formula is
+## exact under oracle nuisances. If so, averaging phi over `reps` partitions --
+## which ward_residual() already implements -- should pull empSD toward the
+## oracle SD, stabilize the SE (CV down), and restore Wald coverage. Same
+## datasets as the decomposition cell (same seeds), the shipped function as is.
+run_remedy <- function(ci, nrep = NREP, reps = R_PART) {
+  cl <- cells[ci, ]; n <- cl$n; s <- cl$s; tau <- cl$tau; binY <- cl$binY
+  tr <- truth(s, tau, binY); base <- 1000000L * ci
+  out <- vector("list", nrep); t0 <- proc.time()[["elapsed"]]
+  for (r in seq_len(nrep)) {
+    seed <- base + r
+    set.seed(seed); d <- gen(n, s, tau, binY)
+    f1 <- ward_residual(d, seed = seed, reps = 1L)
+    fR <- ward_residual(d, seed = seed, reps = reps)
+    so <- gauge_stats(phi_oracle(d, s, tau, binY))
+    out[[r]] <- data.frame(
+      seed = seed,
+      W1 = f1@W, se1 = f1@W_se, cov1 = tr$W >= f1@W_ci[1] && tr$W <= f1@W_ci[2],
+      WR = fR@W, seR = fR@W_se, covR = tr$W >= fR@W_ci[1] && tr$W <= fR@W_ci[2],
+      W_or = so["W"], se_or = so["seW"], cov_or = tr$W >= so["lo"] && tr$W <= so["hi"])
+  }
+  x <- do.call(rbind, out)
+  summ <- function(W, se, cov) c(
+    empSD = sd(W), se_mean = mean(se), se_rms = sqrt(mean(se^2)),
+    ratio_mean = mean(se) / sd(W), ratio_rms = sqrt(mean(se^2)) / sd(W),
+    cv_se = sd(se) / mean(se), cov = mean(cov),
+    kurt = mean((W - mean(W))^4) / var(W)^2, bias = mean(W) - tr$W)
+  res <- rbind(reps1 = summ(x$W1, x$se1, x$cov1),
+               repsR = summ(x$WR, x$seR, x$covR),
+               oracle = summ(x$W_or, x$se_or, x$cov_or))
+  saveRDS(list(rows = x, res = res, cell = cl, reps = reps,
+               elapsed = proc.time()[["elapsed"]] - t0),
+          file.path(OUTDIR, sprintf("remedy_cell_%02d.rds", ci)))
+  message(sprintf("remedy check cell %d (n=%d tau=%g binY=%s s=%g), reps=%d, nrep=%d, %.0fs",
+                  ci, n, tau, binY, s, reps, nrep, proc.time()[["elapsed"]] - t0))
+  print(round(res, 3)); invisible(res)
+}
+
 ## ---- collate --------------------------------------------------------------------
 collate <- function() {
   fs <- list.files(OUTDIR, "^phi_decomp_cell_\\d+\\.rds$", full.names = TRUE)
@@ -307,7 +347,9 @@ collate <- function() {
 }
 
 ## ---- main ------------------------------------------------------------------------
-if (COLLATE) {
+if (!is.null(rem <- flag("remedy"))) {
+  run_remedy(as.integer(rem))
+} else if (COLLATE) {
   collate()
 } else {
   sel <- flag("cell")
