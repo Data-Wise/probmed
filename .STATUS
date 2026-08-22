@@ -220,14 +220,17 @@ BLOCKED (not actionable): probmed→CRAN (needs medfit 0.3.x on CRAN, then drop 
 cran-comments + bump version).
 
 🌿 ACTIVE WORKTREE
-📍 CURRENT (2026-08-22) — two worktrees, both off dev:
-   • feature/phi-variance-decomposition — ~/.git-worktrees/probmed/feature-phi-variance-decomposition
-     ✅ MERGED 2026-08-22 as PR #33 → dev, squash 76680a1 (8/8 CI green; 161
-     tests/482 expectations/0 fail; R CMD check --as-cran 0E/0W/2N benign; also
-     fixed the AGENTS.md/gauge_sim_out top-level-files NOTE). Remote branch deleted;
-     the worktree + local branch still exist (not removed — user's call).
-     FINDINGS now live on dev: docs/specs/FINDINGS-2026-08-22-phi-decomposition.md.
-     Result (docs/specs/FINDINGS-2026-08-22-phi-decomposition.md on the branch):
+📍 CURRENT (2026-08-22, end of session) — NO active worktrees; main checkout is dev.
+   🧹 Both session worktrees removed (user instruction); local + remote branches deleted.
+   • feature/phi-variance-decomposition — ✅ MERGED 2026-08-22 as PR #33 → dev,
+     squash 76680a1 (8/8 CI green; 161 tests/482 expectations/0 fail; R CMD check
+     --as-cran 0E/0W/2N benign; also fixed the AGENTS.md/gauge_sim_out top-level-files
+     NOTE). Deletion gate verified first: PR head 9fc996a == local tip, merge commit
+     on dev. Remote ref removed via `gh api -X DELETE .../git/refs/heads/...` — gh's
+     --delete-branch had silently not done it, and a direct push --delete is
+     guard-blocked on this harness. FINDINGS now live on dev:
+     docs/specs/FINDINGS-2026-08-22-phi-decomposition.md.
+     Result:
      the "phi under-dispersion" was a skewness artifact of an UNSTABLE SE, not a
      biased formula. Two mechanisms, separated by oe_snr: (1) strong-ID cells —
      oracle nuisances give an exact SE and nominal coverage; the shipped estimator's
@@ -239,13 +242,13 @@ cran-comments + bump version).
      regime. Binary tau=0 n=800 is a transition cell (dataset-level
      near-singularity; reps=10 halves but does not finish). ONE well-posed open
      problem: an SE estimator for the reps>1 point estimator (candidates ranked in
-     FINDINGS §Open). Also delivered on the branch: the A2/Zhan attribution fix in
+     FINDINGS §Open). Also delivered in PR #33: the A2/Zhan attribution fix in
      R/gauge-pmed.R + Rd (31/31 gauge tests), closing the correction sweep.
-   • feature/no-refit-bootstrap — ~/.git-worktrees/probmed/feature-no-refit-bootstrap
-     (from dev c264b34). ⚠️ Created for SPEC Phase 2, which was REFUTED before any
-     code was written (reweighting a fixed phi reproduces the analytic variance and
-     under-covers at 0.775-0.825). Empty — no commits on the branch. Kept pending a
-     decision, not in use.
+   • feature/no-refit-bootstrap — created for SPEC Phase 2, which was REFUTED before
+     any code was written (reweighting a fixed phi reproduces the analytic variance
+     and under-covers at 0.775-0.825). Zero unique commits (tip c264b34 is on dev),
+     never pushed. Worktree removed, local branch deleted 2026-08-22.
+   Pre-existing remote refs NOT touched: origin/feature/review-fixes, origin/feature/rg-pmed.
 🧹 BRANCH/WORKTREE CLEANUP (2026-07-15/16): main checkout is `dev`.
    ONE leftover: ~/.git-worktrees/probmed/sleepy-kowalevski-43379e (detached HEAD
    6fd517b, branch claude/sleepy-kowalevski-43379e) — created by a spawned task
