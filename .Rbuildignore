@@ -10,6 +10,8 @@
 ^\.STATUS\.backup$
 ^\.claude$
 ^CLAUDE\.md$
+^AGENTS\.md$
+^gauge_sim_out$
 ^README_files$
 ^docs$
 ^\.github$
