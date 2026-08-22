@@ -203,3 +203,12 @@ test_that("g-score EIF: SE is calibrated across delta (issue #20)", {
               info = paste0("se_ratio = ",
                             paste(round(se_ratio, 3), collapse = ", ")))
 })
+
+test_that("g-score projection is immune to covariate names (no response-name shadowing)", {
+  d <- .ip_gen(600, 0.0, seed = 5)
+  r_ref <- incr_pmed(d, deltas = c(1, 2), K = 5L)
+  dv <- d; names(dv)[names(dv) == "C"] <- "v"
+  r_v <- incr_pmed(dv, deltas = c(1, 2), K = 5L, covars = "v")
+  expect_equal(r_v@curve$Pmed, r_ref@curve$Pmed, tolerance = 1e-12)
+  expect_equal(r_v@curve$se, r_ref@curve$se, tolerance = 1e-12)
+})

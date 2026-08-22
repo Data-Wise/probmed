@@ -151,8 +151,11 @@ S7::method(incr_pmed, S7::class_data.frame) <-
       ## delta = 2 once the corner weights were corrected (2026-08-22; 0.97 with
       ## the projection; pre-fix the larger weight-bug variance masked it at 1.14).
       ## Projection: linear in the covariates, as for eta in .corner_phi().
-      proj <- function(v) stats::fitted(stats::lm(stats::reformulate(covars, "v"),
-                                                  data = data.frame(v = v, object[, covars, drop = FALSE])))
+      ## lm.fit on the covariate model matrix: no response name that a covariate
+      ## could shadow (a covariate called `v` would have made a formula-based
+      ## projection regress the response on itself and return it unchanged).
+      X_proj <- stats::model.matrix(stats::reformulate(covars), data = object)
+      proj <- function(v) stats::lm.fit(X_proj, v)$fitted.values
       psi_gscore <- dqg * resid * (dir * proj(a_med) - med * proj(a_dir)) / tot^2
       psi <- psi_base + psi_gscore
       se <- stats::sd(psi) / sqrt(n)
