@@ -252,8 +252,16 @@ cran-comments + bump version).
    Worktree removed, local + remote branch deleted (gate: head c99fbad == local tip,
    merge commit on dev). Review finding (covariate named `v` shadowed the g-score
    projection's response) fixed in c99fbad via lm.fit on the model matrix. Correction
-   comments posted to #11 and #32. Next (user's call): re-measure the bootstrap arm
-   and the weak_id/oe_regular gates post-fix; sobol_pmed/pmedW_dr coverage; the gauge
+   comments posted to #11 and #32.
+   📊 POST-FIX BOOTSTRAP + GATES RE-MEASURED (2026-08-22 evening, 4 cells x 200
+   datasets x B=200): docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md.
+   Percentile arm covers 0.905-0.930 in regular cells (Wald 0.91-0.97), same width
+   as Wald, unstable for binary Y (boot-SD CV 2.2); A2 weak_id CANNOT be calibrated —
+   flagged draws cover as well as unflagged at every threshold 1.2-3; it tracks
+   bootstrap instability = A1; beyond A1 it flags 2/98 near-null draws. A1 stands
+   (flagged = over-covering, 0.99). Disposition (needs worktree): drop the weak_id
+   warning, re-document A2/bootstrap, keep threshold at 3.
+   Next (user's call): the weak_id/bootstrap doc+warning change; sobol_pmed/pmedW_dr coverage; the gauge
    manuscript's coverage + weak-ID claims rest on the pre-fix grids; dev→main release
    (puts the corrected docs online; package ON HOLD).
    History of the branch: opened off dev b3ea449 to ship the
