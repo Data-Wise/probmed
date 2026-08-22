@@ -164,7 +164,9 @@ version. Leftover worktree dirs (incremental-pmed / my-sensitivity / sobol-pmed)
        argument. The percentile arm's ~1.00 follows: each resample refits with a
        fresh partition, so it carries the reps=1 fold-split noise. Open problem, now
        well-posed: an SE estimator for the reps>1 point estimator; plus robust
-       partition aggregation for binary Y.
+       partition aggregation for binary Y. SE ESTIMATOR FOUND later 2026-08-22 (IF
+       variance from full-sample nuisance fits; oracle-matching CV in 3 cells) —
+       see FINDINGS §Open item 1; shipping it is a code change, not yet started.
    (b) THE ZHAN (2026) MECHANISM IS ASSERTED, BUT OUR OWN GRID FOUND IT
        WIDTH-EXPLAINED. Supplement (gauge-pmed.qmd:422-424) states weak
        identification is "signalled by divergence between the Wald and percentile
@@ -266,7 +268,8 @@ cran-comments + bump version).
      regime. Binary tau=0 n=800 is a transition cell (dataset-level
      near-singularity; reps=10 halves but does not finish). ONE well-posed open
      problem: an SE estimator for the reps>1 point estimator (candidates ranked in
-     FINDINGS §Open). Also delivered in PR #33: the A2/Zhan attribution fix in
+     FINDINGS §Open) — RESOLVED later the same day, see FINDINGS §Open item 1:
+     full-sample-nuisance IF variance; not yet shipped. Also delivered in PR #33: the A2/Zhan attribution fix in
      R/gauge-pmed.R + Rd (31/31 gauge tests), closing the correction sweep.
    • Follow-up docs commit `4494d79` (2026-08-22, direct to dev, no PR — docs-only,
      existing files) — landed after PR #33 merged: dropped the "Lin et al. 2026"

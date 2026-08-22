@@ -235,13 +235,54 @@ widths.
 
 ## Open, in priority order
 
-1. **An SE estimator for the `reps > 1` point estimator.** Candidates, cheapest
-   first: (a) `reps` large enough that `seMC -> 0` and `seIF` can be calibrated
-   against `V_avg` empirically; (b) the IF sd averaged *across* partitions with each
-   partition's own `W`, rather than from the averaged `phi` (tests whether the
-   over-smoothing is in the averaging step); (c) a nonparametric bootstrap of the
-   `reps = 10` estimator (cost `B x reps` cross-fits; the refit bootstrap's SD was
-   already right at n = 3000 for reps = 1). The oracle benchmark is CV 0.17.
+1. **An SE estimator for the `reps > 1` point estimator — RESOLVED (2026-08-22,
+   three rounds, 250 datasets per cell, `reps = 10`, scratch scripts
+   `se_candidates{,2,3}.R` in the session scratchpad — promote into `inst/sim/` with
+   the code change).** Score = median(SE)/empSD(W), CV of the SE across
+   datasets, Wald coverage; the oracle-nuisance SE is the benchmark.
+
+   *Round 1 (cell 1): every partition-aggregation candidate fails.* Shipped total
+   0.81 / CV 0.62 / cov 0.896; per-partition IF mean 1.33 / 0.57 / 0.984; per-partition
+   median 1.23 / 0.61 / 0.968; fold-clustered sandwich, median over partitions 0.96 /
+   0.54 / 0.948; oracle 0.92 / 0.18 / 0.940. The best candidate gets the median and
+   the coverage right only because its per-dataset errors (0.5-2.4x truth) balance —
+   CV 0.54-0.66 across the whole family. So the instability is a property of the
+   *dataset's* nuisance fits, not of how partitions are combined. Side result: the
+   fold-clustered SE is *smaller* than the iid one (1.19 vs 1.33), i.e. within-fold IF
+   contributions are negatively correlated — the shared-fold-error over-smoothing story
+   in item 3 below is wrong in its simple form.
+
+   *Round 2 (cell 1): the IF variance from full-sample nuisance fits works.* Keep the
+   cross-fit `reps = 10` point estimate; for the SE only, refit the three nuisance GLMs
+   (and the `eta` projections) on all n, form the corner `phi` in-sample, and take
+   `sd(ifW(phi_full, W_crossfit)) / sqrt(n)`. Result 0.88 / **0.20** / 0.936 vs oracle
+   0.92 / 0.18 / 0.940. Winsorizing the IF contributions (1/99%) is ruled out: it drops
+   even the *oracle* to 0.72 / cov 0.85, so the IF tails are signal.
+
+   *Round 3: holds outside cell 1.* Intermediate (s = 0.5, tau = 0.4, cont):
+   1.00 / 0.23 / 0.940 vs oracle 1.00 / 0.25 / 0.964. Binary strong-ID (cell 5):
+   0.91 / 0.31 / 0.948 vs oracle 0.92 / 0.31 / 0.972. In both, the shipped SE has CV
+   1.7-1.9 (its `seMC` add-on explodes on unstable partitions). The full-sample SE's CV
+   equals the oracle's in all three cells.
+
+   Mechanism: the cross-fit IF evaluates each observation under a 4/5-sample nuisance
+   fit, and the IF *variance* inherits that fit's noise — dataset-specific, so no
+   partition aggregation removes it; the full-sample fit's noise is at the oracle
+   rate. The point estimate keeps cross-fitting (where the bias protection lives).
+   Caveat: in-sample nuisances can understate the variance if the nuisance models
+   overfit — negligible for these GLMs at n = 800 (0.88-1.00 vs oracle 0.92-1.00);
+   re-check if flexible learners are ever plugged into `.corner_fit`.
+
+   Shipping it is a code change in `R/corner.R` / `R/gauge-pmed.R` (new `se_method`
+   value or the default for `reps > 1`) with a coverage test against the saved tables.
+   Pending: the nonparametric bootstrap of the `reps = 10` estimator (B = 50, 60
+   datasets, cell 1) as a cost comparison — it is B x reps = 500 cross-fits per
+   dataset against one extra GLM fit for the full-sample IF.
+
+   Discrepancy to re-check under item 2: in this 250-dataset run the `reps = 10`
+   point estimator's `empSD` in cell 5 was 0.125 (oracle 0.122), not the 0.175 the
+   remedy run reported — different seeds and rep count; one of the two is a tail
+   event.
 2. **Robust aggregation across partitions for binary Y** — `reps = 10` reaches the
    oracle for continuous Y at both n but not for binary Y (cell 5: `empSD` 0.175 vs
    0.126, kurtosis 67). Candidates: median of per-partition corner means before
@@ -249,10 +290,11 @@ widths.
    `OE_hat` falls below a threshold. Each changes the estimand's finite-sample
    behavior and needs its own coverage check. Near-null cells (9-12) still pending
    from the main run.
-3. **Why does averaging `phi` over-smooth?** Likely because a fold-specific nuisance
-   error is shared by every observation in that fold and so is correlated across
-   observations — invisible to a per-observation sd. Testable by comparing
-   `sd(ifW(pbar))` with the sd of the per-fold means.
+3. **Why does averaging `phi` over-smooth?** — CLOSED by item 1. The per-observation
+   sd is not hiding positively correlated shared-fold error (the fold-clustered SE is
+   smaller than the iid SE, so the within-fold correlation is negative); the
+   under-dispersion is fold-fit noise entering the IF itself, and it disappears when
+   the IF is formed from full-sample nuisance fits.
 4. Fold-split noise is heavy-tailed (`F_tail ~ 2`). Which partitions are "wild", and is
    it a small-fold separation effect in the `A == a'` subset regressions for `eta`?
 
