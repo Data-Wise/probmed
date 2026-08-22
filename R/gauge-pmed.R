@@ -23,8 +23,11 @@
 #'   `se_method = "bootstrap"` (where `W_ci` holds the percentile interval).
 #' @param weak_id Logical: weak-identification flag -- `TRUE` when the percentile
 #'   CI for `W` is at least 3x wider than the symmetric Wald interval, the
-#'   regime where the default Wald interval is most under-covering (Zhan 2026;
-#'   see below for what the grid showed this does and does not mean). `NA` unless
+#'   regime where the default Wald interval is most under-covering. The ratio is a
+#'   scale-only adaptation of the bootstrap-vs-asymptotic-discrepancy idea in Zhan
+#'   (2026); it is not Zhan's statistic, which is a Kolmogorov-Smirnov distance for
+#'   linear IV (see below for what the grid showed the ratio does and does not
+#'   mean). `NA` unless
 #'   `se_method = "bootstrap"` (both intervals are required to compare), and
 #'   also `NA` (not `FALSE`) in the degenerate case where the Wald interval has
 #'   zero width. The 3x threshold is calibrated above the ~2x width gap that the
@@ -295,8 +298,11 @@ S7::method(ward_residual, S7::class_data.frame) <-
     ## reading: A2's coverage separation is ~97% explained by wid_wald alone
     ## (flag coef -0.051 -> -0.002 under a flexible width control), so A2 is a
     ## self-contained narrowness proxy, NOT evidence that CI divergence carries
-    ## information beyond width -- Zhan (2026)'s premise did not survive for
-    ## coverage. A1 is the gate with above-width content (+0.036 residual, SE
+    ## information beyond width. (This tested the GATE, not Zhan's method: Zhan
+    ## (2026) proposes a KS distance between the bootstrap law of a standardized
+    ## TSLS estimator and N(0,1), in linear IV; no interval comparison appears
+    ## there. The width ratio is a cruder, scale-only adaptation of that idea.)
+    ## A1 is the gate with above-width content (+0.036 residual, SE
     ## 0.003) and flags OVER-covering, uninformatively wide intervals (median 21x
     ## wider than |truth|). t=3 is a convention (1.75-4 indistinguishable).
     seOE       <- se(pOE)
@@ -324,8 +330,10 @@ S7::method(ward_residual, S7::class_data.frame) <-
     }
     z <- W / seW
 
-    ## A2 weak-identification flag: Wald-vs-percentile CI divergence is itself a
-    ## weak-ID diagnostic (Zhan 2026). Computable only when both intervals exist,
+    ## A2 weak-identification flag: the percentile/Wald width ratio, a scale-only
+    ## adaptation of Zhan (2026)'s bootstrap-vs-asymptotic-discrepancy idea (his
+    ## statistic is a KS distance in linear IV; this is not it). Computable only
+    ## when both intervals exist,
     ## i.e. under se_method = "bootstrap" (W_ci is then the percentile interval,
     ## W_ci_wald the symmetric Wald). We flag when the percentile interval is >= 3x
     ## wider than the Wald. The symmetric Wald interval for W is *anti-conservative*
@@ -334,6 +342,13 @@ S7::method(ward_residual, S7::class_data.frame) <-
     ## calibrated to fire only on the marginal inflation beyond that baseline, where
     ## the percentile interval starts tracking the ratio's exploding tail as OE->0.
     ## (An overlap metric is not separable here: it sits near 0.5 in both regimes.)
+    ## WHY the baseline is ~2x (adversarial review, 2026-08-22): the analytic SE in
+    ## the ratio's denominator is biased low by ~30% in ALL 8 grid cells
+    ## (seW_an/empSD = 0.65-0.83, inst/sim/results/gauge_boot_coverage_nsim2000.csv),
+    ## so the ratio carries a large regime-independent offset and partly measures
+    ## SE bias rather than identification strength. That subsumes the
+    ## width-explained finding recorded above (48k grid). Where the missing
+    ## variance comes from is measured by inst/sim/phi_decomposition.R.
     weak_id <- NA; weak_id_ratio <- NA_real_
     if (se_method == "bootstrap") {
       wald_w <- W_ci_wald[2] - W_ci_wald[1]
@@ -357,7 +372,7 @@ S7::method(ward_residual, S7::class_data.frame) <-
               round(weak_id_ratio, 1), "x wider than the Wald interval (>= ",
               weak_id_ratio_threshold, "x). The default Wald CI is narrow here, ",
               "and narrow Wald intervals for W under-cover -- treat it with ",
-              "suspicion (Zhan 2026).", call. = FALSE)
+              "suspicion.", call. = FALSE)
 
     ## Fieller confidence set for P_med = IIE/OE. When the denominator OE is not
     ## significant the set is unbounded; the Wald interval understates this.
