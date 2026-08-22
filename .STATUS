@@ -23,6 +23,30 @@ Priority: P1
 Status: active
 Progress: 90
 
+📝 DOCS SYNC (2026-08-22, rforge docs:check + site audit). The edits themselves were
+   committed + pushed as 4494d79 by a PARALLEL SESSION (same git identity, co-author tag
+   "Claude Sonnet 5", 14:12 MDT) while this session was still verifying them — see its
+   bullet under ACTIVE WORKTREE. ⚠️ Two sessions were committing to dev concurrently;
+   content verified identical (clean tree), but watch for this. This block records the
+   AUDIT FINDINGS that commit message does not.
+⚠️ THE ONLINE SITE IS STALE BY CONSTRUCTION, NOT BY NEGLECT: data-wise.github.io/probmed
+   was deployed 2026-06-22 from main @ 0486b01 (= v0.3.0). pkgdown.yaml publishes only on
+   push to main, and main is 57 commits behind dev. Nothing on dev — gauge gates, incr/sobol/
+   wasserstein, rg_flow, multilevel_designs, the decomposition — is visible online until a
+   dev→main release (version bump off .9000; package ON HOLD pending manuscript). Docs
+   deploy is automatic on that push; no manual step.
+   Fixed on dev this pass: (1) _pkgdown.yml reference index listed NONE of the 13
+   post-0.3.0 topics (reachable by URL only) — added "Modern estimands", "Sensitivity
+   analysis", and the 6 S7 classes; check_pkgdown OK, rendered index verified. (2) NEWS.md
+   had no entry for PR #30 (rg_flow_contrast) or PR #33 — added. (3) Refuted framing
+   purged from user-facing docs: vignettes/gauge-residual.qmd ("appropriate construction
+   for a skewed ratio"), roxygen + hand-mirrored Rd for se_method / weak_id / oe_regular
+   ("Bootstrap validity follows from … Lin et al. 2026" — the refit miscitation; "1.00 in
+   all 8 cells"), and the oe_regular warning text. The Rd and its roxygen had already
+   drifted from each other (Rd carried an extra sentence) — now identical. Gauge tests
+   31/31; tools::checkRd clean. Advisory, not changed: README.qmd mentions none of the
+   modern estimators (core-P_med story only) — a content decision, not drift.
+
 ✅ MERGED TO DEV (2026-07-26) — two features, while the CRAN-prep hold stands
 PR #30 `rg_flow_contrast()`/`RgFlowResult` (d8fd376) — scale-indexed classical
 proportion mediated (NIE/TE ratio, NOT P_med) with cluster-robust EIF inference;
