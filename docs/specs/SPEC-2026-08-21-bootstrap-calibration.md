@@ -1,5 +1,28 @@
 # SPEC: gauge bootstrap-interval calibration + manuscript reconciliation
 
+> ## ⚠️ SUPERSEDED IN PART — DO NOT EXECUTE PHASE 2 AS WRITTEN
+>
+> An adversarial review on 2026-08-22 ran the experiment this spec proposed and
+> **refuted its primary fix**: see `REVIEW-2026-08-22-adversarial-refutation.md`.
+>
+> - **Phase 2 (no-refit bootstrap) is refuted.** Reweighting a fixed `phi` reproduces
+>   the delta-method variance identically (measured 1.046 / 0.996 x `seW_an`) — it *is*
+>   the analytic SE, which Phase 0 finding #1 already measured as 17-35% too small. The
+>   spec proposes replacing the bootstrap with a variance it elsewhere calls defective.
+>   Measured coverage of the "fix": **0.775-0.825**, at or below the current Wald arm.
+> - **Phase 0's heavy-tail diagnosis is backwards.** Heavy tails *compress* the
+>   quantile range relative to SD; the measured refit interval is **0.80-0.83x** a
+>   calibrated normal interval — narrower, not "vacuously wide."
+> - **Phase 0b's `oe_snr = z` partition is a fixed-vs-sample category error.**
+> - **The real defect** is that `phi` under-disperses by 0.65-0.83x in all 8 cells,
+>   which was visible in this spec's own Phase 0 table and never pursued. It affects
+>   Wald, any `phi`-reweighted bootstrap, **and Fieller** alike.
+>
+> Phases 1 and 6 (the Zhan correction and the #32 close-out) are unaffected in their
+> factual content, but the #32 "vacuously wide" framing must be withdrawn.
+>
+> Everything below is retained unedited as the record of what was proposed and why.
+
 **Created:** 2026-08-21
 **Status:** proposed
 **Scope:** probmed (`R/gauge-pmed.R`, sim grid) + cross-repo manuscript
