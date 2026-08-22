@@ -41,8 +41,10 @@
 #'   trustworthy" -- at best it means "not the worst tail of an already
 #'   sub-nominal default". If you need coverage you can rely on, use
 #'   `se_method = "bootstrap"` -- but know what you are buying: the percentile
-#'   interval covered **1.00** in all 8 cells of that grid, which is not "mildly"
-#'   conservative, it is uncalibrated in the safe direction. Neither arm is
+#'   interval covered ~1 in every cell of that grid (1.000 in six, 0.9995 in
+#'   two), which is conservative rather than calibrated -- each resample refits
+#'   the cross-fit with a fresh partition, so the bootstrap distribution carries
+#'   the fold-split noise described under `se_method`. Neither arm is
 #'   nominal; pick the error you can live with.
 #'
 #'   **What the 48,000-rep validation grid established** (24 cells,
@@ -68,7 +70,8 @@
 #' @param oe_snr Numeric: signal-to-noise of the denominator, `|OE| / se(OE)`.
 #'   Small values indicate `OE` near 0, where `W = R/OE` is non-regular.
 #' @param oe_regular Logical: `TRUE` when `oe_snr >= 2`; `FALSE` flags a
-#'   near-singular `OE` (Lin et al. 2026). Computed unconditionally from the
+#'   near-singular `OE` -- the denominator of the ratio `W = R/OE`, whose
+#'   interval estimation is the classical Fieller (1954) problem. Computed unconditionally from the
 #'   analytic se(OE) regardless of `se_method` (only the accompanying
 #'   `warning()` is gated on `se_method = "bootstrap"`). `NA` only in the
 #'   degenerate case `se(OE) == 0`.
@@ -155,18 +158,28 @@ GaugePmedResult <- S7::new_class(
 #'   of the variance; the analytic se then adds the residual fold Monte-Carlo
 #'   variance of the averaged point.
 #' @param se_method Character: `"analytic"` (default, influence-function se,
-#'   symmetric Wald CI) or `"bootstrap"`. The analytic se for the ratios `W` and
-#'   `P_med` is right-skewed with a median below the empirical SD, so the
-#'   symmetric Wald CI is mildly **anti-conservative** (sub-nominal coverage
-#'   \eqn{\approx 0.85}-\eqn{0.90}). Under `"bootstrap"` the CIs for `W` and
-#'   `P_med` are the tail-aware **percentile** intervals of the nonparametric
-#'   bootstrap (resample rows, refit) -- the appropriate construction for a
-#'   skewed ratio (widening a symmetric se fails to cover it); `W_se`/`p_med` se are
-#'   still reported as bootstrap dispersion summaries. `reps > 1` and
-#'   `se_method = "bootstrap"` compose. Bootstrap validity follows from the
-#'   estimator being a Neyman-orthogonal cross-fit (DML-type) functional
-#'   (Lin et al. 2026); it requires the ratio to be regular, i.e. `OE` bounded
-#'   away from 0 -- see the Fieller diagnostic for the near-null case.
+#'   symmetric Wald CI) or `"bootstrap"`. Neither arm is calibrated at
+#'   `reps = 1`; the coverage grid
+#'   (`inst/sim/results/gauge_boot_coverage_nsim2000.csv`) and its decomposition
+#'   (`inst/sim/results/phi_decomp_summary.csv`;
+#'   `docs/specs/FINDINGS-2026-08-22-phi-decomposition.md`) say why. The
+#'   single-partition estimator's variance is dominated by **fold-split noise**
+#'   (the cross-fit partition is redrawn on every call), and its analytic se is
+#'   unstable across datasets (CV 0.5-0.8) rather than biased -- with the true
+#'   nuisances plugged in, the same se is exact -- so the symmetric Wald CI covers
+#'   only \eqn{\approx 0.85}-\eqn{0.90}. `reps > 1` removes the fold-split
+#'   component from the point estimate (at `reps = 10` it reaches the efficiency
+#'   of an oracle with known nuisances for continuous `Y`); a better se for that
+#'   estimator is an open item. Under `"bootstrap"` the CIs for `W` and `P_med`
+#'   are **percentile** intervals of a nonparametric bootstrap that resamples
+#'   rows and refits the whole cross-fit (a fresh partition each resample), so
+#'   it carries the same fold-split noise and covered ~1 in every grid cell --
+#'   conservative, not calibrated; `W_se`/`p_med` se are reported as bootstrap
+#'   dispersion summaries. The bootstrap-consistency result of Lin and Han
+#'   (2026) for cross-fit DML functionals holds the nuisances fixed and does
+#'   **not** cover this refit-per-resample scheme. `reps > 1` and
+#'   `se_method = "bootstrap"` compose. Near the null (`OE` not bounded away
+#'   from 0) the ratio is non-regular for every arm -- use the Fieller set.
 #' @param B Integer: number of bootstrap resamples when `se_method = "bootstrap"`
 #'   (default `200`). Cost is `B` (x `reps`) refits.
 #' @param a0,a1 Reference and comparison exposure levels (defaults `0`/`1`). `A`
@@ -363,7 +376,7 @@ S7::method(ward_residual, S7::class_data.frame) <-
     ## bare negation) since oe_regular/weak_id may now be NA in degenerate cases.
     if (isFALSE(oe_regular) && se_method == "bootstrap")
       warning("Near-singular OE (|OE|/se = ", round(oe_snr, 2), " < ",
-              oe_snr_threshold, "): W = R/OE is non-regular (Lin et al. 2026); ",
+              oe_snr_threshold, "): W = R/OE is non-regular; ",
               "its point estimate and CI are numerically meaningless here -- ",
               "expect an interval many times wider than the estimand. Prefer ",
               "the Fieller set for the near-null case.", call. = FALSE)

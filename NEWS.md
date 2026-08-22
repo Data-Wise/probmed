@@ -1,5 +1,35 @@
 # probmed 0.3.0.9000 (development)
 
+## Simulation findings (PR #33)
+
+* **Where `ward_residual()`'s variance comes from, and why its analytic se
+  under-covers** — `inst/sim/phi_decomposition.R`, results in
+  `inst/sim/results/phi_decomp_summary.csv`, full account in
+  `docs/specs/FINDINGS-2026-08-22-phi-decomposition.md`. The coverage grid's
+  `se/empSD = 0.65-0.83` was a **skewness artifact of an unstable se**, not a
+  biased formula: with the DGP's true nuisances plugged into the same corner EIF
+  the se is exact and coverage nominal. In the grid's regular cells the
+  single-partition estimator's excess variance is **fold-split noise**
+  (`.corner_fit()` redraws the partition every call); `reps > 1`, already
+  shipped, brings the point estimate to oracle efficiency for continuous `Y`
+  (n=800: empSD 0.121 → 0.057 vs oracle 0.056). Coverage stays ~0.88 only
+  because the se estimator has CV 0.5–0.8 across datasets (oracle 0.17) — a
+  better se for the `reps > 1` estimator is the open item. Near the null even
+  the oracle se explodes: the ratio is non-regular there, which is exactly what
+  `oe_regular` flags. Binary `Y` with a small `OE` is a transition regime where
+  `reps = 10` halves the variance but does not reach the oracle.
+
+* Docs corrected accordingly (`se_method`, `weak_id`, `oe_regular`; the
+  gauge-residual vignette). Two citation fixes: the `weak_id` gate is a
+  scale-only **adaptation** of Zhan (2026)'s bootstrap-vs-asymptotic idea, not
+  his statistic (a Kolmogorov–Smirnov test for linear IV); and the
+  bootstrap-consistency result of Lin and Han (2026) holds the nuisances fixed
+  and does **not** cover the package's refit-per-resample bootstrap, which the
+  docs had claimed. The user-facing warnings no longer cite either.
+
+* `AGENTS.md` and the `gauge_sim_out` scratch directory are now
+  `.Rbuildignore`d (they raised a top-level-files NOTE in `R CMD check`).
+
 ## Documentation
 
 * `ward_residual()` / `GaugePmedResult`: document what the `weak_id` flag does
@@ -42,6 +72,14 @@
     (unlike `weak_id`).
 
 ## New features
+
+* `rg_flow_contrast()` and the `RgFlowResult` class (PR #30) add a
+  **scale-indexed proportion mediated** — the classical NIE/TE ratio tracked
+  across coarse-graining scales (`rg_coarse_grain()`), with **cluster-robust
+  EIF inference** for clustered data. Deliberately *not* a P_med variant:
+  probmed's first multilevel estimator. Takes raw clustered data plus cluster
+  labels; whether `medfit::MediationData` should grow a cluster slot is an open
+  data-contract question.
 
 * New data set `multilevel_designs` (the package's first shipped data): design
   metadata for three clustered study designs -- ECLS-K:1998-99, ECLS-K:2011

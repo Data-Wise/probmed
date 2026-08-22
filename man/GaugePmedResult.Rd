@@ -76,10 +76,11 @@ nominal 0.95 in any cell. So \code{weak_id = FALSE} cannot mean "this interval
 is trustworthy" -- at best it means "not the worst tail of an already
 sub-nominal default". If you need coverage you can rely on, use
 \code{se_method = "bootstrap"} -- but know what you are buying: the percentile
-interval covered \strong{1.00} in all 8 cells of that grid, which is not
-"mildly" conservative, it is uncalibrated in the safe direction. You get a
-guarantee at the cost of an interval wide enough to be uninformative near the
-null. Neither arm is nominal; pick the error you can live with.
+interval covered ~1 in every cell of that grid (1.000 in six, 0.9995 in
+two), which is conservative rather than calibrated -- each resample refits
+the cross-fit with a fresh partition, so the bootstrap distribution carries
+the fold-split noise described under \code{se_method}. Neither arm is
+nominal; pick the error you can live with.
 
 \strong{What the 48,000-rep validation grid established} (24 cells,
 \code{inst/sim/results/weakid_validation_cells.csv} + the two sweep files;
@@ -107,7 +108,8 @@ Wald \code{W}-interval width; \code{NA} if not computed.}
 Small values indicate \code{OE} near 0, where \code{W = R/OE} is non-regular.}
 
 \item{oe_regular}{Logical: \code{TRUE} when \code{oe_snr >= 2}; \code{FALSE} flags a
-near-singular \code{OE} (Lin et al. 2026). Computed unconditionally from the
+near-singular \code{OE} -- the denominator of the ratio \code{W = R/OE}, whose
+interval estimation is the classical Fieller (1954) problem. Computed unconditionally from the
 analytic se(OE) regardless of \code{se_method} (only the accompanying
 \code{warning()} is gated on \code{se_method = "bootstrap"}). \code{NA} only in
 the degenerate case \code{se(OE) == 0}.

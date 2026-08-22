@@ -44,18 +44,28 @@ of the variance; the analytic se then adds the residual fold Monte-Carlo
 variance of the averaged point.}
 
 \item{se_method}{Character: \code{"analytic"} (default, influence-function se,
-symmetric Wald CI) or \code{"bootstrap"}. The analytic se for the ratios \code{W} and
-\code{P_med} is right-skewed with a median below the empirical SD, so the
-symmetric Wald CI is mildly \strong{anti-conservative} (sub-nominal coverage
-\eqn{\approx 0.85}-\eqn{0.90}). Under \code{"bootstrap"} the CIs for \code{W} and
-\code{P_med} are the tail-aware \strong{percentile} intervals of the nonparametric
-bootstrap (resample rows, refit) -- the appropriate construction for a
-skewed ratio (widening a symmetric se fails to cover it); \code{W_se}/\code{p_med} se are
-still reported as bootstrap dispersion summaries. \code{reps > 1} and
-\code{se_method = "bootstrap"} compose. Bootstrap validity follows from the
-estimator being a Neyman-orthogonal cross-fit (DML-type) functional
-(Lin et al. 2026); it requires the ratio to be regular, i.e. \code{OE} bounded
-away from 0 -- see the Fieller diagnostic for the near-null case.}
+symmetric Wald CI) or \code{"bootstrap"}. Neither arm is calibrated at
+\code{reps = 1}; the coverage grid
+(\code{inst/sim/results/gauge_boot_coverage_nsim2000.csv}) and its decomposition
+(\code{inst/sim/results/phi_decomp_summary.csv};
+\code{docs/specs/FINDINGS-2026-08-22-phi-decomposition.md}) say why. The
+single-partition estimator's variance is dominated by \strong{fold-split noise}
+(the cross-fit partition is redrawn on every call), and its analytic se is
+unstable across datasets (CV 0.5-0.8) rather than biased -- with the true
+nuisances plugged in, the same se is exact -- so the symmetric Wald CI covers
+only \eqn{\approx 0.85}-\eqn{0.90}. \code{reps > 1} removes the fold-split
+component from the point estimate (at \code{reps = 10} it reaches the efficiency
+of an oracle with known nuisances for continuous \code{Y}); a better se for that
+estimator is an open item. Under \code{"bootstrap"} the CIs for \code{W} and \code{P_med}
+are \strong{percentile} intervals of a nonparametric bootstrap that resamples
+rows and refits the whole cross-fit (a fresh partition each resample), so
+it carries the same fold-split noise and covered ~1 in every grid cell --
+conservative, not calibrated; \code{W_se}/\code{p_med} se are reported as bootstrap
+dispersion summaries. The bootstrap-consistency result of Lin and Han
+(2026) for cross-fit DML functionals holds the nuisances fixed and does
+\strong{not} cover this refit-per-resample scheme. \code{reps > 1} and
+\code{se_method = "bootstrap"} compose. Near the null (\code{OE} not bounded away
+from 0) the ratio is non-regular for every arm -- use the Fieller set.}
 
 \item{B}{Integer: number of bootstrap resamples when \code{se_method = "bootstrap"}
 (default \code{200}). Cost is \code{B} (x \code{reps}) refits.}

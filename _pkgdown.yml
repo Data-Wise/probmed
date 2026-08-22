@@ -104,12 +104,45 @@ reference:
       - pmed-MediationData
       - extract_mediation
 
+  - title: "Modern estimands"
+    desc: >
+      Cross-fitted, influence-function-based estimators beyond the core P_med:
+      the gauge residual (W = R/OE, with weak-identification gates), incremental
+      P_med, the Sobol variance-scale and Wasserstein versions, and the
+      scale-indexed rg-flow proportion mediated with cluster-robust inference.
+    contents:
+      - ward_residual
+      - incr_pmed
+      - incr_sensitivity
+      - sobol_pmed
+      - sobol_from_theta
+      - wasserstein_pmed
+      - pmedW_dr
+      - pmedW_md
+      - sinkhorn_div
+      - rg_flow_contrast
+      - rg_coarse_grain
+      - g_hat_eif
+
+  - title: "Sensitivity analysis"
+    desc: >
+      Unmeasured mediator-outcome confounding: tipping-point analysis shared
+      across the estimands.
+    contents:
+      - pmed_sensitivity
+
   - title: "S7 Class Definitions"
     desc: >
       Formal class structures for mediation analysis objects.
       These classes define the object-oriented architecture of the package.
     contents:
       - PmedResult
+      - GaugePmedResult
+      - IncrPmedResult
+      - SobolPmedResult
+      - WassersteinPmedResult
+      - RgFlowResult
+      - PmedSensitivity
 
   - title: "Methods and Utilities"
     desc: >
