@@ -142,15 +142,57 @@ The two mechanisms are cheaply discriminable, and the test is also the fix:
 > influence-function contributions (`phi`, already computed). No refits, so it is
 > cheaper than the current arm, not more expensive.
 >
-> - If coverage drops from 1.00 toward nominal -> the refit was the problem. The
->   manuscript's percentile story needs rewriting AND the citation is fixed by the
->   same change.
-> - If coverage stays at 1.00 -> the ratio structure is the problem, and Fieller
->   (Phase 2) is the answer.
+> - If coverage drops from 1.00 toward nominal -> the refit was a live contributor.
+> - If coverage stays at 1.00 -> the ratio structure dominates, and Fieller is the
+>   answer for the affected regime.
 
-This supersedes the Phase 2/3 ordering below: run the discriminating experiment
-first, because its outcome determines whether Fieller is a replacement or a
-complement.
+**Update (Tang & Westling read directly, 2026-08-21): this is no longer merely a
+diagnostic — it is the primary fix, and the experiment is a by-product.**
+
+Tang & Westling (arXiv:2404.03064v2 §3.2) was initially recorded as the citation that
+*licenses* a refit-per-resample bootstrap. Reading it reverses that. Their condition
+(B2) is high-level, so a refit could in principle satisfy it, but the paper names our
+exact construction as the case at risk:
+
+> "If eta*_n is constructed in an **exactly analogous manner using the bootstrap
+> data** ... the bootstrap data has **replicated observations**, and the method of
+> constructing eta_n is **sensitive to ties** in the data, **(B2) may not be
+> satisfied**. ... for this reason and others we **do not require** that eta*_n be
+> constructed in an exactly analogous manner ... the simplest approach ... is to
+> define **eta*_n = eta_n**."
+
+`ward_residual()` does the flagged thing exactly: `sample.int(n, n, replace = TRUE)`
+(Efron multinomial resampling, hence heavy ties) followed by a full `.corner_fit()`
+nuisance refit on the tied resample.
+
+So **both** available theory papers converge on holding the nuisances fixed, and
+**no citation in the set endorses the procedure the code currently uses.** The no-refit
+bootstrap is therefore the correct construction on theoretical grounds regardless of
+what the re-run measures — the coverage comparison becomes evidence about *how much*
+the refit cost, not about *whether* to switch.
+
+### This also resolves the replace-vs-supplement question
+
+The earlier draft left open whether Fieller *replaces* the bootstrap for `W` or sits
+beside it, and flagged deciding it late as a risk. The two conditions turn out to be
+the same condition, so the question dissolves:
+
+- Lin & Han's A3.2(iii) requires all singular values of `J_0` in `[c_0, c_1]`.
+  Embedding the ratio as `psi = phi_R - theta*phi_OE` gives `J_0 = -OE`, i.e.
+  **the bootstrap is licensed only when `|OE|` is bounded away from zero.**
+- A Fieller set is bounded exactly when `fa = OE^2 - z^2*VOE > 0`, i.e.
+  **`oe_snr > z = 1.959964`** — and `seOE^2 = VOE` holds exactly in the code
+  (`R/gauge-pmed.R:270` vs `:366`), so this is an identity, not an approximation.
+- A1's existing gate fires at `oe_snr >= 2`, differing only over `[1.96, 2)`.
+
+**They partition the parameter space at the same threshold.** Where the bootstrap has
+theoretical backing, the Fieller set is bounded and the two agree; where the bootstrap
+loses its licence (`OE -> 0`), the Fieller set is unbounded and says so honestly,
+while the bootstrap returns a merely-very-wide finite interval. Not replace, not
+merely supplement: **a principled switch at a threshold the code already computes.**
+
+A1 is therefore not a new diagnostic to build — it is the existing one, reinterpreted
+as the regime selector it always was.
 
 ---
 
@@ -182,114 +224,197 @@ coverage," not "Zhan is wrong."
 
 ---
 
-## Phase 2 — probmed: Fieller set for `W`
+## Phase 2 — probmed: the no-refit exchangeably-weighted bootstrap (PRIMARY FIX)
 
 **Code change — `dev` blocks new logic, so this needs a feature branch.**
 
-`ward_residual()` computes the Fieller set for `P_med = IIE/OE` only
-(`R/gauge-pmed.R:363-385`). `W = R/OE` has the identical structure — same
-denominator, same influence-function machinery already computed (`pR`, `pOE`) — and
-is the ratio the manuscript actually foregrounds.
+Replace the resample-and-refit loop (`R/gauge-pmed.R:314-321`) with the construction
+Lin & Han actually prove and Tang & Westling actually recommend: hold the cross-fitted
+nuisances at their original values, reweight the influence contributions.
 
-- Add `W_fieller` / `W_fieller_type` to `GaugePmedResult`, computed by the existing
-  quadratic-inversion block generalized over (numerator influence, denominator
-  influence).
-- Surface in `print()` alongside the `P_med` set.
-- Tests: bounded / exclusive-unbounded / all-real branches for `W`, mirroring the
-  existing `P_med` Fieller tests.
+Everything needed is already computed. The current loop rebuilds `phi` from scratch on
+each resample; the replacement reuses the `phi` matrix from the point estimate:
 
-**Open design question for this phase:** does the Fieller set *replace* the
-percentile bootstrap as the recommended interval for `W`, or sit beside it? The
-Phase 0 evidence says the bootstrap arm is not doing what the manuscript claims, but
-"report Fieller instead" is a recommendation change with manuscript consequences —
-decide before Phase 4, not during it.
+- Draw exchangeable weights `W_i >= 0` with `sum W_i = n` (Assumption 2.1). Efron's
+  multinomial weights reproduce a nonparametric bootstrap; Gamma / Bayesian-bootstrap
+  weights carry a better approximation rate (Proposition 3.1: Efron's
+  `a_n ~ (log n / log log n)/sqrt(n)` vs `<= log n / sqrt(n)` for the multiplier and
+  double bootstraps).
+- Form the reweighted corner means from the existing `phi`, then recompute
+  `OE`, `R`, `W`, `P_med` per draw. No `.corner_fit()` call inside the loop.
+- **Apply the `c^{-1}` rescaling** of Theorem 3.2 (eq. 3.4): `c = 1` for Efron and
+  Bayesian weights, `sqrt(2)` for the double bootstrap. Skipping it silently rescales
+  every interval.
+- Keep the fold partition fixed across draws, per §2.1 and Remark 2.1.
+
+**Cost:** strictly cheaper than the current arm — `B` refits per call become zero.
+
+**Known theory gap to record in the roxygen, not paper over.** Lin & Han's estimator
+is `(1/K) sum_k theta-hat_{0,k}` — fold-wise solutions averaged. `ward_residual()`
+pools first (`th <- colMeans(phi)`, `R/gauge-pmed.R:336`) then divides. For a ratio
+these differ, so Theorem 3.2 does not apply verbatim even to the no-refit variant.
+Either switch to the average-of-fold-ratios form, or state the gap explicitly. Do not
+cite Theorem 3.2 as though it covered the pooled form.
+
+- Tests: weight-scheme validity (`sum W_i = n`), reproducibility under `seed`, the
+  `c`-rescaling, and a regression test that the loop performs no nuisance refit.
+- `se_method` naming: the existing `"bootstrap"` value now denotes a different
+  procedure. Decide deliberately between renaming (breaking, honest) and redefining
+  (silent). `medsim` wraps this argument directly (`medsim#35`), so a rename is a
+  cross-package change.
 
 **Effort:** ~half day including tests.
 
 ---
 
-## Phase 3 — Re-run the coverage grid with the Fieller arm
+## Phase 3 — probmed: Fieller set for `W`
 
-Extend `inst/sim/hopper/run_gauge_boot_grid.R` to record Fieller coverage and set
-type (bounded / unbounded) per rep alongside the analytic and percentile arms; re-run
-the 8-cell nsim=2000 design.
+Same feature branch. Independent of Phase 2 in code, complementary in purpose: Phase 2
+fixes the bootstrap where a bootstrap is licensed; Phase 3 covers the regime where
+none is.
 
-Two things to watch, both learned the hard way and documented in
-`inst/sim/hopper/README.md`:
-- install the feature-branch package to its own `R_LIBS` prefix and let the existing
-  stale-package guard fail loudly (the `4.4-gauge` / `4.4-weakid` split exists
-  because of this);
-- pilot through `sbatch --array=1-1` before the full array (per the standing rule) —
-  the login shell masks the `module load` failure that killed job 4277033.
+`ward_residual()` computes the Fieller set for `P_med = IIE/OE` only
+(`R/gauge-pmed.R:363-385`). `W = R/OE` has the identical structure — same denominator,
+same influence machinery already computed (`pR`, `pOE`) — and is the ratio the
+manuscript foregrounds.
 
-Coverage for an unbounded set is definitionally 1; report **set type frequency**
-alongside coverage, or the Fieller arm reproduces the same vacuous-1.00 reading the
-percentile arm gives.
+- Add `W_fieller` / `W_fieller_type` to `GaugePmedResult`, from the existing
+  quadratic-inversion block generalized over (numerator influence, denominator
+  influence).
+- Surface in `print()` beside the `P_med` set.
+- Tests: bounded / exclusive-unbounded / all-real branches, mirroring the `P_med`
+  Fieller tests.
+- **Wire the regime switch explicitly.** Per Phase 0b, `oe_regular` already computes
+  the boundary. When it is `FALSE`, the bootstrap is outside its licence and the
+  Fieller set is unbounded — report the Fieller set as primary and say why. Reuse the
+  existing gate; do not introduce a second threshold.
 
-**Effort:** cluster wall-clock, plus ~1 hr wiring and validation.
+~~Open design question: replace or supplement?~~ **RESOLVED** — see Phase 0b. The
+bootstrap's licence condition and Fieller boundedness are the same condition, so the
+two partition the parameter space at `oe_snr = z`.
 
----
-
-## Phase 4 — Manuscript: simulation section + Table 1
-
-**Cross-repo write — requires explicit go-ahead.** Blocked on Phases 2-3.
-
-- Table 1 gains a Fieller column (coverage + set-type frequency); the percentile
-  column stays, reframed.
-- Rewrite `gauge-pmed.qmd:214-244`: the percentile bootstrap does not "restore
-  coverage to nominal-or-above… confirming the ratio diagnosis." It reaches 1.00 by
-  being far wider than the sampling distribution warrants, because a resampled ratio
-  with a near-zero denominator has heavy tails. Report the `seW_bt_ratio` evidence.
-- The Application section already makes the right argument for `P_med` (Fieller,
-  whole real line, "the honest report is the unnormalized effects"). The simulation
-  section should reach the same conclusion for `W` rather than presenting the
-  bootstrap as the fix.
-- `@dicicco1996` currently supports "a wider symmetric SE mis-covers a skewed ratio,"
-  which remains a fair use. Do not overstate it as an argument about BCa.
-
-**Effort:** ~2-3 hr.
+**Effort:** ~half day including tests.
 
 ---
 
-## Phase 5 — Close out #32
+## Phase 4 — Re-run the coverage grid, four arms
 
-Once Phase 0's diagnosis is recorded on the issue: close #32 as **answered, not
-implemented** — the requested feature does not address the defect it was filed
-against. Note the influence-function shortcut (acceleration computable from the
-existing per-row `phi`, no jackknife refits) so the finding survives if BCa is ever
-wanted for an unrelated reason, and inform `medsim#35`, whose gate-A3 arm was
-predicated on BCa being the cross-check.
+Extend `inst/sim/hopper/run_gauge_boot_grid.R` to record, per rep: analytic,
+**old refit-bootstrap** (retained deliberately — it measures what the refit cost),
+**new no-refit bootstrap**, and **Fieller** (coverage *and* set type). Re-run the
+8-cell nsim=2000 design.
 
-**Effort:** ~20 min.
+The old arm is what makes this informative rather than merely corrective: the
+old-vs-new gap is the empirical size of the refit-induced inflation, and it is the
+evidence the manuscript needs to explain why Table 1 changed.
+
+Report `seW_ratio` (bootstrap SD over empirical SD) for both bootstrap arms. Phase 0
+established that the refit arm's SD is already correct at `n = 3000` while coverage is
+1.00, so **the discriminating statistic is tail behavior, not SD** — log the resample
+quantiles, not just dispersion.
+
+Two operational rules, both learned the hard way (`inst/sim/hopper/README.md`):
+- install the feature-branch package to its own `R_LIBS` prefix and let the
+  stale-package guard fail loudly (the `4.4-gauge` / `4.4-weakid` split exists for
+  this reason);
+- pilot through `sbatch --array=1-1` before the full array — the login shell masks the
+  `module load` failure that killed job 4277033.
+
+Coverage for an unbounded set is definitionally 1: report **set-type frequency**
+alongside Fieller coverage, or the Fieller arm reproduces the exact vacuous-1.00
+reading this spec exists to correct. `pct_oe_irreg` in the existing 48k grid predicts
+that frequency cell by cell — use it as a **positive control**: a measured
+unbounded-fraction that diverges from it means the wiring is wrong.
+
+**Effort:** cluster wall-clock, plus ~1-2 hr wiring and validation.
+
+---
+
+## Phase 5 — Manuscript: simulation section, Table 1, and the citations
+
+**Cross-repo write — requires explicit go-ahead.** Blocked on Phases 2-4.
+
+- **Fix the Lin & Han citation.** Currently invoked for bootstrap consistency of a
+  refit-per-resample scheme the paper excludes. After Phase 2 the citation becomes
+  correct as written, which is the cleanest possible resolution — the code moves to
+  the procedure the theory covers, rather than the prose being softened to match the
+  code. Cite A3.2(iii) for the `OE`-bounded-away condition, noting it is an inference
+  from embedding the ratio, and that it also bounds `|OE|` **above**.
+- **Re-scope the DiCiccio & Efron citation** to the premise it supports — symmetric
+  intervals mis-cover skewed estimands, p. 190's shape decomposition ("The standard
+  intervals always have shape equal to 1.00. It is in this way that they err most
+  seriously") — and drop the implication that the paper recommends percentile. It does
+  not present a percentile method at all.
+- **Table 1** gains the no-refit and Fieller columns; the old refit column is retained
+  and reframed as the diagnosis rather than the remedy.
+- **Rewrite `gauge-pmed.qmd:214-244`.** The percentile bootstrap does not "restore
+  coverage to nominal-or-above… confirming the ratio diagnosis." It reached 1.00 by
+  being far wider than the sampling distribution warrants. Report the `seW_bt_ratio`
+  evidence and the old-vs-new gap.
+- **Connect the Simulation and Application sections.** The Application already makes
+  the right argument for `P_med` (Fieller, whole real line, "the honest report is the
+  unnormalized effects"). The paper contains its own correction and does not join the
+  two; the `oe_snr = z` partition is the join.
+- Zhan's correction is Phase 1 and ships independently.
+
+**Effort:** ~3-4 hr.
+
+---
+
+## Phase 6 — Close out #32 and inform medsim
+
+Close #32 as **answered, not implemented** — the requested feature does not address
+the defect it was filed against, and the Owen 2025 argument originally offered for it
+is scoped to the univariate mean at `n <= 20` (and rates percentile *below* BCa).
+Record the influence-function shortcut so the finding survives if BCa is ever wanted
+for another reason.
+
+Also inform `medsim#35`, on two counts: its gate-A3 arm was predicated on BCa being
+the cross-check, and if Phase 2 renames `se_method`'s `"bootstrap"` value, medsim's
+passthrough changes with it.
+
+**Effort:** ~30 min.
 
 ---
 
 ## Sequencing
 
 ```
-Phase 0 (done)
+Phase 0 / 0b (done)
    |
-   +-- Phase 1 (manuscript, Zhan)  ......... independent, ship anytime
+   +-- Phase 1 (manuscript, Zhan) ............ independent, ship anytime
    |
-   +-- Phase 5 (#32 close-out)  ............ independent, ship anytime
+   +-- Phase 6 (#32 close-out) ............... independent, ship anytime
    |
-   +-- Phase 2 (W Fieller, feature branch)
-          |
-          +-- Phase 3 (re-run grid)
-                 |
-                 +-- Phase 4 (manuscript Table 1 + prose)
+   +-- Phase 2 (no-refit bootstrap)  ---+
+   |                                    |  same feature branch;
+   +-- Phase 3 (W Fieller)  ------------+  independent in code
+                                        |
+                                        +-- Phase 4 (re-run grid, 4 arms)
+                                               |
+                                               +-- Phase 5 (manuscript)
 ```
 
 ## Risks
 
-- **Phase 2's design question is a recommendation change, not a code detail.**
-  Deciding "Fieller replaces bootstrap for `W`" late, during Phase 4, would mean
-  rewriting the manuscript twice.
-- **Fieller coverage is trivially 1 when the set is unbounded.** If Phase 3 reports
-  coverage without set-type frequency it reproduces the exact reading error this spec
+- **The `se_method = "bootstrap"` value changes meaning in Phase 2.** Redefining it
+  silently means existing scripts get a different procedure under the same name;
+  renaming breaks `medsim`'s passthrough. Neither is free — decide explicitly.
+- **The pooled-vs-fold-averaged ratio gap is real and survives Phase 2.** Theorem 3.2
+  covers the average of fold-wise solutions; we pool then divide. Fixing the bootstrap
+  without addressing this leaves a smaller but genuine gap between the cited theorem
+  and the shipped estimator.
+- **Fieller coverage is trivially 1 when the set is unbounded.** Phase 4 reporting
+  coverage without set-type frequency reproduces the exact reading error this spec
   exists to fix.
-- **Phases 1 and 4 are cross-repo.** Each needs its own go-ahead; permission for one
+- **Retaining the old bootstrap arm in Phase 4 is not optional.** Without it there is
+  no measurement of what the refit cost, and Phase 5 cannot explain why Table 1 moved.
+- **Phases 1 and 5 are cross-repo.** Each needs its own go-ahead; permission for one
   is not permission for the other.
+- **Two citation gaps remain unread** (`LITREVIEW-2026-08-21`): the DiCiccio & Efron
+  discussion pp. 213-228 (Hall & Martin) and Zhan's Supplementary Appendix A-F. Both
+  are paywalled and neither blocks Phases 2-4, but Phase 5 writes prose about these
+  sources.
 - **The package is on hold pending manuscript submission.** This work serves the
-  manuscript directly, so Phases 1-4 arguably fall inside the hold rather than
-  against it — but that is the user's call, not an assumption to act on.
+  manuscript directly, so it arguably falls inside the hold rather than against it —
+  the user's call, not an assumption to act on.
