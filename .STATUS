@@ -112,19 +112,30 @@ version. Leftover worktree dirs (incremental-pmed / my-sensitivity / sobol-pmed)
    grid (inst/sim/hopper/run_weakid_validation.R:58-64) is identical with an added
    `s` scaling the A-paths to sweep identification strength toward OE->0. The 48k
    grid is literally the manuscript's design continued into the weak-ID regime.
-   (a) PERCENTILE-AT-1.00 IS FRAMED AS SUCCESS. Manuscript Table 1 (tbl-sim) reports
-       percentile-bootstrap coverage of 1.00 in 8/8 cells at nominal 0.95, for BOTH
-       W and P_med (analytic: 0.86-0.91), and the prose reads "restores coverage to
-       nominal-or-above (~1.00), confirming the ratio diagnosis." But an interval at
-       1.00 in every cell — including the strong-ID ones — is uninformative, not
-       calibrated: it is exactly the condition this package's A1 gate (oe_regular)
-       was built to WARN about (flagged draws over-cover +0.10, median 21x wider
-       than |truth|; see item 5). Same phenomenon, opposite valence on the two
-       surfaces. Open question the manuscript does not ask: WHY does the percentile
-       arm sit at 1.00? A miscalibration that large is more consistent with an
-       over-dispersed resample distribution (per-resample nuisance refit error;
-       the fold-split variance component `reps > 1` exists to remove) than with
-       ratio skew, which is the explanation the text gives.
+   (a) COVERAGE IS REPORTED WITHOUT A LENGTH CHECK. ⚠️ PARTLY RETRACTED 2026-08-22 —
+       see docs/specs/REVIEW-2026-08-22-adversarial-refutation.md. What SURVIVES:
+       manuscript Table 1 (tbl-sim) reports percentile-bootstrap coverage near 1 in
+       every cell at nominal 0.95 (analytic: 0.86-0.91) and reads it as success
+       ("restores coverage to nominal-or-above, confirming the ratio diagnosis"),
+       with no accompanying length or informativeness measure. That is the defensible
+       criticism, and it is the one thing both sides of the Canty-Davison-Hinkley vs
+       DiCiccio-Efron exchange agree on.
+       WITHDRAWN: (i) "8/8 cells at 1.00" — two cells store mcse 5e-04, i.e. coverage
+       0.9995, one miss each; it is 6/8 at 1.000. (ii) "an interval at 1.00 is
+       uninformative, not calibrated" — measured interval width is 0.80-0.83x a
+       calibrated normal interval in the two strong-ID cells tested, i.e. NARROWER
+       than calibrated, so length is not what buys the coverage there. (iii) the
+       over-dispersion speculation — reweighting a fixed phi reproduces the analytic
+       variance identically, and the refit arm's SD is correct at n=3000.
+       The A1 "21x wider than |truth|" figure is NOT withdrawn: it comes from
+       A1-flagged near-null draws in the 48k grid, a regime the review never entered.
+       Unreplicated in the tested cells, not refuted — the two regimes can differ.
+       STILL OPEN, and now the governing question: WHY does the percentile arm sit
+       near 1? The review's measurement points at interval ASYMMETRY rather than
+       width (at n=3000 the error exceeds the symmetric half-width in 12.5% of reps
+       while coverage stays ~1.000), and at phi under-dispersing by 0.65-0.83x in
+       all 8 cells — which affects Wald, any phi-reweighted bootstrap, AND Fieller
+       alike. Decomposing that gap is the blocking measurement.
    (b) THE ZHAN (2026) MECHANISM IS ASSERTED, BUT OUR OWN GRID FOUND IT
        WIDTH-EXPLAINED. Supplement (gauge-pmed.qmd:422-424) states weak
        identification is "signalled by divergence between the Wald and percentile

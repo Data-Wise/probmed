@@ -245,12 +245,16 @@ must be stated rather than used to wave the finding away:
 - *For #32:* Hall supplies an additional, independent argument against BC_a —
   non-monotonicity in coverage level — from a source with no small-`n`-mean scope
   limitation, unlike Owen.
-- *Constructively:* **calibration becomes a live third option** alongside the no-refit
-  bootstrap and Fieller. The double bootstrap is normally prohibitive here (`B^2`
-  full cross-fit refits), but under the no-refit reweighting scheme of Phase 2 it is
-  `B^2` reweightings of an already-computed `phi` matrix. **Phase 2 is what makes
-  Hall's recommended procedure affordable** — an argument for that phase that has
-  nothing to do with citation hygiene.
+- *Constructively:* **calibration is worth considering** alongside Fieller.
+  ⚠️ **The affordability argument originally made here is withdrawn (2026-08-22).** It
+  ran: the double bootstrap is prohibitive at `B^2` full cross-fit refits, but becomes
+  `B^2` reweightings of a fixed `phi` under the no-refit scheme, so that scheme "unlocks"
+  Hall's recommended procedure. The no-refit scheme is refuted (see
+  `REVIEW-2026-08-22-adversarial-refutation.md`) — it reproduces the analytic variance
+  identically and under-covers. Calibration corrects interval *shape*; it cannot supply
+  a missing variance component, so calibrating a base arm that sits at ~0.78 does not
+  reach nominal. Hall's endorsement of calibrated percentile stands as literature; the
+  claim that our machinery makes it cheap does not.
 
 ### The rejoinder: DiCiccio & Efron pre-emptively rebut the manuscript's reading
 
@@ -326,9 +330,18 @@ not "long intervals are bad" but:
 That is the claim the gauge manuscript's Table 1 violates — it reports coverage alone,
 in a design where the percentile arm hits 1.00 in every cell.
 
-And our situation is diagnosable on exactly that axis rather than by assertion: the
-flagged draws are median **21x wider than |truth|**, which places them in D&E's vacuous
-regime, not CDH's earned one. A1 already separates the two.
+Our situation is diagnosable on exactly that axis rather than by assertion — but the
+diagnosis is **regime-dependent, and was originally overstated here**:
+
+- In the **near-null** regime, A1-flagged draws are median **21x wider than |truth|**
+  (48k grid). That is D&E's vacuous case, and A1 separates it.
+- In the **strong-ID** cells actually measured on 2026-08-22, the interval is
+  **0.80-0.83x** a calibrated normal interval — *narrower* than calibrated, while
+  covering ~100%. That is neither D&E's vacuous case nor CDH's earned one; the covering
+  appears to come from interval **asymmetry**, not width.
+
+An earlier version of this paragraph applied the vacuous reading to the whole design.
+It holds only where A1 fires. See `REVIEW-2026-08-22-adversarial-refutation.md`.
 
 One further CDH finding worth recording, since it cuts against BC_a independently of
 Hall's non-monotonicity point (p. 217): in their study "percentile methods do very
@@ -522,8 +535,11 @@ Points 2 and 3 stand regardless of how the method debate is settled. That is wha
 them actionable.
 
 This converges with the independent empirical finding (SPEC Phase 0): the percentile
-arm covers at **1.00 in 8 of 8 simulation cells**. Theory and evidence agree on which
-component is the weak link.
+arm covers at **~1 in every simulation cell** (6/8 at 1.000; two cells at 0.9995 — the
+earlier "8 of 8 at 1.00" reading was a rounding artifact). Theory and evidence agree
+that coverage is being reported without a length check; they do **not** establish that
+the interval is too wide — see the retraction note in §2 and
+`REVIEW-2026-08-22-adversarial-refutation.md`.
 
 **And no citation in this set covers the regime that actually matters here.** Every
 one of the four either assumes away, or never considers, a ratio whose denominator can
@@ -541,9 +557,13 @@ The near-null regime is unsupported by all four.
    `fa > 0 <=> oe_snr > 1.959964` — the case for reporting Fieller for `W` rests on
    the ratio literature rather than on the bootstrap literature that does not cover
    this regime.
-2. **The no-refit multiplier bootstrap is now doubly motivated** — it is both the
-   cheap discriminating experiment (SPEC Phase 0b) and the only bootstrap in this
-   citation set actually proven for a cross-fit DML functional.
+2. ~~**The no-refit multiplier bootstrap is now doubly motivated**~~ — **REFUTED
+   2026-08-22.** It remains true that it is the only bootstrap in this citation set
+   proven for a cross-fit DML functional. But reweighting a fixed `phi` reproduces the
+   delta-method variance identically (measured 1.046 / 0.996 x `seW_an`) and covers at
+   0.775-0.825 — at or below the current Wald arm. Citation hygiene and calibration
+   point in opposite directions here, and calibration wins. The miscitation is real;
+   the proposed remedy was not.
 3. **Reparameterization deserves consideration** (DiCiccio & Efron p. 198). `log` is
    unavailable for a sign-changing `W`, but the principle stands.
 4. **BC_a (#32) is not rehabilitated by this review.** DiCiccio & Efron justify it
