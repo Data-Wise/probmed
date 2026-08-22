@@ -217,7 +217,10 @@ cran-comments + bump version).
 🌿 ACTIVE WORKTREE
 📍 CURRENT (2026-08-22) — two worktrees, both off dev:
    • feature/phi-variance-decomposition — ~/.git-worktrees/probmed/feature-phi-variance-decomposition
-     (from dev a337b01). MEASUREMENT COMPLETE 2026-08-22, 7 commits, not yet PR'd.
+     (rebased onto dev 4c91f4f). MEASUREMENT COMPLETE 2026-08-22 — PR #33 → dev
+     (8 commits; 161 tests/482 expectations/0 fail; R CMD check --as-cran 0E/0W/2N,
+     the two benign NOTEs; also fixes a real top-level-files NOTE currently on dev
+     by buildignoring AGENTS.md + gauge_sim_out). Awaiting review/merge decision.
      Result (docs/specs/FINDINGS-2026-08-22-phi-decomposition.md on the branch):
      the "phi under-dispersion" was a skewness artifact of an UNSTABLE SE, not a
      biased formula. Two mechanisms, separated by oe_snr: (1) strong-ID cells —
