@@ -33,6 +33,15 @@
 #'   zero width. The 3x threshold is calibrated above the ~2x width gap that the
 #'   anti-conservative Wald interval shows even under strong identification.
 #'
+#'   **History (2026-08-22).** Everything below in this entry -- the 16,000-rep
+#'   coverage grid, the 48,000-rep validation grid, the ~2x width baseline and
+#'   the 3x threshold's calibration -- was measured on the estimator **before**
+#'   the corner-EIF weight fix (see `se_method` in [ward_residual()] and NEWS
+#'   0.3.0.9000). With the fix the default Wald interval is calibrated in the
+#'   regular cells (0.936 continuous / 0.972 binary, n = 800), so the "Wald
+#'   under-covers everywhere" premise no longer holds; the gate has not been
+#'   re-measured. Kept as the record of what the flag was validated against.
+#'
 #'   **An absent flag does not buy nominal coverage.** Independently of the flag,
 #'   the symmetric Wald interval for `W` is anti-conservative *everywhere*:
 #'   **~0.88** overall across the 16,000-rep coverage grid
@@ -76,7 +85,10 @@
 #'   `warning()` is gated on `se_method = "bootstrap"`). `NA` only in the
 #'   degenerate case `se(OE) == 0`.
 #'
-#'   **What `FALSE` means -- width, not under-coverage.** In the 48,000-rep
+#'   **What `FALSE` means -- width, not under-coverage.** (Measured on the
+#'   pre-weight-fix estimator, 2026-08-22; not yet re-measured -- the
+#'   non-regularity it detects is a property of the ratio, not of the
+#'   estimator, so the reading below is expected to stand.) In the 48,000-rep
 #'   validation grid, draws flagged by this gate did **not** under-cover; they
 #'   *over*-covered (+0.10, in 22/22 qualifying cells, stable across every
 #'   design slice). The mechanism: as `OE` approaches 0 the ratio `W = R/OE`
@@ -156,30 +168,40 @@ GaugePmedResult <- S7::new_class(
 #'   the point estimate (default `1`). `reps > 1` averages the corner influence
 #'   matrix over independent fold assignments, removing the fold-split component
 #'   of the variance; the analytic se then adds the residual fold Monte-Carlo
-#'   variance of the averaged point.
-#' @param se_method Character: `"analytic"` (default, influence-function se,
-#'   symmetric Wald CI) or `"bootstrap"`. Neither arm is calibrated at
-#'   `reps = 1`; the coverage grid
-#'   (`inst/sim/results/gauge_boot_coverage_nsim2000.csv`) and its decomposition
-#'   (`inst/sim/results/phi_decomp_summary.csv`;
-#'   `docs/specs/FINDINGS-2026-08-22-phi-decomposition.md`) say why. The
-#'   single-partition estimator's variance is dominated by **fold-split noise**
-#'   (the cross-fit partition is redrawn on every call), and its analytic se is
-#'   unstable across datasets (CV 0.5-0.8) rather than biased -- with the true
-#'   nuisances plugged in, the same se is exact -- so the symmetric Wald CI covers
-#'   only \eqn{\approx 0.85}-\eqn{0.90}. `reps > 1` removes the fold-split
-#'   component from the point estimate (at `reps = 10` it reaches the efficiency
-#'   of an oracle with known nuisances for continuous `Y`); a better se for that
-#'   estimator is an open item. Under `"bootstrap"` the CIs for `W` and `P_med`
-#'   are **percentile** intervals of a nonparametric bootstrap that resamples
-#'   rows and refits the whole cross-fit (a fresh partition each resample), so
-#'   it carries the same fold-split noise and covered ~1 in every grid cell --
-#'   conservative, not calibrated; `W_se`/`p_med` se are reported as bootstrap
-#'   dispersion summaries. The bootstrap-consistency result of Lin and Han
-#'   (2026) for cross-fit DML functionals holds the nuisances fixed and does
-#'   **not** cover this refit-per-resample scheme. `reps > 1` and
-#'   `se_method = "bootstrap"` compose. Near the null (`OE` not bounded away
-#'   from 0) the ratio is non-regular for every arm -- use the Fieller set.
+#'   variance of the averaged point. With the corrected corner weights (see
+#'   `se_method`) that component is small -- n = 800, continuous: empSD 0.063 at
+#'   `reps = 1` vs 0.061 at `reps = 10`, oracle 0.056 -- so the default is
+#'   usually enough.
+#' @param se_method Character: `"analytic"` (default) or `"bootstrap"`. Under
+#'   `"analytic"` the se is the influence-function se of the cross-fit one-step
+#'   estimator and the CI is symmetric Wald. Measured against exact truth with
+#'   the corrected corner weights (`inst/sim/se_shipped_check.R`, 250 datasets
+#'   per cell, n = 800): Wald coverage 0.936 (continuous `Y`, strong
+#'   identification), 0.972 (binary `Y`), 0.912 (intermediate `OE`), with the
+#'   se's dispersion across datasets matching an oracle that knows the nuisances
+#'   (CV 0.23 vs 0.18). Under `"bootstrap"` the CIs for `W` and `P_med` are
+#'   **percentile** intervals of a nonparametric bootstrap that resamples rows
+#'   and refits the whole cross-fit (a fresh partition each resample);
+#'   `W_se`/`p_med` se are then bootstrap dispersion summaries. The
+#'   bootstrap-consistency result of Lin and Han (2026) for cross-fit DML
+#'   functionals holds the nuisances fixed and does **not** cover this
+#'   refit-per-resample scheme. `reps > 1` and `se_method = "bootstrap"`
+#'   compose. Near the null (`OE` not bounded away from 0) the ratio is
+#'   non-regular for every arm -- even an oracle's se explodes -- use the
+#'   Fieller set.
+#'
+#'   **History.** Every coverage figure this package reported before
+#'   2026-08-22 -- the 2,000-rep coverage grid
+#'   (`inst/sim/results/gauge_boot_coverage_nsim2000.csv`: Wald ~0.85-0.90,
+#'   percentile ~1.00), the 48,000-rep gate-validation grid, and the variance
+#'   decomposition (`inst/sim/results/phi_decomp_summary.csv`;
+#'   `docs/specs/FINDINGS-2026-08-22-phi-decomposition.md`) -- was produced
+#'   with a corner-EIF weight bug: `ifelse()` on a scalar test returned the
+#'   **first fold row's** propensity (and mediator-density proxy) for every row,
+#'   so the inverse-probability weights were one arbitrary constant per fold
+#'   (NEWS, 0.3.0.9000). The "fold-split noise" those grids diagnosed was this
+#'   bug. They are superseded; the bootstrap arm and the gates have not yet
+#'   been re-measured with the fix.
 #' @param B Integer: number of bootstrap resamples when `se_method = "bootstrap"`
 #'   (default `200`). Cost is `B` (x `reps`) refits.
 #' @param a0,a1 Reference and comparison exposure levels (defaults `0`/`1`). `A`
@@ -287,6 +309,13 @@ S7::method(ward_residual, S7::class_data.frame) <-
     alpha <- 1 - ci_level
     seP <- se((pIIE - Pmed * pOE) / OE); seW <- se((pR - W * pOE) / OE)
     ## reps aggregation: add the residual fold Monte-Carlo variance of the averaged point.
+    ## (With the corrected corner weights -- 2026-08-22, see .corner_phi -- this
+    ## cross-fit IF se is calibrated at every reps: n = 800, 250 datasets, Wald
+    ## coverage 0.936 continuous / 0.972 binary at reps = 1, 0.936 / 0.968 at
+    ## reps = 10, se dispersion matching an oracle's; inst/sim/se_shipped_check.R,
+    ## inst/sim/results/se_shipped_postfix.csv.
+    ## A full-sample-nuisance se was built and measured on this branch and dropped:
+    ## no better once the weights were right.)
     if (reps > 1L) {
       seW <- sqrt(seW^2 + stats::var(W_reps) / reps)
       seP <- sqrt(seP^2 + stats::var(P_reps) / reps)
@@ -323,12 +352,13 @@ S7::method(ward_residual, S7::class_data.frame) <-
     ## NA-preserving: a degenerate se(OE) == 0 yields oe_snr = NaN, which must
     ## stay NA (undefined), not collapse to a confident FALSE via isTRUE(NA).
     oe_regular <- if (is.na(oe_snr)) NA else isTRUE(oe_snr >= oe_snr_threshold)
-    ## ---- bootstrap (near-null remedy): the analytic IF se for W and P_med is
-    ## right-skewed and median-below the empirical SD, so the symmetric Wald CI
-    ## under-covers (~0.85-0.90). W = R/OE and P_med = IIE/OE are ratios, so we use
-    ## the tail-aware *percentile* bootstrap interval (resample rows, refit) rather
-    ## than widening a symmetric se -- the latter mis-covers a skewed ratio. Cost is
-    ## B (x reps) refits. seW/seP are still reported as bootstrap dispersion summaries.
+    ## ---- bootstrap: W = R/OE and P_med = IIE/OE are ratios, so the alternative
+    ## arm is the tail-aware *percentile* bootstrap interval (resample rows, refit)
+    ## rather than a widened symmetric se. Cost is B (x reps) refits. seW/seP are
+    ## then reported as bootstrap dispersion summaries. (The "Wald under-covers
+    ## ~0.85-0.90" motivation this arm was added under came from the pre-fix weight
+    ## bug -- see the se_method docs; post-fix the Wald arm is calibrated and the
+    ## bootstrap arm is unmeasured.)
     if (se_method == "bootstrap") {
       bsamp <- vapply(seq_len(B), function(b) {
         db <- object[sample.int(n, n, replace = TRUE), , drop = FALSE]
@@ -355,13 +385,14 @@ S7::method(ward_residual, S7::class_data.frame) <-
     ## calibrated to fire only on the marginal inflation beyond that baseline, where
     ## the percentile interval starts tracking the ratio's exploding tail as OE->0.
     ## (An overlap metric is not separable here: it sits near 0.5 in both regimes.)
-    ## WHY the baseline is ~2x (adversarial review, 2026-08-22): the analytic SE in
-    ## the ratio's denominator is biased low by ~30% in ALL 8 grid cells
+    ## WHY the baseline was ~2x (adversarial review, 2026-08-22): the analytic SE in
+    ## the ratio's denominator was low by ~30% in ALL 8 grid cells
     ## (seW_an/empSD = 0.65-0.83, inst/sim/results/gauge_boot_coverage_nsim2000.csv),
-    ## so the ratio carries a large regime-independent offset and partly measures
-    ## SE bias rather than identification strength. That subsumes the
-    ## width-explained finding recorded above (48k grid). Where the missing
-    ## variance comes from is measured by inst/sim/phi_decomposition.R.
+    ## so the ratio carried a large regime-independent offset. ALL of the above
+    ## (the 48k grid, the 2000-rep grid, the 3x threshold's calibration) was
+    ## measured with the pre-fix corner weights (.corner_phi, 2026-08-22); the
+    ## ~30% SE shortfall was that bug. The gate's behavior has not been
+    ## re-measured since; treat the threshold as a convention until it is.
     weak_id <- NA; weak_id_ratio <- NA_real_
     if (se_method == "bootstrap") {
       wald_w <- W_ci_wald[2] - W_ci_wald[1]

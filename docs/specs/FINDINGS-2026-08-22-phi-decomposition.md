@@ -1,5 +1,24 @@
 # Findings: where `ward_residual()`'s variance comes from, and why its SE fails
 
+> **SUPERSEDED 2026-08-22 (later the same day) — the "fold-split noise" was a bug.**
+> Every package-estimator number below (the `V_cf` column, `F`, `N`, `seW_an`,
+> the `reps` remedy rows, the binary "transition regime", the SE-candidate rounds
+> in §Open item 1) was produced with `.corner_fit()`'s corner weights built as
+> `ifelse(z == 1, p1, 1 - p1)`. `ifelse()` returns a result shaped like its
+> *test*; `z` is a scalar; so every row in a fold was weighted by the **first test
+> row's** propensity (and `q`). A different first row per partition is a
+> different constant weight per partition — that is the "fold-split noise", and
+> the "dataset-level nuisance-fit quality" of the SE rounds. The oracle columns
+> (`V_or`, exact truth, `phi_oracle`) were computed by this script's own correct
+> EIF and stand. With the weights fixed, the single-partition estimator's `empSD`
+> is 0.063 vs oracle 0.056 (cell 1) and 0.121 vs 0.122 (cell 5), and the
+> shipped analytic Wald interval covers 0.936 / 0.972 at `reps = 1` — see
+> `inst/sim/se_shipped_check.R`, `inst/sim/results/se_shipped_postfix.csv`, and
+> NEWS 0.3.0.9000. What survives of the bottom line: item 2 (the IF formula is
+> exact under true nuisances) and the near-null non-regularity (A1's regime).
+> What does not: items 1, 3, 4, the three regimes, the remedy section, and §Open
+> items 1-4 as posed. Kept unedited below as the record of how the bug was found.
+
 **Date:** 2026-08-22 (final: all 12 cells at nrep = 250 x 10 partitions, plus
 remedy checks on cells 1, 2, 5 and two targeted diagnostics; summary table promoted to
 `inst/sim/results/phi_decomp_summary.csv`)

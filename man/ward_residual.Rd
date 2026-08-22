@@ -41,31 +41,41 @@ significant (default \code{TRUE}).}
 the point estimate (default \code{1}). \code{reps > 1} averages the corner influence
 matrix over independent fold assignments, removing the fold-split component
 of the variance; the analytic se then adds the residual fold Monte-Carlo
-variance of the averaged point.}
+variance of the averaged point. With the corrected corner weights (see
+\code{se_method}) that component is small -- n = 800, continuous: empSD 0.063 at
+\code{reps = 1} vs 0.061 at \code{reps = 10}, oracle 0.056 -- so the default is
+usually enough.}
 
-\item{se_method}{Character: \code{"analytic"} (default, influence-function se,
-symmetric Wald CI) or \code{"bootstrap"}. Neither arm is calibrated at
-\code{reps = 1}; the coverage grid
-(\code{inst/sim/results/gauge_boot_coverage_nsim2000.csv}) and its decomposition
-(\code{inst/sim/results/phi_decomp_summary.csv};
-\code{docs/specs/FINDINGS-2026-08-22-phi-decomposition.md}) say why. The
-single-partition estimator's variance is dominated by \strong{fold-split noise}
-(the cross-fit partition is redrawn on every call), and its analytic se is
-unstable across datasets (CV 0.5-0.8) rather than biased -- with the true
-nuisances plugged in, the same se is exact -- so the symmetric Wald CI covers
-only \eqn{\approx 0.85}-\eqn{0.90}. \code{reps > 1} removes the fold-split
-component from the point estimate (at \code{reps = 10} it reaches the efficiency
-of an oracle with known nuisances for continuous \code{Y}); a better se for that
-estimator is an open item. Under \code{"bootstrap"} the CIs for \code{W} and \code{P_med}
-are \strong{percentile} intervals of a nonparametric bootstrap that resamples
-rows and refits the whole cross-fit (a fresh partition each resample), so
-it carries the same fold-split noise and covered ~1 in every grid cell --
-conservative, not calibrated; \code{W_se}/\code{p_med} se are reported as bootstrap
-dispersion summaries. The bootstrap-consistency result of Lin and Han
-(2026) for cross-fit DML functionals holds the nuisances fixed and does
-\strong{not} cover this refit-per-resample scheme. \code{reps > 1} and
-\code{se_method = "bootstrap"} compose. Near the null (\code{OE} not bounded away
-from 0) the ratio is non-regular for every arm -- use the Fieller set.}
+\item{se_method}{Character: \code{"analytic"} (default) or \code{"bootstrap"}. Under
+\code{"analytic"} the se is the influence-function se of the cross-fit one-step
+estimator and the CI is symmetric Wald. Measured against exact truth with
+the corrected corner weights (\code{inst/sim/se_shipped_check.R}, 250 datasets
+per cell, n = 800): Wald coverage 0.936 (continuous \code{Y}, strong
+identification), 0.972 (binary \code{Y}), 0.912 (intermediate \code{OE}), with the
+se's dispersion across datasets matching an oracle that knows the nuisances
+(CV 0.23 vs 0.18). Under \code{"bootstrap"} the CIs for \code{W} and \code{P_med} are
+\strong{percentile} intervals of a nonparametric bootstrap that resamples rows
+and refits the whole cross-fit (a fresh partition each resample);
+\code{W_se}/\code{p_med} se are then bootstrap dispersion summaries. The
+bootstrap-consistency result of Lin and Han (2026) for cross-fit DML
+functionals holds the nuisances fixed and does \strong{not} cover this
+refit-per-resample scheme. \code{reps > 1} and \code{se_method = "bootstrap"}
+compose. Near the null (\code{OE} not bounded away from 0) the ratio is
+non-regular for every arm -- even an oracle's se explodes -- use the
+Fieller set.
+
+\strong{History.} Every coverage figure this package reported before
+2026-08-22 -- the 2,000-rep coverage grid
+(\code{inst/sim/results/gauge_boot_coverage_nsim2000.csv}: Wald ~0.85-0.90,
+percentile ~1.00), the 48,000-rep gate-validation grid, and the variance
+decomposition (\code{inst/sim/results/phi_decomp_summary.csv};
+\code{docs/specs/FINDINGS-2026-08-22-phi-decomposition.md}) -- was produced
+with a corner-EIF weight bug: \code{ifelse()} on a scalar test returned the
+\strong{first fold row's} propensity (and mediator-density proxy) for every row,
+so the inverse-probability weights were one arbitrary constant per fold
+(NEWS, 0.3.0.9000). The "fold-split noise" those grids diagnosed was this
+bug. They are superseded; the bootstrap arm and the gates have not yet
+been re-measured with the fix.}
 
 \item{B}{Integer: number of bootstrap resamples when \code{se_method = "bootstrap"}
 (default \code{200}). Cost is \code{B} (x \code{reps}) refits.}

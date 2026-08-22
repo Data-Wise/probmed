@@ -195,9 +195,20 @@ test_that("g-score EIF: SE is calibrated across delta (issue #20)", {
   emp_sd   <- apply(pmed_hat, 1, stats::sd)
   mean_se  <- rowMeans(se_hat)
   se_ratio <- mean_se / emp_sd
-  # Calibrated ~1 (verified 1.09/1.09/1.00 at these settings); band [0.85,
-  # 1.20] absorbs Monte-Carlo noise at n_reps = 200. Pre-fix this hits ~4.6.
+  # Calibrated ~1 (0.94/0.95/0.97 at these settings after the 2026-08-22 corner-
+  # weight fix + projected g-score term; 1.09/1.09/1.00 before it); band [0.85,
+  # 1.20] absorbs Monte-Carlo noise at n_reps = 200. Pre-#20 this hits ~4.6; the
+  # per-row g-score term hit 1.40 at delta = 2 once the corner weights were right.
   expect_true(all(se_ratio >= 0.85 & se_ratio <= 1.20),
               info = paste0("se_ratio = ",
                             paste(round(se_ratio, 3), collapse = ", ")))
+})
+
+test_that("g-score projection is immune to covariate names (no response-name shadowing)", {
+  d <- .ip_gen(600, 0.0, seed = 5)
+  r_ref <- incr_pmed(d, deltas = c(1, 2), K = 5L)
+  dv <- d; names(dv)[names(dv) == "C"] <- "v"
+  r_v <- incr_pmed(dv, deltas = c(1, 2), K = 5L, covars = "v")
+  expect_equal(r_v@curve$Pmed, r_ref@curve$Pmed, tolerance = 1e-12)
+  expect_equal(r_v@curve$se, r_ref@curve$se, tolerance = 1e-12)
 })

@@ -136,7 +136,7 @@ WassersteinPmedResult <- S7::new_class(
     oYm  <- stats::lm(f_oY, data = tr)
     sM   <- stats::sigma(mMm); sY <- stats::sigma(oYm)
     p1   <- stats::predict(pim, te, type = "response")
-    pa   <- function(z) ifelse(z == 1, p1, 1 - p1)
+    pa   <- function(z) if (z == 1) p1 else 1 - p1   # not ifelse(): scalar z => scalar result (see R/corner.R)
     mMhat  <- function(z) stats::predict(mMm, transform(te, A = z))
     muY    <- function(z, mv) stats::predict(oYm,
                 data.frame(A = z, M = mv, te[, covars, drop = FALSE]))
