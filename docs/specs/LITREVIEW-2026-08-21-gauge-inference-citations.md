@@ -227,12 +227,39 @@ recoverable by embedding the ratio as `psi = phi_R - theta*phi_OE`, giving
 derivation, not the paper's text, and one that also bounds `|OE|` **above**, which no
 surface currently mentions.
 
-**Correct citation for the refit case:** Tang & Westling, arXiv:2404.03064, which
-permits a bootstrap nuisance refit (condition B2) and warns that refitting analogously
-can fail when the learner is sensitive to the tied/replicated observations Efron's
-bootstrap produces. Caveat: their framework uses Donsker-type conditions, which
-cross-fitting exists to avoid. *(Reported from full text by the reading agent; verify
-directly before citing.)*
+**On Tang & Westling as the "refit case" citation — read directly 2026-08-21
+(arXiv:2404.03064v2, 142pp), and it does NOT rescue the refit procedure.**
+
+It was initially recorded here as the correct citation for a refit-per-resample
+bootstrap. That framing was too generous. Their condition (B2) is high-level, so a
+refit *could* satisfy it — but the paper names our exact procedure as the case at
+risk (§3.2):
+
+> "If eta*_n is constructed in an **exactly analogous manner using the bootstrap
+> data** as eta_n is constructed using the original data, the bootstrap data has
+> **replicated observations**, and the method of constructing eta_n is **sensitive to
+> ties** in the data, **(B2) may not be satisfied**. ... for this reason and others we
+> **do not require** that eta*_n be constructed in an exactly analogous manner to
+> eta_n, so these issues can be avoided. In particular, the simplest approach for
+> constructing eta*_n is to define **eta*_n = eta_n**."
+
+`ward_residual()` does precisely the flagged thing: `sample.int(n, n, replace = TRUE)`
+(Efron multinomial resampling, hence heavy ties) followed by a full `.corner_fit()`
+nuisance refit on the tied resample — "an exactly analogous manner using the bootstrap
+data." Whether (B2) actually fails depends on the learner's tie-sensitivity, which is
+an open empirical question for our nuisance fits, but this is the paper's named
+failure mode, not a generic caveat.
+
+Their recommended simplest construction is `eta*_n = eta_n` — **no refit**, the same
+place Lin & Han's theorem lives.
+
+Caveat on using them at all: for the empirical bootstrap their condition leans on a
+`P_0`-Donsker requirement (Gine & Zinn 1990), which cross-fitting exists to avoid;
+§3.3 gives further sufficient conditions for smooth bootstrap sampling distributions.
+
+**Net: both available theory papers point away from refit-per-resample and toward
+holding the cross-fitted nuisances fixed.** There is no citation in this set that
+endorses what the code currently does.
 
 ### Verdict
 
@@ -373,12 +400,11 @@ Status after the Zotero verification pass (see §Why this exists):
    plus the many-instrument and wild-bootstrap simulations. (The related question of
    whether the published version restores the 2017 draft's anti-pretest footnote is
    now ANSWERED: it does not — zero hits for `pre-test`/`pretest`/`Guggenberger`.)
-3. **Tang & Westling** (arXiv:2404.03064) — OPEN, and now the main gap for the
-   constructive path. Metadata verified (Zhou Tang & Ted Westling; v1 2024-04-03,
-   v2 2024-04-18; no journal reference), but the content is known only via the reading
-   agent. It is the proposed replacement citation for the refit-per-resample
-   bootstrap, so it should be read directly before anything is written on its
-   authority. Not currently in Zotero.
+3. ~~**Tang & Westling** (arXiv:2404.03064)~~ — **CLOSED.** Downloaded and read
+   directly (v2, 142pp). Outcome reversed the plan: it does not license the refit
+   procedure but names it as the at-risk case, and recommends `eta*_n = eta_n`. See §3
+   above. PDF at `~/Downloads/Tang_Westling_2024_bootstrap_consistency_ML.pdf`, not
+   yet in Zotero.
 4. ~~Whether the arXiv and SSRN versions of Lin & Han are identical~~ — **CLOSED.**
    The decisive no-refit sentence, the single occurrence of "refit", and the absence
    of a simulation section all reproduce in the SSRN copy.
