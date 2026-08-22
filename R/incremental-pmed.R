@@ -64,14 +64,19 @@ IncrPmedResult <- S7::new_class(
 #' `q' = g(1 - g) / (delta g + 1 - g)^2` (Kennedy 2019, Corollary 2, Term I).
 #' Standard errors use the full efficient influence function for the ratio
 #' `P_med = med / tot`, which adds the g-score correction
-#' `(dq/dg) * (A - g(C)) * (dir * a_med - med * a_dir) / tot^2`, where
-#' `a_med = q' * gamma_med` and `a_dir = q' * gamma_dir` are the same
+#' `(dq/dg) * (A - g(C)) * (dir * E[a_med | C] - med * E[a_dir | C]) / tot^2`,
+#' where `a_med = q' * gamma_med` and `a_dir = q' * gamma_dir` are the same
 #' tilt-weighted corner contrasts used in the point estimate (the g-score
-#' term must carry the `q'` weight to match the units of `dir`/`med`/`tot`),
-#' with `dq/dg = delta / (delta g + 1 - g)^2` (Term II). Term II is
-#' mean-zero (by `E[A - g(C) | C] = 0`), so it does not shift the point
-#' estimate but restores Neyman orthogonality w.r.t. the propensity score,
-#' ensuring the CI is consistent under nonparametric estimation of `g`.
+#' term must carry the `q'` weight to match the units of `dir`/`med`/`tot`)
+#' and `E[. | C]` is a linear projection on the covariates, with
+#' `dq/dg = delta / (delta g + 1 - g)^2` (Term II). Term II is mean-zero (by
+#' `E[A - g(C) | C] = 0`), so it does not shift the point estimate but
+#' restores Neyman orthogonality w.r.t. the propensity score, ensuring the CI
+#' is consistent under nonparametric estimation of `g`. The projection
+#' matters: the per-row `a_med`/`a_dir` carry the corner EIF's
+#' inverse-probability noise, and multiplying that by `A - g(C)` inflated the
+#' se by 1.40x at `delta = 2` (fixed 2026-08-22; se/empSD now 0.94-0.97 across
+#' `delta`).
 #'
 #' **Scope (exposure type).** The incremental intervention is defined only for a
 #' **binary** treatment `A`: the odds-ratio tilt `q = delta g / (delta g + 1 - g)`
@@ -140,7 +145,15 @@ S7::method(incr_pmed, S7::class_data.frame) <-
       # This is Neyman-orthogonal w.r.t. g: E[T2] = 0, so point estimate unchanged
       resid <- object$A - g
       psi_base  <- ((a_med - med) - Pmed * (a_dir + a_med - tot)) / tot
-      psi_gscore <- dqg * resid * (dir * a_med - med * a_dir) / tot^2
+      ## T2 must use E[a_med | C] and E[a_dir | C], not the per-row a_med / a_dir:
+      ## those carry the corner EIF's inverse-probability noise, and multiplying it
+      ## by (A - g) adds variance that is not in the EIF -- se/empSD 1.40 at
+      ## delta = 2 once the corner weights were corrected (2026-08-22; 0.97 with
+      ## the projection; pre-fix the larger weight-bug variance masked it at 1.14).
+      ## Projection: linear in the covariates, as for eta in .corner_phi().
+      proj <- function(v) stats::fitted(stats::lm(stats::reformulate(covars, "v"),
+                                                  data = data.frame(v = v, object[, covars, drop = FALSE])))
+      psi_gscore <- dqg * resid * (dir * proj(a_med) - med * proj(a_dir)) / tot^2
       psi <- psi_base + psi_gscore
       se <- stats::sd(psi) / sqrt(n)
       data.frame(delta = del, dir = dir, med = med, tot = tot, Pmed = Pmed,

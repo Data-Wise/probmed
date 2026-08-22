@@ -31,9 +31,9 @@
     om  <- stats::glm(f_om, data = tr,
                       family = if (binY) stats::binomial() else stats::gaussian())
     p1 <- stats::predict(pim, newdata = te, type = "response"); gC[te_i] <- p1
-    pa <- function(z) ifelse(z == 1, p1, 1 - p1)
+    pa <- function(z) if (z == 1) p1 else 1 - p1   # `if`, not ifelse(): scalar z (see R/corner.R)
     q1 <- stats::predict(qm, newdata = te, type = "response")
-    qa <- function(z) ifelse(z == 1, q1, 1 - q1)
+    qa <- function(z) if (z == 1) q1 else 1 - q1
     mu <- function(z) stats::predict(om, newdata = transform(te, A = z), type = "response")
     for (j in 1:4) {
       a <- cor[[j]][1]; ap <- cor[[j]][2]

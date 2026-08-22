@@ -68,6 +68,15 @@ mean). \code{NA} unless
 zero width. The 3x threshold is calibrated above the ~2x width gap that the
 anti-conservative Wald interval shows even under strong identification.
 
+\strong{History (2026-08-22).} Everything below in this entry -- the 16,000-rep
+coverage grid, the 48,000-rep validation grid, the ~2x width baseline and
+the 3x threshold's calibration -- was measured on the estimator \strong{before}
+the corner-EIF weight fix (see \code{se_method} in \code{\link[=ward_residual]{ward_residual()}} and NEWS
+0.3.0.9000). With the fix the default Wald interval is calibrated in the
+regular cells (0.936 continuous / 0.972 binary, n = 800), so the "Wald
+under-covers everywhere" premise no longer holds; the gate has not been
+re-measured. Kept as the record of what the flag was validated against.
+
 \strong{An absent flag does not buy nominal coverage.} Independently of the
 flag, the symmetric Wald interval for \code{W} is anti-conservative
 \emph{everywhere}: \strong{~0.88} overall across the 16,000-rep coverage grid
@@ -114,7 +123,10 @@ analytic se(OE) regardless of \code{se_method} (only the accompanying
 \code{warning()} is gated on \code{se_method = "bootstrap"}). \code{NA} only in
 the degenerate case \code{se(OE) == 0}.
 
-\strong{What \code{FALSE} means -- width, not under-coverage.} In the
+\strong{What \code{FALSE} means -- width, not under-coverage.} (Measured on the
+pre-weight-fix estimator, 2026-08-22; not yet re-measured -- the
+non-regularity it detects is a property of the ratio, not of the
+estimator, so the reading below is expected to stand.) In the
 48,000-rep validation grid, draws flagged by this gate did \strong{not}
 under-cover; they \emph{over}-covered (+0.10, in 22/22 qualifying cells, stable
 across every design slice). The mechanism: as \code{OE} approaches 0 the ratio

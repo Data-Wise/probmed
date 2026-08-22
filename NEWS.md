@@ -1,6 +1,67 @@
 # probmed 0.3.0.9000 (development)
 
-## Simulation findings (PR #33)
+## Bug fix: corner-EIF inverse-probability weights were one constant per fold
+
+* `.corner_fit()` — the cross-fit corner influence engine behind
+  `ward_residual()`, `incr_pmed()` and `sobol_pmed()` — built its weights as
+  `pa <- function(z) ifelse(z == 1, p1, 1 - p1)`. `ifelse()` returns a result
+  shaped like its **test**, and `z` is a scalar, so `pa(a)` was `p1[1]`: the
+  propensity of the **first test row** of the fold, applied to every row. The
+  mediator-density proxy `qa()` had the same defect. Shipped in `10b41aa`
+  (PR #8), copied into `pmedW_dr()` (`R/wasserstein-pmed.R`) and into the
+  HPC standalone `inst/sim/gauge_coverage_standalone.R`; all three fixed.
+  Point estimates were not visibly biased (the EIF is triply robust and the
+  outcome / projection models were correctly specified) but the influence
+  function was not the efficient one and its variance depended on which row
+  happened to land first in each fold.
+
+* **What the fix changes, measured** (`inst/sim/se_shipped_check.R`, exact
+  truth, 250 datasets per cell, n = 800; numbers are median se/empSD, CV of
+  the se across datasets, Wald coverage):
+
+  | cell | `reps = 1` | `reps = 10` | oracle |
+  |---|---|---|---|
+  | continuous, strong ID | 0.89 / 0.23 / **0.936** | 0.91 / 0.22 / **0.936** | 0.87–0.90 / 0.18 / 0.940 |
+  | binary, strong ID | 0.99 / 0.33 / **0.972** | 0.97 / 0.32 / **0.968** | 0.95 / 0.31 / 0.972 |
+  | intermediate (s = 0.5, τ = 0.4) | 0.95 / 0.29 / 0.912 | — | 0.90 / 0.25 / 0.964 |
+  | near-null (s = 0.2) | non-regular (CV 3.4) | — | non-regular (CV 8.8) |
+
+  The single-partition estimator's empSD is now 0.063 vs oracle 0.056
+  (continuous) and 0.121 vs 0.122 (binary) — before the fix it was 0.121 and
+  0.175. The default analytic Wald interval is calibrated in the regular
+  cells; `reps > 1` buys little; near the null the ratio is non-regular for
+  every estimator, as before.
+
+* **Superseded.** Every coverage figure the package reported before this
+  entry was produced with the bug: the 2,000-rep grid
+  (`gauge_boot_coverage_nsim2000.csv`: Wald ~0.85–0.90, percentile ~1.00), the
+  48,000-rep `weak_id`/`oe_regular` validation grid, and PR #33's variance
+  decomposition (next section). The "fold-split noise" those diagnosed was the
+  bug — a different first row per partition is a different constant weight per
+  partition. The bootstrap arm and both gates have **not** been re-measured
+  with the fix; their documentation says so. A full-sample-nuisance se for
+  `reps > 1` was built on this branch as the "fix" for the apparent se
+  instability, measured, and dropped once the real cause was found
+  (`.corner_fit_full()` stays as a deterministic test probe;
+  `inst/sim/se_candidates{,2,3}.R`, `se_bootstrap_reps.R` record the search).
+
+* Tests: row-order invariance of the full-sample corner means (fails on the
+  old weights), pinned post-fix values, and the `reps > 1` se construction
+  rebuilt by hand.
+
+* **Second fix, exposed by the first: `incr_pmed()`'s g-score term.** Term II
+  of the influence function multiplied `A - g(C)` by the **per-row**
+  `a_med`/`a_dir`, which carry the corner EIF's inverse-probability noise; the
+  orthogonality correction needs their conditional means given `C`. With the
+  old constant-per-fold weights this looked calibrated (se/empSD
+  1.07 / 1.11 / 1.14 at δ = 0.5 / 1 / 2, inside the test's band); with correct
+  weights it inflated to 0.97 / 1.15 / **1.40**. Now projected linearly on the
+  covariates (the same device as `eta` in `.corner_phi()`): 0.94 / 0.95 / 0.97.
+  The weight fix alone also made `incr_pmed()` ~1.5x more efficient (empSD of
+  `P_med^delta` 0.083 → 0.055 at n = 1000). Point estimates unchanged by the
+  projection (Term II is mean-zero).
+
+## Simulation findings (PR #33) — superseded by the weight fix above
 
 * **Where `ward_residual()`'s variance comes from, and why its analytic se
   under-covers** — `inst/sim/phi_decomposition.R`, results in
@@ -14,7 +75,8 @@
   shipped, brings the point estimate to oracle efficiency for continuous `Y`
   (n=800: empSD 0.121 → 0.057 vs oracle 0.056). Coverage stays ~0.88 only
   because the se estimator has CV 0.5–0.8 across datasets (oracle 0.17) — a
-  better se for the `reps > 1` estimator is the open item. Near the null even
+  better se for the `reps > 1` estimator was the open item. [All of this
+  measured the pre-fix weights; see the bug-fix entry above.] Near the null even
   the oracle se explodes: the ratio is non-regular there, which is exactly what
   `oe_regular` flags. Binary `Y` with a small `OE` is a transition regime where
   `reps = 10` halves the variance but does not reach the oracle.

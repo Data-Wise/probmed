@@ -110,24 +110,34 @@ ward_residual(multi, a0 = 0, a1 = 1)
 ## Inference: what the two arms actually do
 
 `W` and `P_med` are **ratios**. The default `se_method = "analytic"` reports the
-influence-function standard error and a symmetric Wald interval, which covers only
-about 0.85–0.90 in the package's coverage grid. The reason is not a biased
-formula — with the true nuisance functions plugged in, the same interval is exact.
-It is that the cross-fit **partition is redrawn on every call**, and that
-fold-split noise is most of the single-fit estimator's variance; the analytic SE
-is correspondingly unstable from dataset to dataset rather than too small on
-average. `reps > 1` averages the influence matrix over several partitions and
-removes that component from the point estimate (at `reps = 10` the point estimate
-reaches oracle efficiency for continuous outcomes in the grid); a better standard
-error for that estimator is an open item. Full account:
-`docs/specs/FINDINGS-2026-08-22-phi-decomposition.md`.
+influence-function standard error of the cross-fit one-step estimator and a
+symmetric Wald interval. Measured against exact truth
+(`inst/sim/se_shipped_check.R`, 250 datasets per cell, n = 800) it covers 0.936
+for a continuous outcome and 0.972 for a binary one under strong identification,
+0.912 when the total effect is moderate, and its dispersion from dataset to
+dataset matches that of an oracle that knows the nuisance functions. `reps > 1`
+averages the influence matrix over several independent partitions; it removes
+the fold-split component of the variance, which with correct weights is small
+(empSD 0.063 at `reps = 1` vs 0.061 at `reps = 10`, oracle 0.056):
+
+```{r}
+#| label: reps
+ward_residual(data.frame(A, M, Y = Yi, C), reps = 10)
+```
+
+A note on history, because the earlier documentation said the opposite: before
+2026-08-22 the corner influence function used one inverse-probability weight per
+fold — `ifelse()` on a scalar test silently returned the first fold row's
+propensity for every row — and every coverage figure the package reported
+(Wald ~0.85–0.90, percentile ~1.00, the gate-validation grid, the variance
+decomposition in `docs/specs/FINDINGS-2026-08-22-phi-decomposition.md`) was
+produced with that bug. Those numbers are superseded; the bootstrap arm and the
+two gates below have not yet been re-measured with the fix.
 
 Setting `se_method = "bootstrap"` switches the `W` and `P_med` intervals to
 **percentile** intervals of a nonparametric bootstrap that resamples rows and
-refits the whole cross-fit — with a fresh partition each resample, so it carries
-the same fold-split noise. In the grid it covered ~1 in every cell: conservative,
-not calibrated. The printed label tracks which construction produced the
-interval.
+refits the whole cross-fit, with a fresh partition each resample. The printed
+label tracks which construction produced the interval.
 
 ```{r}
 #| label: bootstrap
@@ -148,6 +158,8 @@ total effect is not significant, and report the unnormalized effects.
   the single-number `P_med` — is unreliable.
 - Use `a0` / `a1` for any two-level exposure coding; `>2` levels is an error by
   design.
-- For ratio inference, `reps > 1` removes the fold-split noise from the point
-  estimate; `se_method = "bootstrap"` gives conservative percentile intervals;
-  the Fieller set handles the near-null case, where the ratio is non-regular.
+- For ratio inference, the default analytic Wald interval is calibrated under
+  regular identification (0.936 continuous / 0.972 binary at n = 800);
+  `reps > 1` adds a small efficiency gain; `se_method = "bootstrap"` gives
+  percentile intervals (not yet re-measured after the weight fix); the Fieller
+  set handles the near-null case, where the ratio is non-regular.

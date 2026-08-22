@@ -276,3 +276,73 @@ test_that("weak_id and oe_regular stay NA (not FALSE) in degenerate zero-width/z
   # print() must not error when these flags are NA (isTRUE/isFALSE guard, not bare if)
   expect_no_error(print(r))
 })
+
+## ---- corner-EIF weight fix (2026-08-22) and the reps > 1 se construction ----
+
+test_that("corner EIF weights are per-row: corner means are invariant to row order", {
+  ## Regression test for the ifelse() weight bug (shipped 10b41aa, fixed 2026-08-22):
+  ## pa(z) <- ifelse(z == 1, p1, 1 - p1) returned p1[1] -- the FIRST row's propensity
+  ## -- for every row, so the corner means depended on which row came first. The
+  ## full-sample fit consumes no RNG, so a row permutation must leave them unchanged.
+  d <- .gp_gen(600, 0.5, FALSE)
+  m1 <- colMeans(.corner_fit_full(d, FALSE, "C")$phi)
+  m2 <- colMeans(.corner_fit_full(d[rev(seq_len(nrow(d))), ], FALSE, "C")$phi)
+  expect_equal(m1, m2, tolerance = 1e-10)
+  expect_gt(stats::sd(.corner_fit_full(d, FALSE, "C")$g), 0.05)  # weights do vary by row
+})
+
+test_that("reps = 1 analytic path: values pinned after the weight fix (regression guard)", {
+  set.seed(1); n <- 800; C <- rnorm(n)
+  A <- rbinom(n, 1, plogis(-0.2 + 0.8 * C)); M <- 0.6 * A + 0.4 * C + rnorm(n)
+  Y <- 0.5 * A + 0.7 * M + 0.8 * A * M + 0.3 * C + rnorm(n)
+  r1 <- ward_residual(data.frame(A, M, Y, C))
+  ## pre-fix (dev @ b3ea449): W 0.3753, W_se 0.0947, p_med CI [0.210, 0.332]
+  expect_equal(r1@W, 0.4028370648, tolerance = 1e-8)
+  expect_equal(r1@W_se, 0.0503393240, tolerance = 1e-8)
+  expect_equal(r1@p_med_ci, c(0.1922297676, 0.3376918320), tolerance = 1e-8)
+})
+
+test_that("reps > 1 point estimate pinned after the weight fix; se finite and positive", {
+  set.seed(1); n <- 800; C <- rnorm(n)
+  A <- rbinom(n, 1, plogis(-0.2 + 0.8 * C)); M <- 0.6 * A + 0.4 * C + rnorm(n)
+  Y <- 0.5 * A + 0.7 * M + 0.8 * A * M + 0.3 * C + rnorm(n)
+  r4 <- ward_residual(data.frame(A, M, Y, C), reps = 4L)
+  expect_equal(r4@W, 0.3973313916, tolerance = 1e-8)   # pre-fix: 0.4146
+  expect_true(is.finite(r4@W_se) && r4@W_se > 0)
+})
+
+test_that(".corner_fit_full matches the cross-fit corner means at large n and consumes no RNG", {
+  d <- .gp_gen(4000, 0.5, FALSE)
+  set.seed(3); cf <- colMeans(.corner_fit(d, 5L, FALSE, "C")$phi)
+  s0 <- .Random.seed
+  full <- .corner_fit_full(d, FALSE, "C")
+  expect_identical(.Random.seed, s0)
+  expect_equal(dim(full$phi), c(4000L, 4L))
+  expect_equal(colnames(full$phi), c("11", "10", "01", "00"))
+  expect_equal(unname(colMeans(full$phi)), unname(cf), tolerance = 0.05)
+})
+
+test_that("reps > 1 analytic se = averaged cross-fit IF se (+) residual fold Monte-Carlo term", {
+  d <- .gp_gen(800, 0.5, FALSE)
+  r <- ward_residual(d, reps = 4L, seed = 11L)
+  ## rebuild by hand: the same per-rep fold draws (seed + r), the averaged phi, its
+  ## IF with the averaged W, plus var(W_reps)/reps.
+  d2 <- d; d2$A <- as.integer(d2$A == 1)
+  W_reps <- numeric(4); phis <- vector("list", 4)
+  for (k in 1:4) {
+    set.seed(11L + k); phis[[k]] <- .corner_fit(d2, 5L, FALSE, "C")$phi
+    t <- colMeans(phis[[k]]); oe <- t["11"] - t["00"]
+    W_reps[k] <- unname((oe - (t["10"] - t["00"]) - (t["01"] - t["00"])) / oe)
+  }
+  pbar <- Reduce(`+`, phis) / 4
+  pOE <- pbar[, "11"] - pbar[, "00"]
+  pR  <- pOE - (pbar[, "10"] - pbar[, "00"]) - (pbar[, "01"] - pbar[, "00"])
+  se_cf <- stats::sd((pR - r@W * pOE) / mean(pOE)) / sqrt(800)
+  expect_equal(r@W_se, sqrt(se_cf^2 + stats::var(W_reps) / 4), tolerance = 1e-10)
+})
+
+test_that("reps > 1 analytic se works for a binary outcome", {
+  r <- ward_residual(.gp_gen(800, 0.5, TRUE), reps = 2L)
+  expect_true(is.finite(r@W_se) && r@W_se > 0)
+  expect_true(is.finite(r@p_med_ci[1]) && is.finite(r@p_med_ci[2]))
+})

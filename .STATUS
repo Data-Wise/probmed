@@ -246,7 +246,32 @@ BLOCKED (not actionable): probmed→CRAN (needs medfit 0.3.x on CRAN, then drop 
 cran-comments + bump version).
 
 🌿 ACTIVE WORKTREE
-📍 CURRENT (2026-08-22, end of session) — NO active worktrees; main checkout is dev.
+📍 CURRENT (2026-08-22, later) — ~/.git-worktrees/probmed/feature-gauge-se-fullsample
+   (branch feature/gauge-se-fullsample, off dev b3ea449). Opened to ship the
+   full-sample-nuisance se for reps>1; the E2E of the shipped function FAILED
+   (CV 0.99 vs the scratch 0.20), which exposed a CORNER-EIF WEIGHT BUG:
+   `pa <- function(z) ifelse(z == 1, p1, 1 - p1)` with scalar z returns p1[1] —
+   the first fold row's propensity for every row (same for qa). Shipped in
+   10b41aa (PR #8); also in pmedW_dr (R/wasserstein-pmed.R) and the hopper
+   standalone. All three fixed on the branch. With the fix the ORIGINAL cross-fit
+   analytic se is calibrated (n=800, 250 datasets: Wald 0.936 cont / 0.972 binary
+   at reps=1; 0.936 / 0.968 at reps=10; se CV ≈ oracle), the single-partition
+   empSD is within 10% of the oracle, and the binary "transition regime" is gone
+   — the "fold-split noise" of PR #33 WAS the bug. Full-sample se dropped
+   (.corner_fit_full kept as a test probe). Docs rewritten: se_method/reps
+   roxygen + Rd, GaugePmedResult gate docs (history notes), vignette, NEWS
+   (bug-fix entry; PR #33 section marked superseded), FINDINGS (superseded
+   header). New: inst/sim/se_shipped_check.R, se_candidates{,2,3}.R,
+   se_bootstrap_reps.R, results/se_shipped_postfix.csv. Tests: row-order
+   invariance (fails on old weights), pinned post-fix values. SECOND FIX exposed
+   by the first: incr_pmed's g-score term used per-row a_med/a_dir (IPW noise x
+   (A-g)) — se/empSD 1.40 at delta=2 post-weight-fix; now projected on C
+   (0.94/0.95/0.97); incr_pmed empSD also fell 0.083→0.055 from the weight fix
+   alone. NOT re-measured
+   post-fix: bootstrap arm, weak_id/oe_regular gates (48k grid), the 2000-rep
+   grid, incr_pmed/sobol_pmed coverage. Issues #11/#32 and the manuscript's
+   coverage claims need a correction comment — user's call.
+   ⏮ Earlier (2026-08-22, end of previous session) — NO active worktrees.
    🧹 Both session worktrees removed (user instruction); local + remote branches deleted.
    • feature/phi-variance-decomposition — ✅ MERGED 2026-08-22 as PR #33 → dev,
      squash 76680a1 (8/8 CI green; 161 tests/482 expectations/0 fail; R CMD check
