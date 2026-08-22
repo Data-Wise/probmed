@@ -21,3 +21,6 @@ planning/*
 .claude/worktrees/
 .claude/guard-session-counts
 .claude/settings.local.json
+# default $GAUGE_SIM_OUT scratch for the inst/sim gauge scripts; finished grids are
+# promoted into inst/sim/results/ by hand
+gauge_sim_out/

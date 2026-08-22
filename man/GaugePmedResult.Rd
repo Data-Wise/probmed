@@ -58,8 +58,11 @@ as the reference for the weak-identification diagnostic even under
 
 \item{weak_id}{Logical: weak-identification flag -- \code{TRUE} when the percentile
 CI for \code{W} is at least 3x wider than the symmetric Wald interval, the
-regime where the default Wald interval is most under-covering (Zhan 2026; see
-below for what the grid showed this does and does not mean). \code{NA} unless
+regime where the default Wald interval is most under-covering. The ratio is a
+scale-only adaptation of the bootstrap-vs-asymptotic-discrepancy idea in Zhan
+(2026); it is not Zhan's statistic, which is a Kolmogorov-Smirnov distance for
+linear IV (see below for what the grid showed the ratio does and does not
+mean). \code{NA} unless
 \code{se_method = "bootstrap"} (both intervals are required to compare), and also
 \code{NA} (not \code{FALSE}) in the degenerate case where the Wald interval has
 zero width. The 3x threshold is calibrated above the ~2x width gap that the
