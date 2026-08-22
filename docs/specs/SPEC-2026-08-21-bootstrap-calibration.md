@@ -69,6 +69,91 @@ SD over the empirical SD of `W` across reps. Nominal coverage 0.95:
 
 ---
 
+## Phase 0b — Source check: what the cited papers actually say
+
+Prompted by "do not cite by just reading the abstract." All four inference
+references had been characterized only from the manuscript's one-line summaries,
+the issue bodies, and our own in-code comments. None are in the Zotero library.
+
+**Metadata (Crossref-verified 2026-08-21).** All real, correctly attributed; no
+fabricated citations. Two defects in the manuscript's `.bib`:
+`lin2026` records `author={Ziming Lin and others}` — there are exactly two authors,
+**Ziming Lin and Fang Han** — and Crossref types it `posted-content` (preprint).
+`zhan2026` is missing volume/issue/pages (Econometric Reviews **45(7), 912-928**).
+Importable entries: scratchpad `gauge-inference-refs.bib`.
+
+### FINDING: the Lin & Han citation does not cover our bootstrap
+
+Full text read at arXiv:2604.17239v1 (30pp; the SSRN copy 403s, so identity of the
+two versions is unconfirmed).
+
+The paper establishes bootstrap validity for DML estimators under **exchangeably
+weighted resampling** (Praestgaard & Wellner class; Efron's bootstrap is a special
+case). But its bootstrapped estimator holds the nuisances FIXED (§2.2, eq. 2.3):
+
+> "**Without refitting the nuisance estimator** eta-hat_{0,k}, we define the
+> fold-wise bootstrapped estimator..."
+
+The nuisance argument carries no star in (2.2)/(2.3) — it is the original-sample
+cross-fitted nuisance. Only the fold-restricted empirical measure is reweighted, and
+the fold partition is nonrandom and fixed across resamples. Remark 2.1 confirms this
+holds even under Efron's index-resampling representation. **"refit" occurs exactly
+once in the paper — in the sentence excluding it.** There is no simulation section.
+
+`ward_residual()`'s bootstrap (R/gauge-pmed.R:314-321) resamples rows and refits the
+entire cross-fit estimator, all nuisances, per resample. That is a different
+estimator. Theorem 3.2 does not cover it, and the paper makes no claim about it.
+
+Two further gaps, both worth resolving before citing:
+- **Ratios are never discussed** ("ratio" appears only in reference titles). The
+  manuscript's "requires OE bounded away from 0" is defensible *by embedding* the
+  ratio as the moment condition `psi = phi_R - theta*phi_OE`, giving `J_0 = -OE`, so
+  A3.2(iii)'s "all singular values of J_0 lie in [c_0, c_1]" becomes
+  `c_0 <= |OE| <= c_1`. That is a derivation, not the paper's text — and note it also
+  bounds |OE| ABOVE, which no surface currently mentions. Cite A3.2(iii), not a
+  ratio result.
+- **Average-of-fold-ratios vs ratio-of-fold-averages.** Lin & Han's estimator is
+  `(1/K) sum_k theta-hat_{0,k}` — fold-wise solutions averaged. `ward_residual()`
+  pools first (`th <- colMeans(phi)`, R/gauge-pmed.R:336) then divides. For a ratio
+  these differ, so Theorem 3.2 would not apply verbatim even to a no-refit variant
+  of our estimator.
+
+**Alternative source for the refit case:** Tang & Westling (arXiv:2404.03064) do
+permit a bootstrap nuisance refit on the resampled data (their condition B2), and
+explicitly warn that refitting analogously can fail when the nuisance learner is
+sensitive to the tied/replicated observations Efron's bootstrap produces. Caveat:
+their framework uses Donsker-type conditions, which cross-fitting exists to avoid —
+not a drop-in substitute. (Reported by the reading agent from full text; verify
+directly before citing.)
+
+### This supplies a SECOND candidate mechanism for the heavy tails
+
+Phase 0 attributed the heavy-tailed resample distribution to the ratio structure
+(near-zero `OE` in a resample). Tang & Westling's tied-observations warning supplies
+an independent generator: a nuisance refit on a resample with heavy ties can
+occasionally produce a wild fit, hence a wild `W`. This is a **tail** phenomenon, so
+it is fully compatible with Phase 0's observation that the bootstrap SD is correct at
+n = 3000 — it would fatten tails without inflating SD.
+
+The two mechanisms are cheaply discriminable, and the test is also the fix:
+
+> **Implement the no-refit exchangeably-weighted bootstrap that Lin & Han actually
+> prove** — hold the cross-fitted nuisances at their original values and reweight the
+> influence-function contributions (`phi`, already computed). No refits, so it is
+> cheaper than the current arm, not more expensive.
+>
+> - If coverage drops from 1.00 toward nominal -> the refit was the problem. The
+>   manuscript's percentile story needs rewriting AND the citation is fixed by the
+>   same change.
+> - If coverage stays at 1.00 -> the ratio structure is the problem, and Fieller
+>   (Phase 2) is the answer.
+
+This supersedes the Phase 2/3 ordering below: run the discriminating experiment
+first, because its outcome determines whether Fieller is a replacement or a
+complement.
+
+---
+
 ## Phase 1 — Manuscript: correct the Zhan (2026) weak-ID claim
 
 **Cross-repo write — requires explicit go-ahead.** Independent of Phases 2-4; can
