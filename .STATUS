@@ -215,6 +215,18 @@ BLOCKED (not actionable): probmed→CRAN (needs medfit 0.3.x on CRAN, then drop 
 cran-comments + bump version).
 
 🌿 ACTIVE WORKTREE
+📍 CURRENT (2026-08-22) — two worktrees, both off dev:
+   • feature/phi-variance-decomposition — ~/.git-worktrees/probmed/feature-phi-variance-decomposition
+     (from dev a337b01). THE LIVE ONE. Purpose: decompose seW_an_ratio = 0.65-0.83
+     (phi under-dispersion, all 8 cells) into fold-split vs nuisance-refit vs
+     remainder. Blocking measurement for the whole bootstrap-calibration line —
+     Wald, any phi-reweighted bootstrap, and Fieller are all too narrow by this
+     factor. See docs/specs/REVIEW-2026-08-22-adversarial-refutation.md.
+   • feature/no-refit-bootstrap — ~/.git-worktrees/probmed/feature-no-refit-bootstrap
+     (from dev c264b34). ⚠️ Created for SPEC Phase 2, which was REFUTED before any
+     code was written (reweighting a fixed phi reproduces the analytic variance and
+     under-covers at 0.775-0.825). Empty — no commits on the branch. Kept pending a
+     decision, not in use.
 🧹 BRANCH/WORKTREE CLEANUP (2026-07-15/16): main checkout is `dev`.
    ONE leftover: ~/.git-worktrees/probmed/sleepy-kowalevski-43379e (detached HEAD
    6fd517b, branch claude/sleepy-kowalevski-43379e) — created by a spawned task
