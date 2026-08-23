@@ -255,8 +255,8 @@ cran-comments + bump version).
    both merged; dev CI green through aee7bfb. Open follow-ups (user's call):
    sobol_pmed / pmedW_dr post-fix coverage; the gauge manuscript's coverage and
    weak-ID claims (pmed-modern, cross-repo); dev→main release to put the corrected
-   docs online (package ON HOLD); issue #11 could now be closed as "A2 uninformative,
-   A1 stands" once the user agrees.
+   docs online (package ON HOLD). Issue #11 CLOSED 2026-08-22 (resolved by PR #34 +
+   #35: A2 uninformative, A1 stands); #32 still open (BCa — recommendation: leave out).
    History of the branch (off dev 699ca23): the code consequence of
    FINDINGS-2026-08-22-postfix-bootstrap-gates: weak_id no longer warn()s (not a
    coverage diagnostic); print() reports it as a "bootstrap/Wald width discrepancy";
