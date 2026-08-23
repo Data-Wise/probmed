@@ -1,5 +1,27 @@
 # probmed 0.3.0.9000 (development)
 
+## `weak_id` no longer warns; bootstrap arm and gates re-measured with correct weights
+
+* Re-measured after the weight fix below (`inst/sim/boot_gates_check.R`,
+  `inst/sim/boot_gates_calibrate.R`, `inst/sim/results/boot_gates_postfix.csv`;
+  `docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md`; 4 cells × 200
+  datasets × B = 200 against exact truth):
+  - **Bootstrap (percentile) arm:** coverage 0.905 / 0.930 / 0.920 in the
+    continuous / binary / intermediate cells (Wald 0.935 / 0.970 / 0.910) at the
+    same width as Wald; bootstrap SD unstable for binary `Y` (CV 2.2). No longer
+    "~1.00"; never better than the default. Kept as an option.
+  - **A2 `weak_id` cannot be calibrated to coverage:** at every threshold from
+    1.2 to 3, flagged draws cover as well as unflagged (0.94–0.95 vs 0.94–0.97).
+    The width ratio tracks bootstrap instability, which `oe_regular` already
+    flags; beyond A1 it catches 2 of 98 near-null draws. `ward_residual()`
+    **no longer issues a warning** on `weak_id`; the field, ratio and threshold
+    (still 3) are kept and `print()` reports the ratio as a "bootstrap/Wald
+    width discrepancy". Docs rewritten (`weak_id`, `weak_id_ratio_threshold`,
+    `se_method`, vignette).
+  - **A1 `oe_regular` stands:** flagged near-null draws over-cover (0.99 at a
+    median Wald width 8.7× |W|); near-null draws that pass it cover 0.90 — the
+    local-to-zero regime no sample gate separates; use the Fieller set.
+
 ## Bug fix: corner-EIF inverse-probability weights were one constant per fold
 
 * `.corner_fit()` — the cross-fit corner influence engine behind

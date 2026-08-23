@@ -21,59 +21,36 @@
 #' @param W_ci_wald Numeric length-2: symmetric Wald interval for `W`, retained
 #'   as the reference for the weak-identification diagnostic even under
 #'   `se_method = "bootstrap"` (where `W_ci` holds the percentile interval).
-#' @param weak_id Logical: weak-identification flag -- `TRUE` when the percentile
-#'   CI for `W` is at least 3x wider than the symmetric Wald interval, the
-#'   regime where the default Wald interval is most under-covering. The ratio is a
-#'   scale-only adaptation of the bootstrap-vs-asymptotic-discrepancy idea in Zhan
-#'   (2026); it is not Zhan's statistic, which is a Kolmogorov-Smirnov distance for
-#'   linear IV (see below for what the grid showed the ratio does and does not
-#'   mean). `NA` unless
-#'   `se_method = "bootstrap"` (both intervals are required to compare), and
-#'   also `NA` (not `FALSE`) in the degenerate case where the Wald interval has
-#'   zero width. The 3x threshold is calibrated above the ~2x width gap that the
-#'   anti-conservative Wald interval shows even under strong identification.
+#' @param weak_id Logical: `TRUE` when the percentile CI for `W` is at least
+#'   `weak_id_ratio_threshold` (default 3) times wider than the symmetric Wald
+#'   interval. `NA` unless `se_method = "bootstrap"` (both intervals are
+#'   required), and `NA` (not `FALSE`) when the Wald interval has zero width.
+#'   The ratio is a scale-only adaptation of the bootstrap-vs-asymptotic-
+#'   discrepancy idea in Zhan (2026); it is not Zhan's statistic, which is a
+#'   Kolmogorov-Smirnov distance for linear IV.
 #'
-#'   **History (2026-08-22).** Everything below in this entry -- the 16,000-rep
-#'   coverage grid, the 48,000-rep validation grid, the ~2x width baseline and
-#'   the 3x threshold's calibration -- was measured on the estimator **before**
-#'   the corner-EIF weight fix (see `se_method` in [ward_residual()] and NEWS
-#'   0.3.0.9000). With the fix the default Wald interval is calibrated in the
-#'   regular cells (0.936 continuous / 0.972 binary, n = 800), so the "Wald
-#'   under-covers everywhere" premise no longer holds; the gate has not been
-#'   re-measured. Kept as the record of what the flag was validated against.
+#'   **What it measures** (2026-08-22, corrected corner weights;
+#'   `docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md`): a
+#'   bootstrap-vs-Wald width discrepancy, a symptom of bootstrap instability
+#'   near `OE = 0` -- **not a coverage diagnostic**. Against exact truth (4
+#'   cells x 200 datasets, n = 800) draws flagged at *any* threshold from 1.2
+#'   to 3 have the same Wald coverage as unflagged draws (0.94-0.95 vs
+#'   0.94-0.97). In the regular cells the ratio is 1.02 (median), 1.22 (q95),
+#'   1.49 (q99); near the null it tracks `oe_regular = FALSE` (P(flag |
+#'   irregular) 0.82-0.88 at thresholds >= 1.5 vs 0.15-0.40 given regular) and
+#'   at 3x adds 2 of the 98 near-null draws that pass A1. No `warning()` is
+#'   issued on it; `print()` reports the ratio when it exceeds the threshold.
+#'   `oe_regular` is the gate to consult, with the Fieller set.
 #'
-#'   **An absent flag does not buy nominal coverage.** Independently of the flag,
-#'   the symmetric Wald interval for `W` is anti-conservative *everywhere*:
-#'   **~0.88** overall across the 16,000-rep coverage grid
-#'   (`inst/sim/results/gauge_boot_coverage_nsim2000.csv`), never reaching the
-#'   nominal 0.95 in any cell. So `weak_id = FALSE` cannot mean "this interval is
-#'   trustworthy" -- at best it means "not the worst tail of an already
-#'   sub-nominal default". If you need coverage you can rely on, use
-#'   `se_method = "bootstrap"` -- but know what you are buying: the percentile
-#'   interval covered ~1 in every cell of that grid (1.000 in six, 0.9995 in
-#'   two), which is conservative rather than calibrated -- each resample refits
-#'   the cross-fit with a fresh partition, so the bootstrap distribution carries
-#'   the fold-split noise described under `se_method`. Neither arm is
-#'   nominal; pick the error you can live with.
-#'
-#'   **What the 48,000-rep validation grid established** (24 cells,
-#'   `inst/sim/results/weakid_validation_cells.csv` + the two sweep files;
-#'   adversarially re-verified from the raw reps): draws with `weak_id = TRUE`
-#'   do have worse Wald coverage in **all 24 cells** (within-cell contrast
-#'   -0.03 to -0.07 depending on aggregation). But that separation is
-#'   **explained almost entirely by the Wald interval's own width** -- under a
-#'   flexible width control the flag's coverage effect collapses to ~0 (-0.002,
-#'   SE 0.003), and the bootstrap numerator of the ratio contributes nothing
-#'   detectable. Read `weak_id` as a **self-contained proxy for "your analytic
-#'   interval is narrow, and narrow analytic intervals under-cover"** -- useful
-#'   precisely because a single fitted result offers no reference to judge
-#'   "narrow" against -- not as evidence that the bootstrap-vs-Wald comparison
-#'   detects a distinct pathology. The default threshold of 3 is a
-#'   **convention**: thresholds 1.75-4 were not distinguishable in the grid, and
-#'   all 24 cells share one simulation design, so the number has no claim to
-#'   transfer across data-generating processes. `oe_regular` is the gate that
-#'   carries information *beyond* interval width (see below); consult it and the
-#'   Fieller set alongside this flag.
+#'   **History.** The flag shipped with its 3x threshold "calibrated above the
+#'   ~2x width gap of the anti-conservative Wald interval" and was validated on a
+#'   48,000-rep grid as a "narrowness proxy" whose coverage separation was
+#'   explained by Wald width (`inst/sim/results/weakid_validation_cells.csv`).
+#'   All of that measured the estimator *before* the corner-EIF weight fix
+#'   (NEWS 0.3.0.9000): the ~30% se shortfall and the 2x gap were the bug. The
+#'   threshold stays at 3 -- with no signal to calibrate to, a new number would
+#'   imply a calibration that does not exist -- and the field is kept because a
+#'   user running the bootstrap may want to see its instability.
 #' @param weak_id_ratio Numeric: ratio of the percentile `W`-interval width to the
 #'   Wald `W`-interval width; `NA` if not computed.
 #' @param oe_snr Numeric: signal-to-noise of the denominator, `|OE| / se(OE)`.
@@ -85,10 +62,11 @@
 #'   `warning()` is gated on `se_method = "bootstrap"`). `NA` only in the
 #'   degenerate case `se(OE) == 0`.
 #'
-#'   **What `FALSE` means -- width, not under-coverage.** (Measured on the
-#'   pre-weight-fix estimator, 2026-08-22; not yet re-measured -- the
-#'   non-regularity it detects is a property of the ratio, not of the
-#'   estimator, so the reading below is expected to stand.) In the 48,000-rep
+#'   **What `FALSE` means -- width, not under-coverage.** (Re-measured with the
+#'   corrected corner weights, 2026-08-22, same reading: in the near-null cell
+#'   flagged draws cover 0.99 at a median Wald width 8.7x |W|, while the
+#'   near-null draws that *pass* the gate cover 0.90 at 4.1x --
+#'   `docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md`.) In the 48,000-rep
 #'   validation grid, draws flagged by this gate did **not** under-cover; they
 #'   *over*-covered (+0.10, in 22/22 qualifying cells, stable across every
 #'   design slice). The mechanism: as `OE` approaches 0 the ratio `W = R/OE`
@@ -182,7 +160,13 @@ GaugePmedResult <- S7::new_class(
 #'   (CV 0.23 vs 0.18). Under `"bootstrap"` the CIs for `W` and `P_med` are
 #'   **percentile** intervals of a nonparametric bootstrap that resamples rows
 #'   and refits the whole cross-fit (a fresh partition each resample);
-#'   `W_se`/`p_med` se are then bootstrap dispersion summaries. The
+#'   `W_se`/`p_med` se are then bootstrap dispersion summaries. Re-measured
+#'   with the corrected weights (`inst/sim/boot_gates_check.R`, B = 200, 200
+#'   datasets per cell): percentile coverage 0.905 (continuous) / 0.930
+#'   (binary) / 0.920 (intermediate) at the same width as the Wald interval,
+#'   and a bootstrap SD that is unstable for binary `Y` (CV 2.2 across
+#'   datasets vs 0.33 analytic) -- an option for users who want a refit
+#'   bootstrap, not a remedy for anything, at `B` (x `reps`) refits. The
 #'   bootstrap-consistency result of Lin and Han (2026) for cross-fit DML
 #'   functionals holds the nuisances fixed and does **not** cover this
 #'   refit-per-resample scheme. `reps > 1` and `se_method = "bootstrap"`
@@ -200,8 +184,11 @@ GaugePmedResult <- S7::new_class(
 #'   **first fold row's** propensity (and mediator-density proxy) for every row,
 #'   so the inverse-probability weights were one arbitrary constant per fold
 #'   (NEWS, 0.3.0.9000). The "fold-split noise" those grids diagnosed was this
-#'   bug. They are superseded; the bootstrap arm and the gates have not yet
-#'   been re-measured with the fix.
+#'   bug. They are superseded. The bootstrap arm and both gates were
+#'   re-measured with the fix the same day
+#'   (`docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md`,
+#'   `inst/sim/results/boot_gates_postfix.csv`): see above, and the `weak_id` /
+#'   `oe_regular` property docs of [GaugePmedResult].
 #' @param B Integer: number of bootstrap resamples when `se_method = "bootstrap"`
 #'   (default `200`). Cost is `B` (x `reps`) refits.
 #' @param a0,a1 Reference and comparison exposure levels (defaults `0`/`1`). `A`
@@ -214,12 +201,12 @@ GaugePmedResult <- S7::new_class(
 #'   Multi-valued / continuous exposures are future work.
 #' @param weak_id_ratio_threshold Numeric: the `weak_id` flag fires when the
 #'   percentile `W`-CI is at least this many times wider than the Wald interval
-#'   (default `3`). **A convention, not a calibrated optimum**: in the 48,000-rep
-#'   validation grid (`inst/sim/hopper/run_weakid_validation.R`) no threshold in
-#'   1.75-4 was distinguishable, and the grid spans a single simulation design --
-#'   see the `weak_id` property documentation of [GaugePmedResult] for what the
-#'   flag does and does not detect. Exposed so it can be tuned without editing
-#'   the source.
+#'   (default `3`). **Not calibrated to coverage, and cannot be** (2026-08-22,
+#'   corrected weights): flagged and unflagged draws cover alike at every
+#'   threshold from 1.2 to 3 -- see the `weak_id` property of [GaugePmedResult].
+#'   Left at 3 so the flag stays rare outside the near-null regime (0% of
+#'   regular-cell draws, 19% near the null). Exposed so it can be tuned without
+#'   editing the source.
 #' @param oe_snr_threshold Numeric: the `oe_regular` guard flags a near-singular
 #'   denominator when `|OE|/se(OE)` falls below this (default `2`). Validated in
 #'   the same grid as marking **uninformatively wide** (over-covering) intervals,
@@ -328,25 +315,14 @@ S7::method(ward_residual, S7::class_data.frame) <-
     ## non-regular functional as OE -> 0, where bootstrap consistency for this
     ## Neyman-orthogonal cross-fit estimator fails (Lin et al. 2026). oe_snr below
     ## oe_snr_threshold flags OE statistically indistinguishable from 0.
-    ## A gradient DGM sweep (A-effect scale s) shows weak_id_ratio decreasing in
-    ## oe_snr ON AVERAGE -- ~3.4 at oe_snr~0.7 down to ~1.4 at oe_snr~12 (20 draws
-    ## per point; inst/sim/pilot/weak_id_pilot.R) -- so the flag grades rather than
-    ## merely detecting the near-null. Do NOT read exact crossover points off that
-    ## sweep: the per-draw SD approaches the mean in the weak regime, so a
-    ## single-draw sweep traces a clean curve by luck (an earlier version of this
-    ## comment quoted such points as if stable; they did not reproduce).
-    ## The 48k-rep validation grid (inst/sim/hopper/run_weakid_validation.R,
-    ## 2026-07-16) settled the gates' division of labour, OPPOSITE to the naive
-    ## reading: A2's coverage separation is ~97% explained by wid_wald alone
-    ## (flag coef -0.051 -> -0.002 under a flexible width control), so A2 is a
-    ## self-contained narrowness proxy, NOT evidence that CI divergence carries
-    ## information beyond width. (This tested the GATE, not Zhan's method: Zhan
-    ## (2026) proposes a KS distance between the bootstrap law of a standardized
-    ## TSLS estimator and N(0,1), in linear IV; no interval comparison appears
-    ## there. The width ratio is a cruder, scale-only adaptation of that idea.)
-    ## A1 is the gate with above-width content (+0.036 residual, SE
-    ## 0.003) and flags OVER-covering, uninformatively wide intervals (median 21x
-    ## wider than |truth|). t=3 is a convention (1.75-4 indistinguishable).
+    ## History: a gradient sweep (inst/sim/pilot/weak_id_pilot.R) and the 48k-rep
+    ## grid (inst/sim/hopper/run_weakid_validation.R, 2026-07-16) characterized A2
+    ## as a narrowness proxy and A1 as the gate with above-width content that flags
+    ## OVER-covering intervals (median 21x wider than |truth|). Both were measured
+    ## on the pre-fix corner weights. The post-fix re-measurement (2026-08-22,
+    ## docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md) keeps A1's
+    ## reading (flagged near-null draws cover 0.99 at 8.7x |W|) and finds A2
+    ## uninformative for coverage at every threshold.
     seOE       <- se(pOE)
     oe_snr     <- unname(abs(OE) / seOE)
     ## NA-preserving: a degenerate se(OE) == 0 yields oe_snr = NaN, which must
@@ -357,8 +333,9 @@ S7::method(ward_residual, S7::class_data.frame) <-
     ## rather than a widened symmetric se. Cost is B (x reps) refits. seW/seP are
     ## then reported as bootstrap dispersion summaries. (The "Wald under-covers
     ## ~0.85-0.90" motivation this arm was added under came from the pre-fix weight
-    ## bug -- see the se_method docs; post-fix the Wald arm is calibrated and the
-    ## bootstrap arm is unmeasured.)
+    ## bug. Post-fix, 2026-08-22: percentile coverage 0.905 / 0.930 / 0.920 in the
+    ## regular cells at the same width as Wald, bootstrap SD unstable for binary Y
+    ## (CV 2.2) -- an option, not a remedy; see the se_method docs.)
     if (se_method == "bootstrap") {
       bsamp <- vapply(seq_len(B), function(b) {
         db <- object[sample.int(n, n, replace = TRUE), , drop = FALSE]
@@ -373,26 +350,17 @@ S7::method(ward_residual, S7::class_data.frame) <-
     }
     z <- W / seW
 
-    ## A2 weak-identification flag: the percentile/Wald width ratio, a scale-only
-    ## adaptation of Zhan (2026)'s bootstrap-vs-asymptotic-discrepancy idea (his
-    ## statistic is a KS distance in linear IV; this is not it). Computable only
-    ## when both intervals exist,
-    ## i.e. under se_method = "bootstrap" (W_ci is then the percentile interval,
-    ## W_ci_wald the symmetric Wald). We flag when the percentile interval is >= 3x
-    ## wider than the Wald. The symmetric Wald interval for W is *anti-conservative*
-    ## by construction (a skewed ratio; ~0.85-0.90 coverage), so the percentile is
-    ## routinely ~2x wider even under strong identification -- the 3x threshold is
-    ## calibrated to fire only on the marginal inflation beyond that baseline, where
-    ## the percentile interval starts tracking the ratio's exploding tail as OE->0.
-    ## (An overlap metric is not separable here: it sits near 0.5 in both regimes.)
-    ## WHY the baseline was ~2x (adversarial review, 2026-08-22): the analytic SE in
-    ## the ratio's denominator was low by ~30% in ALL 8 grid cells
-    ## (seW_an/empSD = 0.65-0.83, inst/sim/results/gauge_boot_coverage_nsim2000.csv),
-    ## so the ratio carried a large regime-independent offset. ALL of the above
-    ## (the 48k grid, the 2000-rep grid, the 3x threshold's calibration) was
-    ## measured with the pre-fix corner weights (.corner_phi, 2026-08-22); the
-    ## ~30% SE shortfall was that bug. The gate's behavior has not been
-    ## re-measured since; treat the threshold as a convention until it is.
+    ## A2: the percentile/Wald width ratio, a scale-only adaptation of Zhan (2026)'s
+    ## bootstrap-vs-asymptotic-discrepancy idea (his statistic is a KS distance in
+    ## linear IV; this is not it). Computable only under se_method = "bootstrap"
+    ## (W_ci is then the percentile interval, W_ci_wald the symmetric Wald).
+    ## Post-fix (2026-08-22, FINDINGS-2026-08-22-postfix-bootstrap-gates) it is a
+    ## bootstrap-instability discrepancy, NOT a coverage diagnostic: flagged draws
+    ## cover like unflagged ones at every threshold 1.2-3; regular-cell ratio
+    ## median 1.02, q99 1.49; near-null median 1.74, tracking oe_regular = FALSE.
+    ## The 3x threshold was set pre-fix "above the ~2x baseline" -- a baseline
+    ## that was the weight bug's ~30% se shortfall -- and is kept unchanged; no
+    ## warning is raised on it (print() shows the ratio). See the weak_id docs.
     weak_id <- NA; weak_id_ratio <- NA_real_
     if (se_method == "bootstrap") {
       wald_w <- W_ci_wald[2] - W_ci_wald[1]
@@ -402,21 +370,16 @@ S7::method(ward_residual, S7::class_data.frame) <-
       ## identified" (FALSE), which is a false confident claim.
       weak_id <- if (is.na(weak_id_ratio)) NA else isTRUE(weak_id_ratio >= weak_id_ratio_threshold)
     }
-    ## Gate warnings (A1 fires only when a bootstrap CI for W is actually being
-    ## reported; A2 whenever the divergence is detected). isFALSE()/isTRUE() (not
-    ## bare negation) since oe_regular/weak_id may now be NA in degenerate cases.
+    ## Gate warning: A1 fires only when a bootstrap CI for W is actually being
+    ## reported. A2 (weak_id) no longer warns (2026-08-22: not a coverage
+    ## diagnostic); print() shows its ratio. isFALSE() (not bare negation) since
+    ## oe_regular may be NA in degenerate cases.
     if (isFALSE(oe_regular) && se_method == "bootstrap")
       warning("Near-singular OE (|OE|/se = ", round(oe_snr, 2), " < ",
               oe_snr_threshold, "): W = R/OE is non-regular; ",
               "its point estimate and CI are numerically meaningless here -- ",
               "expect an interval many times wider than the estimand. Prefer ",
               "the Fieller set for the near-null case.", call. = FALSE)
-    if (isTRUE(weak_id))
-      warning("Weak-identification flag: the percentile CI for W is ",
-              round(weak_id_ratio, 1), "x wider than the Wald interval (>= ",
-              weak_id_ratio_threshold, "x). The default Wald CI is narrow here, ",
-              "and narrow Wald intervals for W under-cover -- treat it with ",
-              "suspicion.", call. = FALSE)
 
     ## Fieller confidence set for P_med = IIE/OE. When the denominator OE is not
     ## significant the set is unbounded; the Wald interval understates this.
@@ -475,8 +438,8 @@ S7::method(print, GaugePmedResult) <- function(x, ...) {
   if (abs(x@W) > 0.1)
     cat("  ! |W| large: additive split unreliable; interpret P_med with care.\n")
   if (isTRUE(x@weak_id))
-    cat(sprintf(paste0("  ! weak-ID: percentile CI for W is %.1fx wider than Wald",
-                       " [%.3f, %.3f] (>= %gx); Wald CI likely too narrow (under-covers).\n"),
+    cat(sprintf(paste0("  ! bootstrap/Wald width discrepancy: percentile CI for W is %.1fx wider than Wald",
+                       " [%.3f, %.3f] (>= %gx); a bootstrap-instability symptom, not a coverage diagnostic -- see oe_regular.\n"),
                 x@weak_id_ratio, x@W_ci_wald[1], x@W_ci_wald[2], x@weak_id_ratio_threshold))
   if (isFALSE(x@oe_regular))
     cat(sprintf(paste0("  ! near-singular OE (|OE|/se = %.2f < %g): W = R/OE",

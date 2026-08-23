@@ -1,0 +1,5 @@
+"n","binY","s","tau","nrep","B","cov_percentile","cov_wald","oracle_cov","boot_sd_over_empSD_med","boot_sd_cv","wald_se_over_empSD_med","pct_width_over_calib_med","width_ratio_pct_wald_med","width_ratio_q90","weak_id_rate","oe_regular_rate","oe_snr_med","fieller_bounded_rate","cov_wald_flagged","cov_wald_unflagged","cov_pct_flagged","cov_wald_oe_irregular","cov_wald_oe_regular","n_flagged","n_irregular"
+800,0,1,0,200,200,0.905,0.935,0.94,0.9178,0.1928,0.9175,0.916,0.9885,1.1068,0,1,9.506,1,NA,0.935,NA,NA,0.935,0,0
+800,0,0.5,0.4,200,200,0.92,0.91,0.965,0.9986,0.5183,0.9505,0.9899,1.0215,1.1795,0,1,5.0785,1,NA,0.91,NA,NA,0.91,0,0
+800,0,0.2,0.4,200,200,0.99,0.945,0.99,2.9216,3.7422,0.5846,1.0357,1.736,3.8833,0.19,0.49,1.9458,0.495,0.9474,0.9444,1,0.9902,0.898,38,102
+800,1,1,0,200,200,0.93,0.97,0.965,1.0245,2.184,0.9502,1.0057,1.0508,1.2073,0,1,4.8567,1,NA,0.97,NA,NA,0.97,0,0

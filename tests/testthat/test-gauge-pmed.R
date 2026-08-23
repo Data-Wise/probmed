@@ -199,8 +199,18 @@ test_that("A2: weak_id is NA under analytic (no percentile interval to compare)"
   expect_true(is.na(r@weak_id_ratio))
 })
 
+test_that("A2: weak_id does not warn (it is not a coverage diagnostic, 2026-08-22)", {
+  # threshold 1 trips the flag on any width inflation; A1 cannot fire here (well-ID)
+  expect_no_warning(
+    r <- ward_residual(.gp_gen(1200, 0.9, FALSE), se_method = "bootstrap", B = 100L,
+                       weak_id_ratio_threshold = 1)
+  )
+  expect_true(isTRUE(r@weak_id))
+  expect_output(print(r), "width discrepancy")
+})
+
 test_that("A2: strongly-identified case does NOT trip the weak-ID flag", {
-  # well-identified: percentile is ~2x wider than Wald (anti-conservatism), below 3x
+  # well-identified: post-fix the percentile/Wald width ratio is ~1 (q99 1.49), below 3x
   r <- ward_residual(.gp_gen(3000, 0.9, FALSE), se_method = "bootstrap", B = 200L)
   expect_true(is.logical(r@weak_id) && !is.na(r@weak_id))
   expect_true(is.finite(r@weak_id_ratio) && r@weak_id_ratio > 0)
@@ -245,7 +255,7 @@ test_that("print() surfaces the weak-ID and near-singular-OE flags with the ACTU
     ward_residual(.gp_gen(1200, 0.9, FALSE), se_method = "bootstrap", B = 100L,
                   weak_id_ratio_threshold = 1)
   )
-  expect_output(print(r_weak), "weak-ID.*wider than Wald")
+  expect_output(print(r_weak), "width discrepancy.*wider than Wald")
   # regression guard: print() must report the threshold actually applied (1),
   # not a hardcoded default (3) -- the bug this test was written to catch.
   expect_output(print(r_weak), ">= 1x")

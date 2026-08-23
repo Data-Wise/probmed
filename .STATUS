@@ -246,7 +246,14 @@ BLOCKED (not actionable): probmed→CRAN (needs medfit 0.3.x on CRAN, then drop 
 cran-comments + bump version).
 
 🌿 ACTIVE WORKTREE
-📍 CURRENT (2026-08-22, end of session) — NO active worktrees; main checkout is dev.
+📍 CURRENT (2026-08-22, evening) — ~/.git-worktrees/probmed/feature-weakid-disposition
+   (branch feature/weakid-disposition, off dev 699ca23). The code consequence of
+   FINDINGS-2026-08-22-postfix-bootstrap-gates: weak_id no longer warn()s (not a
+   coverage diagnostic); print() reports it as a "bootstrap/Wald width discrepancy";
+   threshold kept at 3; weak_id / weak_id_ratio_threshold / se_method / oe_regular
+   docs rewritten (roxygen + hand-mirrored Rd), vignette, NEWS; scripts promoted to
+   inst/sim/boot_gates_check.R + boot_gates_calibrate.R, results/boot_gates_postfix.csv.
+   Tests: new "weak_id does not warn" test; print-wording test updated.
    ✅ feature/gauge-se-fullsample — MERGED 2026-08-22 as PR #34 → dev, squash a73efc8
    (8/8 CI green; 496 tests/0 fail NOT_CRAN; R CMD check --as-cran 0E/0W/2N benign).
    Worktree removed, local + remote branch deleted (gate: head c99fbad == local tip,
