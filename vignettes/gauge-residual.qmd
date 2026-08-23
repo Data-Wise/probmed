@@ -132,12 +132,20 @@ propensity for every row — and every coverage figure the package reported
 (Wald ~0.85–0.90, percentile ~1.00, the gate-validation grid, the variance
 decomposition in `docs/specs/FINDINGS-2026-08-22-phi-decomposition.md`) was
 produced with that bug. Those numbers are superseded; the bootstrap arm and the
-two gates below have not yet been re-measured with the fix.
+two gates were re-measured the same day
+(`docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md`).
 
 Setting `se_method = "bootstrap"` switches the `W` and `P_med` intervals to
 **percentile** intervals of a nonparametric bootstrap that resamples rows and
-refits the whole cross-fit, with a fresh partition each resample. The printed
-label tracks which construction produced the interval.
+refits the whole cross-fit, with a fresh partition each resample. With correct
+weights it buys nothing: percentile coverage 0.905–0.930 in the regular cells at
+the same width as the Wald interval, and a bootstrap standard error that is
+unstable for binary outcomes. It remains available for users who want a refit
+bootstrap. The `weak_id` flag it enables — percentile interval at least 3× wider
+than Wald — is a symptom of bootstrap instability near `OE = 0`, not a coverage
+diagnostic: flagged and unflagged draws cover alike at every threshold tried; it
+no longer warns. The printed label tracks which construction produced the
+interval.
 
 ```{r}
 #| label: bootstrap
@@ -161,5 +169,6 @@ total effect is not significant, and report the unnormalized effects.
 - For ratio inference, the default analytic Wald interval is calibrated under
   regular identification (0.936 continuous / 0.972 binary at n = 800);
   `reps > 1` adds a small efficiency gain; `se_method = "bootstrap"` gives
-  percentile intervals (not yet re-measured after the weight fix); the Fieller
-  set handles the near-null case, where the ratio is non-regular.
+  percentile intervals that are no better (0.905–0.930) and its `weak_id` flag
+  is not a coverage diagnostic; `oe_regular` and the Fieller set handle the
+  near-null case, where the ratio is non-regular.

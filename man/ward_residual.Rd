@@ -56,7 +56,13 @@ se's dispersion across datasets matching an oracle that knows the nuisances
 (CV 0.23 vs 0.18). Under \code{"bootstrap"} the CIs for \code{W} and \code{P_med} are
 \strong{percentile} intervals of a nonparametric bootstrap that resamples rows
 and refits the whole cross-fit (a fresh partition each resample);
-\code{W_se}/\code{p_med} se are then bootstrap dispersion summaries. The
+\code{W_se}/\code{p_med} se are then bootstrap dispersion summaries. Re-measured
+with the corrected weights (\code{inst/sim/boot_gates_check.R}, B = 200, 200
+datasets per cell): percentile coverage 0.905 (continuous) / 0.930
+(binary) / 0.920 (intermediate) at the same width as the Wald interval,
+and a bootstrap SD that is unstable for binary \code{Y} (CV 2.2 across
+datasets vs 0.33 analytic) -- an option for users who want a refit
+bootstrap, not a remedy for anything, at \code{B} (x \code{reps}) refits. The
 bootstrap-consistency result of Lin and Han (2026) for cross-fit DML
 functionals holds the nuisances fixed and does \strong{not} cover this
 refit-per-resample scheme. \code{reps > 1} and \code{se_method = "bootstrap"}
@@ -74,8 +80,11 @@ with a corner-EIF weight bug: \code{ifelse()} on a scalar test returned the
 \strong{first fold row's} propensity (and mediator-density proxy) for every row,
 so the inverse-probability weights were one arbitrary constant per fold
 (NEWS, 0.3.0.9000). The "fold-split noise" those grids diagnosed was this
-bug. They are superseded; the bootstrap arm and the gates have not yet
-been re-measured with the fix.}
+bug. They are superseded. The bootstrap arm and both gates were
+re-measured with the fix the same day
+(\code{docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md},
+\code{inst/sim/results/boot_gates_postfix.csv}): see above, and the \code{weak_id} /
+\code{oe_regular} property docs of \code{\link{GaugePmedResult}}.}
 
 \item{B}{Integer: number of bootstrap resamples when \code{se_method = "bootstrap"}
 (default \code{200}). Cost is \code{B} (x \code{reps}) refits.}
@@ -91,12 +100,12 @@ Multi-valued / continuous exposures are future work.}
 
 \item{weak_id_ratio_threshold}{Numeric: the \code{weak_id} flag fires when the
 percentile \code{W}-CI is at least this many times wider than the Wald interval
-(default \code{3}). \strong{A convention, not a calibrated optimum}: in the
-48,000-rep validation grid (\code{inst/sim/hopper/run_weakid_validation.R}) no
-threshold in 1.75-4 was distinguishable, and the grid spans a single simulation
-design -- see the \code{weak_id} property documentation of
-\code{\link{GaugePmedResult}} for what the flag does and does not detect.
-Exposed so it can be tuned without editing the source.}
+(default \code{3}). \strong{Not calibrated to coverage, and cannot be} (2026-08-22,
+corrected weights): flagged and unflagged draws cover alike at every
+threshold from 1.2 to 3 -- see the \code{weak_id} property of \code{\link{GaugePmedResult}}.
+Left at 3 so the flag stays rare outside the near-null regime (0\% of
+regular-cell draws, 19\% near the null). Exposed so it can be tuned without
+editing the source.}
 
 \item{oe_snr_threshold}{Numeric: the \code{oe_regular} guard flags a near-singular
 denominator when \code{|OE|/se(OE)} falls below this (default \code{2}). Validated

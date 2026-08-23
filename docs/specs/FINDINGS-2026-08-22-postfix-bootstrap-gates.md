@@ -2,11 +2,11 @@
 
 **Date:** 2026-08-22 (evening), after PR #34 (`a73efc8`) corrected the corner-EIF
 inverse-probability weights.
-**Script:** `boot_gates_check.R` (session scratchpad; promote to `inst/sim/` with the
-code change) — `ward_residual(se_method = "bootstrap", B = 200, reps = 1)` on
-200 datasets per cell, n = 800, against the exact truth of the
-`phi_decomposition.R` DGPs, oracle-nuisance se as benchmark. Calibration analysis
-`calibrate.R` over the saved per-dataset rows.
+**Script:** `inst/sim/boot_gates_check.R` — `ward_residual(se_method = "bootstrap",
+B = 200, reps = 1)` on 200 datasets per cell, n = 800, against the exact truth of
+the `phi_decomposition.R` DGPs, oracle-nuisance se as benchmark. Calibration
+analysis `inst/sim/boot_gates_calibrate.R` over the saved per-dataset rows;
+per-cell summaries in `inst/sim/results/boot_gates_postfix.csv`.
 **Question:** PR #34 left the bootstrap arm and the `weak_id` (A2) / `oe_regular`
 (A1) gates unmeasured with correct weights. What do they do now, and can A2's
 3x threshold be recalibrated?

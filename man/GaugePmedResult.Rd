@@ -56,59 +56,36 @@ unbounded, or empty); \code{NA} if not computed.}
 as the reference for the weak-identification diagnostic even under
 \code{se_method = "bootstrap"} (where \code{W_ci} holds the percentile interval).}
 
-\item{weak_id}{Logical: weak-identification flag -- \code{TRUE} when the percentile
-CI for \code{W} is at least 3x wider than the symmetric Wald interval, the
-regime where the default Wald interval is most under-covering. The ratio is a
-scale-only adaptation of the bootstrap-vs-asymptotic-discrepancy idea in Zhan
-(2026); it is not Zhan's statistic, which is a Kolmogorov-Smirnov distance for
-linear IV (see below for what the grid showed the ratio does and does not
-mean). \code{NA} unless
-\code{se_method = "bootstrap"} (both intervals are required to compare), and also
-\code{NA} (not \code{FALSE}) in the degenerate case where the Wald interval has
-zero width. The 3x threshold is calibrated above the ~2x width gap that the
-anti-conservative Wald interval shows even under strong identification.
+\item{weak_id}{Logical: \code{TRUE} when the percentile CI for \code{W} is at least
+\code{weak_id_ratio_threshold} (default 3) times wider than the symmetric Wald
+interval. \code{NA} unless \code{se_method = "bootstrap"} (both intervals are
+required), and \code{NA} (not \code{FALSE}) when the Wald interval has zero width.
+The ratio is a scale-only adaptation of the bootstrap-vs-asymptotic-
+discrepancy idea in Zhan (2026); it is not Zhan's statistic, which is a
+Kolmogorov-Smirnov distance for linear IV.
 
-\strong{History (2026-08-22).} Everything below in this entry -- the 16,000-rep
-coverage grid, the 48,000-rep validation grid, the ~2x width baseline and
-the 3x threshold's calibration -- was measured on the estimator \strong{before}
-the corner-EIF weight fix (see \code{se_method} in \code{\link[=ward_residual]{ward_residual()}} and NEWS
-0.3.0.9000). With the fix the default Wald interval is calibrated in the
-regular cells (0.936 continuous / 0.972 binary, n = 800), so the "Wald
-under-covers everywhere" premise no longer holds; the gate has not been
-re-measured. Kept as the record of what the flag was validated against.
+\strong{What it measures} (2026-08-22, corrected corner weights;
+\code{docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md}): a
+bootstrap-vs-Wald width discrepancy, a symptom of bootstrap instability
+near \code{OE = 0} -- \strong{not a coverage diagnostic}. Against exact truth (4
+cells x 200 datasets, n = 800) draws flagged at \emph{any} threshold from 1.2
+to 3 have the same Wald coverage as unflagged draws (0.94-0.95 vs
+0.94-0.97). In the regular cells the ratio is 1.02 (median), 1.22 (q95),
+1.49 (q99); near the null it tracks \code{oe_regular = FALSE} (P(flag |
+irregular) 0.82-0.88 at thresholds >= 1.5 vs 0.15-0.40 given regular) and
+at 3x adds 2 of the 98 near-null draws that pass A1. No \code{warning()} is
+issued on it; \code{print()} reports the ratio when it exceeds the threshold.
+\code{oe_regular} is the gate to consult, with the Fieller set.
 
-\strong{An absent flag does not buy nominal coverage.} Independently of the
-flag, the symmetric Wald interval for \code{W} is anti-conservative
-\emph{everywhere}: \strong{~0.88} overall across the 16,000-rep coverage grid
-(\code{inst/sim/results/gauge_boot_coverage_nsim2000.csv}), never reaching the
-nominal 0.95 in any cell. So \code{weak_id = FALSE} cannot mean "this interval
-is trustworthy" -- at best it means "not the worst tail of an already
-sub-nominal default". If you need coverage you can rely on, use
-\code{se_method = "bootstrap"} -- but know what you are buying: the percentile
-interval covered ~1 in every cell of that grid (1.000 in six, 0.9995 in
-two), which is conservative rather than calibrated -- each resample refits
-the cross-fit with a fresh partition, so the bootstrap distribution carries
-the fold-split noise described under \code{se_method}. Neither arm is
-nominal; pick the error you can live with.
-
-\strong{What the 48,000-rep validation grid established} (24 cells,
-\code{inst/sim/results/weakid_validation_cells.csv} + the two sweep files;
-adversarially re-verified from the raw reps): draws with \code{weak_id = TRUE}
-do have worse Wald coverage in \strong{all 24 cells} (within-cell contrast
--0.03 to -0.07 depending on aggregation). But that separation is
-\strong{explained almost entirely by the Wald interval's own width} -- under a
-flexible width control the flag's coverage effect collapses to ~0 (-0.002,
-SE 0.003), and the bootstrap numerator of the ratio contributes nothing
-detectable. Read \code{weak_id} as a \strong{self-contained proxy for "your
-analytic interval is narrow, and narrow analytic intervals under-cover"} --
-useful precisely because a single fitted result offers no reference to judge
-"narrow" against -- not as evidence that the bootstrap-vs-Wald comparison
-detects a distinct pathology. The default threshold of 3 is a
-\strong{convention}: thresholds 1.75-4 were not distinguishable in the grid,
-and all 24 cells share one simulation design, so the number has no claim to
-transfer across data-generating processes. \code{oe_regular} is the gate that
-carries information \emph{beyond} interval width (see below); consult it and
-the Fieller set alongside this flag.}
+\strong{History.} The flag shipped with its 3x threshold "calibrated above the
+~2x width gap of the anti-conservative Wald interval" and was validated on a
+48,000-rep grid as a "narrowness proxy" whose coverage separation was
+explained by Wald width (\code{inst/sim/results/weakid_validation_cells.csv}).
+All of that measured the estimator \emph{before} the corner-EIF weight fix
+(NEWS 0.3.0.9000): the ~30\% se shortfall and the 2x gap were the bug. The
+threshold stays at 3 -- with no signal to calibrate to, a new number would
+imply a calibration that does not exist -- and the field is kept because a
+user running the bootstrap may want to see its instability.}
 
 \item{weak_id_ratio}{Numeric: ratio of the percentile \code{W}-interval width to the
 Wald \code{W}-interval width; \code{NA} if not computed.}
@@ -123,10 +100,11 @@ analytic se(OE) regardless of \code{se_method} (only the accompanying
 \code{warning()} is gated on \code{se_method = "bootstrap"}). \code{NA} only in
 the degenerate case \code{se(OE) == 0}.
 
-\strong{What \code{FALSE} means -- width, not under-coverage.} (Measured on the
-pre-weight-fix estimator, 2026-08-22; not yet re-measured -- the
-non-regularity it detects is a property of the ratio, not of the
-estimator, so the reading below is expected to stand.) In the
+\strong{What \code{FALSE} means -- width, not under-coverage.} (Re-measured with the
+corrected corner weights, 2026-08-22, same reading: in the near-null cell
+flagged draws cover 0.99 at a median Wald width 8.7x |W|, while the
+near-null draws that \emph{pass} the gate cover 0.90 at 4.1x --
+\code{docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md}.) In the
 48,000-rep validation grid, draws flagged by this gate did \strong{not}
 under-cover; they \emph{over}-covered (+0.10, in 22/22 qualifying cells, stable
 across every design slice). The mechanism: as \code{OE} approaches 0 the ratio
