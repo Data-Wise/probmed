@@ -246,8 +246,18 @@ BLOCKED (not actionable): probmed→CRAN (needs medfit 0.3.x on CRAN, then drop 
 cran-comments + bump version).
 
 🌿 ACTIVE WORKTREE
-📍 CURRENT (2026-08-22, evening) — ~/.git-worktrees/probmed/feature-weakid-disposition
-   (branch feature/weakid-disposition, off dev 699ca23). The code consequence of
+📍 CURRENT (2026-08-22, end of session) — worktree
+   ~/.git-worktrees/probmed/feature-weakid-disposition still present (merged; remove on
+   request). ✅ feature/weakid-disposition — MERGED 2026-08-22 as PR #35 → dev, squash
+   8fbfa43 (8/8 CI green; 501 tests/0 fail NOT_CRAN; R CMD check --as-cran 0E/0W/2N).
+   Remote branch deleted; local branch ref stays with the worktree.
+   Session total: PR #34 (weight bug + incr g-score fix) and PR #35 (A2 disposition),
+   both merged; dev CI green through aee7bfb. Open follow-ups (user's call):
+   sobol_pmed / pmedW_dr post-fix coverage; the gauge manuscript's coverage and
+   weak-ID claims (pmed-modern, cross-repo); dev→main release to put the corrected
+   docs online (package ON HOLD); issue #11 could now be closed as "A2 uninformative,
+   A1 stands" once the user agrees.
+   History of the branch (off dev 699ca23): the code consequence of
    FINDINGS-2026-08-22-postfix-bootstrap-gates: weak_id no longer warn()s (not a
    coverage diagnostic); print() reports it as a "bootstrap/Wald width discrepancy";
    threshold kept at 3; weak_id / weak_id_ratio_threshold / se_method / oe_regular
