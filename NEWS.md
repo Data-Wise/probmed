@@ -83,6 +83,19 @@
   `P_med^delta` 0.083 → 0.055 at n = 1000). Point estimates unchanged by the
   projection (Term II is mean-zero).
 
+* **`sobol_pmed()` docs corrected** (`?SobolPmedResult` "Coverage near the boundary",
+  `?sobol_pmed` `reps` / `se_method`, the boundary `message()`): the near-null story —
+  fold-split ~80% of `Var(Delta_m_hat)`, analytic se ~0.8× so Procedure B covered
+  ~0.85, refit bootstrap as the remedy — was the weight bug. Re-measured against exact
+  truth in six cells (`inst/sim/sobol_shipped_check.R`,
+  `inst/sim/results/sobol_postfix_summary.csv`,
+  `docs/specs/FINDINGS-2026-08-22-sobol-pmedw-postfix.md`): the `Delta_m` se is exact
+  (0.99, CV 0.08) at every effect size, the estimator is at oracle efficiency, and the
+  default Procedure-B interval covers 0.952–0.996; the bootstrap se is now 0.84–1.05×
+  (slightly narrower at the transition). The boundary message no longer recommends
+  `se_method = "bootstrap"`. `pmedW_dr()` re-measured too: the fix cut its sampling
+  variance ~25% with no bias; its `dr` bootstrap is calibrated (0.93–1.00); unchanged.
+
 ## Simulation findings (PR #33) — superseded by the weight fix above
 
 * **Where `ward_residual()`'s variance comes from, and why its analytic se
@@ -270,16 +283,17 @@
   reduces to the regular contrast `Delta_m`. Two interval procedures: the default
   **Procedure B** (`procedure = "B"`, the image of the regular `Delta_m` Wald CI under
   the squared map — no pre-test) and the legacy gated **Procedure A**
-  (`procedure = "A"`). Near-boundary inference adds two options (A-15): **`reps`**
-  (repeated cross-fitting — averages the corner influence matrix over `reps` fold
-  draws, removing the ~80% fold-split Monte-Carlo variance that dominates
-  `Var(Delta_m_hat)` near the null and yielding a reproducible point estimate), and
-  **`se_method = "bootstrap"`** (nonparametric resample-and-refit se — valid, mildly
-  conservative near the non-regular boundary where the analytic influence-function se
-  is ~0.8x anti-conservative). Defaults (`reps = 1`, `se_method = "analytic"`) are
-  unchanged. `Delta_m_hat` is approximately normal at the null (oracle-SD coverage
-  ~0.95), so the Wald shape is correct — the near-null issue is interval width, not
-  shape; see `?SobolPmedResult`. (feature/sobol-pmed; companion manuscript:
+  (`procedure = "A"`). Two further options (A-15): **`reps`** (repeated
+  cross-fitting — averages the corner influence matrix over `reps` fold draws for a
+  partition-reproducible point estimate) and **`se_method = "bootstrap"`**
+  (nonparametric resample-and-refit se). Defaults (`reps = 1`, `se_method =
+  "analytic"`) are unchanged. *Correction (2026-08-22):* the near-null rationale this
+  entry originally gave for both options — a ~80% fold-split share of
+  `Var(Delta_m_hat)` and a ~0.8x anti-conservative analytic se — was the corner-weight
+  bug fixed in PR #34; see the "`sobol_pmed()` docs corrected" entry above. The Wald
+  shape was always correct (`Delta_m_hat` approximately normal at the null); see
+  `?SobolPmedResult`.
+  (feature/sobol-pmed; companion manuscript:
   pmed-modern/03-sobol-pmed.)
 
 # probmed 0.2.0 (2026-06-11)

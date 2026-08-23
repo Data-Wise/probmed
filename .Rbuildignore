@@ -26,3 +26,4 @@
 ^\.remember$
 ^\.superpowers$
 ^data-raw$
+^\.git$
