@@ -11,5 +11,6 @@
 source /etc/profile.d/modules.sh
 module load r/4.4.0-ytj2
 command -v Rscript >/dev/null || { echo "FATAL: Rscript not on PATH after module load"; exit 127; }
-export R_LIBS=$HOME/Rlib/4.4-gauge:$HOME/Rlib/4.4-a15
-Rscript $HOME/gauge_boot/collate_gauge_boot.R
+export GAUGE_BOOT_DIR=${GAUGE_BOOT_DIR:-$HOME/gauge_boot}
+export R_LIBS=${GAUGE_R_LIBS:-$HOME/Rlib/4.4-gauge:$HOME/Rlib/4.4-a15}
+Rscript $GAUGE_BOOT_DIR/collate_gauge_boot.R

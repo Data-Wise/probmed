@@ -269,6 +269,15 @@ cran-comments + bump version).
    pmedW_dr: weight fix cut empSD ~25%, no bias, dr bootstrap calibrated (0.93-1.00)
    -> nothing to change. Item 3 handoff written (HANDOFF-2026-08-22-gauge-manuscript-postfix.md); tracked as
    issue #38 (gauge Table 1 rerun + sobol near-null story; pmed-modern edits are the author's).
+   🚀 #38 gauge Table 1 RERUN LAUNCHED on hopper 2026-08-22 21:53 MDT: jobs 4311422 (pilot,
+   tasks 1+33, kept) + 4311424 (tasks 2-32,34-64), account 2016507, all 64 RUNNING at
+   submit; ~6-7 h/task. Dir ~/gauge_boot_postfix/ (frozen ~/gauge_boot/ untouched); lib
+   ~/Rlib/4.4-postfix (known-answer probe matches local dev to 1e-10; old libs give the
+   pre-fix W = 0.2096 — positive control). Grid scripts now take GAUGE_BOOT_DIR/GAUGE_R_LIBS;
+   collate stale-guard relaxed to exact equality (post-fix se_bt ~= se_an is expected).
+   NEXT: when the watcher reports all COMPLETED -> sbatch submit_collate.sh (same env) ->
+   scp gauge_boot_grid.csv to inst/sim/results/gauge_boot_coverage_nsim2000_postfix.csv
+   -> compare with the committed CSV -> post to #38.
    docs online (package ON HOLD). Issue #11 CLOSED 2026-08-22 (resolved by PR #34 +
    #35: A2 uninformative, A1 stands); #32 CLOSED not-planned 2026-08-22 (BCa: nothing
    left for it to fix post-fix; reopen only on a post-fix miscalibration in a regular

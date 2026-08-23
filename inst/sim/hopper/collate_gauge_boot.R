@@ -1,5 +1,6 @@
 ## Collate gauge bootstrap grid -> per-cell coverage with Monte Carlo SE (gate B1).
-parts <- list.files("~/gauge_boot/parts", pattern="^part_.*\\.rds$", full.names=TRUE)
+bdir <- Sys.getenv("GAUGE_BOOT_DIR", "~/gauge_boot")   # post-fix rerun: ~/gauge_boot_postfix
+parts <- list.files(file.path(bdir, "parts"), pattern="^part_.*\\.rds$", full.names=TRUE)
 df <- do.call(rbind, lapply(parts, readRDS))
 mcse <- function(p,n) sqrt(p*(1-p)/n)
 agg <- do.call(rbind, by(df, df[c("cell","n","tint","binY")], function(g){
@@ -18,14 +19,16 @@ bt_eq_an    <- mean(abs(df$seW_bt - df$seW_an) < 1e-9, na.rm = TRUE)
 bt_an_ratio <- median(df$seW_bt / df$seW_an, na.rm = TRUE)
 cat(sprintf("[GUARD] bootstrap==analytic in %.1f%% of reps; median seW_bt/seW_an = %.2f\n",
             100 * bt_eq_an, bt_an_ratio))
-if (bt_eq_an > 0.5 || !is.finite(bt_an_ratio) || abs(bt_an_ratio - 1) < 0.02) {
+## Post-fix (2026-08-22) the bootstrap se legitimately ~= the analytic se (ratio ~1.0-1.1;
+## the pre-fix 1.82 was the weight bug), so only EXACT equality indicates a no-op arm.
+if (bt_eq_an > 0.5 || !is.finite(bt_an_ratio)) {
   msg <- sprintf("STALE-PACKAGE SUSPECTED: bootstrap se ~= analytic (eq=%.1f%%, ratio=%.2f) -- se_method='bootstrap' may be a NO-OP (wrong R_LIBS). DO NOT TRUST coverage.",
                  100 * bt_eq_an, bt_an_ratio)
   cat("[GUARD] *** ", msg, " ***\n", sep = "")
-  writeLines(msg, "~/gauge_boot/STALE_WARNING.txt")
+  writeLines(msg, file.path(bdir, "STALE_WARNING.txt"))
 } else {
   cat("[GUARD] OK -- bootstrap se genuinely differs from analytic (live se_method='bootstrap').\n")
 }
-write.csv(agg, "~/gauge_boot/gauge_boot_grid.csv", row.names=FALSE)
-saveRDS(df,  "~/gauge_boot/gauge_boot_raw.rds")   # for SE-vs-estimate scatter (gate B2)
+write.csv(agg, file.path(bdir, "gauge_boot_grid.csv"), row.names=FALSE)
+saveRDS(df,  file.path(bdir, "gauge_boot_raw.rds"))   # for SE-vs-estimate scatter (gate B2)
 cat("collated", nrow(df), "reps across", nrow(agg), "cells -> gauge_boot_grid.csv\n"); print(agg)

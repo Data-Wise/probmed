@@ -324,5 +324,35 @@ sbatch submit_collate.sh        # after the array completes
 ```
 
 Note both `.sh` files hardcode `/users/dtofighi/...` paths and
-`module load r/4.4.0-ytj2` + `R_LIBS=$HOME/Rlib/4.4-gauge:$HOME/Rlib/4.4-a15`;
+`module load r/4.4.0-ytj2`; the working directory and library path default to
+`GAUGE_BOOT_DIR=$HOME/gauge_boot` and `GAUGE_R_LIBS=$HOME/Rlib/4.4-gauge:$HOME/Rlib/4.4-a15`
+(both overridable from the submitting shell — `sbatch` exports its environment);
 adjust for another account/cluster.
+
+## Post-fix rerun (2026-08-22, issue #38)
+
+Every number above was produced with the corner-EIF weight bug (PR #34: one
+propensity per fold, not per row). `~/gauge_boot/` and `~/Rlib/4.4-gauge` /
+`4.4-weakid` stay frozen so the committed CSV remains reproducible; the rerun
+uses the same 64-task design from a separate directory and library:
+
+```bash
+# dev tarball (R CMD build --no-build-vignettes --no-manual) installed with
+#   R_LIBS=$HOME/Rlib/4.4-postfix:$HOME/Rlib/4.4-a15 R CMD INSTALL --library=$HOME/Rlib/4.4-postfix probmed_*.tar.gz
+# verified by a known-answer probe: 4.4-postfix reproduces the local dev numbers
+# to 1e-10 (W = 0.0219254952 at the probe seed); 4.4-gauge / 4.4-weakid give
+# W = 0.2096424849 (the pre-fix weights) -- positive control.
+D=$HOME/gauge_boot_postfix; mkdir -p $D/logs $D/parts   # scripts copied into $D
+GAUGE_BOOT_DIR=$D GAUGE_R_LIBS=$HOME/Rlib/4.4-postfix:$HOME/Rlib/4.4-a15 \
+  sbatch --account=2016507 --output=$D/logs/gb_%A_%a.out --array=1-64 $D/submit_gauge_boot.sh
+GAUGE_BOOT_DIR=$D GAUGE_R_LIBS=$HOME/Rlib/4.4-postfix:$HOME/Rlib/4.4-a15 \
+  sbatch --account=2016507 --output=$D/logs/collate_%j.out $D/submit_collate.sh   # after the array
+```
+
+Pilot first (`--array=1,33` covers a continuous and a binary cell), per the
+hopper memory: an instant `FAILED` at `00:00:00` is an environment bug, not a
+code bug. Expected from the package-side measurement (n = 800, 250 datasets):
+Wald ~0.94-0.97 in regular cells, percentile ~0.90-0.93, bias unchanged.
+Collated output lands in `$D/gauge_boot_grid.csv`; commit it beside
+`../results/gauge_boot_coverage_nsim2000.csv` as `..._postfix.csv`, do not
+overwrite.

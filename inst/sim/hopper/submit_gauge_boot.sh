@@ -16,6 +16,11 @@
 source /etc/profile.d/modules.sh
 module load r/4.4.0-ytj2
 command -v Rscript >/dev/null || { echo "FATAL: Rscript not on PATH after module load"; exit 127; }
-export R_LIBS=$HOME/Rlib/4.4-gauge:$HOME/Rlib/4.4-a15   # gauge lib FIRST (feature-branch code)
-mkdir -p $HOME/gauge_boot/logs
-Rscript $HOME/gauge_boot/run_gauge_boot_grid.R
+# Defaults reproduce the committed (pre-weight-fix) grid. The 2026-08-22 post-fix
+# rerun overrides both from the submitting shell (sbatch exports the env):
+#   GAUGE_BOOT_DIR=$HOME/gauge_boot_postfix GAUGE_R_LIBS=$HOME/Rlib/4.4-postfix:$HOME/Rlib/4.4-a15 \
+#     sbatch --output=$HOME/gauge_boot_postfix/logs/gb_%A_%a.out submit_gauge_boot.sh
+export GAUGE_BOOT_DIR=${GAUGE_BOOT_DIR:-$HOME/gauge_boot}
+export R_LIBS=${GAUGE_R_LIBS:-$HOME/Rlib/4.4-gauge:$HOME/Rlib/4.4-a15}   # gauge lib FIRST (feature-branch code)
+mkdir -p $GAUGE_BOOT_DIR/logs
+Rscript $GAUGE_BOOT_DIR/run_gauge_boot_grid.R

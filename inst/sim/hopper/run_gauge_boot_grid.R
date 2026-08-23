@@ -56,8 +56,9 @@ for (j in seq_len(REPS_PER)) {
 }
 out <- do.call(rbind, rows)
 attr(out,"nfail")<-nfail; attr(out,"nsing")<-nsing
-dir.create("~/gauge_boot/parts", recursive=TRUE, showWarnings=FALSE)
-f <- sprintf("~/gauge_boot/parts/part_cell%02d_chunk%02d.rds", ci, ch)
+bdir <- Sys.getenv("GAUGE_BOOT_DIR", "~/gauge_boot")   # post-fix rerun: ~/gauge_boot_postfix
+dir.create(file.path(bdir, "parts"), recursive=TRUE, showWarnings=FALSE)
+f <- sprintf("%s/parts/part_cell%02d_chunk%02d.rds", bdir, ci, ch)
 saveRDS(out, f)
 cat(sprintf("cell %d chunk %d done: %d rows, nfail=%d nsing=%d -> %s\n",
             ci, ch, nrow(out), nfail, nsing, f))
