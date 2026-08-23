@@ -96,8 +96,36 @@ the analytic default.
 
 Code + Rd change: needs a worktree.
 
-## 2. `pmedW_dr()` — pending
+## 2. `pmedW_dr()` — three cells, pre- vs post-fix, bootstrap coverage
 
-Script `pmedw_shipped_check.R`: point estimate pre- vs post-fix against a
-2e6-draw simulated truth; `wasserstein_pmed(method = "dr")` bootstrap coverage
-on a subset. Results to be appended.
+**Script:** `pmedw_shipped_check.R` (session scratchpad). Truth: the three corner
+laws `Y(a, M(a'))` simulated directly from the DGP equations (2e6 draws; `.w2_1d`),
+so `P^W = NIE^W / (NIE^W + NDE^W)` exactly up to MC error. Per dataset: the shipped
+`pmedW_dr()` (K = 5, G = 300) and the pre-fix copy sourced from
+`git show a73efc8^:R/wasserstein-pmed.R` on the same data and fold seed; on the
+first 60 (30 at n = 3000) datasets also `wasserstein_pmed(method = "dr",
+n_boot = 100)`. 200 datasets per cell.
+
+| cell | `P^W` true | bias post / pre | empSD post / pre | RMSE post / pre | boot se / empSD (CV) | bootstrap cov (datasets) |
+|---|---|---|---|---|---|---|
+| s=1, tau=0, n=800 | 0.457 | -0.004 / +0.006 | **0.064 / 0.086** | 0.064 / 0.086 | 0.89 (0.11) | 0.933 (60) |
+| s=1, tau=0.8, n=800 | 0.520 | -0.003 / +0.005 | **0.043 / 0.057** | 0.043 / 0.057 | 0.97 (0.13) | 0.967 (60) |
+| s=1, tau=0.8, n=3000 | 0.520 | -0.003 / 0.000 | **0.022 / 0.029** | 0.022 / 0.029 | 1.02 (0.08) | 1.000 (30) |
+
+- **The weight fix cut `pmedW_dr`'s sampling variance by a quarter** (empSD
+  -26% / -25% / -24%) with no bias either before or after (all biases within one
+  MC standard error, 0.0016-0.0045). The constant-per-fold weight was pure
+  inefficiency here, as for the gauge.
+- **The refit bootstrap is calibrated post-fix:** se / empSD 0.89-1.02 with CV
+  0.08-0.13, coverage 0.93-1.00 (MC half-width 0.06 at 60 datasets, 0.08 at 30).
+  Nothing to change in `wasserstein_pmed()`'s `method = "dr"` path or its docs;
+  the #34 NEWS entry already records the fix.
+- Not measured: `misspec = "outcome"` / `"propensity"` robustness post-fix (the
+  multiply-robust claim was verified pre-fix in `pmed-modern/04-wasserstein-pmed`);
+  near-null `NIE^W`; binary Y (the DR path is continuous-only).
+
+## Status
+
+Item 1 (sobol) needs the doc + message change in a worktree; item 2 (pmedW) needs
+nothing. Scripts to promote with item 1: `sobol_shipped_check.R`,
+`sobol_collate.R`, `pmedw_shipped_check.R`; CSV: `sobol_postfix_summary.csv`.
