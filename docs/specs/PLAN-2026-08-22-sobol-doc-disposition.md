@@ -5,6 +5,14 @@
 no estimator change. **Branch:** `feature/sobol-doc-disposition` off `dev` (worktree;
 code files touched, so not on `dev` directly). **Effort:** ~45 min + ~15 min checks.
 
+**Status: EXECUTED** — PR #37 merged to `dev` as `c28c31e` (2026-08-22 21:39 MDT; 8/8 CI,
+suite 504/0, check 0E/0W). All 12 surfaces landed; a fresh-context review before merge
+found the retired story still quoted in two unplanned places (the original `sobol_pmed()`
+NEWS feature bullet; the `reps` test comment) — fixed in `20791cf`. Lesson recorded
+(memory `retire-a-story-grep-its-numbers`): grep the repo for the story's numbers, not
+just the planned files. Side effect: `^\.git$` added to `.Rbuildignore` (worktree `.git`
+file was shipping in the tarball → check NOTE).
+
 ## What the measurement licenses
 
 - The analytic se of `Delta_m` is exact at every effect size (0.99, CV 0.08).

@@ -5,6 +5,15 @@
 and gates. Three estimators and two documents still rest on pre-fix numbers.
 Ordered by what can be done from this repo without a decision from the user.
 
+**Status (2026-08-22, night):** 1 and 2 DONE — `FINDINGS-2026-08-22-sobol-pmedw-postfix.md`
+(sobol: oracle efficiency, Δ_m se exact, Procedure B valid everywhere; pmedW_dr: empSD −25%,
+no bias, dr bootstrap calibrated — nothing to change); the sobol doc consequence shipped
+as PR #37 (`c28c31e`, via `PLAN-2026-08-22-sobol-doc-disposition.md`). 3: handoff written
+(`HANDOFF-2026-08-22-gauge-manuscript-postfix.md`), tracked as issue #38, and the Table 1
+rerun is RUNNING on hopper (jobs 4311422 + 4311424, `~/gauge_boot_postfix/`; see
+`inst/sim/hopper/README.md` "Post-fix rerun") — the manuscript edit itself is the author's.
+4: still waiting on the hold.
+
 ## 1. `sobol_pmed()` post-fix coverage — in-repo, ~1 h
 
 `sobol_pmed()` builds on `.corner_fit()` and ships an analytic (delta-method)
@@ -56,10 +65,12 @@ grids. Not a doc edit; a rerun.
 - **Handoff first** (this repo can write it; the manuscript edit is the user's):
   the list of claims to change, with the post-fix numbers already measured
   (PR #34 / #35 FINDINGS) and what still needs the manuscript's own grid.
-- **Rerun:** `inst/sim/gauge_coverage_standalone.R` is already fixed and
-  verified identical to the package; resubmit the manuscript grid on hopper
-  (`inst/sim/hopper/`, SLURM array, pilot with `--array=1-1` first), then
-  `collect_gauge.R`.
+- **Rerun** (corrected 2026-08-22 night: Table 1 came from the hopper boot grid
+  `inst/sim/hopper/run_gauge_boot_grid.R` running the *installed* pre-fix probmed,
+  not from the local standalone): install the fixed dev package on hopper
+  (`~/Rlib/4.4-postfix`, known-answer probe against the old lib), resubmit the same
+  64-task array from `~/gauge_boot_postfix/` (pilot `--array=1,33` first, keep it,
+  submit the complement), then `submit_collate.sh`.
 - **Expected shape of the correction:** the Simulation section's "Wald
   under-covers, percentile conservative" story becomes "Wald calibrated,
   percentile no better"; the Application section's near-null / Fieller argument

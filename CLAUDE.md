@@ -49,6 +49,10 @@ pkgdown::build_site()
 - **OOP Framework**: S7 (modern object system)
 - **Style**: tidyverse style guide with native pipe
 - **Namespacing**: ALWAYS use explicit `package::function()` for non-base functions
+- **Scalar branches**: never `ifelse(scalar, vec, vec)` — it returns length 1 (the
+  corner-EIF weights were one constant per fold from PR #8 to PR #34 because of this).
+  Use `if (z == 1) p1 else 1 - p1`. Simulation checks of an estimator run against
+  exact truth with a positive control, not against the estimator's own grid.
 
 ### Naming Conventions
 
@@ -170,7 +174,8 @@ probmed uses medfit for:
 probmed's bootstrap (parametric + nonparametric) is implemented in
 `R/compute-bootstrap.R` — it does **not** use `medfit::bootstrap_mediation()`.
 
-Requires **medfit (>= 0.3.0)**; the GitHub build pins `Remotes: data-wise/medfit@v0.3.0`.
+Requires **medfit (>= 0.3.0)**; medfit 0.3.2 is on CRAN, so the former
+`Remotes: data-wise/medfit@v0.3.0` pin was dropped (`b552b88`, 2026-07-24).
 
 ---
 
@@ -218,13 +223,20 @@ Branch protection on `main` was added 2026-05-09 via `gh api repos/Data-Wise/pro
 
 ---
 
-**Version**: 0.3.0 (release-prep; non-CRAN GitHub release, pins medfit@v0.3.0) · **Last Updated**: 2026-07-26
+**Version**: 0.3.0.9000 (dev; release ON HOLD pending manuscript submission) · **Last Updated**: 2026-08-22
 
 > Active research lines beyond the merged core (see `.STATUS` for worktree detail):
 > gauge-calibrated P_med (`ward_residual`/`GaugePmedResult`, PR #8 + bootstrap-SE follow-up),
 > incremental P_med^δ (`incr_pmed`, g-score EIF merged via PR #10; per-δ M–Y tipping via
 > `incr_sensitivity`, feature/gauge-bootstrap-se), Sobol variance-scale (`sobol_pmed`),
 > Wasserstein, and the shared M–Y sensitivity helper (`pmed_sensitivity`).
+>
+> 2026-08-22: the shared corner-EIF engine had weighted every row of a cross-fit fold by
+> its first row's propensity since PR #8 (fixed PR #34). Re-measured post-fix: the gauge
+> analytic Wald is calibrated (PR #35 dropped the `weak_id` warning), `sobol_pmed`'s
+> near-null "bootstrap remedy" story was the bug (PR #37), `pmedW_dr` unchanged in
+> conclusions. Manuscript-side corrections are tracked in issue #38; the gauge Table 1
+> rerun runs on hopper from `~/gauge_boot_postfix/` (`inst/sim/hopper/README.md`).
 >
 > Two additions merged 2026-07-26, deliberately **not** P_med variants:
 > `rg_flow_contrast()`/`RgFlowResult` (PR #30) — scale-indexed classical proportion
