@@ -267,7 +267,8 @@ cran-comments + bump version).
    valid everywhere (0.952-0.996); the near-null "0.8x se / fold-split 80% / bootstrap
    remedy" doc story was the weight bug -> needs a worktree (doc + boundary message).
    pmedW_dr: weight fix cut empSD ~25%, no bias, dr bootstrap calibrated (0.93-1.00)
-   -> nothing to change. Item 3 handoff written (HANDOFF-2026-08-22-gauge-manuscript-postfix.md).
+   -> nothing to change. Item 3 handoff written (HANDOFF-2026-08-22-gauge-manuscript-postfix.md); tracked as
+   issue #38 (gauge Table 1 rerun + sobol near-null story; pmed-modern edits are the author's).
    docs online (package ON HOLD). Issue #11 CLOSED 2026-08-22 (resolved by PR #34 +
    #35: A2 uninformative, A1 stands); #32 CLOSED not-planned 2026-08-22 (BCa: nothing
    left for it to fix post-fix; reopen only on a post-fix miscalibration in a regular
