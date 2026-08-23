@@ -253,9 +253,8 @@ cran-comments + bump version).
    boundary message (only runtime change) + A-15 test bound; review pass retired the
    stale near-null rationale from the 0.3.0.9000 feature bullet + reps test comment.
    Scripts (sobol_shipped_check.R, sobol_collate.R, pmedw_shipped_check.R) and
-   results/sobol_postfix_summary.csv promoted to inst/sim/. Remote branch deleted;
-   worktree ~/.git-worktrees/probmed/feature-sobol-doc-disposition still present
-   (local branch pinned to it) — remove on request.
+   results/sobol_postfix_summary.csv promoted to inst/sim/. Worktree removed, local +
+   remote branch deleted (gate: tip 20791cf == PR head, clean).
    ✅ feature/weakid-disposition — MERGED 2026-08-22 as PR #35 → dev, squash
    8fbfa43 (8/8 CI green; 501 tests/0 fail NOT_CRAN; R CMD check --as-cran 0E/0W/2N).
    Worktree removed, local + remote branch deleted (gate: head 6813b1d == PR head).
