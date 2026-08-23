@@ -17,9 +17,14 @@ mediator-density proxy) for every row, from the first gauge commit until
 2026-08-22. The point estimates were not visibly biased (triply-robust EIF,
 correctly specified outcome / projection models), but the influence function was
 not the efficient one and its variance depended on which row landed first in each
-fold. The hopper standalone that produced Table 1
-(`inst/sim/gauge_coverage_standalone.R`) carried the same bug; it is fixed and
-verified identical to the package (`inst/sim/check_standalone_equiv.R`).
+fold. Table 1 was produced by the hopper boot grid (`inst/sim/hopper/run_gauge_boot_grid.R`,
+job 4239663) running the *installed* probmed in `~/Rlib/4.4-gauge`, which carries the
+bug (so does `4.4-weakid`). The fixed dev package is installed as `~/Rlib/4.4-postfix`
+(known-answer probe matches local dev to 1e-10; the old libs give the pre-fix value)
+and the same 64-task grid was relaunched 2026-08-22 21:53 MDT (jobs 4311422 + 4311424,
+`~/gauge_boot_postfix/`; README "Post-fix rerun"). The local standalone
+(`inst/sim/gauge_coverage_standalone.R`, continuous Y only, a different n grid) had the
+same bug and is fixed, verified identical to the package (`inst/sim/check_standalone_equiv.R`).
 
 ## Claims to change, with what replaces them
 
