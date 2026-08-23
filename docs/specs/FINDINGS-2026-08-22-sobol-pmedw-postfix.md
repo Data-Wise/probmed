@@ -7,13 +7,13 @@ weights.
 
 ## 1. `sobol_pmed()` — six cells against exact truth
 
-**Script:** `sobol_shipped_check.R` (session scratchpad; `.sobol_fit()` called as
+**Script:** `inst/sim/sobol_shipped_check.R` (`.sobol_fit()` called as
 `sobol_pmed()` calls it: `boundary_test = "split"`, `procedure = "B"`, K = 5,
 `pd = pm = 0.5`), 250 datasets per cell for the analytic arm, the first 100 also
 with `se_method = "bootstrap"`, B = 100. Truth = `sobol_from_theta` algebra on
 `truth(s, tau, FALSE)$theta` from `inst/sim/phi_decomposition.R`; oracle se =
 the same delta-method IF on `phi_oracle` (true nuisances). Collated table:
-`sobol_postfix_summary.csv` (promote with the code change). Monte-Carlo
+`inst/sim/results/sobol_postfix_summary.csv` (via `inst/sim/sobol_collate.R`). Monte-Carlo
 half-width on a coverage: ~0.03 (250) / ~0.04 (100).
 
 | cell | n | `P` true | `Delta_m` true | bias | empSD / oracle SD | se/empSD (CV) | oracle se/empSD | boundary rate |
@@ -98,7 +98,7 @@ Code + Rd change: needs a worktree.
 
 ## 2. `pmedW_dr()` — three cells, pre- vs post-fix, bootstrap coverage
 
-**Script:** `pmedw_shipped_check.R` (session scratchpad). Truth: the three corner
+**Script:** `inst/sim/pmedw_shipped_check.R`. Truth: the three corner
 laws `Y(a, M(a'))` simulated directly from the DGP equations (2e6 draws; `.w2_1d`),
 so `P^W = NIE^W / (NIE^W + NDE^W)` exactly up to MC error. Per dataset: the shipped
 `pmedW_dr()` (K = 5, G = 300) and the pre-fix copy sourced from
@@ -126,6 +126,6 @@ n_boot = 100)`. 200 datasets per cell.
 
 ## Status
 
-Item 1 (sobol) needs the doc + message change in a worktree; item 2 (pmedW) needs
-nothing. Scripts to promote with item 1: `sobol_shipped_check.R`,
-`sobol_collate.R`, `pmedw_shipped_check.R`; CSV: `sobol_postfix_summary.csv`.
+Item 1 (sobol): docs, boundary message and test updated per
+`PLAN-2026-08-22-sobol-doc-disposition.md`; scripts and CSV promoted to `inst/sim/`.
+Item 2 (pmedW): nothing to change.

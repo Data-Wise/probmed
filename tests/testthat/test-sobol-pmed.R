@@ -159,7 +159,7 @@ test_that("A-15 reps (repeated cross-fitting) stabilises the near-null point est
 })
 
 ## -----------------------------------------------------------------------------------------------
-test_that("A-15 se_method='bootstrap' returns a valid (conservative) near-null se", {
+test_that("A-15 se_method='bootstrap' returns a finite near-null se of the analytic se's order", {
   d <- .sp_gen(1500, cell_null)
   fa <- sobol_pmed(d, seed = 1L, se_method = "analytic",  warn_boundary = FALSE)
   fb <- sobol_pmed(d, seed = 1L, se_method = "bootstrap", B = 40L, warn_boundary = FALSE)
@@ -167,8 +167,11 @@ test_that("A-15 se_method='bootstrap' returns a valid (conservative) near-null s
   expect_identical(fb@se_method, "bootstrap")
   expect_true(is.finite(fb@se_Dm) && fb@se_Dm > 0)
   expect_true(all(is.finite(fb@ci)))
-  ## near the null the bootstrap se is conservative -> not smaller than the analytic se
-  expect_gt(fb@se_Dm, 0.9 * fa@se_Dm)
+  ## post-fix (2026-08-22) the bootstrap se is 0.84-1.05x the sampling SD and the
+  ## analytic se 0.99x, so the two are of the same order; the old "conservative ->
+  ## not smaller than analytic" bound (0.9x) described the weight bug and would be flaky.
+  expect_gt(fb@se_Dm, 0.6 * fa@se_Dm)
+  expect_lt(fb@se_Dm, 1.6 * fa@se_Dm)
   ## same point estimate (bootstrap changes only the se, not Dm), reps default 1
   expect_equal(fb@Dm, fa@Dm, tolerance = 1e-8)
 })
@@ -190,4 +193,20 @@ test_that("sobol_from_theta matches the variance decomposition identities", {
   expect_equal(unname(v["VT"]), unname(v["Vd"] + v["Vm"] + v["Vdm"]), tolerance = 1e-12)
   expect_equal(unname(v["Pmed_sobol"]), unname(v["Vm"] / v["VT"]), tolerance = 1e-12)
   expect_equal(unname(v["ST_med"]), unname((v["Vm"] + v["Vdm"]) / v["VT"]), tolerance = 1e-12)
+})
+
+## -----------------------------------------------------------------------------------------------
+test_that("boundary message (Procedure B) says the interval is valid and no longer recommends the bootstrap", {
+  set.seed(61)
+  d <- .sp_gen(1500, cell_null)
+  silent <- sobol_pmed(d, seed = 1L, warn_boundary = FALSE)
+  if (isTRUE(silent@boundary)) {
+    expect_message(sobol_pmed(d, seed = 1L, warn_boundary = TRUE, procedure = "B"),
+                   "Procedure B.*valid here")
+    msg <- capture.output(sobol_pmed(d, seed = 1L, warn_boundary = TRUE, procedure = "B"),
+                          type = "message")
+    expect_no_match(paste(msg, collapse = " "), "anti-conservative|pass se_method")
+  } else {
+    succeed("seed not at boundary; message path covered elsewhere")
+  }
 })

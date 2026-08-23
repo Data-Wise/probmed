@@ -246,7 +246,11 @@ BLOCKED (not actionable): probmed→CRAN (needs medfit 0.3.x on CRAN, then drop 
 cran-comments + bump version).
 
 🌿 ACTIVE WORKTREE
-📍 CURRENT (2026-08-22, end of session) — NO active worktrees; main checkout is dev.
+📍 CURRENT (2026-08-22, night) — ~/.git-worktrees/probmed/feature-sobol-doc-disposition
+   (branch feature/sobol-doc-disposition, off dev 5d72a28): PLAN-2026-08-22-sobol-doc-
+   disposition — sobol_pmed docs + boundary message + test relaxation; scripts
+   (sobol_shipped_check.R, sobol_collate.R, pmedw_shipped_check.R) and
+   results/sobol_postfix_summary.csv promoted to inst/sim/.
    ✅ feature/weakid-disposition — MERGED 2026-08-22 as PR #35 → dev, squash
    8fbfa43 (8/8 CI green; 501 tests/0 fail NOT_CRAN; R CMD check --as-cran 0E/0W/2N).
    Worktree removed, local + remote branch deleted (gate: head 6813b1d == PR head).

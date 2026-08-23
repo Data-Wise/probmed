@@ -83,6 +83,19 @@
   `P_med^delta` 0.083 → 0.055 at n = 1000). Point estimates unchanged by the
   projection (Term II is mean-zero).
 
+* **`sobol_pmed()` docs corrected** (`?SobolPmedResult` "Coverage near the boundary",
+  `?sobol_pmed` `reps` / `se_method`, the boundary `message()`): the near-null story —
+  fold-split ~80% of `Var(Delta_m_hat)`, analytic se ~0.8× so Procedure B covered
+  ~0.85, refit bootstrap as the remedy — was the weight bug. Re-measured against exact
+  truth in six cells (`inst/sim/sobol_shipped_check.R`,
+  `inst/sim/results/sobol_postfix_summary.csv`,
+  `docs/specs/FINDINGS-2026-08-22-sobol-pmedw-postfix.md`): the `Delta_m` se is exact
+  (0.99, CV 0.08) at every effect size, the estimator is at oracle efficiency, and the
+  default Procedure-B interval covers 0.952–0.996; the bootstrap se is now 0.84–1.05×
+  (slightly narrower at the transition). The boundary message no longer recommends
+  `se_method = "bootstrap"`. `pmedW_dr()` re-measured too: the fix cut its sampling
+  variance ~25% with no bias; its `dr` bootstrap is calibrated (0.93–1.00); unchanged.
+
 ## Simulation findings (PR #33) — superseded by the weight fix above
 
 * **Where `ward_residual()`'s variance comes from, and why its analytic se

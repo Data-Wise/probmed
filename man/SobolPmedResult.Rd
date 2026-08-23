@@ -88,13 +88,14 @@ otherwise (\code{NA} when the test was not run).}
 
 \item{method}{Character: estimation method.}
 
-\item{se_method}{Character: \code{"analytic"} (default, influence-function se) or
-\code{"bootstrap"} (nonparametric resample-and-refit se; valid but conservative near
-the boundary). See the boundary coverage section.}
+\item{se_method}{Character: \code{"analytic"} (default, influence-function se,
+calibrated from strong effects to the null) or \code{"bootstrap"} (nonparametric
+resample-and-refit se; an option, not a remedy). See the boundary coverage
+section.}
 
 \item{reps}{Integer: number of repeated cross-fitting fold draws averaged for the
-point estimate (default \code{1}); \code{reps > 1} removes the near-boundary fold-split
-Monte-Carlo variance (mean DML aggregation).}
+point estimate (default \code{1}); \code{reps > 1} makes the point estimate reproducible
+across fold draws (mean DML aggregation; small efficiency effect).}
 
 \item{n}{Integer: sample size.}
 
@@ -146,45 +147,44 @@ not improve coverage (see its note). \strong{Procedure A} (\code{procedure = "A"
 \code{ci_A}) is the legacy \emph{gated} rule: Wald on rejection, one-sided
 \verb{[0, Pmed_upper]} otherwise.
 
-\strong{Coverage near the boundary -- mechanism and remedies (A-15).} Two distinct
-issues; the second is now decomposed (reproducible fixed-seed variance
-decomposition) into three findings, each with a concrete remedy.
+\strong{Coverage near the boundary (A-15).} Two distinct issues.
 
 \emph{(1) Procedure A is not uniformly valid.} As a pre-test (gating) rule A is only
 pointwise valid: near the boundary it routes downward-selected \code{Delta_m_hat} to
 the contracting one-sided bound, a Leeb-Potscher post-selection effect. Prefer B,
-which does not gate.
+which does not gate. (Measured 2026-08-22: A covers 0.90-0.92 at the
+transition, B 0.95-0.97.)
 
-\emph{(2) The near-null \code{Delta_m} standard error.} Three pinned facts:
-\itemize{
-\item \strong{Fold-split Monte-Carlo variance dominates.} A single cross-fitting
-fold partition contributes ~80\% of \code{Var(Delta_m_hat)} in the near-null regime
-(~45\% at ordinary effect sizes), persistent across \code{n = 2000} to \code{8000}. This
-is an algorithmic nuisance, not sampling information: it inflates the
-estimator's variance and makes the single-split point estimate seed-dependent.
-\emph{Remedy:} \strong{\code{reps > 1}} (repeated cross-fitting -- the corner influence matrix
-is averaged over \code{reps} independent fold draws), which removes it and yields a
-reproducible, lower-variance point estimate (mean DML aggregation).
-\item \strong{\code{Delta_m_hat} is approximately normal at the null.} Recomputing coverage
-with the oracle Monte-Carlo SD gives ~0.95, so the Wald \emph{shape} is correct for
-the regular contrast \code{Delta_m}: the under-coverage is a wrong interval \emph{width},
-not a wrong \emph{shape} (there is no boundary non-normality for \code{Delta_m} itself).
-\item \strong{A residual analytic-se bias remains.} Even after fold noise is removed,
-the analytic influence-function se for \code{Delta_m} is ~0.8x its true sampling SD
-near the null (structural; persistent in \code{n}); it is well calibrated (ratio
-~1) at ordinary effect sizes. So the \emph{default} analytic near-null interval --
-and its Procedure-B image -- covers only ~0.85. \emph{Remedy:} \strong{\code{se_method = "bootstrap"}} (resample rows, refit the cross-fit estimator), which recovers a
-valid but mildly \strong{conservative} se (~1.25x the true SD, coverage ~0.97 near
-null) and is calibrated off-boundary.
-}
+\emph{(2) The near-null \code{Delta_m} standard error -- exact after the corner-weight
+fix (2026-08-22).} Against exact truth in six cells (n = 800 and 3000; strong,
+intermediate and near-null \code{Delta_m}; 250 datasets each;
+\code{inst/sim/sobol_shipped_check.R}, \code{inst/sim/results/sobol_postfix_summary.csv},
+\code{docs/specs/FINDINGS-2026-08-22-sobol-pmedw-postfix.md}) the analytic
+influence-function se of \code{Delta_m} matches its sampling SD (ratio 0.99, CV
+0.08) from strong effects to the null, with \code{Delta_m} Wald coverage 0.95-0.96;
+the estimator's empirical SD is within 3\% of an oracle's with known nuisances;
+and \code{p_med}'s Procedure-B1 interval covers 0.952-0.996 (conservative under a
+strong interaction; 0.952 at the boundary with 98\% of draws gated). The only
+near-null pathology is the symmetric Wald interval for \code{p_med} itself (0.74 at
+the boundary -- the same for the oracle: the square map, not the se), which
+Procedure B avoids by construction.
 
-\strong{Practical guidance.} Off the boundary the analytic default is calibrated and
-fast. Near the boundary (the split test does not reject), pass \code{reps > 1} for a
-reproducible point and \code{se_method = "bootstrap"} for a valid interval (conservative
-there -- it trades width for guaranteed coverage). \code{V_T} is well calibrated
-throughout. The full coverage grid across the \code{Delta_m} transition is validated by
-a separate large simulation. Use \code{procedure = "A"} only to reproduce the legacy
-gated behaviour.
+\emph{History.} Before the fix this entry reported three "pinned facts": that a
+single fold partition was ~80\% of \code{Var(Delta_m_hat)} near the null, that the
+analytic se was ~0.8x its sampling SD so Procedure B covered ~0.85, and that a
+refit bootstrap (~1.25x, coverage ~0.97) was the remedy. All three measured the
+corner-EIF weight bug fixed in PR #34 (\code{.corner_fit()} weighted every row of a
+fold by its first row's propensity; NEWS 0.3.0.9000). Post-fix \code{reps > 1} has
+nothing left to remove, and the bootstrap se is 0.84-1.05x the sampling SD
+(slightly \emph{narrower} at the transition); both remain options, not remedies.
+
+\strong{Practical guidance.} The analytic Procedure-B default is valid across the
+measured transition; nothing needs switching near the boundary. \code{reps > 1}
+makes the point estimate reproducible across fold draws (small efficiency
+effect). \code{se_method = "bootstrap"} is an option costing \code{B} (x \code{reps})
+refits; post-fix it is not better than the analytic se and slightly
+anti-conservative at the transition. \code{V_T} is well calibrated throughout. Use
+\code{procedure = "A"} only to reproduce the legacy gated behaviour.
 }
 \references{
 Williamson, B. D., Gilbert, P. B., Carone, M., & Simon, N. (2021).
