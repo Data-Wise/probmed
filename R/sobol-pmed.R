@@ -81,7 +81,7 @@
 #' effect). `se_method = "bootstrap"` is an option costing `B` (x `reps`)
 #' refits; post-fix it is not better than the analytic se and slightly
 #' anti-conservative at the transition. `V_T` is well calibrated throughout. Use
-#' `procedure = "A"` only to reproduce the legacy gated behaviour.
+#' `procedure = "A"` only to reproduce the legacy gated behavior.
 #'
 #' @param p_med Numeric: Sobol proportion mediated `V_med / V_T`.
 #' @param se Numeric: standard error of `p_med` (delta-method, ratio identity).

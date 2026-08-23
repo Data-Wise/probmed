@@ -144,9 +144,10 @@ test_that("determinism: same seed -> identical point estimate and inference", {
 })
 
 ## -----------------------------------------------------------------------------------------------
-test_that("A-15 reps (repeated cross-fitting) stabilises the near-null point estimate", {
-  ## near-null DGP: the single-split point is ~80% fold noise; averaging over reps
-  ## fold draws must move it toward 0 and shrink its run-to-run spread.
+test_that("A-15 reps (repeated cross-fitting) stabilizes the near-null point estimate", {
+  ## near-null DGP: averaging over reps fold draws gives a partition-reproducible
+  ## point that must not sit farther from 0 than the single draw's (post-fix the
+  ## fold-split share of Var(Delta_m_hat) is small, so the bound is loose).
   d <- .sp_gen(2000, cell_null)
   f1  <- sobol_pmed(d, seed = 1L, reps = 1L,  warn_boundary = FALSE)
   f10 <- sobol_pmed(d, seed = 1L, reps = 10L, warn_boundary = FALSE)

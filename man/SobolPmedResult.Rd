@@ -184,7 +184,7 @@ makes the point estimate reproducible across fold draws (small efficiency
 effect). \code{se_method = "bootstrap"} is an option costing \code{B} (x \code{reps})
 refits; post-fix it is not better than the analytic se and slightly
 anti-conservative at the transition. \code{V_T} is well calibrated throughout. Use
-\code{procedure = "A"} only to reproduce the legacy gated behaviour.
+\code{procedure = "A"} only to reproduce the legacy gated behavior.
 }
 \references{
 Williamson, B. D., Gilbert, P. B., Carone, M., & Simon, N. (2021).
