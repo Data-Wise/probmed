@@ -246,11 +246,10 @@ BLOCKED (not actionable): probmed→CRAN (needs medfit 0.3.x on CRAN, then drop 
 cran-comments + bump version).
 
 🌿 ACTIVE WORKTREE
-📍 CURRENT (2026-08-22, end of session) — worktree
-   ~/.git-worktrees/probmed/feature-weakid-disposition still present (merged; remove on
-   request). ✅ feature/weakid-disposition — MERGED 2026-08-22 as PR #35 → dev, squash
+📍 CURRENT (2026-08-22, end of session) — NO active worktrees; main checkout is dev.
+   ✅ feature/weakid-disposition — MERGED 2026-08-22 as PR #35 → dev, squash
    8fbfa43 (8/8 CI green; 501 tests/0 fail NOT_CRAN; R CMD check --as-cran 0E/0W/2N).
-   Remote branch deleted; local branch ref stays with the worktree.
+   Worktree removed, local + remote branch deleted (gate: head 6813b1d == PR head).
    Session total: PR #34 (weight bug + incr g-score fix) and PR #35 (A2 disposition),
    both merged; dev CI green through aee7bfb. Open follow-ups (user's call):
    sobol_pmed / pmedW_dr post-fix coverage; the gauge manuscript's coverage and
