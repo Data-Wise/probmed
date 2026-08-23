@@ -246,11 +246,16 @@ BLOCKED (not actionable): probmed→CRAN (needs medfit 0.3.x on CRAN, then drop 
 cran-comments + bump version).
 
 🌿 ACTIVE WORKTREE
-📍 CURRENT (2026-08-22, night) — ~/.git-worktrees/probmed/feature-sobol-doc-disposition
-   (branch feature/sobol-doc-disposition, off dev 5d72a28): PLAN-2026-08-22-sobol-doc-
-   disposition — sobol_pmed docs + boundary message + test relaxation; scripts
-   (sobol_shipped_check.R, sobol_collate.R, pmedw_shipped_check.R) and
-   results/sobol_postfix_summary.csv promoted to inst/sim/.
+✅ feature/sobol-doc-disposition — MERGED 2026-08-22 (night) as PR #37 → dev, squash
+   c28c31e (8/8 CI green; 504 tests/0 fail NOT_CRAN; R CMD check --as-cran 0E/0W/2N —
+   the .git NOTE fixed via ^\.git$ in .Rbuildignore, the version NOTE clears at the
+   release bump). Executed PLAN-2026-08-22-sobol-doc-disposition: sobol_pmed docs +
+   boundary message (only runtime change) + A-15 test bound; review pass retired the
+   stale near-null rationale from the 0.3.0.9000 feature bullet + reps test comment.
+   Scripts (sobol_shipped_check.R, sobol_collate.R, pmedw_shipped_check.R) and
+   results/sobol_postfix_summary.csv promoted to inst/sim/. Remote branch deleted;
+   worktree ~/.git-worktrees/probmed/feature-sobol-doc-disposition still present
+   (local branch pinned to it) — remove on request.
    ✅ feature/weakid-disposition — MERGED 2026-08-22 as PR #35 → dev, squash
    8fbfa43 (8/8 CI green; 501 tests/0 fail NOT_CRAN; R CMD check --as-cran 0E/0W/2N).
    Worktree removed, local + remote branch deleted (gate: head 6813b1d == PR head).
