@@ -188,6 +188,13 @@
   analyzable data) is well below the sampled count in both ECLS-K cohorts.
   Every value is transcribed from the public source cited in the row; the
   reproducible build script lives in `data-raw/multilevel_designs.R`.
+  The cluster counts are recorded as a recruitment chain
+  (`clusters_sampled`, `clusters_eligible`, `clusters_recruited`,
+  `clusters_participating`) because the stages have different bases and
+  `participating / sampled` is not a response rate; a `design_type` column
+  separates the two probability samples from the teaching data. The data
+  set is serialized with `version = 2`, so the package's R floor is
+  `R (>= 2.10)` rather than the `R (>= 3.5)` that the v3 default implies.
 
 * `wasserstein_pmed()` and the `WassersteinPmedResult` class add the
   **Wasserstein / transport-scale proportion mediated** (`P_med^W`), an

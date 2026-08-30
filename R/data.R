@@ -13,17 +13,26 @@
 #' sample. This reference table records both, so that planning can start from
 #' documented figures rather than round numbers.
 #'
-#' @format A data frame with 3 rows and 10 columns:
+#' @format A data frame with 3 rows and 13 columns:
 #' \describe{
 #'   \item{study}{Character. Study or data-source name.}
 #'   \item{cohort}{Character. Cohort label, or `NA` when the source is not
 #'     organized by cohort.}
-#'   \item{clusters_sampled}{Integer. Number of clusters (schools) in the drawn
-#'     sample, or `NA` when the source does not document one. For
-#'     ECLS-K:2011 this is the original school sample drawn *before*
-#'     substitution; see `sampling_note`.}
+#'   \item{design_type}{Character. `"probability sample"` for a designed
+#'     sample with a documented frame, `"teaching data"` for a convenience
+#'     data set shipped for instruction.}
+#'   \item{clusters_sampled}{Integer. Number of clusters (schools) in the
+#'     original drawn sample, *before* any substitution, or `NA` when the
+#'     source does not document one.}
+#'   \item{clusters_eligible}{Integer. Number of sampled clusters found
+#'     eligible for data collection, or `NA` when the source does not
+#'     document one.}
+#'   \item{clusters_recruited}{Integer. Total number of clusters approached,
+#'     including any substitutes added after the original sample, or `NA`
+#'     when the source does not document one.}
 #'   \item{clusters_participating}{Integer. Number of clusters that actually
-#'     participated.}
+#'     participated. This count may include substitute clusters, so it does
+#'     not share a base with `clusters_sampled`.}
 #'   \item{units_total}{Integer. Total number of level-1 units (children or
 #'     students).}
 #'   \item{mean_units_per_cluster}{Numeric. `units_total /
@@ -48,7 +57,16 @@
 #' is `"2010-11"`, the kindergarten class year. The two labels refer to the
 #' same cohort.
 #'
-#' Two points about how the numbers should be read.
+#' Three points about how the numbers should be read.
+#'
+#' *Recruitment chain.* `clusters_sampled`, `clusters_eligible`,
+#' `clusters_recruited`, and `clusters_participating` are successive stages
+#' with different bases. For ECLS-K:2011, 1,352 schools were sampled, 1,264
+#' were eligible, 93 substitutes brought recruitment attempts to 1,446, and
+#' roughly 970 participated. Because the participating count includes
+#' substitutes, `clusters_participating / clusters_sampled` is *not* a
+#' response rate; `cluster_response_rate` is `NA` on that row for this
+#' reason, and only the rate a source reports directly is carried.
 #'
 #' *Participating versus sampled.* For both ECLS-K cohorts the participating
 #' cluster count is well below the sampled count, and it is the participating

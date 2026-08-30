@@ -5,17 +5,26 @@
 \alias{multilevel_designs}
 \title{Design metadata for candidate multilevel studies}
 \format{
-A data frame with 3 rows and 10 columns:
+A data frame with 3 rows and 13 columns:
 \describe{
 \item{study}{Character. Study or data-source name.}
 \item{cohort}{Character. Cohort label, or \code{NA} when the source is not
 organized by cohort.}
-\item{clusters_sampled}{Integer. Number of clusters (schools) in the drawn
-sample, or \code{NA} when the source does not document one. For
-ECLS-K:2011 this is the original school sample drawn \emph{before}
-substitution; see \code{sampling_note}.}
+\item{design_type}{Character. \code{"probability sample"} for a designed
+sample with a documented frame, \code{"teaching data"} for a convenience
+data set shipped for instruction.}
+\item{clusters_sampled}{Integer. Number of clusters (schools) in the
+original drawn sample, \emph{before} any substitution, or \code{NA} when the
+source does not document one.}
+\item{clusters_eligible}{Integer. Number of sampled clusters found
+eligible for data collection, or \code{NA} when the source does not
+document one.}
+\item{clusters_recruited}{Integer. Total number of clusters approached,
+including any substitutes added after the original sample, or \code{NA}
+when the source does not document one.}
 \item{clusters_participating}{Integer. Number of clusters that actually
-participated.}
+participated. This count may include substitute clusters, so it does
+not share a base with \code{clusters_sampled}.}
 \item{units_total}{Integer. Total number of level-1 units (children or
 students).}
 \item{mean_units_per_cluster}{Numeric. \code{units_total / clusters_participating}. Derived here, not taken from the source; note
@@ -59,7 +68,16 @@ NCES names the second cohort's study "ECLS-K:2011"; its \code{cohort} value here
 is \code{"2010-11"}, the kindergarten class year. The two labels refer to the
 same cohort.
 
-Two points about how the numbers should be read.
+Three points about how the numbers should be read.
+
+\emph{Recruitment chain.} \code{clusters_sampled}, \code{clusters_eligible},
+\code{clusters_recruited}, and \code{clusters_participating} are successive stages
+with different bases. For ECLS-K:2011, 1,352 schools were sampled, 1,264
+were eligible, 93 substitutes brought recruitment attempts to 1,446, and
+roughly 970 participated. Because the participating count includes
+substitutes, \code{clusters_participating / clusters_sampled} is \emph{not} a
+response rate; \code{cluster_response_rate} is \code{NA} on that row for this
+reason, and only the rate a source reports directly is carried.
 
 \emph{Participating versus sampled.} For both ECLS-K cohorts the participating
 cluster count is well below the sampled count, and it is the participating
