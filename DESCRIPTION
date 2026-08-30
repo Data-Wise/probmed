@@ -11,7 +11,7 @@ License: MIT + file LICENSE
 URL: https://data-wise.github.io/probmed/, https://github.com/data-wise/probmed
 BugReports: https://github.com/data-wise/probmed/issues
 Depends:
-    R (>= 3.5)
+    R (>= 2.10)
 Encoding: UTF-8
 Language: en-US
 Roxygen: list(markdown = TRUE)

@@ -23,12 +23,37 @@ multilevel_designs <- data.frame(
     "2010-11",
     NA_character_
   ),
-  # Canonical "sampled" count. For ECLS-K:2011 this is the original school
-  # sample drawn before substitution; the eligible and substituted counts are
-  # recorded in `sampling_note` rather than in separate columns.
+  # "probability sample" = a designed sample with a documented frame;
+  # "teaching data" = a convenience data set shipped for instruction.
+  design_type = c(
+    "probability sample",
+    "probability sample",
+    "teaching data"
+  ),
+  # Cluster counts along the recruitment chain. The four columns have
+  # DIFFERENT bases, which is why they are kept separate rather than folded
+  # into a single "sampled" count:
+  #   clusters_sampled       original sample drawn (before substitution)
+  #   clusters_eligible      sampled clusters found eligible for collection
+  #   clusters_recruited     total recruitment attempts, including substitutes
+  #   clusters_participating clusters that actually took part (may include
+  #                          substitutes, so it is not comparable to
+  #                          clusters_sampled)
+  # A cell is NA_integer_ whenever the cited source documents no such count.
+  # Do not fill it in from another source or by inference.
   clusters_sampled = c(
     1280L,
     1352L,
+    NA_integer_
+  ),
+  clusters_eligible = c(
+    NA_integer_,
+    1264L,
+    NA_integer_
+  ),
+  clusters_recruited = c(
+    NA_integer_,
+    1446L,
     NA_integer_
   ),
   clusters_participating = c(
@@ -60,9 +85,11 @@ multilevel_designs <- data.frame(
       "Original school sample before substitution was 1352;",
       "1264 of those were eligible for the fall collection;",
       "93 substitute schools were added, giving 1446 total recruitment",
-      "attempts. Participating-school and child counts are reported as",
-      "approximate in the user's manual. No school response rate is given",
-      "in the cited source, so the rate is NA."
+      "attempts. The participating count includes substitutes, so",
+      "participating / sampled is not a response rate.",
+      "Participating-school and child counts are reported as approximate",
+      "in the user's manual. No school response rate is given in the",
+      "cited source, so the rate is NA."
     ),
     paste(
       "Public teaching data set shipped with the mediation R package.",
@@ -87,7 +114,10 @@ multilevel_designs$mean_units_per_cluster <-
 multilevel_designs <- multilevel_designs[, c(
   "study",
   "cohort",
+  "design_type",
   "clusters_sampled",
+  "clusters_eligible",
+  "clusters_recruited",
   "clusters_participating",
   "units_total",
   "mean_units_per_cluster",
@@ -105,4 +135,6 @@ stopifnot(
   !any(grepl("[^\x01-\x7f]", unlist(multilevel_designs[chr_cols]), useBytes = TRUE))
 )
 
-usethis::use_data(multilevel_designs, overwrite = TRUE)
+# version = 2 keeps the serialization readable by R >= 2.10; the v3 default
+# would force a user-visible `Depends: R (>= 3.5)` for a three-row table.
+usethis::use_data(multilevel_designs, overwrite = TRUE, version = 2)
