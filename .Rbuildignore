@@ -27,3 +27,4 @@
 ^\.superpowers$
 ^data-raw$
 ^\.git$
+^scripts$
