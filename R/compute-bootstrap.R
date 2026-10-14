@@ -1,7 +1,8 @@
 #' Parametric Bootstrap for P_med
 #'
 #' @keywords internal
-.pmed_parametric_boot <- function(extract, x_ref, x_value, n_boot, ci_level, seed, ...) {
+.pmed_parametric_boot <- function(extract, x_ref, x_value, n_boot, ci_level, seed,
+                                  n_sim = 10000, ...) {
   if (!is.null(seed)) set.seed(seed)
 
   # Sample from multivariate normal
@@ -50,7 +51,8 @@
       family_y = family_y,
       family_m = family_m,
       i_y = iy_s[i],
-      i_m = im_s[i]
+      i_m = im_s[i],
+      n_sim = n_sim
     )
   }
 
@@ -84,7 +86,8 @@
 #' Nonparametric Bootstrap for P_med
 #'
 #' @keywords internal
-.pmed_nonparametric_boot <- function(extract, x_ref, x_value, n_boot, ci_level, seed, ...) {
+.pmed_nonparametric_boot <- function(extract, x_ref, x_value, n_boot, ci_level, seed,
+                                     n_sim = 10000, ...) {
   if (!is.null(seed)) set.seed(seed)
 
   data <- extract@data
@@ -143,7 +146,8 @@
       family_y = family_y,
       family_m = family_m,
       i_y = iy_boot,
-      i_m = im_boot
+      i_m = im_boot,
+      n_sim = n_sim
     )
 
     # Compute IE

@@ -16,6 +16,10 @@
 #' @param seed Random seed for reproducibility. For single-mediator plug-in
 #'   and bootstrap methods, an explicit seed resets the caller's RNG and the
 #'   computation then advances it. MBCO does not use the seed.
+#' @param n_sim Number of cross-world pairs drawn per evaluation of the P_med
+#'   core (default 10000). Used by the plug-in and both bootstrap methods, once
+#'   per bootstrap draw; ignored by `"mbco"`, which is closed form. Distinct
+#'   from `n_boot`.
 #' @param ... Additional arguments
 #'
 #' @return PmedResult object
@@ -101,10 +105,13 @@ S7::method(pmed, S7::class_formula) <- function(object,  # formula_y
                                                 n_boot = 1000,
                                                 ci_level = 0.95,
                                                 seed = NULL,
+                                                n_sim = 10000,
                                                 ...) {
 
   method <- match.arg(method)
-  
+  .check_controls(x_ref, x_value, n_boot, ci_level, seed, n_sim, method)
+  .check_supported_formulas(object, formula_m, treatment, mediator)
+
   # Store call
   call <- match.call()
   
@@ -130,6 +137,7 @@ S7::method(pmed, S7::class_formula) <- function(object,  # formula_y
     n_boot = n_boot,
     ci_level = ci_level,
     seed = seed,
+    n_sim = n_sim,
     ...
   )
   
@@ -152,9 +160,11 @@ S7::method(pmed, medfit::MediationData) <- function(object,
                                                      n_boot = 1000,
                                                      ci_level = 0.95,
                                                      seed = NULL,
+                                                     n_sim = 10000,
                                                      ...) {
 
   method <- match.arg(method)
+  .check_controls(x_ref, x_value, n_boot, ci_level, seed, n_sim, method)
 
   .pmed_compute(
     extract = object,
@@ -164,6 +174,7 @@ S7::method(pmed, medfit::MediationData) <- function(object,
     n_boot = n_boot,
     ci_level = ci_level,
     seed = seed,
+    n_sim = n_sim,
     ...
   )
 }
@@ -186,6 +197,8 @@ S7::method(pmed, medfit::ParallelMediationData) <- function(
     seed = NULL,
     ...) {
   method <- match.arg(method)
+  # Parallel P_med is closed form: no n_sim, so validate the rest only.
+  .check_controls(x_ref, x_value, n_boot, ci_level, seed, n_sim = 1L, method)
 
   .pmed_compute_parallel(
     extract = object,

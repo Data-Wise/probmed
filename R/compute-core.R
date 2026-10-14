@@ -1,16 +1,19 @@
 #' Core P_med Computation Dispatcher
 #'
 #' @keywords internal
-.pmed_compute <- function(extract, x_ref, x_value, method, n_boot, ci_level, seed, ...) {
+.pmed_compute <- function(extract, x_ref, x_value, method, n_boot, ci_level, seed,
+                          n_sim = 10000, ...) {
+  # Reject unsupported families/structures before any random draw.
+  .check_supported_extract(extract)
   switch(method,
     parametric_bootstrap = .pmed_parametric_boot(
-      extract, x_ref, x_value, n_boot, ci_level, seed, ...
+      extract, x_ref, x_value, n_boot, ci_level, seed, n_sim = n_sim, ...
     ),
     nonparametric_bootstrap = .pmed_nonparametric_boot(
-      extract, x_ref, x_value, n_boot, ci_level, seed, ...
+      extract, x_ref, x_value, n_boot, ci_level, seed, n_sim = n_sim, ...
     ),
     plugin = .pmed_plugin(
-      extract, x_ref, x_value, seed = seed, ...
+      extract, x_ref, x_value, n_sim = n_sim, seed = seed, ...
     ),
     mbco = .pmed_mbco(
       extract, x_ref, x_value, ci_level = ci_level, ...

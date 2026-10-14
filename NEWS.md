@@ -1,5 +1,26 @@
 # probmed 0.3.0.9000 (development)
 
+## Single-mediator repair, third batch: support guards and controls
+
+* Unsupported models now fail early with an informative error, before any
+  random draw: families other than gaussian(identity), binomial(logit) and
+  binomial(probit) (e.g. Poisson, which was simulated as Bernoulli or crashed
+  with NAs); interactions and transformed treatment/mediator terms (`X:M`,
+  `I(M^2)`); `offset()`; rank-deficient designs; missing values in model
+  variables (the nonparametric bootstrap would have resampled dropped rows);
+  non-numeric treatment/mediator; binomial responses not coded 0/1.
+* Binary mediator or outcome **with covariates** is rejected for now: the core
+  evaluated covariates at 0 under a nonlinear link, giving silently wrong
+  values. Covariate standardization lifts this in the next batch.
+* `n_sim` is now an explicit, validated argument of `pmed()` and reaches the
+  core on the plug-in and both bootstrap paths (the bootstraps ignored it).
+  `n_boot`, `ci_level`, `seed`, `x_ref` and `x_value` are validated too.
+  Parallel P_med is closed form and does not use `n_sim`.
+* Covariance validation: medfit's joint `vcov` is block diagonal, exact for the
+  factorized sequential likelihood; an independent stacked sandwich confirms
+  the cross block vanishes under correct specification and detects it under
+  misspecification (`docs/reports/COVARIANCE-VALIDATION-2026-10-14.md`).
+
 ## Single-mediator repair, second batch
 
 * Signed P_med profiles explore both compatible coefficient signs using
