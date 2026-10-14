@@ -19,7 +19,7 @@ Quick local gate: `scripts/check-local.sh`.
 | 5 | T15–T17 | PR #45 → dev `1d412bb` | merged; 17 PASS / 15 FAIL / 4 INCONCLUSIVE (`docs/reports/CALIBRATION-2026-10-14.md`) |
 | side | T18 | dev `ecffb97` | done; #38 comment posted |
 
-Checkpoints B and C passed their test/check gates but **not** the user review they call for.
+Checkpoints B and C: user review done 2026-10-14 (SSE/n accepted; standardization kept as default).
 Stacked PRs: after each merge, rebase the next with
 `git rebase --onto dev <merged-branch> <next-branch>` and retarget it to `dev`.
 
@@ -91,7 +91,7 @@ Stacked PRs: after each merge, rebase the next with
 ### ✅ Checkpoint A: after T1–T5
 - [x] PR merged into dev (merge only on the user's say-so)
 - [ ] dev full suite green
-- [ ] Author accepted or rejected the SSE/n point-estimate change
+- [x] Author accepted or rejected the SSE/n point-estimate change — accepted 2026-10-14
 
 ---
 
@@ -130,7 +130,7 @@ Stacked PRs: after each merge, rebase the next with
 
 ### ✅ Checkpoint B: after T6–T8
 - [x] Full suite plus `scripts/check-local.sh` green
-- [ ] Review with the user before standardization
+- [x] Review with the user before standardization — accepted 2026-10-14
 
 ---
 
@@ -165,7 +165,7 @@ Stacked PRs: after each merge, rebase the next with
 
 ### ✅ Checkpoint C: after T9–T11
 - [x] Full suite green; R CMD check clean
-- [ ] Review with the user: is standardization behavior acceptable as the new default for adjusted models?
+- [x] Review with the user: is standardization behavior acceptable as the new default for adjusted models? — accepted 2026-10-14
 
 ---
 
@@ -233,3 +233,10 @@ Stacked PRs: after each merge, rebase the next with
 - [x] On the next real `.STATUS` edit: fix the stale `next:` item (1) (0.3.0 already released) and record the repair status once
 - [x] `AGENTS.md`: the user decides whether to keep `4901862` or revert it
 **Dependencies:** None · **Scope:** XS
+
+## Follow-up (new plan, not started)
+
+### T20: n_sim scaled with N for model_bootstrap
+- [ ] Choose `n_sim` so the per-draw MC sd stays below 0.25 × the estimated SE (stability subset: width 0.73–0.89× at N=1000 with 4× controls)
+- [ ] Rerun the boot cells at N ≥ 250 (2000 reps) and re-decide under the frozen rule
+**Dependencies:** None · **Scope:** M (~30+ core-h)
