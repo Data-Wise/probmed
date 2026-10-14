@@ -179,3 +179,25 @@ test_that("near-null P_med profiles reach the b ~ 0 branch of each sign basin", 
   lower_ll <- repair_full_oracle(d, res@ci_lower, 1)
   expect_lt(abs(-2 * (lower_ll - prep$ll_free) - crit), 1e-3)
 })
+
+test_that("verified inversion reports each failure path explicitly", {
+  # Invalid inputs: estimate outside the domain, empty domain.
+  expect_identical(.mbco_invert_verified(2, function(x) x - 1, c(0, 1), 0.1)$reason,
+                   "invalid_domain_or_point")
+  expect_identical(.mbco_invert_verified(0.5, function(x) x, c(1, 0), 0.1)$reason,
+                   "invalid_domain_or_point")
+  # The estimate itself is rejected.
+  expect_identical(.mbco_invert_verified(0.5, function(x) 1, c(0, 1), 0.1)$reason,
+                   "estimate_rejected")
+  # A jump discontinuity has no root: verification must refuse the bracket.
+  jump <- function(x) if (x < 0.3 || x > 0.7) 1 else -1
+  res <- .mbco_invert_verified(0.5, jump, c(0, 1), 0.1)
+  expect_identical(res$reason, "root_verification")
+  expect_false(res$verified)
+  expect_true(all(is.na(res$bounds)))
+  # Positive control: a continuous version of the same shape verifies.
+  smooth <- function(x) abs(x - 0.5) - 0.2
+  ok <- .mbco_invert_verified(0.5, smooth, c(0, 1), 0.1)
+  expect_identical(ok$status, "ok")
+  expect_equal(unname(ok$bounds), c(0.3, 0.7), tolerance = 1e-8)
+})
