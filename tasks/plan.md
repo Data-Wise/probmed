@@ -1,5 +1,7 @@
 # Implementation Plan: probmed single-mediator inference repair + open items
 
+> **Status 2026-10-14:** Phases 0–5 are complete (PRs #41–#45 merged). Phase 6 (T20–T22, `tasks/todo.md`) replaces the original "scale n_sim with N" follow-up with common random numbers, after a code review showed the simulation draws are fresh in every bootstrap draw.
+
 Created 2026-10-13 (dev @ `4901862`). Task checklist: [`tasks/todo.md`](todo.md).
 
 ## Overview

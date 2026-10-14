@@ -234,9 +234,42 @@ Stacked PRs: after each merge, rebase the next with
 - [x] `AGENTS.md`: the user decides whether to keep `4901862` or revert it
 **Dependencies:** None · **Scope:** XS
 
-## Follow-up (new plan, not started)
+## Phase 6: model_bootstrap Monte Carlo inflation (not started; reviewed 2026-10-14)
 
-### T20: n_sim scaled with N for model_bootstrap
-- [ ] Choose `n_sim` so the per-draw MC sd stays below 0.25 × the estimated SE (stability subset: width 0.73–0.89× at N=1000 with 4× controls)
-- [ ] Rerun the boot cells at N ≥ 250 (2000 reps) and re-decide under the frozen rule
-**Dependencies:** None · **Scope:** M (~30+ core-h)
+Cause, from the code: every bootstrap draw calls `.pmed_core_simple()` with fresh
+`rnorm`/`rbinom` draws (`R/compute-core.R:144-161`), so the simulation error is
+different in each draw and adds to the bootstrap variance. The original T20 plan
+(scale `n_sim` with N) only shrinks that error and costs ~30+ core-h.
+**Revised approach: common random numbers.** Draw one fixed set of uniforms,
+turn them into the needed draws via the inverse CDF (`qnorm`, `u < p`), and
+reuse them in every bootstrap draw and the point estimate. The simulation error
+is then the same in every draw and drops out of the percentile spread. Compute
+cost is unchanged.
+
+### T20: Positive control: isolate the MC component (do first)
+**Description:** Config 1 (Gaussian M and Y) has a closed-form P_med. Recompute the
+N=1000 boot-1 interval with the exact P_med inside each draw. If coverage falls
+from 0.977 to about 0.95, the MC explanation is confirmed before any code changes.
+- [ ] 200 reps of boot-1-N1000 with an exact-P_med draw function (sim script only, `inst/sim/`)
+- [ ] Coverage and width compared with the main run's 1× results
+**Dependencies:** None · **Scope:** S (~1 core-h)
+
+### T21: Common random numbers in `.pmed_core_simple()`
+- [ ] Optional `u` argument (a fixed matrix of uniforms); default behavior and existing seeds unchanged when it's absent
+- [ ] `model_bootstrap` draws `u` once per call and reuses it in every draw and the point estimate
+- [ ] Tests: identical `u` gives identical P_med for identical coefficients; known-answer test against closed-form config 1; Bernoulli branch uses `u < p`
+- [ ] Full suite plus `R CMD check` 0/0/≤1 NOTE
+**Dependencies:** T20 confirms MC is the cause · **Scope:** M
+
+### T22: Prespecified rerun of the boot cells
+**Description:** This is a new run, not a re-decision of the frozen cells. Write its
+design in the report before running it: same 15 cells, frozen decision rule,
+new base seed.
+- [ ] Pilot of 100 reps per cell, then the full 2000 reps (15 cells; locally ≈ the original boot cost)
+- [ ] `docs/reports/CALIBRATION-2026-10-14.md` gets a dated addendum; the original table is kept unchanged
+- [ ] NEWS claims updated only from the new run
+**Dependencies:** T21 · **Scope:** M
+
+### Not in scope (recorded so it isn't lost)
+- The rare-outcome (5%) fit-failure regime at N ≤ 250 is a data limitation, not MC noise. Leave it as documented.
+- MBCO overcoverage at a = b = 0 is expected from the exact-null union. No action.
