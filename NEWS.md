@@ -13,6 +13,14 @@
 * Known-answer check: on a Gaussian fixture the bootstrap SD is within 20% of
   the delta-method SE of the closed-form P_med (coefficients and variances).
   No coverage calibration has been established yet.
+* Prespecified calibration (2000 reps × 36 cells; `docs/reports/CALIBRATION-2026-10-14.md`):
+  17 PASS, 15 FAIL, 4 INCONCLUSIVE. MBCO is nominal at single-null and
+  non-null configurations and conservative (≈0.997) at and near the double
+  null a = b = 0. `model_bootstrap` passes outright only for Gaussian/Gaussian
+  at N ≤ 250 and for binary Y (50%) at N = 250. Its large-N overcoverage
+  tracks the simulation noise from `n_sim`, and rare binary outcomes (5%) at
+  N ≤ 250 mostly return `bootstrap_incomplete`. These are restricted claims,
+  not a general 95% guarantee.
 * README: the Poisson support claim is removed (the guard rejects it).
 
 ## Single-mediator repair, fourth batch: covariate standardization and separation
