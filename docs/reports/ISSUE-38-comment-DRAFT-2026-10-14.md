@@ -17,7 +17,7 @@ With the corrected corner-EIF weights (PR #34) every cell is calibrated:
 
 Manuscript consequence for Table 1: the "Wald under-covers at ~0.86–0.91 /
 percentile ~1.00" reading came from the weight bug and should be replaced by the
-post-fix numbers. The sobol near-null correction (the other half of this issue) is
-already reflected in PR #37.
+post-fix numbers. The sobol near-null correction (the other half of this issue) was
+made on the package side in PR #37; the manuscript text still needs the matching edit.
 
 MCSE at nsim = 2000 is about 0.005 for coverage near 0.95.
