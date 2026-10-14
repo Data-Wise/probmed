@@ -79,3 +79,28 @@ test_that("model_bootstrap interval narrows to the exact-evaluation width", {
   # Point estimate uses 10 * n_sim pairs: MC sd about 0.0016.
   expect_equal(r@estimate, ex, tolerance = 0.006)
 })
+
+test_that("draws are centered on the point estimate (control variate)", {
+  # Positive control for the T22 pilot failure (coverage 0.79 with an
+  # uncentered shared u). Deliberately biased uniforms make P_u far from
+  # P_med; the anchor P_u(fit) must absorb that bias so the interval still
+  # brackets the point estimate. Binary M and Y with a covariate, so the
+  # standardization and Bernoulli branches both run.
+  set.seed(6)
+  n <- 1000
+  d <- data.frame(X = stats::rbinom(n, 1, 0.5), C = stats::rbinom(n, 1, 0.5))
+  d$M <- stats::rbinom(n, 1, stats::plogis(-0.25 + 0.5 * d$X + 0.4 * d$C))
+  d$Y <- stats::rbinom(n, 1, stats::plogis(-0.5 + 0.3 * d$X + 0.4 * d$M + 0.4 * d$C))
+  local_mocked_bindings(.crn_uniforms = function(n_sim) {
+    u <- matrix(stats::runif(5L * n_sim), ncol = 5L)
+    u[, 2] <- u[, 2]^3 # M(x) almost always 1: P_u biased upward
+    u
+  })
+  r <- suppressWarnings(pmed(Y ~ X + M + C, formula_m = M ~ X + C, data = d,
+                             treatment = "X", mediator = "M",
+                             family_m = stats::binomial(), family_y = stats::binomial(),
+                             method = "model_bootstrap", n_boot = 200, n_sim = 1e4,
+                             seed = 3))
+  expect_true(r@ci_lower < r@estimate && r@estimate < r@ci_upper)
+  expect_lt(r@ci_upper - r@ci_lower, 0.05)
+})

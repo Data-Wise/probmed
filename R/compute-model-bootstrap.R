@@ -16,9 +16,13 @@
 #' `"bootstrap_incomplete"`. Failed draws are never recycled or replaced.
 #'
 #' Monte Carlo control: every draw evaluates P_med on one shared set of
-#' uniforms (common random numbers), so simulation error does not widen the
-#' interval. The point estimate uses `10 * n_sim` simulated pairs, since its
-#' Monte Carlo error is not averaged away by the percentile interval.
+#' uniforms `u` (common random numbers), so the simulation error is common to
+#' all draws and does not widen the interval. That common error would instead
+#' shift the whole interval, so each draw is re-centered as
+#' `P_u(draw) - P_u(fit) + point`, where `P_u(fit)` is P_med at the fitted
+#' coefficients on the same `u` (a control variate) and `point` uses
+#' `100 * n_sim` simulated pairs. The remaining Monte Carlo error is the point
+#' estimate's own, about `0.5 / sqrt(100 * n_sim)`.
 #'
 #' This models uncertainty under the specified sequential model and its
 #' assumed confounding structure. It does not correct misspecification, and it
@@ -47,8 +51,27 @@
   needs_std <- .needs_standardization(extract)
 
   # Point estimate: the fitted-model (standardized) plug-in.
-  point <- .pmed_plugin(extract, x_ref, x_value, n_sim = 10L * n_sim)@estimate
+  point <- .pmed_plugin(extract, x_ref, x_value, n_sim = 100L * n_sim)@estimate
   u <- .crn_uniforms(n_sim)
+  p_u <- function(cm, cy, sm, sy) {
+    std <- if (needs_std) {
+      .std_linear_predictors(design, cm, cy, tx, med)
+    } else list(m = NULL, y = NULL)
+    .pmed_core_simple(
+      a = cm[[tx]], b = cy[[med]],
+      c_prime = if (tx %in% names(cy)) cy[[tx]] else 0,
+      x_ref = x_ref, x_value = x_value,
+      sigma_y = sy, sigma_m = sm, n_sim = n_sim,
+      family_y = family_y, family_m = family_m,
+      i_y = if ("(Intercept)" %in% names(cy)) cy[["(Intercept)"]] else 0,
+      i_m = if ("(Intercept)" %in% names(cm)) cm[["(Intercept)"]] else 0,
+      lp_m0 = std$m, lp_y0 = std$y, u = u
+    )
+  }
+  # Control variate: the fitted model on the same u.
+  anchor <- p_u(co$m, co$y,
+                if (gaussian_m) sigma_m else NA_real_,
+                if (gaussian_y) sigma_y else NA_real_)
   ie_point <- unname(co$m[[tx]] * co$y[[med]])
 
   eta_m <- drop(design$m %*% co$m)
@@ -102,20 +125,8 @@
 
     sm <- if (gaussian_m) sqrt(fit_m$deviance / fit_m$df.residual) else NA_real_
     sy <- if (gaussian_y) sqrt(fit_y$deviance / fit_y$df.residual) else NA_real_
-    # Standardize over the ORIGINAL covariate rows (fixed target).
-    std <- if (needs_std) {
-      .std_linear_predictors(design, cm, cy, tx, med)
-    } else list(m = NULL, y = NULL)
-    est <- .pmed_core_simple(
-      a = cm[[tx]], b = cy[[med]],
-      c_prime = if (tx %in% names(cy)) cy[[tx]] else 0,
-      x_ref = x_ref, x_value = x_value,
-      sigma_y = sy, sigma_m = sm, n_sim = n_sim,
-      family_y = family_y, family_m = family_m,
-      i_y = if ("(Intercept)" %in% names(cy)) cy[["(Intercept)"]] else 0,
-      i_m = if ("(Intercept)" %in% names(cm)) cm[["(Intercept)"]] else 0,
-      lp_m0 = std$m, lp_y0 = std$y, u = u
-    )
+    # Standardized over the ORIGINAL covariate rows (fixed target).
+    est <- min(max(p_u(cm, cy, sm, sy) - anchor + point, 0), 1)
     if (!is.finite(est)) {
       reasons[i] <- "nonfinite"
       next

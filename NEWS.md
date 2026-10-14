@@ -3,13 +3,18 @@
 ## `model_bootstrap`: Monte Carlo control (common random numbers)
 
 * Every bootstrap draw now evaluates P_med on one shared set of uniforms
-  (common random numbers), so the simulation error is the same in each draw
-  and no longer widens the percentile interval. The calibration positive
-  control (T20) showed that error inflated coverage to 0.977 at N = 1000; with
-  it removed, coverage was 0.945.
-* The `model_bootstrap` point estimate uses `10 * n_sim` simulated pairs. The
-  point estimate changes slightly for a fixed seed; the RNG path of every other
-  method is unchanged.
+  (common random numbers), so the simulation error no longer widens the
+  percentile interval. The calibration positive control (T20) showed that
+  error inflated coverage to 0.977 at N = 1000; with it removed, coverage was
+  0.945.
+* A shared error would instead shift the whole interval (a hopper pilot gave
+  coverage 0.79 for binary M and Y at N = 1000). Each draw is therefore
+  re-centered as `P_u(draw) - P_u(fit) + estimate`, with `P_u(fit)` evaluated on
+  the same uniforms (a control variate). That pilot cell then covered 0.932
+  [0.896, 0.959] over 280 replications.
+* The `model_bootstrap` point estimate uses `100 * n_sim` simulated pairs (one
+  evaluation), so its Monte Carlo sd is about 0.0005 at the default. It changes
+  slightly for a fixed seed; the RNG path of every other method is unchanged.
 
 ## Opt-in model-based bootstrap (`method = "model_bootstrap"`)
 
