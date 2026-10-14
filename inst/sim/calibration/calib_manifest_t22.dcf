@@ -1,6 +1,7 @@
 run: T22, prespecified rerun of the 15 bootstrap cells after T21 (common random numbers, 10 x n_sim point estimate)
-written: 2026-10-14, before any T22 replication was run
-package_commit: 4bba493 (feature/crn)
+written: 2026-10-14, before the full array was run (one pilot task, below)
+package_commit: 41d71de (feature/crn; control-variate centering)
+pilot: job 4337060 task 720 (boot-5-N1000, reps 1901-2000) at 4bba493 covered 0.79 with uncentered CRN; design fixed before the full array. Pilot output discarded, not collated.
 cells: boot-1..5 x N in {50, 250, 1000}; worker main-mode tasks 421-720 (20 chunks x 100 reps per cell)
 replications: 2000 per cell
 base_seed: 20261015 (CALIB_BASE_SEED); stream rule otherwise identical to calib_manifest.dcf
