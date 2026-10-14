@@ -132,3 +132,52 @@ test_that("model_bootstrap is opt-in: the default method is unchanged", {
   m <- S7::method(pmed, S7::class_formula)
   expect_identical(eval(formals(m)$method)[1], "parametric_bootstrap")
 })
+
+test_that("each draw-failure reason is counted, never hidden", {
+  d <- mb_gauss(n = 120)
+  # Fit outside the mocks: pmed()'s own glm() calls also use glm.fit.
+  ex <- extract_mediation(stats::glm(M ~ X + C, data = d), treatment = "X",
+                          mediator = "M", model_y = stats::glm(Y ~ X + M + C, data = d),
+                          data = d)
+  run <- function() .pmed_model_boot(ex, 0, 1, n_boot = 10, ci_level = 0.95,
+                                     seed = 5, n_sim = 500)
+  real_fit <- stats::glm.fit
+  # Fit error.
+  local({
+    testthat::local_mocked_bindings(glm.fit = function(...) stop("boom"), .package = "stats")
+    r <- run()
+    expect_identical(r@diagnostics$failures[["fit_error"]], 10L)
+    expect_identical(r@diagnostics$interval_status, "bootstrap_incomplete")
+  })
+  # Non-convergence.
+  local({
+    testthat::local_mocked_bindings(glm.fit = function(...) {
+      f <- real_fit(...); f$converged <- FALSE; f
+    }, .package = "stats")
+    expect_identical(run()@diagnostics$failures[["nonconvergence"]], 10L)
+  })
+  # Non-finite coefficients.
+  local({
+    testthat::local_mocked_bindings(glm.fit = function(...) {
+      f <- real_fit(...); f$coefficients[1] <- NA_real_; f
+    }, .package = "stats")
+    expect_identical(run()@diagnostics$failures[["nonfinite"]], 10L)
+  })
+})
+
+test_that("separated mediator draws are counted, and source data is required", {
+  set.seed(14)
+  n <- 150
+  X <- stats::rbinom(n, 1, 0.5)
+  M <- stats::rbinom(n, 1, stats::plogis(-0.2 + 0.8 * X))
+  d <- data.frame(X = X, M = M, Y = 0.5 * M + stats::rnorm(n))
+  ex <- extract_mediation(stats::glm(M ~ X, data = d, family = stats::binomial()),
+                          treatment = "X", mediator = "M",
+                          model_y = stats::glm(Y ~ X + M, data = d), data = d)
+  testthat::local_mocked_bindings(.detect_separation = function(X, y, ...) "separated")
+  r <- .pmed_model_boot(ex, 0, 1, n_boot = 5, ci_level = 0.95, seed = 1, n_sim = 500)
+  expect_identical(r@diagnostics$failures[["separated"]], 5L)
+  nodata <- ex
+  nodata@data <- NULL
+  expect_error(.pmed_model_boot(nodata, 0, 1, 5, 0.95, 1), "needs the source data")
+})
