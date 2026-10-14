@@ -135,3 +135,21 @@ test_that("design rebuild reproduces model.matrix, including factors and transfo
   expect_equal(unname(des$y), unname(ref_y[, , drop = FALSE]), ignore_attr = TRUE)
   expect_identical(colnames(des$y), colnames(ref_y))
 })
+
+test_that("standardization fails loudly when it cannot rebuild the design or lacks data", {
+  d <- std_fixture()
+  expect_error(.design_column("no_such_column", d), "cannot rebuild the model column")
+  ex <- extract_mediation(
+    stats::glm(M ~ X + C, data = d, family = stats::binomial()),
+    treatment = "X", mediator = "M",
+    model_y = stats::glm(Y ~ X + M + C, data = d, family = stats::binomial()),
+    data = d
+  )
+  nodata <- ex
+  nodata@data <- NULL
+  expect_error(.check_supported_extract(nodata), "needs the source data to standardize")
+  # Intercept-only mediator design rebuilds to a single column of ones.
+  io <- ex
+  io@mediator_predictors <- character(0)
+  expect_identical(colnames(.design_matrices(io)$m), "(Intercept)")
+})

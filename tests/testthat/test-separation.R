@@ -60,3 +60,10 @@ test_that("the detector degrades to 'unchecked' without lpSolve", {
   )
   expect_identical(.detect_separation(cbind(1, 1:4), c(0, 0, 1, 1)), "unchecked")
 })
+
+test_that("an LP solver failure is reported as unchecked, never as ok", {
+  skip_if_not_installed("lpSolve")
+  testthat::local_mocked_bindings(lp = function(...) list(status = 2, objval = 0),
+                                  .package = "lpSolve")
+  expect_identical(.detect_separation(cbind(1, c(-1, 1, -2, 2)), c(0, 1, 1, 0)), "unchecked")
+})
