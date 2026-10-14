@@ -114,13 +114,17 @@
 #' `lp_m0` / `lp_y0`, when given, are per-row covariate linear predictors
 #' (see `.std_linear_predictors()`); each pair then draws one analysis row and
 #' uses it in both arms, standardizing over the observed covariates.
+#' `u`, when given, is an `n_sim` x 5 matrix of uniforms (see `.crn_uniforms()`)
+#' used in place of fresh RNG draws via the inverse CDF. Reusing one `u` across
+#' bootstrap draws (common random numbers) makes their Monte Carlo error move
+#' together, so it no longer inflates the bootstrap spread.
 #'
 #' @keywords internal
 .pmed_core_simple <- function(a, b, c_prime, x_ref, x_value,
                               sigma_y = 1, sigma_m = 1, n_sim = 10000,
                               family_y = NULL, family_m = NULL,
                               i_y = 0, i_m = 0,
-                              lp_m0 = NULL, lp_y0 = NULL) {
+                              lp_m0 = NULL, lp_y0 = NULL, u = NULL) {
   # Residual SDs are NULL/NA for non-Gaussian models; treat as 0 (unused there,
   # since the family branch draws responses directly).
   if (is.null(sigma_m) || is.na(sigma_m)) sigma_m <- 0
@@ -134,13 +138,25 @@
   # for a nonlinear link.
   if (!is.null(lp_m0)) {
     # Standardize over the analysis rows: one row per pair, shared by both arms.
-    rows <- sample.int(length(lp_m0), n_sim, replace = TRUE)
+    rows <- if (is.null(u)) {
+      sample.int(length(lp_m0), n_sim, replace = TRUE)
+    } else {
+      pmin(floor(u[, 1] * length(lp_m0)) + 1L, length(lp_m0))
+    }
     i_m <- lp_m0[rows]
     i_y <- lp_y0[rows]
   }
   mu_m_t <- i_m + a * x_value # mediator mean under treatment
   mu_m_c <- i_m + a * x_ref # mediator mean under control
-  if (gaussian_m) {
+  if (!is.null(u)) {
+    if (gaussian_m) {
+      m_t <- mu_m_t + sigma_m * stats::qnorm(u[, 2])
+      m_c <- mu_m_c + sigma_m * stats::qnorm(u[, 3])
+    } else {
+      m_t <- as.integer(u[, 2] < family_m$linkinv(mu_m_t))
+      m_c <- as.integer(u[, 3] < family_m$linkinv(mu_m_c))
+    }
+  } else if (gaussian_m) {
     m_t <- stats::rnorm(n_sim, mean = mu_m_t, sd = sigma_m)
     m_c <- stats::rnorm(n_sim, mean = mu_m_c, sd = sigma_m)
   } else {
@@ -152,7 +168,15 @@
   # --- Outcomes with treatment held at x_value for BOTH (c' cancels) ---
   eta_t <- i_y + b * m_t + c_prime * x_value # outcome lin. predictor, treated mediator
   eta_c <- i_y + b * m_c + c_prime * x_value # outcome lin. predictor, control mediator
-  if (gaussian_y) {
+  if (!is.null(u)) {
+    if (gaussian_y) {
+      y_t <- eta_t + sigma_y * stats::qnorm(u[, 4])
+      y_c <- eta_c + sigma_y * stats::qnorm(u[, 5])
+    } else {
+      y_t <- as.integer(u[, 4] < family_y$linkinv(eta_t))
+      y_c <- as.integer(u[, 5] < family_y$linkinv(eta_c))
+    }
+  } else if (gaussian_y) {
     y_t <- eta_t + stats::rnorm(n_sim, 0, sigma_y)
     y_c <- eta_c + stats::rnorm(n_sim, 0, sigma_y)
   } else {
@@ -163,4 +187,13 @@
 
   # P_med = P(Y(x, M(x)) > Y(x, M(x*))) + 0.5 * P(tie)   (Definition 1)
   mean(y_t > y_c) + 0.5 * mean(y_t == y_c)
+}
+
+#' Uniforms for common random numbers in `.pmed_core_simple()`
+#'
+#' Columns: standardization row, M(x), M(x*), Y | M(x), Y | M(x*).
+#'
+#' @keywords internal
+.crn_uniforms <- function(n_sim) {
+  matrix(stats::runif(5L * n_sim), ncol = 5L)
 }

@@ -16,6 +16,8 @@ source /etc/profile.d/modules.sh
 module load r/4.4.0-ytj2
 command -v Rscript >/dev/null || { echo "FATAL: Rscript not on PATH after module load"; exit 127; }
 export R_LIBS=${CALIB_R_LIBS:?set CALIB_R_LIBS}
+export CALIB_BASE_SEED=${CALIB_BASE_SEED:-20261014}
+echo "base seed $CALIB_BASE_SEED, task $SLURM_ARRAY_TASK_ID"
 cd ${CALIB_DIR:?set CALIB_DIR}
 mkdir -p logs parts
 Rscript inst/sim/calibration/calib_worker.R ${CALIB_MODE:-main} $SLURM_ARRAY_TASK_ID parts 20

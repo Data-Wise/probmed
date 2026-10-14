@@ -17,9 +17,13 @@ partsdir <- args[1]
 outdir <- args[2]
 source("inst/sim/calibration/calib_design.R")
 cells <- calib_cells()
+# T22 reruns only the bootstrap cells: CALIB_FAMILY=boot restricts collation.
+fam <- Sys.getenv("CALIB_FAMILY", "")
+if (nzchar(fam)) cells <- cells[cells$family == fam, ]
 
 parts <- list.files(partsdir, "^main_task.*\\.csv$", full.names = TRUE)
 d <- do.call(rbind, lapply(parts, utils::read.csv, stringsAsFactors = FALSE))
+d <- d[d$cell_id %in% cells$cell_id, ]
 d <- d[order(match(d$cell_id, cells$cell_id), d$replication), ]
 
 # Completeness: every cell, replications 1..2000 exactly once.
