@@ -32,6 +32,11 @@ the requested draws are valid (finite estimate, converged supported fits,
 no separation); otherwise both bounds are \code{NA} with status
 \code{"bootstrap_incomplete"}. Failed draws are never recycled or replaced.
 
+Monte Carlo control: every draw evaluates P_med on one shared set of
+uniforms (common random numbers), so simulation error does not widen the
+interval. The point estimate uses \code{10 * n_sim} simulated pairs, since its
+Monte Carlo error is not averaged away by the percentile interval.
+
 This models uncertainty under the specified sequential model and its
 assumed confounding structure. It does not correct misspecification, and it
 does not resample the covariate distribution.

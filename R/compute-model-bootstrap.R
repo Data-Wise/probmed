@@ -15,6 +15,11 @@
 #' no separation); otherwise both bounds are `NA` with status
 #' `"bootstrap_incomplete"`. Failed draws are never recycled or replaced.
 #'
+#' Monte Carlo control: every draw evaluates P_med on one shared set of
+#' uniforms (common random numbers), so simulation error does not widen the
+#' interval. The point estimate uses `10 * n_sim` simulated pairs, since its
+#' Monte Carlo error is not averaged away by the percentile interval.
+#'
 #' This models uncertainty under the specified sequential model and its
 #' assumed confounding structure. It does not correct misspecification, and it
 #' does not resample the covariate distribution.
@@ -42,7 +47,8 @@
   needs_std <- .needs_standardization(extract)
 
   # Point estimate: the fitted-model (standardized) plug-in.
-  point <- .pmed_plugin(extract, x_ref, x_value, n_sim = n_sim)@estimate
+  point <- .pmed_plugin(extract, x_ref, x_value, n_sim = 10L * n_sim)@estimate
+  u <- .crn_uniforms(n_sim)
   ie_point <- unname(co$m[[tx]] * co$y[[med]])
 
   eta_m <- drop(design$m %*% co$m)
@@ -108,7 +114,7 @@
       family_y = family_y, family_m = family_m,
       i_y = if ("(Intercept)" %in% names(cy)) cy[["(Intercept)"]] else 0,
       i_m = if ("(Intercept)" %in% names(cm)) cm[["(Intercept)"]] else 0,
-      lp_m0 = std$m, lp_y0 = std$y
+      lp_m0 = std$m, lp_y0 = std$y, u = u
     )
     if (!is.finite(est)) {
       reasons[i] <- "nonfinite"

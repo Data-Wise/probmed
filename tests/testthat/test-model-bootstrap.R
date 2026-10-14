@@ -56,7 +56,9 @@ test_that("the point estimate is the fitted-model plug-in, not the draw mean", {
   d <- mb_gauss()
   r <- run_mb(d, n_boot = 30, n_sim = 5000, seed = 9)
   p <- pmed(Y ~ X + M + C, formula_m = M ~ X + C, data = d, treatment = "X",
-            mediator = "M", method = "plugin", n_sim = 5000, seed = 9)
+            mediator = "M", method = "plugin", n_sim = 50000, seed = 9)
+  # The point estimate uses 10 * n_sim pairs (T21: its MC error is not
+  # averaged away by the percentile interval).
   expect_identical(r@estimate, p@estimate)
   expect_false(isTRUE(all.equal(r@estimate, mean(r@boot_estimates))))
 })
