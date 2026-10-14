@@ -250,13 +250,14 @@ cost is unchanged.
 **Description:** Config 1 (Gaussian M and Y) has a closed-form P_med. Recompute the
 N=1000 boot-1 interval with the exact P_med inside each draw. If coverage falls
 from 0.977 to about 0.95, the MC explanation is confirmed before any code changes.
-- [ ] 200 reps of boot-1-N1000 with an exact-P_med draw function (sim script only, `inst/sim/`)
-- [ ] Coverage and width compared with the main run's 1× results
+- [x] 2000 reps (not 200: the exact version ran in 100 s) of boot-1-N1000 with an exact-P_med draw function (`inst/sim/calibration/calib_t20_exact.R`)
+- [x] Coverage and width compared with the main run: 0.977 → 0.945 [0.934, 0.955] (PASS), width ×0.836, 64/0 one-way discordance. **MC confirmed.**
 **Dependencies:** None · **Scope:** S (~1 core-h)
 
 ### T21: Common random numbers in `.pmed_core_simple()`
 - [ ] Optional `u` argument (a fixed matrix of uniforms); default behavior and existing seeds unchanged when it's absent
-- [ ] `model_bootstrap` draws `u` once per call and reuses it in every draw and the point estimate
+- [ ] `model_bootstrap` draws `u` once per call and reuses it in every draw
+- [ ] Point estimate: use a larger `n_sim` (one simulation only). T20 measured its MC sd at 0.0049, about two-thirds of the sampling sd at N=1000
 - [ ] Tests: identical `u` gives identical P_med for identical coefficients; known-answer test against closed-form config 1; Bernoulli branch uses `u < p`
 - [ ] Full suite plus `R CMD check` 0/0/≤1 NOTE
 **Dependencies:** T20 confirms MC is the cause · **Scope:** M

@@ -98,3 +98,31 @@ rather than an interval, and users must be told so.
 - Any MBCO claim at the double null beyond "conservative".
 - Generalization outside this design: single mediator, binary X, with or without
   one binary covariate.
+
+## Addendum (2026-10-14): T20 positive control, Monte Carlo cause confirmed
+
+`inst/sim/calibration/calib_t20_exact.R` reran boot-1-N1000 (Gaussian M and Y)
+with the main run's streams, so all 2000 datasets are identical to the main run.
+The only change was the exact P_med inside every bootstrap draw in place of the
+`n_sim = 1e4` simulation. Before the swap, a known-answer check confirmed the
+exact formula matches the simulation (0.5522 vs 0.5522 at n_sim = 4e6).
+Results: `inst/sim/results/calibration/t20_exact_boot1_N1000.csv`.
+
+| | Coverage [exact 95% CI] | Median width | Decision |
+|---|---|---|---|
+| Main run (MC in each draw) | 0.977 [0.969, 0.983] | 0.0354 | INCONCLUSIVE |
+| Exact P_med in each draw | 0.945 [0.934, 0.955] | 0.0296 | PASS |
+
+- Removing the simulation noise narrows the interval by 16% and brings
+  coverage to nominal.
+- Every disagreement goes one way: 64 replications covered only with the
+  simulation and none only with the exact version.
+- The simulation error in the point estimate has sd 0.0049, against the
+  estimator's own sampling sd of 0.0076.
+
+The overcoverage is therefore Monte Carlo inflation, not a defect of the
+response bootstrap. **Implication for T21:** common random numbers remove the
+noise from the percentile spread. The point estimate still carries a fixed
+simulation error of about 0.005 at `n_sim = 1e4`, about two-thirds of the
+sampling sd at N = 1000. T21 should therefore also use a larger `n_sim` for the
+point estimate alone, which costs one simulation, not `n_boot` of them.
