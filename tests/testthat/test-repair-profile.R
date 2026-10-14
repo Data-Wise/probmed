@@ -150,3 +150,32 @@ test_that("MBCO exposes honest failure diagnostics", {
   expect_identical(result@diagnostics$pmed$status, "failed")
   expect_output(print(result), "Interval status.*failed")
 })
+
+test_that("near-null P_med profiles reach the b ~ 0 branch of each sign basin", {
+  skip_if_not_installed("nloptr")
+  # Regression (inst/sim/mbco_na_rate.R, cell strong/n=100/covariate, seed 18):
+  # without a start aimed at the b ~ 0 branch, the optimizer stayed on the a ~ 0
+  # branch for p just above 0.5, the profile jumped by ~6.7 between adjacent
+  # points, root verification failed, and the interval came back NA.
+  set.seed(1200018)
+  n <- 100
+  X <- stats::rnorm(n)
+  C1 <- stats::rnorm(n)
+  M <- 0.5 * X + 0.3 * C1 + stats::rnorm(n)
+  Y <- 0.2 * X + 0.4 * M + 0.3 * C1 + stats::rnorm(n)
+  d <- data.frame(X = X, M = M, Y = Y, C = C1)
+  ex <- extract_mediation(stats::lm(M ~ X + C, d), treatment = "X", mediator = "M",
+                          model_y = stats::lm(Y ~ X + M + C, d), data = d)
+  prep <- .mbco_prep(ex, 0, 1)
+  for (target in c(0.5003, 0.5006)) {
+    actual <- .mbco_ll_constrained_pmed(prep, stats::qnorm(target), 1)
+    reference <- repair_full_oracle(d, target, 1)
+    expect_lt(abs(actual - reference) / n, 1e-6)
+  }
+  res <- pmed(Y ~ X + M + C, formula_m = M ~ X + C, data = d,
+              treatment = "X", mediator = "M", method = "mbco")
+  expect_identical(res@diagnostics$pmed$status, "ok")
+  crit <- stats::qchisq(0.95, 1)
+  lower_ll <- repair_full_oracle(d, res@ci_lower, 1)
+  expect_lt(abs(-2 * (lower_ll - prep$ll_free) - crit), 1e-3)
+})

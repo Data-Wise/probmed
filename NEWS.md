@@ -14,6 +14,11 @@
 * A full bounded-domain scan detects sampled re-entry; narrow components
   below its resolution can remain undetected. Parallel mediation retains
   its legacy inversion path. No coverage claim follows from these repairs.
+* Near the null, each sign basin of the P_med profile has an a ~ 0 and a
+  b ~ 0 branch; the profile now starts from both. Without the b ~ 0 start,
+  1-2.5% of weak-effect intervals came back missing (root verification
+  refused a spurious profile jump). After the fix, 0 of 3,200 simulated
+  P_med intervals failed (`inst/sim/mbco_na_rate.R`).
 * Standardization, support/separation guards, broader bootstrap uncertainty,
   calibration, and external code review remain pending.
 

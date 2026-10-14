@@ -55,6 +55,13 @@
     bm <- max(abs(prep$b_hat), 0.1)
     base <- log(c(prep$Vm_hat, prep$Vy_hat / bm^2))
     starts <- list(base, base + c(0, -log(4)))
+    # Near the null each sign basin has two branches: a ~ 0 (b near b_hat,
+    # reached from `base`) and b ~ 0 (a near a_hat). The second needs a large
+    # r; holding a at |a_hat| in the constraint gives r = (a delta / q)^2 / 2 - Vm.
+    r_b0 <- (prep$a_hat * prep$delta / qstar)^2 / 2 - prep$Vm_hat
+    if (is.finite(r_b0) && r_b0 > 0) {
+      starts[[length(starts) + 1L]] <- c(log(prep$Vm_hat), log(r_b0))
+    }
     fits <- lapply(starts, function(s) .mbco_optim(s, nll))
     valid <- vapply(fits, function(o) !is.null(o) && o$convergence == 0 &&
       is.finite(o$value) && o$value < 1e99, logical(1))
