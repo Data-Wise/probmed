@@ -75,6 +75,10 @@ R/
 ├── methods-print.R         # print/summary/plot methods
 ├── compute-core.R          # Core P_med computation (.pmed_core_simple)
 ├── compute-bootstrap.R     # Parametric + nonparametric bootstrap
+├── compute-model-bootstrap.R # Opt-in method = "model_bootstrap" (simulate M, Y|M*; refit)
+├── support-guard.R         # Rejects unsupported families/terms before any RNG use
+├── standardize.R           # Observed-sample covariate standardization (binary models)
+├── separation.R            # LP separation detector (lpSolve, Suggests)
 ├── probmed-package.R       # Package-level docs
 ├── zzz.R                   # .onLoad (S7 dispatch registration)
 └── utils.R                 # Utility functions
@@ -123,6 +127,7 @@ For treatment X (treated `x`, control `x*`), mediator M, outcome Y:
 | `"parametric_bootstrap"` | Sample from N(theta, Sigma) | Default, fast |
 | `"nonparametric_bootstrap"` | Resample data, refit | Normality questionable |
 | `"mbco"` | LR-inversion interval (Tofighi & Kelley 2020); deterministic | Gaussian + covariates; closed-form CI for P_med and a*b |
+| `"model_bootstrap"` | Response bootstrap: simulate M, then Y given M*, refit; ≥99% valid draws | Binary M/Y with covariates; see `docs/reports/CALIBRATION-2026-10-14.md` for where coverage holds |
 
 ---
 

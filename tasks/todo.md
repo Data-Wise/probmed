@@ -12,12 +12,12 @@ Quick local gate: `scripts/check-local.sh`.
 
 | Phase | Tasks | Where | State |
 |---|---|---|---|
-| 0–1 | T1–T5 | PR #41 `feature/mbco-repair` → dev | open, evidence in body; **merge needs the user** |
-| 2 | T6–T8 | PR #42 `feature/repair-batch3` → #41 | open (stacked) |
-| 3 | T9–T11 | PR #43 `feature/repair-standardize` → #42 | open (stacked) |
-| 4 | T12–T14 | PR #44 `feature/repair-model-boot` → #43 | open (stacked) |
-| 5 | T15–T17 | `feature/repair-calibration` → #44 | T15 done (51.8 core-h); full run **local** (14 cores) instead of hopper |
-| side | T18 | dev `ecffb97` | done; #38 comment drafted, not posted |
+| 0–1 | T1–T5 | PR #41 → dev `1c39d15` | merged |
+| 2 | T6–T8 | PR #42 → dev `22edf49` | merged |
+| 3 | T9–T11 | PR #43 → dev `7847db5` | merged |
+| 4 | T12–T14 | PR #44 → dev `0fb9e81` | merged |
+| 5 | T15–T17 | PR #45 `feature/repair-calibration` → dev | open; 17 PASS / 15 FAIL / 4 INCONCLUSIVE (`docs/reports/CALIBRATION-2026-10-14.md`) |
+| side | T18 | dev `ecffb97` | done; #38 comment posted |
 
 Checkpoints B and C passed their test/check gates but **not** the user review they call for.
 Stacked PRs: after each merge, rebase the next with
@@ -89,7 +89,7 @@ Stacked PRs: after each merge, rebase the next with
 **Dependencies:** T3, T4 · **Files:** none · **Scope:** XS
 
 ### ✅ Checkpoint A: after T1–T5
-- [ ] PR merged into dev (merge only on the user's say-so)
+- [x] PR merged into dev (merge only on the user's say-so)
 - [ ] dev full suite green
 - [ ] Author accepted or rejected the SSE/n point-estimate change
 
@@ -214,8 +214,8 @@ Stacked PRs: after each merge, rebase the next with
 
 ### T17: Collate and decide
 **Acceptance criteria:**
-- [ ] PASS / FAIL / INCONCLUSIVE per cell under the spec rule, with undercoverage/overcoverage direction and failure strata
-- [ ] NEWS and docs restrict claims for any cell that is not PASS
+- [x] PASS / FAIL / INCONCLUSIVE per cell under the spec rule, with undercoverage/overcoverage direction and failure strata
+- [x] NEWS and docs restrict claims for any cell that is not PASS
 **Dependencies:** T16 · **Scope:** S
 
 ---
@@ -230,6 +230,6 @@ Stacked PRs: after each merge, rebase the next with
 **Dependencies:** None · **Scope:** S
 
 ### T19: Housekeeping
-- [ ] On the next real `.STATUS` edit: fix the stale `next:` item (1) (0.3.0 already released) and record the repair status once
+- [x] On the next real `.STATUS` edit: fix the stale `next:` item (1) (0.3.0 already released) and record the repair status once
 - [x] `AGENTS.md`: the user decides whether to keep `4901862` or revert it
 **Dependencies:** None · **Scope:** XS
