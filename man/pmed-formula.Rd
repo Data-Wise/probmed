@@ -32,6 +32,11 @@
 and bootstrap methods, an explicit seed resets the caller's RNG and the
 computation then advances it. MBCO does not use the seed.}
 
+\item{n_sim}{Number of cross-world pairs drawn per evaluation of the P_med
+core (default 10000). Used by the plug-in and both bootstrap methods, once
+per bootstrap draw; ignored by \code{"mbco"}, which is closed form. Distinct
+from \code{n_boot}.}
+
 \item{...}{Additional arguments}
 }
 \value{

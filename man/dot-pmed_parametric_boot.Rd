@@ -4,7 +4,16 @@
 \alias{.pmed_parametric_boot}
 \title{Parametric Bootstrap for P_med}
 \usage{
-.pmed_parametric_boot(extract, x_ref, x_value, n_boot, ci_level, seed, ...)
+.pmed_parametric_boot(
+  extract,
+  x_ref,
+  x_value,
+  n_boot,
+  ci_level,
+  seed,
+  n_sim = 10000,
+  ...
+)
 }
 \description{
 Parametric Bootstrap for P_med
