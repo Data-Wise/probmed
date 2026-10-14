@@ -85,13 +85,11 @@ NULL
       )
     }
   }
-  covs <- .covariate_terms(extract)
-  if (length(covs) && !(.is_gaussian(extract@family_m) &&
-                        .is_gaussian(extract@family_y))) {
-    # The core does not yet standardize over covariates; with a nonlinear link
-    # it would silently evaluate them at 0.
-    stop("pmed() does not yet support covariates (",
-         paste0("`", covs, "`", collapse = ", "),
+  if (.needs_standardization(extract) && is.null(extract@data)) {
+    # Covariates do not cancel under a nonlinear link; standardizing over
+    # them needs the analysis rows.
+    stop("pmed() needs the source data to standardize over covariates (",
+         paste0("`", .covariate_terms(extract), "`", collapse = ", "),
          ") with a binary mediator or outcome.", call. = FALSE)
   }
   vars <- c(extract@treatment, extract@mediator)
@@ -174,8 +172,7 @@ NULL
   labels <- c(extract@mediator_predictors, extract@outcome_predictors)
   labels <- setdiff(labels, "(Intercept)")
   used <- unique(c(extract@treatment, extract@mediator, extract@outcome,
-                   unlist(lapply(labels, function(l)
-                     tryCatch(all.vars(str2lang(l)), error = function(e) l)))))
+                   unlist(lapply(labels, .label_vars, data = data))))
   used <- intersect(used, names(data))
   if (anyNA(data[, used, drop = FALSE])) {
     stop("pmed() found missing values in the model variables (",

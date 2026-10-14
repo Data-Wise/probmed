@@ -86,16 +86,6 @@ test_that("interactions and transformed treatment/mediator terms are rejected", 
   expect_true(is.finite(r@estimate))
 })
 
-test_that("binary models with covariates are rejected until standardization exists", {
-  d <- guard_data()
-  expect_rng_untouched(expect_error(
-    pmed(Ybin ~ X + M + C, formula_m = M ~ X + C, data = d,
-         treatment = "X", mediator = "M", family_y = stats::binomial(),
-         method = "plugin"),
-    "covariates \\(`C`\\) with a binary"
-  ))
-})
-
 test_that("offsets, missing rows, non-numeric mediators and non-0/1 responses are rejected", {
   d <- guard_data()
   expect_rng_untouched(expect_error(

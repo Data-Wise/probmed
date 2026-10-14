@@ -21,6 +21,7 @@ Suggests:
     EValue (>= 4.1.0),
     knitr,
     lavaan,
+    lpSolve,
     MASS,
     mediation,
     nloptr,

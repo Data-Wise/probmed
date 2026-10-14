@@ -36,10 +36,15 @@
   family_y <- extract@family_y
   family_m <- extract@family_m
 
+  # Covariate standardization (binary models with covariates only): the
+  # design is fixed at the observed rows; each draw changes the coefficients.
+  design <- if (.needs_standardization(extract)) .design_matrices(extract) else NULL
+
   # Compute P_med for each bootstrap sample
   boot_estimates <- numeric(n_boot)
 
   for (i in seq_len(n_boot)) {
+    std <- .std_for(extract, theta_star[i, ], design)
     boot_estimates[i] <- .pmed_core_simple(
       a = a_s[i],
       b = b_s[i],
@@ -52,7 +57,9 @@
       family_m = family_m,
       i_y = iy_s[i],
       i_m = im_s[i],
-      n_sim = n_sim
+      n_sim = n_sim,
+      lp_m0 = std$m,
+      lp_y0 = std$y
     )
   }
 
@@ -101,14 +108,15 @@
   family_m <- if (is.null(extract@family_m)) stats::gaussian() else extract@family_m
   family_y <- if (is.null(extract@family_y)) stats::gaussian() else extract@family_y
 
-  # Build model formulas once
-  preds_m <- setdiff(extract@mediator_predictors, "(Intercept)")
-  if (length(preds_m) == 0) preds_m <- "1"
-  formula_m <- stats::reformulate(preds_m, response = extract@mediator)
-
-  preds_y <- setdiff(extract@outcome_predictors, "(Intercept)")
-  if (length(preds_y) == 0) preds_y <- "1"
-  formula_y <- stats::reformulate(preds_y, response = extract@outcome)
+  # Rebuild the design matrices once from the stored data. medfit stores
+  # model-matrix column names (e.g. factor dummies "Fb"), which a formula
+  # rebuilt with reformulate() cannot evaluate, so refits use the matrices.
+  design <- .design_matrices(extract)
+  m_resp <- as.numeric(data[[extract@mediator]])
+  y_resp <- as.numeric(data[[extract@outcome]])
+  needs_std <- .needs_standardization(extract)
+  binary <- !(.is_gaussian(family_m) && .is_gaussian(family_y))
+  separated_draws <- 0L
 
   boot_estimates <- numeric(n_boot)
   ie_boot_estimates <- numeric(n_boot)
@@ -116,14 +124,20 @@
   for (i in seq_len(n_boot)) {
     # Resample data
     boot_indices <- sample(1:n, size = n, replace = TRUE)
-    boot_data <- data[boot_indices, ]
+    if (binary) {
+      # Recorded only: the legacy estimate/aggregation policy is unchanged.
+      sep <- .extract_separation(extract, design, boot_indices)
+      separated_draws <- separated_draws + as.integer(any(sep == "separated"))
+    }
 
     # Refit models on the correct family/link
-    fit_m_boot <- stats::glm(formula_m, data = boot_data, family = family_m)
-    fit_y_boot <- stats::glm(formula_y, data = boot_data, family = family_y)
+    fit_m_boot <- stats::glm.fit(design$m[boot_indices, , drop = FALSE],
+                                 m_resp[boot_indices], family = family_m)
+    fit_y_boot <- stats::glm.fit(design$y[boot_indices, , drop = FALSE],
+                                 y_resp[boot_indices], family = family_y)
 
-    cm <- stats::coef(fit_m_boot)
-    cy <- stats::coef(fit_y_boot)
+    cm <- fit_m_boot$coefficients
+    cy <- fit_y_boot$coefficients
 
     # Extract parameters (residual SD only meaningful for Gaussian)
     a_boot <- cm[extract@treatment]
@@ -131,8 +145,17 @@
     c_boot <- cy[extract@treatment]
     im_boot <- if ("(Intercept)" %in% names(cm)) cm[["(Intercept)"]] else 0
     iy_boot <- if ("(Intercept)" %in% names(cy)) cy[["(Intercept)"]] else 0
-    sigma_m_boot <- if (.is_gaussian(family_m)) stats::sigma(fit_m_boot) else NA_real_
-    sigma_y_boot <- if (.is_gaussian(family_y)) stats::sigma(fit_y_boot) else NA_real_
+    sigma_m_boot <- if (.is_gaussian(family_m)) {
+      sqrt(fit_m_boot$deviance / fit_m_boot$df.residual)
+    } else NA_real_
+    sigma_y_boot <- if (.is_gaussian(family_y)) {
+      sqrt(fit_y_boot$deviance / fit_y_boot$df.residual)
+    } else NA_real_
+    # Standardize over the ORIGINAL analysis rows (fixed target), with the
+    # refitted coefficients.
+    std <- if (needs_std) {
+      .std_linear_predictors(design, cm, cy, extract@treatment, extract@mediator)
+    } else list(m = NULL, y = NULL)
 
     # Compute P_med
     boot_estimates[i] <- .pmed_core_simple(
@@ -147,7 +170,9 @@
       family_m = family_m,
       i_y = iy_boot,
       i_m = im_boot,
-      n_sim = n_sim
+      n_sim = n_sim,
+      lp_m0 = std$m,
+      lp_y0 = std$y
     )
 
     # Compute IE
@@ -176,6 +201,7 @@
     x_ref = x_ref,
     x_value = x_value,
     source_extract = extract,
-    converged = TRUE
+    converged = TRUE,
+    diagnostics = if (binary) list(separated_draws = separated_draws) else list()
   )
 }

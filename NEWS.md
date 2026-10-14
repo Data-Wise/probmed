@@ -1,5 +1,24 @@
 # probmed 0.3.0.9000 (development)
 
+## Single-mediator repair, fourth batch: covariate standardization and separation
+
+* Binary mediator and/or outcome **with covariates** is supported again,
+  correctly: P_med is standardized over the observed covariate rows (each
+  cross-world pair draws one analysis row and uses it in both arms). Before
+  the repair, covariates were silently evaluated at 0 under the nonlinear
+  link. Matches independent g-computation (Bernoulli and Gaussian mediators)
+  within Monte Carlo error. Gaussian additive models are unchanged: their
+  covariate shifts cancel. Both bootstraps standardize over the original rows.
+* The nonparametric bootstrap refits on design matrices rebuilt from the
+  stored data, which fixes refits with factor covariates (medfit stores
+  dummy-column names such as `Fb`, which a rebuilt formula could not evaluate).
+* Separation: a deterministic linear-programming check (Konis 2007; needs the
+  suggested package `lpSolve`) runs on every binary equation. A separated
+  original fit stops with an informative error; the status is recorded in
+  `@diagnostics$separation` (`"unchecked"` without `lpSolve`). The
+  nonparametric bootstrap records `@diagnostics$separated_draws` without
+  changing its legacy estimate policy.
+
 ## Single-mediator repair, third batch: support guards and controls
 
 * Unsupported models now fail early with an informative error, before any
@@ -9,9 +28,9 @@
   `I(M^2)`); `offset()`; rank-deficient designs; missing values in model
   variables (the nonparametric bootstrap would have resampled dropped rows);
   non-numeric treatment/mediator; binomial responses not coded 0/1.
-* Binary mediator or outcome **with covariates** is rejected for now: the core
-  evaluated covariates at 0 under a nonlinear link, giving silently wrong
-  values. Covariate standardization lifts this in the next batch.
+* Binary mediator or outcome **with covariates** was rejected in this batch
+  (the core evaluated covariates at 0); the fourth batch replaces the
+  rejection with standardization.
 * `n_sim` is now an explicit, validated argument of `pmed()` and reaches the
   core on the plug-in and both bootstrap paths (the bootstraps ignored it).
   `n_boot`, `ci_level`, `seed`, `x_ref` and `x_value` are validated too.

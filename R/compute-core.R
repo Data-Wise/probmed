@@ -5,7 +5,9 @@
                           n_sim = 10000, ...) {
   # Reject unsupported families/structures before any random draw.
   .check_supported_extract(extract)
-  switch(method,
+  # A separated binary fit has no MLE; stop rather than simulate from it.
+  separation <- .check_original_separation(extract)
+  result <- switch(method,
     parametric_bootstrap = .pmed_parametric_boot(
       extract, x_ref, x_value, n_boot, ci_level, seed, n_sim = n_sim, ...
     ),
@@ -19,6 +21,12 @@
       extract, x_ref, x_value, ci_level = ci_level, ...
     )
   )
+  if (length(separation)) {
+    diagnostics <- result@diagnostics
+    diagnostics$separation <- separation
+    result@diagnostics <- diagnostics
+  }
+  result
 }
 
 #' Plugin Estimator (Point Estimate Only)
@@ -33,6 +41,7 @@
   c_prime <- extract@c_prime
   sigma_y <- extract@sigma_y
   sigma_m <- extract@sigma_m
+  std <- .std_for(extract, extract@estimates)
 
   # Compute P_med
   pmed_est <- .pmed_core_simple(
@@ -47,7 +56,9 @@
     family_y = extract@family_y,
     family_m = extract@family_m,
     i_y = .named_or(extract@estimates, "y_(Intercept)"),
-    i_m = .named_or(extract@estimates, "m_(Intercept)")
+    i_m = .named_or(extract@estimates, "m_(Intercept)"),
+    lp_m0 = std$m,
+    lp_y0 = std$y
   )
 
   # Compute Indirect Effect (a * b)
@@ -97,12 +108,16 @@
 #' `c_prime` cancels and the result reflects mediation only. The intercepts and
 #' families matter only for non-Gaussian models (they cancel in the Gaussian
 #' linear contrast); their defaults keep Gaussian behaviour unchanged.
+#' `lp_m0` / `lp_y0`, when given, are per-row covariate linear predictors
+#' (see `.std_linear_predictors()`); each pair then draws one analysis row and
+#' uses it in both arms, standardizing over the observed covariates.
 #'
 #' @keywords internal
 .pmed_core_simple <- function(a, b, c_prime, x_ref, x_value,
                               sigma_y = 1, sigma_m = 1, n_sim = 10000,
                               family_y = NULL, family_m = NULL,
-                              i_y = 0, i_m = 0) {
+                              i_y = 0, i_m = 0,
+                              lp_m0 = NULL, lp_y0 = NULL) {
   # Residual SDs are NULL/NA for non-Gaussian models; treat as 0 (unused there,
   # since the family branch draws responses directly).
   if (is.null(sigma_m) || is.na(sigma_m)) sigma_m <- 0
@@ -114,6 +129,12 @@
   # --- Draw the mediator under BOTH treatment levels, independently ---
   # E[M | X] on the link scale; intercept cancels for Gaussian but is needed
   # for a nonlinear link.
+  if (!is.null(lp_m0)) {
+    # Standardize over the analysis rows: one row per pair, shared by both arms.
+    rows <- sample.int(length(lp_m0), n_sim, replace = TRUE)
+    i_m <- lp_m0[rows]
+    i_y <- lp_y0[rows]
+  }
   mu_m_t <- i_m + a * x_value # mediator mean under treatment
   mu_m_c <- i_m + a * x_ref # mediator mean under control
   if (gaussian_m) {
