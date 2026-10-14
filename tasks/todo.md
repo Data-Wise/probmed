@@ -234,7 +234,7 @@ Stacked PRs: after each merge, rebase the next with
 - [x] `AGENTS.md`: the user decides whether to keep `4901862` or revert it
 **Dependencies:** None · **Scope:** XS
 
-## Phase 6: model_bootstrap Monte Carlo inflation (not started; reviewed 2026-10-14)
+## Phase 6: model_bootstrap Monte Carlo inflation (complete 2026-10-14)
 
 Cause, from the code: every bootstrap draw calls `.pmed_core_simple()` with fresh
 `rnorm`/`rbinom` draws (`R/compute-core.R:144-161`), so the simulation error is
@@ -254,21 +254,22 @@ from 0.977 to about 0.95, the MC explanation is confirmed before any code change
 - [x] Coverage and width compared with the main run: 0.977 → 0.945 [0.934, 0.955] (PASS), width ×0.836, 64/0 one-way discordance. **MC confirmed.**
 **Dependencies:** None · **Scope:** S (~1 core-h)
 
-### T21: Common random numbers in `.pmed_core_simple()`
-- [ ] Optional `u` argument (a fixed matrix of uniforms); default behavior and existing seeds unchanged when it's absent
-- [ ] `model_bootstrap` draws `u` once per call and reuses it in every draw
-- [ ] Point estimate: use a larger `n_sim` (one simulation only). T20 measured its MC sd at 0.0049, about two-thirds of the sampling sd at N=1000
-- [ ] Tests: identical `u` gives identical P_med for identical coefficients; known-answer test against closed-form config 1; Bernoulli branch uses `u < p`
-- [ ] Full suite plus `R CMD check` 0/0/≤1 NOTE
+### T21: Common random numbers in `.pmed_core_simple()` (merged PR #46, `2bb82f4`)
+- [x] Added during T22's pilot: control-variate centering. Without it, a shared u shifts the whole interval (pilot coverage 0.79 → 0.95 once centered)
+- [x] Optional `u` argument (a fixed matrix of uniforms); default behavior and existing seeds unchanged when it's absent
+- [x] `model_bootstrap` draws `u` once per call and reuses it in every draw
+- [x] Point estimate: use a larger `n_sim` (one simulation only). T20 measured its MC sd at 0.0049, about two-thirds of the sampling sd at N=1000
+- [x] Tests: identical `u` gives identical P_med for identical coefficients; known-answer test against closed-form config 1; Bernoulli branch uses `u < p`
+- [x] Full suite plus `R CMD check` 0/0/≤1 NOTE
 **Dependencies:** T20 confirms MC is the cause · **Scope:** M
 
-### T22: Prespecified rerun of the boot cells
+### T22: Prespecified rerun of the boot cells (hopper array 4337068): 9 PASS / 4 FAIL / 2 INCONCLUSIVE, up from 2 / 10 / 3; remaining FAILs are small-N or rare-outcome strata
 **Description:** This is a new run, not a re-decision of the frozen cells. Write its
 design in the report before running it: same 15 cells, frozen decision rule,
 new base seed.
-- [ ] Pilot of 100 reps per cell, then the full 2000 reps (15 cells; locally ≈ the original boot cost)
-- [ ] `docs/reports/CALIBRATION-2026-10-14.md` gets a dated addendum; the original table is kept unchanged
-- [ ] NEWS claims updated only from the new run
+- [x] Pilot of 100 reps per cell, then the full 2000 reps (15 cells; locally ≈ the original boot cost)
+- [x] `docs/reports/CALIBRATION-2026-10-14.md` gets a dated addendum; the original table is kept unchanged
+- [x] NEWS claims updated only from the new run
 **Dependencies:** T21 · **Scope:** M
 
 ### Not in scope (recorded so it isn't lost)
