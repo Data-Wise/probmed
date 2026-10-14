@@ -1,0 +1,7 @@
+fixtures_sha256: 5f36dc8f4487f6c831a12c63e76ff6fb2c9b5ec8f2237ddf2a5533919001c17c
+design_sha256: 0b02ebfa54c0768df42cc51231be2af2f981341c805ffa50c8ab1e109d9d8201
+worker_sha256: 9e39ae252dd43fe44386c1f26cee76dcbd9b6ce0928c336a70effa6b89c688cd
+collate_sha256: 39b9c0d5381e4ec6e5ac24b5122155e4dd4b19d7475d4932c0cfbc938b489f76
+spec: pmed docs/SPEC-probmed-repair-2026-10-09.md sha256 a8fe83aad71ab44d2dc812840c065637c4c983945e536db4ee337bd87b39e616
+stream_rule: replication g = (cell_index - 1) * 2000 + rep uses nextRNGStream applied g times to set.seed(20261014) under L'Ecuyer-CMRG; pmed() called with seed = NULL
+benchmark: inst/sim/results/calib_benchmark.csv (20 reps/cell; projected 51.8 core-hours incl. stability subset)
