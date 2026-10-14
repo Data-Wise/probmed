@@ -1,5 +1,20 @@
 # probmed 0.3.0.9000 (development)
 
+## Opt-in model-based bootstrap (`method = "model_bootstrap"`)
+
+* New opt-in method: simulate M | X, C and then Y | X, M*, C from the fitted
+  models on the observed rows, refit both equations on the same rows
+  (coefficients and residual scales re-estimated jointly), and recompute P_med,
+  standardized over the original covariate rows for binary models. The
+  estimate is the fitted-model plug-in; the percentile interval needs at least
+  99% valid draws (finite, converged, not separated), otherwise both bounds are
+  `NA` with `@diagnostics$interval_status = "bootstrap_incomplete"`. Failed
+  draws are counted by reason, never recycled. The default method is unchanged.
+* Known-answer check: on a Gaussian fixture the bootstrap SD is within 20% of
+  the delta-method SE of the closed-form P_med (coefficients and variances).
+  No coverage calibration has been established yet.
+* README: the Poisson support claim is removed (the guard rejects it).
+
 ## Single-mediator repair, fourth batch: covariate standardization and separation
 
 * Binary mediator and/or outcome **with covariates** is supported again,

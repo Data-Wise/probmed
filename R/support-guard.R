@@ -135,7 +135,8 @@ NULL
   if (!scalar_num(x_ref) || !scalar_num(x_value)) {
     stop("`x_ref` and `x_value` must be single finite numbers.", call. = FALSE)
   }
-  if (method %in% c("parametric_bootstrap", "nonparametric_bootstrap") &&
+  if (method %in% c("parametric_bootstrap", "nonparametric_bootstrap",
+                    "model_bootstrap") &&
       !count(n_boot)) {
     stop("`n_boot` must be a single positive whole number.", call. = FALSE)
   }

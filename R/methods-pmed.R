@@ -10,7 +10,8 @@
 #' @param family_m Family for mediator model (default: gaussian())
 #' @param x_ref Reference treatment value (default: 0)
 #' @param x_value Treatment value (default: 1)
-#' @param method Inference method: "parametric_bootstrap", "nonparametric_bootstrap", "plugin", "mbco"
+#' @param method Inference method: "parametric_bootstrap", "nonparametric_bootstrap",
+#'   "plugin", "mbco", or the opt-in "model_bootstrap" (see Details).
 #' @param n_boot Number of bootstrap samples (default: 1000)
 #' @param ci_level Confidence level (default: 0.95)
 #' @param seed Random seed for reproducibility. For single-mediator plug-in
@@ -36,6 +37,18 @@
 #' components; it does not prove global connectedness. Detected disconnected
 #' sets or failed profiles return missing interval bounds. Domain-truncated
 #' bounds remain diagnostic bounds and are not verified LR endpoints.
+#'
+#' `method = "model_bootstrap"` (opt-in; not the default) simulates complete
+#' synthetic datasets from the fitted sequential models with the observed
+#' treatment and covariate rows held fixed: the mediator from its model, then
+#' the outcome using the simulated mediator. Both equations are refitted on the
+#' same rows, so coefficients and residual scales are re-estimated jointly. The
+#' estimate is the fitted-model plug-in; the percentile interval is reported
+#' only when at least 99% of draws are valid (finite, converged, not
+#' separated), otherwise both bounds are `NA` with
+#' `result@diagnostics$interval_status = "bootstrap_incomplete"`. It models
+#' uncertainty under the specified model; it does not correct misspecification.
+#' No coverage calibration has been established for it yet.
 #'
 #' `method = "mbco"` returns a Model-Based Constrained Optimization interval
 #' (Tofighi & Kelley, 2020): a likelihood-ratio interval for P_med and for the
@@ -101,7 +114,8 @@ S7::method(pmed, S7::class_formula) <- function(object,  # formula_y
                                                 method = c("parametric_bootstrap",
                                                           "nonparametric_bootstrap",
                                                           "plugin",
-                                                          "mbco"),
+                                                          "mbco",
+                                                          "model_bootstrap"),
                                                 n_boot = 1000,
                                                 ci_level = 0.95,
                                                 seed = NULL,
@@ -156,7 +170,8 @@ S7::method(pmed, medfit::MediationData) <- function(object,
                                                      method = c("parametric_bootstrap",
                                                                "nonparametric_bootstrap",
                                                                "plugin",
-                                                               "mbco"),
+                                                               "mbco",
+                                                               "model_bootstrap"),
                                                      n_boot = 1000,
                                                      ci_level = 0.95,
                                                      seed = NULL,

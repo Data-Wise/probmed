@@ -22,7 +22,8 @@
 
 \item{x_value}{Treatment value (default: 1)}
 
-\item{method}{Inference method: "parametric_bootstrap", "nonparametric_bootstrap", "plugin", "mbco"}
+\item{method}{Inference method: "parametric_bootstrap", "nonparametric_bootstrap",
+"plugin", "mbco", or the opt-in "model_bootstrap" (see Details).}
 
 \item{n_boot}{Number of bootstrap samples (default: 1000)}
 
@@ -57,6 +58,18 @@ spacing at most half the outward-search step and can miss narrower
 components; it does not prove global connectedness. Detected disconnected
 sets or failed profiles return missing interval bounds. Domain-truncated
 bounds remain diagnostic bounds and are not verified LR endpoints.
+
+\code{method = "model_bootstrap"} (opt-in; not the default) simulates complete
+synthetic datasets from the fitted sequential models with the observed
+treatment and covariate rows held fixed: the mediator from its model, then
+the outcome using the simulated mediator. Both equations are refitted on the
+same rows, so coefficients and residual scales are re-estimated jointly. The
+estimate is the fitted-model plug-in; the percentile interval is reported
+only when at least 99\% of draws are valid (finite, converged, not
+separated), otherwise both bounds are \code{NA} with
+\code{result@diagnostics$interval_status = "bootstrap_incomplete"}. It models
+uncertainty under the specified model; it does not correct misspecification.
+No coverage calibration has been established for it yet.
 
 \code{method = "mbco"} returns a Model-Based Constrained Optimization interval
 (Tofighi & Kelley, 2020): a likelihood-ratio interval for P_med and for the
