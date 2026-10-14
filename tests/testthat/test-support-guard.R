@@ -176,3 +176,28 @@ test_that("larger n_sim reduces Monte Carlo spread of the plug-in", {
   }
   expect_lt(spread(20000), spread(500))
 })
+
+test_that("the extracted-model guard catches what the formula guard cannot reach", {
+  d <- guard_data()
+  ex <- extract_mediation(stats::glm(M ~ X + C, data = d), treatment = "X",
+                          mediator = "M", model_y = stats::glm(Y ~ X + M + C, data = d),
+                          data = d)
+  expect_true(.check_supported_extract(ex))
+  # NULL families count as gaussian(identity).
+  expect_true(.supported_family(NULL))
+  expect_identical(.family_label(NULL), "gaussian(identity)")
+  # Transformed mediator term arriving through an extracted model.
+  bad <- ex
+  bad@outcome_predictors <- c(bad@outcome_predictors, "I(M^2)")
+  expect_error(.check_supported_extract(bad), "Unsupported term\\(s\\): `I\\(M\\^2\\)`")
+  # Mediator missing from the outcome model.
+  nomed <- ex
+  nomed@outcome_predictors <- setdiff(nomed@outcome_predictors, "M")
+  expect_error(.check_supported_extract(nomed), "mediator as a predictor of the outcome")
+  # Non-numeric mediator in the stored data.
+  chr <- ex
+  dd <- d
+  dd$M <- as.character(round(dd$M, 2))
+  chr@data <- dd
+  expect_error(.check_supported_extract(chr), "numeric `M`")
+})
