@@ -16,7 +16,7 @@ Quick local gate: `scripts/check-local.sh`.
 | 2 | T6–T8 | PR #42 → dev `22edf49` | merged |
 | 3 | T9–T11 | PR #43 → dev `7847db5` | merged |
 | 4 | T12–T14 | PR #44 → dev `0fb9e81` | merged |
-| 5 | T15–T17 | PR #45 `feature/repair-calibration` → dev | open; 17 PASS / 15 FAIL / 4 INCONCLUSIVE (`docs/reports/CALIBRATION-2026-10-14.md`) |
+| 5 | T15–T17 | PR #45 → dev `1d412bb` | merged; 17 PASS / 15 FAIL / 4 INCONCLUSIVE (`docs/reports/CALIBRATION-2026-10-14.md`) |
 | side | T18 | dev `ecffb97` | done; #38 comment posted |
 
 Checkpoints B and C passed their test/check gates but **not** the user review they call for.
