@@ -10,7 +10,7 @@
       extract, x_ref, x_value, n_boot, ci_level, seed, ...
     ),
     plugin = .pmed_plugin(
-      extract, x_ref, x_value, ...
+      extract, x_ref, x_value, seed = seed, ...
     ),
     mbco = .pmed_mbco(
       extract, x_ref, x_value, ci_level = ci_level, ...
@@ -21,7 +21,9 @@
 #' Plugin Estimator (Point Estimate Only)
 #'
 #' @keywords internal
-.pmed_plugin <- function(extract, x_ref, x_value, n_sim = 10000, ...) {
+.pmed_plugin <- function(extract, x_ref, x_value, n_sim = 10000, seed = NULL, ...) {
+  # Match bootstrap semantics: explicit seeds reset and then advance caller RNG.
+  if (!is.null(seed)) set.seed(seed)
   # Extract parameters
   a <- extract@a_path
   b <- extract@b_path

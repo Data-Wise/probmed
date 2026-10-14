@@ -2,15 +2,12 @@
 % Please edit documentation in R/compute-mbco.R
 \name{.mbco_ll_constrained_ie}
 \alias{.mbco_ll_constrained_ie}
-\title{Maximized log-likelihood under the constraint \code{a*b} = ie0.}
+\title{Maximized log-likelihood under the constraint \code{a*b} = ie0}
 \usage{
 .mbco_ll_constrained_ie(prep, ie0)
 }
-\value{
-Maximized joint log-likelihood, or NA_real_ if the fit fails.
-}
 \description{
-Pins b = ie0 / a; Vy is free (its MLE is SSE_Y / n). Optimizes over
-(a, log Vm); all linear nuisance terms are profiled by OLS.
+The exact null is the union of a = 0 and b = 0. For nonzero targets,
+pins b = ie0 / a and profiles linear nuisance terms by OLS.
 }
 \keyword{internal}

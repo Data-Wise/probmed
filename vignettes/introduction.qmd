@@ -145,6 +145,10 @@ plot(result)
 
 ### MBCO intervals (deterministic)
 
+At the exact null, the Gaussian procedure compares the reduced models
+`a = 0` and `b = 0` and retains their maximum likelihood. This repair does not
+establish coverage calibration; the expanded validation plan remains pending.
+
 For Gaussian models you can use the Model-Based Constrained Optimization (MBCO)
 interval, which inverts a likelihood-ratio test instead of resampling — so it is
 deterministic and needs no `n_boot` or `seed`:

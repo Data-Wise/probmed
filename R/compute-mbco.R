@@ -36,19 +36,35 @@
   c(lower = endpoint(-1), upper = endpoint(+1))
 }
 
-#' Maximized log-likelihood under the constraint `a*b` = ie0.
+#' Gaussian exact-null union likelihood
 #'
-#' Pins b = ie0 / a; Vy is free (its MLE is SSE_Y / n). Optimizes over
-#' (a, log Vm); all linear nuisance terms are profiled by OLS.
+#' Maximize over both reduced models, a = 0 and b = 0, with ML variances.
 #'
 #' @return Maximized joint log-likelihood, or NA_real_ if the fit fails.
 #' @keywords internal
+.mbco_ll_null <- function(prep) {
+  n <- prep$n
+  sse_m_full <- .ols_sse(cbind(prep$Dm, X = prep$X), prep$M)
+  sse_y_full <- .ols_sse(cbind(prep$Dy, M = prep$M), prep$Y)
+  sse_m_a0 <- .ols_sse(prep$Dm, prep$M)
+  sse_y_b0 <- .ols_sse(prep$Dy, prep$Y)
+  a0 <- .mbco_gll(sse_m_a0, sse_m_a0 / n, n) +
+    .mbco_gll(sse_y_full, sse_y_full / n, n)
+  b0 <- .mbco_gll(sse_m_full, sse_m_full / n, n) +
+    .mbco_gll(sse_y_b0, sse_y_b0 / n, n)
+  if (!all(is.finite(c(a0, b0)))) return(NA_real_)
+  max(a0, b0)
+}
+
+#' Maximized log-likelihood under the constraint `a*b` = ie0
+#'
+#' The exact null is the union of a = 0 and b = 0. For nonzero targets,
+#' pins b = ie0 / a and profiles linear nuisance terms by OLS.
+#' @keywords internal
 .mbco_ll_constrained_ie <- function(prep, ie0) {
   n <- prep$n
-  if (abs(ie0) < 1e-12) { # a*b = 0: take b = 0 (Y ~ Dy, no M)
-    sse_m <- .ols_sse(cbind(prep$Dm, X = prep$X), prep$M)
-    sse_y <- .ols_sse(prep$Dy, prep$Y)
-    return(.mbco_gll(sse_m, sse_m / n, n) + .mbco_gll(sse_y, sse_y / n, n))
+  if (ie0 == 0) {
+    return(.mbco_ll_null(prep))
   }
   nll <- function(p) {
     a <- p[1]
@@ -252,11 +268,9 @@
 .mbco_ll_constrained_pmed <- function(prep, qstar, a_sign) {
   n <- prep$n
 
-  # p* = 0.5: indirect effect is zero (b = 0). Y reduces to its design Dy.
-  if (abs(qstar) < 1e-8) {
-    sse_m <- .ols_sse(cbind(prep$Dm, X = prep$X), prep$M) # full M eq: [1, C, X]
-    sse_y <- .ols_sse(prep$Dy, prep$Y) # Y ~ [1, X, C], no M
-    return(.mbco_gll(sse_m, sse_m / n, n) + .mbco_gll(sse_y, sse_y / n, n))
+  # p* = 0.5: composite null {a = 0} union {b = 0}.
+  if (qstar == 0) {
+    return(.mbco_ll_null(prep))
   }
 
   delta <- prep$delta

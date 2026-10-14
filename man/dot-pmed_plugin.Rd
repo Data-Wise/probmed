@@ -4,7 +4,7 @@
 \alias{.pmed_plugin}
 \title{Plugin Estimator (Point Estimate Only)}
 \usage{
-.pmed_plugin(extract, x_ref, x_value, n_sim = 10000, ...)
+.pmed_plugin(extract, x_ref, x_value, n_sim = 10000, seed = NULL, ...)
 }
 \description{
 Plugin Estimator (Point Estimate Only)

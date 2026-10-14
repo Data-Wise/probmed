@@ -1,5 +1,16 @@
 # probmed 0.3.0.9000 (development)
 
+## Single-mediator repair, first batch
+
+* Explicit `seed` now reaches the plug-in estimator, matching the bootstrap
+  reset-and-advance RNG convention.
+* Both Gaussian MBCO exact-null likelihoods maximize over `{a = 0}` and
+  `{b = 0}`. Near-zero non-null targets no longer use an exact-null shortcut.
+* Regression fixtures check both preferable null branches with covariates.
+  These fixes do not establish coverage calibration. Signed-basin profiling,
+  interval status/search repairs, standardization and the opt-in response
+  bootstrap remain pending under the approved repair plan.
+
 ## `weak_id` no longer warns; bootstrap arm and gates re-measured with correct weights
 
 * Re-measured after the weight fix below (`inst/sim/boot_gates_check.R`,

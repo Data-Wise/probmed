@@ -28,6 +28,11 @@ Unlike the “Proportion Mediated” or simple indirect effect coefficients, $P_
 
 ## Features
 
+Development repair note: single-mediator plug-in calls honor an explicit seed
+by resetting and then advancing the caller’s RNG. Gaussian MBCO exact-null
+fits compare both `a = 0` and `b = 0` reduced-model likelihoods. Coverage
+validation and the remaining repair-plan work are pending; defaults are unchanged.
+
 - **Flexible Modeling**: Supports both **Linear Models (LM)** and **Generalized Linear Models (GLM)** (e.g., Logistic, Poisson) for the mediator and outcome.
 - **Comprehensive Effect Reporting**: Provides both $P_{med}$ (probabilistic effect size) and the traditional Indirect Effect ($a \times b$) with bootstrap confidence intervals.
 - **Robust Inference**: Implements multiple methods for constructing confidence intervals:

@@ -3,6 +3,25 @@
 \name{pmed-formula}
 \alias{pmed-formula}
 \title{Compute P_med from Formula}
+\usage{
+## S7 method for class <formula>
+pmed(
+  object,
+  formula_m,
+  data,
+  treatment,
+  mediator,
+  family_y = stats::gaussian(),
+  family_m = stats::gaussian(),
+  x_ref = 0,
+  x_value = 1,
+  method = c("parametric_bootstrap", "nonparametric_bootstrap", "plugin", "mbco"),
+  n_boot = 1000,
+  ci_level = 0.95,
+  seed = NULL,
+  ...
+)
+}
 \arguments{
 \item{object}{Formula for outcome model (Y ~ X + M + C)}
 
@@ -28,7 +47,9 @@
 
 \item{ci_level}{Confidence level (default: 0.95)}
 
-\item{seed}{Random seed for reproducibility}
+\item{seed}{Random seed for reproducibility. For single-mediator plug-in
+and bootstrap methods, an explicit seed resets the caller's RNG and the
+computation then advances it. MBCO does not use the seed.}
 
 \item{...}{Additional arguments}
 }
@@ -39,6 +60,9 @@ PmedResult object
 Compute P_med from Formula
 }
 \details{
+The Gaussian MBCO exact null is the union of \code{a = 0} and \code{b = 0};
+both reduced-model likelihoods are fitted and their maximum is used.
+
 \code{method = "mbco"} returns a Model-Based Constrained Optimization interval
 (Tofighi & Kelley, 2020): a likelihood-ratio interval for P_med and for the
 indirect effect \code{a*b}, obtained by inverting the constrained-likelihood test
