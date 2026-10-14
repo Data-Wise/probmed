@@ -356,3 +356,22 @@ Wald ~0.94-0.97 in regular cells, percentile ~0.90-0.93, bias unchanged.
 Collated output lands in `$D/gauge_boot_grid.csv`; commit it beside
 `../results/gauge_boot_coverage_nsim2000.csv` as `..._postfix.csv`, do not
 overwrite.
+
+**Result (collated on hopper 2026-08-30, 64/64 parts; committed 2026-10-14 as
+`../results/gauge_boot_coverage_nsim2000_postfix.csv`).** With the corrected
+weights every cell is calibrated. Pre-fix → post-fix, across the 8 cells:
+
+| Quantity | Pre-fix | Post-fix |
+|---|---|---|
+| Wald coverage of W (`covW_an`) | 0.859–0.913 | 0.942–0.961 |
+| Percentile coverage of W (`covW_pct`) | 1.000 | 0.940–0.953 |
+| Wald coverage of P_med (`covP_an`) | 0.899–0.934 | 0.943–0.961 |
+| Percentile coverage of P_med (`covP_pct`) | 0.997–1.000 | 0.941–0.956 |
+| Analytic SE / empirical SD (`seW_an_ratio`) | 0.65–0.83 | 0.98–1.02 |
+| Bootstrap SE / empirical SD (`seW_bt_ratio`) | 0.97–16.6 | 0.98–1.51 |
+| Empirical SD of W (`empSD_W`) | 0.043–0.286 | 0.025–0.128 |
+
+Bias is unchanged in sign and order (|bias| ≤ 0.007 post-fix). The one residual
+outlier is the bootstrap SE ratio in the binary-Y, n = 800 cells (1.51 and 1.15),
+consistent with the heavy-tailed bootstrap SD for binary Y noted in NEWS. MCSE of a
+coverage near 0.95 at nsim = 2000 is about 0.005.
