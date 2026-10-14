@@ -90,7 +90,7 @@ Stacked PRs: after each merge, rebase the next with
 
 ### ✅ Checkpoint A: after T1–T5
 - [x] PR merged into dev (merge only on the user's say-so)
-- [ ] dev full suite green
+- [x] dev full suite green — 749 passed / 0 failed at 4cad3aa+ (2026-10-14)
 - [x] Author accepted or rejected the SSE/n point-estimate change — accepted 2026-10-14
 
 ---
