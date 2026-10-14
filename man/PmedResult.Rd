@@ -20,6 +20,7 @@ PmedResult(
   x_value = integer(0),
   source_extract = NULL,
   converged = logical(0),
+  diagnostics = list(),
   call = NULL
 )
 }
@@ -53,6 +54,8 @@ PmedResult(
 \item{source_extract}{medfit::MediationData object: source of the estimates}
 
 \item{converged}{Logical: did computation converge}
+
+\item{diagnostics}{List: method-specific numerical interval diagnostics}
 
 \item{call}{Call object: original function call}
 }

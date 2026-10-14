@@ -23,6 +23,7 @@ Suggests:
     lavaan,
     MASS,
     mediation,
+    nloptr,
     rmarkdown,
     testthat (>= 3.0.0),
     quarto

@@ -13,12 +13,26 @@
 #' @param method Inference method: "parametric_bootstrap", "nonparametric_bootstrap", "plugin", "mbco"
 #' @param n_boot Number of bootstrap samples (default: 1000)
 #' @param ci_level Confidence level (default: 0.95)
-#' @param seed Random seed for reproducibility
+#' @param seed Random seed for reproducibility. For single-mediator plug-in
+#'   and bootstrap methods, an explicit seed resets the caller's RNG and the
+#'   computation then advances it. MBCO does not use the seed.
 #' @param ... Additional arguments
 #'
 #' @return PmedResult object
 #'
 #' @details
+#' The Gaussian MBCO exact null is the union of `a = 0` and `b = 0`;
+#' both reduced-model likelihoods are fitted and their maximum is used.
+#' Single-mediator MBCO uses ML residual variances (SSE/n) for both its
+#' point estimate and likelihood. This can change the point estimate relative
+#' to the earlier residual-df scale convention.
+#' Numerical statuses and scan resolution are in `result@diagnostics`.
+#' Verified roots use tolerance at most 1e-9. The bounded-domain scan has
+#' spacing at most half the outward-search step and can miss narrower
+#' components; it does not prove global connectedness. Detected disconnected
+#' sets or failed profiles return missing interval bounds. Domain-truncated
+#' bounds remain diagnostic bounds and are not verified LR endpoints.
+#'
 #' `method = "mbco"` returns a Model-Based Constrained Optimization interval
 #' (Tofighi & Kelley, 2020): a likelihood-ratio interval for P_med and for the
 #' indirect effect `a*b`, obtained by inverting the constrained-likelihood test
@@ -27,8 +41,10 @@
 #' contrast `x_ref != x_value`. For binary or other non-Gaussian models, use the
 #' bootstrap methods.
 #'
-#' For `method = "mbco"`, the `converged` flag reflects the **P_med** interval
-#' only. The indirect-effect interval is reported separately and may be `NA` on
+#' For single-mediator `method = "mbco"`, `converged` requires two verified
+#' **P_med** LR endpoints and no detected re-entry on the scan. It does not
+#' establish coverage calibration. The indirect-effect interval is reported
+#' separately and may be `NA` on
 #' a degenerate design (e.g. a non-finite delta-method scale for `a*b`) even when
 #' the P_med interval converges; check `ie_ci_lower` / `ie_ci_upper` directly.
 #'

@@ -74,8 +74,10 @@ oracle_mbco_ci <- function(data, level = 0.95, covs = character(0)) {
   fy <- stats::lm(stats::reformulate(c("X", "M", covs), "Y"), data)
   a <- stats::coef(fm)["X"]
   b <- stats::coef(fy)["M"]
-  Vm <- stats::sigma(fm)^2
-  Vy <- stats::sigma(fy)^2
+  # The free Gaussian likelihood uses ML SSE/n variances, so its point
+  # functional must use the same convention rather than residual-df scales.
+  Vm <- mean(stats::residuals(fm)^2)
+  Vy <- mean(stats::residuals(fy)^2)
   est <- as.numeric(stats::pnorm(a * b / sqrt(2 * (b^2 * Vm + Vy))))
   a_sign <- sign(as.numeric(a))
   if (a_sign == 0) a_sign <- 1
