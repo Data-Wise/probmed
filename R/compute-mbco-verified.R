@@ -100,8 +100,8 @@
   if (any(!is.finite(values))) return(failed("profile_failure", grid[!is.finite(values)]))
   if (values[match(est, grid)] > 0) return(failed("estimate_rejected"))
   accepted <- values <= 0
-  starts <- which(accepted & !c(FALSE, head(accepted, -1)))
-  ends <- which(accepted & !c(tail(accepted, -1), FALSE))
+  starts <- which(accepted & !c(FALSE, utils::head(accepted, -1)))
+  ends <- which(accepted & !c(utils::tail(accepted, -1), FALSE))
   components <- matrix(NA_real_, length(starts), 2, dimnames = list(NULL, c("lower", "upper")))
   statuses <- matrix("root", length(starts), 2)
   tol <- min(1e-9, step / 1000000)
@@ -129,8 +129,8 @@
   status <- if (nrow(components) > 1) "disconnected" else
     if (any(statuses == "truncated")) "truncated" else "ok"
   list(bounds = if (status == "ok" || status == "truncated")
-    setNames(as.numeric(components[1, ]), c("lower", "upper")) else c(lower = NA_real_, upper = NA_real_),
-    endpoint_status = if (nrow(components) == 1) setNames(statuses[1, ], c("lower", "upper")) else
+    stats::setNames(as.numeric(components[1, ]), c("lower", "upper")) else c(lower = NA_real_, upper = NA_real_),
+    endpoint_status = if (nrow(components) == 1) stats::setNames(statuses[1, ], c("lower", "upper")) else
       c(lower = "failed", upper = "failed"),
     status = status, verified = status == "ok", components = components,
     scan_spacing = max(diff(grid)), root_tolerance = tol)
