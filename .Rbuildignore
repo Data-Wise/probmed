@@ -30,3 +30,4 @@
 ^scripts$
 ^tasks$
 ^\.token-optimizer$
+^inst/sim/results/calibration$
