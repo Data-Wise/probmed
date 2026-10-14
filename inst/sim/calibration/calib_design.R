@@ -8,7 +8,9 @@
 
 CALIB_REPS <- 2000L
 CALIB_N <- c(50L, 250L, 1000L)
-CALIB_BASE_SEED <- 20261014L
+# T22 (prespecified rerun after T21) sets CALIB_BASE_SEED=20261015 in the
+# environment; the original run used the default.
+CALIB_BASE_SEED <- as.integer(Sys.getenv("CALIB_BASE_SEED", "20261014"))
 
 # --- MBCO matrix: 7 path pairs x 3 N = 21 cells ------------------------------
 # X ~ Bernoulli(0.5), direct effect 0.3, Vm = 1, Vy = 1 (Vy = 2 for pair 7).
