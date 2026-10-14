@@ -19,6 +19,9 @@
     ),
     mbco = .pmed_mbco(
       extract, x_ref, x_value, ci_level = ci_level, ...
+    ),
+    model_bootstrap = .pmed_model_boot(
+      extract, x_ref, x_value, n_boot, ci_level, seed, n_sim = n_sim, ...
     )
   )
   if (length(separation)) {
