@@ -126,3 +126,47 @@ noise from the percentile spread. The point estimate still carries a fixed
 simulation error of about 0.005 at `n_sim = 1e4`, about two-thirds of the
 sampling sd at N = 1000. T21 should therefore also use a larger `n_sim` for the
 point estimate alone, which costs one simulation, not `n_boot` of them.
+
+## Addendum (2026-10-14): T22, prespecified rerun of the bootstrap cells after T21
+
+Design: `inst/sim/calibration/calib_manifest_t22.dcf`, committed before the full
+array ran. The run covers the same 15 cells and 2000 replications per cell,
+base seed 20261015, with the frozen decision rule unchanged. It used probmed
+`41d71de`: common random numbers, draws re-centered on a control variate, and a
+point estimate with `100 * n_sim` pairs. It ran on hopper (array 4337068, 300
+tasks, all completed) from a fresh library with medfit 0.3.2 and lpSolve 5.6.23.
+
+One pilot task at the earlier commit `4bba493` (uncentered shared uniforms)
+covered 0.79 in boot-5-N1000. The cause was the common Monte Carlo error
+shifting the whole interval, and it was fixed before the array ran. That pilot
+output is set aside and not collated. Results:
+`inst/sim/results/calibration/t22/`.
+
+**Totals: 9 PASS · 4 FAIL · 2 INCONCLUSIVE** (the original run had 2 · 10 · 3 on
+these cells).
+
+| Config | N=50 | N=250 | N=1000 |
+|---|---|---|---|
+| 1 Gaussian M, Gaussian Y | PASS 0.946 | PASS 0.946 | INCONCL 0.934 [0.923, 0.945] |
+| 2 Gaussian M, binary Y (5%) | FAIL 0.000 (no complete intervals) | FAIL 0.242 (cond 0.955) | PASS 0.943 |
+| 3 Gaussian M, binary Y (50%) | FAIL 0.904 (cond 0.951) | PASS 0.947 | PASS 0.946 |
+| 4 binary M, Gaussian Y | INCONCL 0.931 (cond 0.990) | PASS 0.952 | PASS 0.942 |
+| 5 binary M, binary Y, + Z | FAIL 0.847 (cond 0.999) | PASS 0.949 | PASS 0.956 |
+
+- **The large-N overcoverage is gone.** All seven cells that failed for
+  overcoverage now PASS. Widths shrank by up to 37%, for example boot-5-N1000
+  from 0.0168 to 0.0106.
+- **Every remaining FAIL is a fit-failure or incompleteness stratum.** Coverage
+  among complete intervals is 0.951–0.999 in each of them. Config 2 at N ≤ 250
+  is too sparse to fit reliably. The N=50 cells in configs 3–5 lose intervals
+  to the 99% completion rule.
+- **boot-1-N1000 is INCONCLUSIVE, leaning slightly low** (0.934). T20's exact
+  per-draw evaluation on the same design gave 0.945, so the 0.011 gap is about
+  what the remaining point-estimate error and a fresh seed would produce. It is
+  not a systematic shortfall at the level this design can detect.
+
+**Supported claim, replacing the T17 claim for `model_bootstrap`:** nominal
+coverage at N ≥ 250 for every configuration except a rare (5%) binary outcome
+at N = 250. At N = 50, and for rare outcomes at N ≤ 250, the method often
+returns `bootstrap_incomplete`. The intervals it does report cover at nominal
+or conservative rates.

@@ -15,6 +15,13 @@
 * The `model_bootstrap` point estimate uses `100 * n_sim` simulated pairs (one
   evaluation), so its Monte Carlo sd is about 0.0005 at the default. It changes
   slightly for a fixed seed; the RNG path of every other method is unchanged.
+* Prespecified rerun of the 15 bootstrap calibration cells (T22, 2000 reps
+  each, `docs/reports/CALIBRATION-2026-10-14.md`): 9 PASS, 4 FAIL,
+  2 INCONCLUSIVE, up from 2 / 10 / 3. Every large-N overcoverage FAIL now
+  passes. The remaining FAILs are small-N or rare-outcome strata where
+  intervals are often `bootstrap_incomplete`; reported intervals there cover
+  0.95–0.999. Supported claim: nominal coverage at N >= 250 except a rare (5%)
+  binary outcome at N = 250.
 
 ## Opt-in model-based bootstrap (`method = "model_bootstrap"`)
 
