@@ -40,6 +40,7 @@ mediate_class <- S7::new_S3_class("mediate")
 #' @param x_value Numeric: treatment value for contrast
 #' @param source_extract medfit::MediationData object: source of the estimates
 #' @param converged Logical: did computation converge
+#' @param diagnostics List: method-specific numerical interval diagnostics
 #' @param call Call object: original function call
 #'
 #' @export
@@ -86,6 +87,7 @@ PmedResult <- S7::new_class(
 
     # Computation details
     converged = S7::class_logical,
+    diagnostics = S7::new_property(class = S7::class_list, default = list()),
     call = S7::new_property(class = S7::class_any, default = NULL)
   ),
   validator = function(self) {

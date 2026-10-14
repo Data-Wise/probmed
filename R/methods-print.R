@@ -30,6 +30,10 @@ S7::method(print, PmedResult) <- function(x, digits = 3, ...) {
 
   cat("\n")
   cat("Inference:", x@method, "\n")
+  if (length(x@diagnostics$pmed)) {
+    cat("Interval status (P_med / IE):", x@diagnostics$pmed$status,
+        "/", x@diagnostics$ie$status, "\n")
+  }
   if (!is.na(x@n_boot)) {
     cat("Bootstrap samples:", x@n_boot, "\n")
   }

@@ -149,6 +149,14 @@ At the exact null, the Gaussian procedure compares the reduced models
 `a = 0` and `b = 0` and retains their maximum likelihood. This repair does not
 establish coverage calibration; the expanded validation plan remains pending.
 
+Single-mediator MBCO uses ML SSE/n residual variances consistently in its
+point estimate and likelihood. Inspect `result@diagnostics` for endpoint and
+interval status. Truncated bounds are not verified LR roots; detected
+disconnected sets and numerical failures return missing bounds. A full
+bounded-domain scan checks re-entry at its recorded resolution, but it can
+miss narrower components. The parallel-mediator implementation retains its
+legacy inversion behavior.
+
 For Gaussian models you can use the Model-Based Constrained Optimization (MBCO)
 interval, which inverts a likelihood-ratio test instead of resampling — so it is
 deterministic and needs no `n_boot` or `seed`:

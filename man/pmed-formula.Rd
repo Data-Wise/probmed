@@ -62,6 +62,15 @@ Compute P_med from Formula
 \details{
 The Gaussian MBCO exact null is the union of \code{a = 0} and \code{b = 0};
 both reduced-model likelihoods are fitted and their maximum is used.
+Single-mediator MBCO uses ML residual variances (SSE/n) for both its
+point estimate and likelihood. This can change the point estimate relative
+to the earlier residual-df scale convention.
+Numerical statuses and scan resolution are in \code{result@diagnostics}.
+Verified roots use tolerance at most 1e-9. The bounded-domain scan has
+spacing at most half the outward-search step and can miss narrower
+components; it does not prove global connectedness. Detected disconnected
+sets or failed profiles return missing interval bounds. Domain-truncated
+bounds remain diagnostic bounds and are not verified LR endpoints.
 
 \code{method = "mbco"} returns a Model-Based Constrained Optimization interval
 (Tofighi & Kelley, 2020): a likelihood-ratio interval for P_med and for the
@@ -71,8 +80,10 @@ supports a Gaussian outcome and mediator, with covariates, and any treatment
 contrast \code{x_ref != x_value}. For binary or other non-Gaussian models, use the
 bootstrap methods.
 
-For \code{method = "mbco"}, the \code{converged} flag reflects the \strong{P_med} interval
-only. The indirect-effect interval is reported separately and may be \code{NA} on
+For single-mediator \code{method = "mbco"}, \code{converged} requires two verified
+\strong{P_med} LR endpoints and no detected re-entry on the scan. It does not
+establish coverage calibration. The indirect-effect interval is reported
+separately and may be \code{NA} on
 a degenerate design (e.g. a non-finite delta-method scale for \code{a*b}) even when
 the P_med interval converges; check \code{ie_ci_lower} / \code{ie_ci_upper} directly.
 }

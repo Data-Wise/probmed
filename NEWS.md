@@ -1,5 +1,22 @@
 # probmed 0.3.0.9000 (development)
 
+## Single-mediator repair, second batch
+
+* Signed P_med profiles explore both compatible coefficient signs using
+  positive variance coordinates and an analytic conditional b-profile.
+  Both profile methods check optimizer convergence and reconstructed likelihoods.
+* MBCO point estimates now use ML SSE/n residual variances, matching the
+  free likelihood. Earlier point estimates used residual-df variances.
+* Single-mediator interval inversion reports root, truncation, disconnected
+  set, and failure diagnostics in `PmedResult@diagnostics`. Failed profiles
+  no longer become fabricated rejection statistics. Only verified P_med
+  roots set `converged = TRUE`.
+* A full bounded-domain scan detects sampled re-entry; narrow components
+  below its resolution can remain undetected. Parallel mediation retains
+  its legacy inversion path. No coverage claim follows from these repairs.
+* Standardization, support/separation guards, broader bootstrap uncertainty,
+  calibration, and external code review remain pending.
+
 ## Single-mediator repair, first batch
 
 * Explicit `seed` now reaches the plug-in estimator, matching the bootstrap
@@ -7,9 +24,8 @@
 * Both Gaussian MBCO exact-null likelihoods maximize over `{a = 0}` and
   `{b = 0}`. Near-zero non-null targets no longer use an exact-null shortcut.
 * Regression fixtures check both preferable null branches with covariates.
-  These fixes do not establish coverage calibration. Signed-basin profiling,
-  interval status/search repairs, standardization and the opt-in response
-  bootstrap remain pending under the approved repair plan.
+  These fixes do not establish coverage calibration. Subsequent work is
+  recorded in the second-batch entry above.
 
 ## `weak_id` no longer warns; bootstrap arm and gates re-measured with correct weights
 
