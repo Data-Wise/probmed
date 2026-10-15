@@ -287,3 +287,13 @@ new base seed.
 - [ ] I5: MBCO side check (s5 misspecification) · S
 - [ ] I6: Authoritative rerun, prespecified gate · M, hopper
 - [ ] I7: Manuscript + probmed #47 updates · M
+
+## Phase 8: MBCO composite null + T22 claim (plan: `tasks/plan-mbco-null.md`, from the Codex review)
+
+- [ ] T1: Correct the T22 claim (boot-1-N1000 INCONCLUSIVE) · XS
+- [ ] T2: Composite-null lattice harness (LR_true, LR_a0, LR_b0; widths on a subsample) · M
+- [ ] T3: `near_double_null` diagnostic + print note + docs (TDD) · S
+- [ ] Checkpoint A: suite green, harness positive controls, PR
+- [ ] T4: Offline evaluation of cutoff calibrations (prespecified acceptance) · M
+- [ ] Checkpoint B: user decides
+- [ ] T5: Opt-in `null_calibration = "adaptive"` (only if T4 passes) · M
