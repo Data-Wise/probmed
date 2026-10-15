@@ -224,8 +224,8 @@ test_that(".mbco_optim falls back to Subplex when BOBYQA does not succeed", {
 })
 
 test_that(".mbco_nlopt turns an nloptr error into NULL, and a real problem converges", {
-  testthat::local_mocked_bindings(nloptr = function(...) stop("boom"), .package = "nloptr")
-  expect_null(.mbco_nlopt(c(0, 0), function(p) sum(p^2), "NLOPT_LN_BOBYQA", maxeval = 10L))
+  # a real nloptr error (the objective throws), so the path is hit without mocking
+  expect_null(.mbco_nlopt(c(0, 0), function(p) stop("boom"), "NLOPT_LN_BOBYQA", maxeval = 10L))
 })
 
 test_that(".mbco_optim minimizes a known quadratic (real nloptr)", {
