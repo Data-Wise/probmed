@@ -25,9 +25,9 @@ probmed issue #47; one method decision serves both.
 ## Tasks
 
 ### I1: Audit the reported numbers from raw replications (S, local, ~15 min)
-- [ ] For the fresh, crn5k and crn50k runs: per cell, attempted vs finite replications, and coverage with failures counted as misses
-- [ ] Flag any cell where the two coverage definitions differ by more than 0.005
-**Can fail:** yes, if failures are being silently dropped. **Output:** a table in the report.
+- [x] For the fresh, crn5k and crn50k runs: per cell, attempted vs finite replications, and coverage with failures counted as misses
+- [x] Flag any cell where the two coverage definitions differ by more than 0.005
+**Can fail:** yes, if failures are being silently dropped. **Output:** a table in the report. **Done 2026-10-15:** 0 drops in 210 cells; see `docs/reports/I1-COVERAGE-AUDIT-2026-10-15.md`.
 
 ### I2: Exact-bootstrap reference grid for the Gaussian mechanisms (M, local or hopper, ~2 h)
 - [ ] Closed-form P_med per resample for s1, s2, s6, s7 and s8 × all 5 N, 2000 reps, same datasets as the crn50k run (reuse its seeds)
