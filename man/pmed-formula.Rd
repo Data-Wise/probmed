@@ -93,8 +93,10 @@ calibration coverage was 0.997 to 0.998 at the 95\% level, and about 0.994
 near the origin. \verb{@diagnostics$pmed$branch_lr} holds the LR statistics for
 a = 0 and b = 0. \verb{@diagnostics$pmed$near_double_null} is \code{TRUE} when both
 are below the cutoff (neither path individually significant), and \code{print()}
-then notes that the interval is conservative. At single nulls and away from
-the origin, coverage was nominal.
+then notes that the interval is conservative. The interval never
+undercovered in calibration. It stays conservative until one path is about
+4 standard errors from zero, so a single null with a weak other path is
+conservative too, and the flag can be \code{FALSE} there.
 }
 \examples{
 # Toy example: Simple mediation model

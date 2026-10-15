@@ -35,7 +35,11 @@ conservative there. A single-null cell (one path nonzero) and every non-null
 cell is nominal.
 
 **Supported claim:** nominal coverage at single-null and non-null
-configurations. The interval is conservative (≈0.997) at and near the double null.
+configurations **where the nonzero path is well identified** (every cell above
+has a nonzero path at least 0.4). The interval is conservative (≈0.997) at and
+near the double null. The Phase 8 lattice (last addendum) shows that the
+conservative region is wider than these 21 cells suggest. It includes single
+nulls whose other path is within about 2 SE of zero, and it never undercovers.
 
 ## Model bootstrap (`method = "model_bootstrap"`), 15 cells
 
@@ -85,7 +89,8 @@ separate 0.95 from 0.97. **The hypothesis is supported, not confirmed.** The
 next step would be `n_sim` scaled with N (for example, MC sd below 0.25 ×
 the estimated SE) and a rerun of the N ≥ 250 boot cells.
 
-**Supported claim:** nominal or conservative coverage for complete intervals at
+**Supported claim (superseded for `model_bootstrap` by the T22 addendum
+below):** nominal or conservative coverage for complete intervals at
 N ≥ 250 for configs 1, 3, 4 and 5. Overcoverage at large N is driven by the
 simulation noise in `n_sim`. Rare binary outcomes (5%) at N ≤ 250 are a
 fit-failure regime: the method frequently returns `bootstrap_incomplete`
@@ -168,11 +173,18 @@ these cells).
   Phase 7 plan, `tasks/plan-mc-bootstrap.md`).
 
 **Supported claim, replacing the T17 claim for `model_bootstrap`:** nominal
-coverage (PASS) at N ≥ 250 in configs 2–5, except a rare (5%) binary outcome
-at N = 250, and in config 1 at N = 250. **Config 1 (Gaussian M and Y) at
-N = 1000 is INCONCLUSIVE and leans low (0.9345).** At N = 50, and for rare outcomes at
-N ≤ 250, the method often returns `bootstrap_incomplete`. The intervals it
-does report cover at nominal or conservative rates.
+coverage (PASS) in 7 of the 10 cells at N ≥ 250:
+- N = 250: configs 1, 3, 4 and 5;
+- N = 1000: configs 2, 3, 4 and 5.
+
+The claim excludes:
+- **config 1 (Gaussian M and Y) at N = 1000, which is INCONCLUSIVE and leans low
+  (0.9345 [0.9228, 0.9449]);**
+- config 2 (rare 5% binary Y) at N = 250, which FAILs from incomplete intervals.
+
+There is no blanket "nominal at N ≥ 250" claim. At N = 50, and for rare
+outcomes at N ≤ 250, the method often returns `bootstrap_incomplete`. The
+intervals it does report cover at nominal or conservative rates (0.951–0.999).
 
 *Corrected 2026-10-14 after the Codex adversarial review: the first version of
 this addendum called boot-1-N1000 nominal.*
@@ -186,12 +198,33 @@ h ∈ {0, 0.5, 1, 2, 4}², N ∈ {100, 1000}, with or without a covariate:
 acceptance of the truth in 5,000 of 5,000 full-inversion replications, with 0
 failed profiles in 200,000. Results: `inst/sim/results/calibration/mbco_null/`.
 
-**χ²₁ (shipped) never undercovers.** Its minimum lattice coverage is 0.9415
-(N = 100) and 0.9440 (N = 1000), within Monte Carlo error of 0.95. It is
-conservative across a band, not only at the origin: coverage is 0.97–0.999
-wherever both h ≤ 2 (both paths within about 2 SE of zero), and 0.997–0.999
-at a = b = 0. The new `near_double_null` diagnostic (both branch LR below the
-cutoff, i.e. both |z| < 1.96) flags this band.
+**χ²₁ (shipped) never undercovers.** Under the frozen decision rule its 100
+lattice points are 29 PASS, 18 INCONCLUSIVE, 53 FAIL (all over), and 0 FAIL
+under. No point's exact 95% CI lies below 0.95. Its minimum coverage is 0.9415
+(N = 100) and 0.9440 (N = 1000), at points where a path is 4 SE from zero.
+
+**The conservative region is a band, not a point.** Coverage ranges over both N and
+both covariate settings, by the larger of the two local effects:
+
+| max(h_a, h_b) | single null (one h = 0) | both nonzero |
+|---|---|---|
+| 0 (double null) | 0.996–0.9985 | — |
+| 0.5 | 0.995–0.999 | 0.9955–0.9965 |
+| 1 | 0.987–0.9975 | 0.986–0.9975 |
+| 2 | 0.976–0.994 | 0.9615–0.9935 |
+| 4 | 0.947–0.973 | 0.9415–0.9755 |
+
+Coverage approaches 0.95 only once one path is about 4 SE from zero. A single
+null is therefore conservative unless the other path is strong. The 21-cell
+"nominal at single nulls" result above holds because those cells used strong
+paths.
+
+**The `near_double_null` flag marks the core of the band, not all of it.** It
+is `TRUE` when both branch LR are below the cutoff (both |z| < 1.96). Data
+with one path near 2 SE can show |z| > 1.96 by chance and go unflagged while
+coverage is still 0.97–0.99. The print note is therefore a lower bound on
+where the interval is conservative. Widening the flag would be a docs change,
+not a coverage fix.
 
 **No simple calibration is acceptable.** The prespecified acceptance was
 minimum coverage ≥ 0.94 and coverage at the origin ≤ 0.97.
@@ -210,5 +243,13 @@ composite-null literature addresses (Miles & Chambaz; van Garderen & van
 Giersbergen; He, Song & Xu). A valid calibrated interval would need one of
 those constructions, inverted over all p*, not only the p* = 0.5 test.
 
-**Decision for now:** keep the χ²₁ interval. Label it conservative near the
-double null (PR #49), and do not ship a calibrated cutoff.
+**Decision for now (Checkpoint B pending):** keep the χ²₁ interval, label it
+conservative near the double null (PR #49), and do not ship a calibrated
+cutoff. T5 stays gated. A literature construction is admissible only if it
+yields a test at every p*, not only at P_med = 0.5, and passes this same
+lattice acceptance rule.
+
+**User-facing statement this supports:** the MBCO interval for P_med has at
+least its nominal coverage everywhere tested. It is conservative, up to about
+1 − α², when both paths are within a few standard errors of zero. It is not
+calibrated to exactly 95% in that region.

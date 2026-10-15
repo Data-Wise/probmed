@@ -72,8 +72,10 @@
 #' near the origin. `@diagnostics$pmed$branch_lr` holds the LR statistics for
 #' a = 0 and b = 0. `@diagnostics$pmed$near_double_null` is `TRUE` when both
 #' are below the cutoff (neither path individually significant), and `print()`
-#' then notes that the interval is conservative. At single nulls and away from
-#' the origin, coverage was nominal.
+#' then notes that the interval is conservative. The interval never
+#' undercovered in calibration. It stays conservative until one path is about
+#' 4 standard errors from zero, so a single null with a weak other path is
+#' conservative too, and the flag can be `FALSE` there.
 #'
 #' @examples
 #' # Toy example: Simple mediation model
