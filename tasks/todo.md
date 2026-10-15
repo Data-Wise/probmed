@@ -275,3 +275,15 @@ new base seed.
 ### Not in scope (recorded so it isn't lost)
 - The rare-outcome (5%) fit-failure regime at N ≤ 250 is a data limitation, not MC noise. Leave it as documented.
 - MBCO overcoverage at a = b = 0 is expected from the exact-null union. No action.
+
+## Phase 7: Monte Carlo error in simulation-based bootstrap intervals (plan: `tasks/plan-mc-bootstrap.md`)
+
+- [ ] I1: Audit coverage from raw replications (failures counted as misses) · S
+- [ ] I2: Exact-bootstrap reference grid, Gaussian mechanisms · M
+- [ ] I3: Test the CRN slope-noise mechanism (K × N scaling) · S
+- [ ] Checkpoint: review I1–I3 with the user
+- [ ] I4: Head-to-head of MC controls (fresh, CRN, variance-corrected, large K, exact) · M–L, hopper
+- [ ] Checkpoint: user picks the control
+- [ ] I5: MBCO side check (s5 misspecification) · S
+- [ ] I6: Authoritative rerun, prespecified gate · M, hopper
+- [ ] I7: Manuscript + probmed #47 updates · M
