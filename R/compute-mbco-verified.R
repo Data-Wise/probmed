@@ -13,14 +13,28 @@
   max(0, quad[1] - 2 * coefficient * quad[2] + coefficient^2 * quad[3])
 }
 
-#' Convergence-checked optimizer with one deterministic retry
+#' Convergence-checked nloptr minimizer with one deterministic fallback
+#'
+#' Derivative-free BOBYQA first, then Subplex (a robust Nelder-Mead variant)
+#' if BOBYQA does not report success. Returns the shape the callers use:
+#' `par`, `value`, and `convergence` (0 on an nloptr success status 1-4).
 #' @keywords internal
 .mbco_optim <- function(start, fn) {
-  first <- tryCatch(stats::optim(start, fn, method = "BFGS",
-    control = list(maxit = 1500, reltol = 1e-12)), error = function(e) NULL)
+  first <- .mbco_nlopt(start, fn, "NLOPT_LN_BOBYQA", maxeval = 3000L)
   if (!is.null(first) && first$convergence == 0 && is.finite(first$value) && first$value < 1e99) return(first)
-  tryCatch(stats::optim(start, fn, method = if (length(start) > 1) "Nelder-Mead" else "BFGS",
-    control = list(maxit = 3000, reltol = 1e-12)), error = function(e) NULL)
+  .mbco_nlopt(start, fn, "NLOPT_LN_SBPLX", maxeval = 6000L)
+}
+
+#' One nloptr run in the `optim()` result shape
+#' @keywords internal
+.mbco_nlopt <- function(start, fn, algorithm, maxeval, ftol_rel = 1e-12) {
+  o <- tryCatch(nloptr::nloptr(
+    x0 = start, eval_f = fn,
+    opts = list(algorithm = algorithm, maxeval = maxeval, ftol_rel = ftol_rel, xtol_rel = 1e-10)
+  ), error = function(e) NULL)
+  if (is.null(o)) return(NULL)
+  list(par = o$solution, value = o$objective,
+       convergence = if (o$status >= 1L && o$status <= 4L) 0L else 1L)
 }
 
 #' Signed Gaussian P_med profile with positive variance coordinates

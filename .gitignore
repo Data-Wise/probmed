@@ -24,3 +24,4 @@ planning/*
 # default $GAUGE_SIM_OUT scratch for the inst/sim gauge scripts; finished grids are
 # promoted into inst/sim/results/ by hand
 gauge_sim_out/
+tests/testthat/testthat-problems.rds

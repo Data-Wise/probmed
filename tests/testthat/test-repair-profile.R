@@ -59,9 +59,10 @@ test_that("signed profiles agree with an independent full Gaussian likelihood", 
 
 test_that("optimizer exhaustion is never accepted as a constrained fit", {
   prep <- repair_prep()
+  # nloptr status 5 = maxeval reached (exhaustion), never a success code.
   testthat::local_mocked_bindings(
-    optim = function(...) list(convergence = 1, value = 10, par = c(0, 0, 0)),
-    .package = "stats"
+    nloptr = function(x0, ...) list(status = 5L, objective = 10, solution = x0),
+    .package = "nloptr"
   )
   expect_true(is.na(.mbco_ll_constrained_pmed(prep, 0.2, 1)))
   expect_true(is.na(.mbco_ll_constrained_ie(prep, 0.1)))
@@ -200,4 +201,36 @@ test_that("verified inversion reports each failure path explicitly", {
   ok <- .mbco_invert_verified(0.5, smooth, c(0, 1), 0.1)
   expect_identical(ok$status, "ok")
   expect_equal(unname(ok$bounds), c(0.3, 0.7), tolerance = 1e-8)
+})
+
+test_that(".mbco_optim falls back to Subplex when BOBYQA does not succeed", {
+  calls <- character(0)
+  testthat::local_mocked_bindings(
+    nloptr = function(x0, eval_f, opts, ...) {
+      calls <<- c(calls, opts$algorithm)
+      if (opts$algorithm == "NLOPT_LN_BOBYQA") {
+        list(status = 5L, objective = 10, solution = x0)       # maxeval: not a success
+      } else {
+        list(status = 4L, objective = 1.5, solution = x0 + 1)  # xtol reached: success
+      }
+    },
+    .package = "nloptr"
+  )
+  o <- .mbco_optim(c(0, 0), function(p) sum(p^2))
+  expect_identical(calls, c("NLOPT_LN_BOBYQA", "NLOPT_LN_SBPLX"))
+  expect_identical(o$convergence, 0L)
+  expect_equal(o$par, c(1, 1))
+  expect_equal(o$value, 1.5)
+})
+
+test_that(".mbco_nlopt turns an nloptr error into NULL, and a real problem converges", {
+  # a real nloptr error (the objective throws), so the path is hit without mocking
+  expect_null(.mbco_nlopt(c(0, 0), function(p) stop("boom"), "NLOPT_LN_BOBYQA", maxeval = 10L))
+})
+
+test_that(".mbco_optim minimizes a known quadratic (real nloptr)", {
+  o <- .mbco_optim(c(3, -2), function(p) sum((p - c(1, 2))^2) + 7)
+  expect_identical(o$convergence, 0L)
+  expect_equal(o$par, c(1, 2), tolerance = 1e-5)
+  expect_equal(o$value, 7, tolerance = 1e-8)
 })
