@@ -18,6 +18,24 @@
   N >= 250. Gaussian M and Y at N = 1000 (boot-1-N1000) is INCONCLUSIVE, at
   0.9345 [0.9228, 0.9449], and is excluded.
 
+## MBCO: nloptr replaces `optim()`
+
+* The constrained profiles behind `method = "mbco"` (P_med, the indirect
+  effect, and the parallel-mediator interval) now minimize with nloptr:
+  derivative-free BOBYQA, falling back to Subplex. Before, they used
+  `stats::optim()` (BFGS / Nelder-Mead). nloptr was already in Imports, so no
+  dependency is added.
+* Results are unchanged: on 84 single-mediator fits (double null, near-null,
+  a = 0, b = 0, interior, negative a, near-boundary; with and without a
+  covariate; N = 80 and 400), every interval endpoint for P_med and a*b
+  agrees with the `optim()` version within 1e-11, with identical statuses.
+  It runs about 1.7x slower (about 3 s per interval).
+* The constraint itself is still handled exactly, not by a penalty or a
+  general nonlinear-constraint solver. The constraint is solved for one path
+  coefficient, the other coefficient and the linear nuisance terms are
+  profiled in closed form, and only two variance coordinates (log scale) are
+  optimized, from three starts per sign basin.
+
 ## `model_bootstrap`: Monte Carlo control (common random numbers)
 
 * Every bootstrap draw now evaluates P_med on one shared set of uniforms
