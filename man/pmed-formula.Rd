@@ -85,6 +85,18 @@ establish coverage calibration. The indirect-effect interval is reported
 separately and may be \code{NA} on
 a degenerate design (e.g. a non-finite delta-method scale for \code{a*b}) even when
 the P_med interval converges; check \code{ie_ci_lower} / \code{ie_ci_upper} directly.
+
+\strong{Composite null.} No mediation is the union of a = 0 and b = 0. At the
+double null a = b = 0, the profile LR at P_med = 0.5 is the minimum of the
+two branch statistics, so the chi-square(1) interval is conservative:
+calibration coverage was 0.997 to 0.998 at the 95\% level, and about 0.994
+near the origin. \verb{@diagnostics$pmed$branch_lr} holds the LR statistics for
+a = 0 and b = 0. \verb{@diagnostics$pmed$near_double_null} is \code{TRUE} when both
+are below the cutoff (neither path individually significant), and \code{print()}
+then notes that the interval is conservative. The interval never
+undercovered in calibration. It stays conservative until one path is about
+4 standard errors from zero, so a single null with a weak other path is
+conservative too, and the flag can be \code{FALSE} there.
 }
 \examples{
 # Toy example: Simple mediation model

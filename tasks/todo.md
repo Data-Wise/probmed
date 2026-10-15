@@ -290,10 +290,10 @@ new base seed.
 
 ## Phase 8: MBCO composite null + T22 claim (plan: `tasks/plan-mbco-null.md`, from the Codex review)
 
-- [ ] T1: Correct the T22 claim (boot-1-N1000 INCONCLUSIVE) · XS
-- [ ] T2: Composite-null lattice harness (LR_true, LR_a0, LR_b0; widths on a subsample) · M
-- [ ] T3: `near_double_null` diagnostic + print note + docs (TDD) · S
-- [ ] Checkpoint A: suite green, harness positive controls, PR
-- [ ] T4: Offline evaluation of cutoff calibrations (prespecified acceptance) · M
-- [ ] Checkpoint B: user decides
-- [ ] T5: Opt-in `null_calibration = "adaptive"` (only if T4 passes) · M
+- [x] T1: Correct the T22 claim (boot-1-N1000 INCONCLUSIVE) · XS
+- [x] T2: Composite-null lattice harness (LR_true, LR_a0, LR_b0; widths on a subsample) · M
+- [x] T3: `near_double_null` diagnostic + print note + docs (TDD) · S
+- [x] Checkpoint A: suite green, harness positive controls, PR — PR #49
+- [x] T4: Offline evaluation of cutoff calibrations (prespecified acceptance) · M — all candidates FAIL; chi2 kept (min 0.9415/0.944, origin 0.997)
+- [x] Checkpoint B: user decides — 2026-10-14: stop at labeling (keep chi2 + near_double_null)
+- [x] ~~T5: Opt-in `null_calibration = "adaptive"` (only if T4 passes) · M~~ — closed, not pursued: T4 failed

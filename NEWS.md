@@ -1,5 +1,23 @@
 # probmed 0.3.0.9000 (development)
 
+## MBCO: composite-null diagnostic
+
+* `method = "mbco"` now reports `@diagnostics$pmed$branch_lr`, the LR
+  statistics for a = 0 and b = 0, and `@diagnostics$pmed$near_double_null`,
+  which is `TRUE` when neither path is individually significant. In that case
+  `print()` notes that the interval is conservative. At the double null the
+  chi-square(1) inversion covers about 1 - alpha^2: 0.997 to 0.998 in the
+  calibration, against nominal 0.95. A 100-point local lattice shows the
+  interval never undercovers (minimum 0.9415). It stays conservative until
+  one path is about 4 SE from zero, so single nulls with a weak other path
+  are conservative too.
+* No calibrated cutoff ships. Three candidates (pretest switches and a
+  smooth blend) fixed the origin but undercovered at nearby alternatives
+  (minimum coverage 0.84–0.92).
+* Calibration report: the T22 claim is narrowed to the 7 PASS cells at
+  N >= 250. Gaussian M and Y at N = 1000 (boot-1-N1000) is INCONCLUSIVE, at
+  0.9345 [0.9228, 0.9449], and is excluded.
+
 ## MBCO: nloptr replaces `optim()`
 
 * The constrained profiles behind `method = "mbco"` (P_med, the indirect
@@ -38,8 +56,10 @@
   2 INCONCLUSIVE, up from 2 / 10 / 3. Every large-N overcoverage FAIL now
   passes. The remaining FAILs are small-N or rare-outcome strata where
   intervals are often `bootstrap_incomplete`; reported intervals there cover
-  0.95–0.999. Supported claim: nominal coverage at N >= 250 except a rare (5%)
-  binary outcome at N = 250.
+  0.95–0.999. Supported claim: nominal coverage in 7 of the 10 cells at
+  N >= 250. It excludes a rare (5%) binary outcome at N = 250 (FAIL) and
+  Gaussian M and Y at N = 1000 (INCONCLUSIVE, leaning low at 0.9345
+  [0.9228, 0.9449]).
 
 ## Opt-in model-based bootstrap (`method = "model_bootstrap"`)
 

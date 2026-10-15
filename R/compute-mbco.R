@@ -56,6 +56,38 @@
   max(a0, b0)
 }
 
+#' Branch likelihood-ratio statistics for H0: a = 0 and H0: b = 0
+#'
+#' Nested-model LR statistics with ML variances and the linear nuisance terms
+#' profiled, matching `.mbco_ll_null()`. When both are below the interval's
+#' chi-square(1) cutoff, neither path is individually significant: the data sit
+#' near the double null a = b = 0, where the profile LR at p* = 0.5 is the
+#' minimum of these two statistics and the chi-square(1) interval is
+#' conservative (coverage about 1 - alpha^2, 0.9975 at the 95% level).
+#'
+#' @return Named numeric vector `c(a0 = , b0 = )`.
+#' @keywords internal
+.mbco_branch_lr <- function(prep) {
+  n <- prep$n
+  gll <- function(sse) .mbco_gll(sse, sse / n, n)
+  sse_m_full <- .ols_sse(cbind(prep$Dm, X = prep$X), prep$M)
+  sse_y_full <- .ols_sse(cbind(prep$Dy, M = prep$M), prep$Y)
+  c(a0 = 2 * (gll(sse_m_full) - gll(.ols_sse(prep$Dm, prep$M))),
+    b0 = 2 * (gll(sse_y_full) - gll(.ols_sse(prep$Dy, prep$Y))))
+}
+
+#' Profile LR statistic for H0: P_med = p (single-mediator Gaussian MBCO)
+#'
+#' `-2 * (ll_constrained - ll_free)`; the quantity the interval inverts.
+#' `NA` when the constrained profile fails. Used by the composite-null
+#' calibration harness (`inst/sim/calibration/calib_mbco_null.R`).
+#' @keywords internal
+.mbco_lr_at <- function(prep, p) {
+  a_sign <- if (sign(prep$a_hat) == 0) 1 else sign(prep$a_hat)
+  ll0 <- .mbco_ll_constrained_pmed(prep, stats::qnorm(p), a_sign)
+  if (is.na(ll0)) NA_real_ else -2 * (ll0 - prep$ll_free)
+}
+
 #' Maximized log-likelihood under the constraint `a*b` = ie0
 #'
 #' The exact null is the union of a = 0 and b = 0. For nonzero targets,
@@ -124,6 +156,11 @@
   pmed_scan <- .mbco_invert_verified(est, excess_pmed,
     domain = c(1e-4, 1 - 1e-4), step = 0.01, anchors = 0.5)
   ci <- pmed_scan$bounds
+  # Composite-null diagnostic (Phase 8): the interval is conservative when
+  # neither path is individually significant.
+  pmed_scan$branch_lr <- .mbco_branch_lr(prep)
+  pmed_scan$near_double_null <- all(is.finite(pmed_scan$branch_lr)) &&
+    all(pmed_scan$branch_lr < crit)
 
   if (is.finite(prep$sd_ie) && prep$sd_ie > 0) {
     excess_ie <- function(ie0) {
