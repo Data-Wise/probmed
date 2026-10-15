@@ -176,3 +176,39 @@ does report cover at nominal or conservative rates.
 
 *Corrected 2026-10-14 after the Codex adversarial review: the first version of
 this addendum called boot-1-N1000 nominal.*
+
+## Addendum (2026-10-14): MBCO at the composite null (Phase 8, T2/T4)
+
+Harness: `inst/sim/calibration/calib_mbco_null.R` at `e718a26`, hopper arrays
+4338241 (pilot) and 4338242. A √N-local lattice (a, b) = (h_a, h_b)/√N with
+h ∈ {0, 0.5, 1, 2, 4}², N ∈ {100, 1000}, with or without a covariate:
+100 points × 2,000 replications. Self-check: interval coverage equals
+acceptance of the truth in 5,000 of 5,000 full-inversion replications, with 0
+failed profiles in 200,000. Results: `inst/sim/results/calibration/mbco_null/`.
+
+**χ²₁ (shipped) never undercovers.** Its minimum lattice coverage is 0.9415
+(N = 100) and 0.9440 (N = 1000), within Monte Carlo error of 0.95. It is
+conservative across a band, not only at the origin: coverage is 0.97–0.999
+wherever both h ≤ 2 (both paths within about 2 SE of zero), and 0.997–0.999
+at a = b = 0. The new `near_double_null` diagnostic (both branch LR below the
+cutoff, i.e. both |z| < 1.96) flags this band.
+
+**No simple calibration is acceptable.** The prespecified acceptance was
+minimum coverage ≥ 0.94 and coverage at the origin ≤ 0.97.
+
+| Rule | min coverage N=100 / N=1000 | origin N=100 / N=1000 |
+|---|---|---|
+| χ²₁ | 0.9415 / 0.9440 | 0.997 / 0.9985 |
+| switch to qchisq(1 − √α) when both branches < χ² cutoff | 0.863 / 0.875 | 0.966 / 0.965 |
+| same, threshold log N | 0.854 / 0.836 | 0.958 / 0.952 |
+| smooth interpolation on max branch LR | 0.908 / 0.917 | 0.997 / 0.9985 |
+
+Lowering the cutoff fixes the origin but undercovers at nearby non-null points
+such as h = (4, 1) and (2, 2). There P_med ≠ 0.5 and LR(truth) is no longer the
+minimum of the branch statistics. This is the non-uniformity that the
+composite-null literature addresses (Miles & Chambaz; van Garderen & van
+Giersbergen; He, Song & Xu). A valid calibrated interval would need one of
+those constructions, inverted over all p*, not only the p* = 0.5 test.
+
+**Decision for now:** keep the χ²₁ interval. Label it conservative near the
+double null (PR #49), and do not ship a calibrated cutoff.
