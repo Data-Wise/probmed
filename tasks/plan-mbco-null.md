@@ -77,6 +77,11 @@ Candidates, scored from the T2 records:
 ### Checkpoint B
 The user decides from the T4 table whether any candidate ships.
 
+**Decided 2026-10-14:** no candidate passed (min coverage 0.84–0.92 against 0.94).
+The decision is to stop at labeling: keep χ²₁ plus `near_double_null`, and close T5. A
+literature construction (Miles–Chambaz, He–Song–Xu) would need a test at every p*,
+not only 0.5. It would be a new research task, not a reopening of T5.
+
 ### T5: Opt-in calibrated MBCO (M, only if T4 passes)
 A `null_calibration = c("none", "adaptive")` argument, default "none", with tests that
 reproduce the T4 coverage on a fixed seed. The calibration report gets an addendum.

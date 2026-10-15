@@ -295,5 +295,5 @@ new base seed.
 - [x] T3: `near_double_null` diagnostic + print note + docs (TDD) · S
 - [x] Checkpoint A: suite green, harness positive controls, PR — PR #49
 - [x] T4: Offline evaluation of cutoff calibrations (prespecified acceptance) · M — all candidates FAIL; chi2 kept (min 0.9415/0.944, origin 0.997)
-- [ ] Checkpoint B: user decides
-- [ ] T5: Opt-in `null_calibration = "adaptive"` (only if T4 passes) · M
+- [x] Checkpoint B: user decides — 2026-10-14: stop at labeling (keep chi2 + near_double_null)
+- [x] ~~T5: Opt-in `null_calibration = "adaptive"` (only if T4 passes) · M~~ — closed, not pursued: T4 failed

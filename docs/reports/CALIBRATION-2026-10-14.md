@@ -243,9 +243,9 @@ composite-null literature addresses (Miles & Chambaz; van Garderen & van
 Giersbergen; He, Song & Xu). A valid calibrated interval would need one of
 those constructions, inverted over all p*, not only the p* = 0.5 test.
 
-**Decision for now (Checkpoint B pending):** keep the χ²₁ interval, label it
+**Decision (Checkpoint B, 2026-10-14):** keep the χ²₁ interval, label it
 conservative near the double null (PR #49), and do not ship a calibrated
-cutoff. T5 stays gated. A literature construction is admissible only if it
+cutoff. T5 is closed. A future literature construction is admissible only if it
 yields a test at every p*, not only at P_med = 0.5, and passes this same
 lattice acceptance rule.
 
