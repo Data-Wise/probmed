@@ -126,7 +126,7 @@ For treatment X (treated `x`, control `x*`), mediator M, outcome Y:
 | `"plugin"` | Point estimate only | Quick checks, no CI needed |
 | `"parametric_bootstrap"` | Sample from N(theta, Sigma) | Default, fast |
 | `"nonparametric_bootstrap"` | Resample data, refit | Normality questionable |
-| `"mbco"` | LR-inversion interval (Tofighi & Kelley 2020); deterministic | Gaussian + covariates; closed-form CI for P_med and a*b |
+| `"mbco"` | LR-inversion interval (Tofighi & Kelley 2020); deterministic; nloptr inner solver | Gaussian + covariates; closed-form CI for P_med and a*b. Never undercovers; conservative (up to ~1-α²) while both paths are within a few SE of zero — `@diagnostics$pmed$near_double_null` flags the core of that band. Calibrated cutoffs rejected (Phase 8, `docs/reports/MBCO-NULL-T5-FEASIBILITY-2026-10-14.md`) |
 | `"model_bootstrap"` | Response bootstrap: simulate M, then Y given M*, refit; ≥99% valid draws | Binary M/Y with covariates; see `docs/reports/CALIBRATION-2026-10-14.md` for where coverage holds |
 
 ---
