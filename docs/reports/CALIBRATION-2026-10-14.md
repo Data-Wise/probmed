@@ -160,13 +160,19 @@ these cells).
   among complete intervals is 0.951–0.999 in each of them. Config 2 at N ≤ 250
   is too sparse to fit reliably. The N=50 cells in configs 3–5 lose intervals
   to the 99% completion rule.
-- **boot-1-N1000 is INCONCLUSIVE, leaning slightly low** (0.934). T20's exact
-  per-draw evaluation on the same design gave 0.945, so the 0.011 gap is about
-  what the remaining point-estimate error and a fresh seed would produce. It is
-  not a systematic shortfall at the level this design can detect.
+- **boot-1-N1000 is INCONCLUSIVE** under the frozen rule: 0.9345, exact 95% CI
+  [0.9228, 0.9449], which excludes 0.95. T20's exact per-draw evaluation of the
+  same design gave 0.945. Remaining point-estimate Monte Carlo error or a
+  fresh seed may explain the gap, but that is an untested inference, not a
+  result. The cell needs a dedicated rerun before any nominal claim (see the
+  Phase 7 plan, `tasks/plan-mc-bootstrap.md`).
 
 **Supported claim, replacing the T17 claim for `model_bootstrap`:** nominal
-coverage at N ≥ 250 for every configuration except a rare (5%) binary outcome
-at N = 250. At N = 50, and for rare outcomes at N ≤ 250, the method often
-returns `bootstrap_incomplete`. The intervals it does report cover at nominal
-or conservative rates.
+coverage (PASS) at N ≥ 250 in configs 2–5, except a rare (5%) binary outcome
+at N = 250, and in config 1 at N = 250. **Config 1 (Gaussian M and Y) at
+N = 1000 is INCONCLUSIVE and leans low (0.9345).** At N = 50, and for rare outcomes at
+N ≤ 250, the method often returns `bootstrap_incomplete`. The intervals it
+does report cover at nominal or conservative rates.
+
+*Corrected 2026-10-14 after the Codex adversarial review: the first version of
+this addendum called boot-1-N1000 nominal.*

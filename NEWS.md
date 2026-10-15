@@ -21,7 +21,8 @@
   passes. The remaining FAILs are small-N or rare-outcome strata where
   intervals are often `bootstrap_incomplete`; reported intervals there cover
   0.95–0.999. Supported claim: nominal coverage at N >= 250 except a rare (5%)
-  binary outcome at N = 250.
+  binary outcome at N = 250 and Gaussian M and Y at N = 1000, which is
+  INCONCLUSIVE and leans low (0.9345 [0.9228, 0.9449]).
 
 ## Opt-in model-based bootstrap (`method = "model_bootstrap"`)
 
