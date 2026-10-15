@@ -59,9 +59,10 @@ test_that("signed profiles agree with an independent full Gaussian likelihood", 
 
 test_that("optimizer exhaustion is never accepted as a constrained fit", {
   prep <- repair_prep()
+  # nloptr status 5 = maxeval reached (exhaustion), never a success code.
   testthat::local_mocked_bindings(
-    optim = function(...) list(convergence = 1, value = 10, par = c(0, 0, 0)),
-    .package = "stats"
+    nloptr = function(x0, ...) list(status = 5L, objective = 10, solution = x0),
+    .package = "nloptr"
   )
   expect_true(is.na(.mbco_ll_constrained_pmed(prep, 0.2, 1)))
   expect_true(is.na(.mbco_ll_constrained_ie(prep, 0.1)))
