@@ -65,6 +65,16 @@
 #' a degenerate design (e.g. a non-finite delta-method scale for `a*b`) even when
 #' the P_med interval converges; check `ie_ci_lower` / `ie_ci_upper` directly.
 #'
+#' **Composite null.** No mediation is the union of a = 0 and b = 0. At the
+#' double null a = b = 0, the profile LR at P_med = 0.5 is the minimum of the
+#' two branch statistics, so the chi-square(1) interval is conservative:
+#' calibration coverage was 0.997 to 0.998 at the 95% level, and about 0.994
+#' near the origin. `@diagnostics$pmed$branch_lr` holds the LR statistics for
+#' a = 0 and b = 0. `@diagnostics$pmed$near_double_null` is `TRUE` when both
+#' are below the cutoff (neither path individually significant), and `print()`
+#' then notes that the interval is conservative. At single nulls and away from
+#' the origin, coverage was nominal.
+#'
 #' @examples
 #' # Toy example: Simple mediation model
 #' # Generate data where X affects Y through M

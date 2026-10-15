@@ -1,5 +1,17 @@
 # probmed 0.3.0.9000 (development)
 
+## MBCO: composite-null diagnostic
+
+* `method = "mbco"` now reports `@diagnostics$pmed$branch_lr`, the LR
+  statistics for a = 0 and b = 0, and `@diagnostics$pmed$near_double_null`,
+  which is `TRUE` when neither path is individually significant. In that case
+  `print()` notes that the interval is conservative. At the double null the
+  chi-square(1) inversion covers about 1 - alpha^2: 0.997 to 0.998 in the
+  calibration, against nominal 0.95. A calibrated cutoff is under evaluation
+  and is not shipped (see `tasks/plan-mbco-null.md`).
+* Calibration report: the T22 claim is narrowed. Gaussian M and Y at
+  N = 1000 (boot-1-N1000) is INCONCLUSIVE, at 0.9345 [0.9228, 0.9449].
+
 ## `model_bootstrap`: Monte Carlo control (common random numbers)
 
 * Every bootstrap draw now evaluates P_med on one shared set of uniforms
