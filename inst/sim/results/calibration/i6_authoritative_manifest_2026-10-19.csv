@@ -5,11 +5,12 @@ control,b = CRN + control variate at K_BOOT=50000 (current method; I4 gate resul
 grid,"400 tasks (full cluster grid, all scenarios x N); 2000 outer reps per cell; 1000 bootstrap resamples per rep"
 seed_base,20261017
 rng_kind,L-Ecuyer-CMRG; 8-worker mclapply topology as I2/I4
-reference,"I2 exact Gaussian reference (i2_exact_reference_2026-10-15.csv; same datasets per cell)"
+reference,"in-run exact (candidate e) computed on I6 own datasets and bootstrap indices; seed base 20261017 differs from I2/I4 (20261016), so I2 rows are NOT paired with I6 and I2 is precedent for the method only. Runner must add e (closed-form exact_pmed on replayed indices) to b"
 truth,"closed-form true P_med (s6/s7 exactly 0.5); NOT the 4-d.p. MC values in truth.csv"
 coverage_rule,"coverage over all attempted reps (I1); boot_failed recorded separately from failed simulation reps"
-gate_per_plan,"every Gaussian cell: paired 90% bootstrap CI (10000 resamples over outer IDs) of coverage difference vs exact inside [-0.01,+0.01]; mean width ratio in [0.98,1.02]"
+gate_per_plan,"every Gaussian cell (vs in-run exact): paired 90% bootstrap CI (10000 resamples over outer IDs) of coverage difference vs exact inside [-0.01,+0.01]; mean width ratio in [0.98,1.02]"
 i4_evidence,"b passed 16/18 I4 cells; failed s4/1000 (diff -0.007, CI [-0.0115,-0.0030]) and s6/1000 (diff -0.011, CI [-0.0165,-0.0055]); see i4_gate_results_2026-10-19.csv"
 OPEN_1,"I4 already shows b misses the +/-0.01 margin at s6/1000 (Gaussian). Under the plan's gate as written, I6 is expected to fail there. Decide before submission: (i) keep gate and accept a documented failure, (ii) switch to c, which also fails 2 cells, or (iii) revise the margin/design with a stated rationale. Do not alter the gate after seeing I6 results."
 OPEN_2,"s4/1000 is binary (reference is d at K=1e6, not exact); the plan's I6 gate covers Gaussian cells only. Decide whether binary cells are gated or reported only."
-runner,"reuse /private/tmp/probmed_i4_runner.R logic with candidate b only; sha256 to be recorded at submission"
+runner,"derive from committed inst/sim/hopper/i4/runner.R (sha256 78c7eb78...; code files hash-matched to I4 manifest) emitting b and e only; new runner sha256 to be recorded at submission"
+truth_note,"closed-form truth adopted 2026-10-19 AFTER I4 results were inspected (MC truth.csv values 0.5006/0.5004 for nulls were too coarse); it made b look worse (s6/1000 diff -0.006 -> -0.011). The pmed manuscript pipeline (code/analyze.R) still reads the MC truth.csv"
