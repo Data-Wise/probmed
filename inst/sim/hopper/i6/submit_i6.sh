@@ -14,5 +14,7 @@ module load r/4.4.0-ytj2
 command -v Rscript >/dev/null || { echo "FATAL: Rscript not on PATH after module load"; exit 127; }
 D=$HOME/probmed_i6_20261019
 export I6_PMED_SRC=$D/code
+# one BLAS/OpenMP thread per forked worker: outer reps already use all 8 CPUs
+export OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1
 export I6_CORES=${SLURM_CPUS_PER_TASK:-8}
 Rscript $D/runner.R $SLURM_ARRAY_TASK_ID $D/parts/i6_${SLURM_ARRAY_TASK_ID}.csv

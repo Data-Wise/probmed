@@ -2,7 +2,7 @@ item,value
 status,DRAFT; decisions recorded; runner committed; sbatch pilot 4341718 submitted 2026-10-19; full grid not submitted
 date,2026-10-19
 control,"Gaussian cells (s1,s6,s7,s8): d = fresh draws K=200000 per resample (user decision 2026-10-19). Binary cells (s3,s4): report-only, run with b (CRN K=50000, current method); no gate"
-grid,"400-task grid as planned; Gaussian cells run d, binary cells run b; 2000 outer reps per cell; 1000 resamples per rep"
+grid,"400-task grid as planned; Gaussian cells run d, binary cells run b; 2000 outer reps per cell; 2000 bootstrap resamples per rep (raised from 1000 on 2026-10-19 by user; in-run exact e uses the same 2000)"
 seed_base,20261017
 rng_kind,L-Ecuyer-CMRG; 8-worker mclapply topology as I2/I4
 reference,in-run exact (candidate e) on I6 own datasets and bootstrap indices for Gaussian cells; seed base 20261017 differs from I2/I4 (20261016) so I2 rows are NOT paired. Binary cells: no exact reference; report coverage vs closed-form truth and width only
@@ -15,5 +15,7 @@ OPEN_2,"RESOLVED 2026-10-19: binary cells report-only (avoids K=1e6 reference, ~
 runner,derive from committed inst/sim/hopper/i4/runner.R (sha256 78c7eb78...) emitting d and e for Gaussian cells and b for binary cells; new runner sha256 recorded at submission; pilot via sbatch --array=1-1 first
 truth_note,closed-form truth adopted 2026-10-19 AFTER I4 results were inspected (MC truth.csv values 0.5006/0.5004 for nulls were too coarse); it made b look worse (s6/1000 diff -0.006 -> -0.011). The pmed manuscript pipeline (code/analyze.R) still reads the MC truth.csv
 expected_risk,d is expected to fail s6/1000 again on width (about 1.03) unless that was K=200k Monte Carlo noise; I6 K=200000 tests that. Pre-stated disposition if it fails: report the miss and its size; do not change K or gate post hoc
-runner_sha256,runner.R ad15eba18ae49696084dbb7994d662ac4ec4eb4fc58113b5aa440c5c41b8d7c8; submit_i6.sh 02ec0ba1f410f75cdf04dc98dae75d519ab71f94d879133c4a5e5eda03c5a1b9; code files identical to I4 (hashes in I4 manifest); committed in inst/sim/hopper/i6/
-pilot,"job 4341718, array 1,101 (Gaussian s1 N=50 and binary s3 N=50), full 200-rep chunks; local 2-rep smoke passed (Gaussian emits d and e, binary emits b); full-grid submission not yet done"
+runner_sha256,"runner.R ac10f1a7440235aca3e834e8825c1507312c5d4219045549d895d81fe9e99adf; submit_i6.sh 636c5f3f8bbd9a818eaebef635279ef143df0960b500170d8896e1136c7f65b8; code files identical to I4; committed in inst/sim/hopper/i6/. SUPERSEDES the pilot runner ad15eba1... (real-draw d, 1000 resamples)"
+pilot,"job 4341718 (old runner, 1000 resamples): task 101 COMPLETED 5m28s; task 1 slow (real-draw d). A second pilot with the committed runner is required before the full grid"
+d_implementation,"Gaussian d = Binomial(K=200000, p)/K with p = exact P_med of the resample (exactly equal in distribution to the mean of 200000 simulated indicators); first 20 resamples per rep also run real pmed_scores() and record d_check_mean_z (expected sd 1/sqrt(20)); local check: KS p=0.95, mean z -0.02, sd of rep-level mean z 0.214 vs 0.224"
+threading,OPENBLAS/OMP/MKL threads = 1; 8 mclapply workers over outer reps (RNG streams tied to 8 workers: do not change I6_CORES)

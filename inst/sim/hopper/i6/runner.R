@@ -17,7 +17,7 @@ per <- sc$reps %/% N_CHUNKS
 reps <- ((chunk - 1L) * per + 1L):(chunk * per)
 pilot_n <- as.integer(Sys.getenv("I6_PILOT_REPS", "0"))
 if (pilot_n > 0L) reps <- head(reps, pilot_n)
-boot_n <- as.integer(Sys.getenv("I6_BOOT_N", as.character(sc$n_boot)))
+boot_n <- as.integer(Sys.getenv("I6_BOOT_N", "2000"))
 K_POINT <- sc$K
 K_BOOT <- as.integer(Sys.getenv("I6_K_BOOT", "50000"))
 K_LARGE <- as.integer(Sys.getenv("I6_K_LARGE", if (SCENARIOS[[sn]]$family_y == "gaussian") "200000" else "1000000"))
