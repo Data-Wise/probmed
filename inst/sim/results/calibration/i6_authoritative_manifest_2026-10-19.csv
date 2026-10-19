@@ -1,16 +1,17 @@
 item,value
-status,DRAFT; not submitted; two open decisions below need user sign-off before submission
+status,DRAFT; user decisions recorded 2026-10-19 (control d for Gaussian cells; binary report-only); not submitted; runner and pilot pending
 date,2026-10-19
-control,b = CRN + control variate at K_BOOT=50000 (current method; I4 gate result: no candidate passed every cell, rule says retain b)
-grid,"400 tasks (full cluster grid, all scenarios x N); 2000 outer reps per cell; 1000 bootstrap resamples per rep"
+control,"Gaussian cells (s1,s6,s7,s8): d = fresh draws K=200000 per resample (user decision 2026-10-19). Binary cells (s3,s4): report-only, run with b (CRN K=50000, current method); no gate"
+grid,"400-task grid as planned; Gaussian cells run d, binary cells run b; 2000 outer reps per cell; 1000 resamples per rep"
 seed_base,20261017
 rng_kind,L-Ecuyer-CMRG; 8-worker mclapply topology as I2/I4
-reference,"in-run exact (candidate e) computed on I6 own datasets and bootstrap indices; seed base 20261017 differs from I2/I4 (20261016), so I2 rows are NOT paired with I6 and I2 is precedent for the method only. Runner must add e (closed-form exact_pmed on replayed indices) to b"
-truth,"closed-form true P_med (s6/s7 exactly 0.5); NOT the 4-d.p. MC values in truth.csv"
-coverage_rule,"coverage over all attempted reps (I1); boot_failed recorded separately from failed simulation reps"
-gate_per_plan,"every Gaussian cell (vs in-run exact): paired 90% bootstrap CI (10000 resamples over outer IDs) of coverage difference vs exact inside [-0.01,+0.01]; mean width ratio in [0.98,1.02]"
-i4_evidence,"b passed 16/18 I4 cells; failed s4/1000 (diff -0.007, CI [-0.0115,-0.0030]) and s6/1000 (diff -0.011, CI [-0.0165,-0.0055]); see i4_gate_results_2026-10-19.csv"
-OPEN_1,"I4 already shows b misses the +/-0.01 margin at s6/1000 (Gaussian). Under the plan's gate as written, I6 is expected to fail there. Decide before submission: (i) keep gate and accept a documented failure, (ii) switch to c, which also fails 2 cells, or (iii) revise the margin/design with a stated rationale. Do not alter the gate after seeing I6 results."
-OPEN_2,"s4/1000 is binary (reference is d at K=1e6, not exact); the plan's I6 gate covers Gaussian cells only. Decide whether binary cells are gated or reported only."
-runner,"derive from committed inst/sim/hopper/i4/runner.R (sha256 78c7eb78...; code files hash-matched to I4 manifest) emitting b and e only; new runner sha256 to be recorded at submission"
-truth_note,"closed-form truth adopted 2026-10-19 AFTER I4 results were inspected (MC truth.csv values 0.5006/0.5004 for nulls were too coarse); it made b look worse (s6/1000 diff -0.006 -> -0.011). The pmed manuscript pipeline (code/analyze.R) still reads the MC truth.csv"
+reference,in-run exact (candidate e) on I6 own datasets and bootstrap indices for Gaussian cells; seed base 20261017 differs from I2/I4 (20261016) so I2 rows are NOT paired. Binary cells: no exact reference; report coverage vs closed-form truth and width only
+truth,closed-form true P_med (s6/s7 exactly 0.5); NOT the 4-d.p. MC values in truth.csv
+coverage_rule,coverage over all attempted reps (I1); boot_failed recorded separately from failed simulation reps
+gate_per_plan,"Gaussian cells only: paired 90% bootstrap CI (10000 resamples over outer IDs) of coverage difference d vs in-run exact inside [-0.01,+0.01]; mean width ratio in [0.98,1.02]. Fixed before results; not to be altered after I6 is seen"
+i4_evidence,"d passed 11/12 Gaussian cells in I4; failed only s6/1000 (diff +0.0085, CI [+0.0055,+0.0120], width ratio 1.030). b passed 16/18 (fails s4/1000 and s6/1000). See docs/reports/I4-MC-CONTROLS-2026-10-19.md"
+OPEN_1,RESOLVED 2026-10-19: use d for Gaussian cells
+OPEN_2,"RESOLVED 2026-10-19: binary cells report-only (avoids K=1e6 reference, ~2.5 h/task x 60 tasks). ASSUMPTION to confirm: binary cells run with b"
+runner,derive from committed inst/sim/hopper/i4/runner.R (sha256 78c7eb78...) emitting d and e for Gaussian cells and b for binary cells; new runner sha256 recorded at submission; pilot via sbatch --array=1-1 first
+truth_note,closed-form truth adopted 2026-10-19 AFTER I4 results were inspected (MC truth.csv values 0.5006/0.5004 for nulls were too coarse); it made b look worse (s6/1000 diff -0.006 -> -0.011). The pmed manuscript pipeline (code/analyze.R) still reads the MC truth.csv
+expected_risk,d is expected to fail s6/1000 again on width (about 1.03) unless that was K=200k Monte Carlo noise; I6 K=200000 tests that. Pre-stated disposition if it fails: report the miss and its size; do not change K or gate post hoc
