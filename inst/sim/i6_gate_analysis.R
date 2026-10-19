@@ -10,7 +10,9 @@ truth <- c(s1 = pnorm(0.4 * 0.5 / sqrt(2 * (0.16 + 1))),
            s3 = 0.5 + 0.5 * (pnorm((-2.06875 + 0.3 + 0.2) / sqrt(1.16)) - pnorm((-2.06875 + 0.3) / sqrt(1.16))),
            s4 = 0.5 + 0.5 * (pnorm((-0.25 + 0.3 + 0.2) / sqrt(1.16)) - pnorm((-0.25 + 0.3) / sqrt(1.16))),
            s6 = 0.5, s7 = 0.5, s8 = pnorm(1.5 * 2.5 / sqrt(2 * (1.5^2 + 2))))
-x <- do.call(rbind, lapply(list.files(dir, pattern = "^i6_.*\\.csv$", full.names = TRUE), read.csv))
+files <- list.files(dir, pattern = "^i6_.*\\.csv$", full.names = TRUE)
+if (!length(files)) stop("no i6_*.csv files in ", dir, "; pull the parts first (rsync from ~/probmed_i6_20261019_full/parts/)")
+x <- do.call(rbind, lapply(files, read.csv))
 if (!is.na(expected)) stopifnot(nrow(x) == expected)
 stopifnot(!anyDuplicated(x[c("scenario", "N", "rep")]), all(x$boot_attempted == 2000))
 set.seed(20261019)
