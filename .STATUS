@@ -3,7 +3,7 @@ priority: P1
 progress: 90
 kind: package
 cran_state: unblocked
-next: Phase 7 (tasks/plan-mc-bootstrap.md): I1–I3 and I2 complete 2026-10-15. I2 exact grid: 50,000 matched replications; max exact estimate vs saved MBCO estimate 4e-15; zero failed bootstrap resamples; s6 N=1000 coverage 0.944 [0.9330, 0.9537], containing 0.951. See docs/reports/I2-EXACT-REFERENCE-2026-10-15.md. I4 COMPLETE 2026-10-19 (Hopper job 4339014: 180/180 tasks exit 0, 0 NA intervals, 0 failed resamples; parts in inst/sim/results/calibration/i4_parts/, gate by inst/sim/i4_gate_analysis.R -> i4_gate_results_2026-10-19.csv). Prespecified gate: NO candidate passes every cell, so the rule says no-go, keep current (b); user decided 2026-10-19: I6 uses d (K=200k) for Gaussian cells, binary cells report-only (run with b; to confirm); I6 manifest is a draft, runner and sbatch pilot pending. Truth is closed-form (truth.csv MC values were too coarse for the null cells; s6/s7 are exactly 0.5). Cells passed (own applicable cells): b (CRN K=50k) 16 (fails s4/1000 diff -0.007 CI [-0.0115,-0.0030] and s6/1000 diff -0.011 CI [-0.0165,-0.0055]: slight undercoverage vs exact at N=1000); c (variance correction) 16 (fails s4/1000, s6/250); d (fresh K=200k, Gaussian cells only) 11 of 12, failing only s6/1000; a (fresh K=5k) 2 of 18. User-approved gate: ±1 pp paired-coverage equivalence (90% paired bootstrap CI, 10,000 outer-ID resamples) and mean-width ratio 0.98–1.02 per cell; exact I2 reference for Gaussian cells, K=1e6 reference for binary cells. Full 200-rep replay matched I2 locally exactly and on Hopper within 9.99e-16. Keep I6 boot_failed accounting. Phase 8 closed 2026-10-15: PR #48 (852c655, nloptr in MBCO) + PR #49 (68b713c: near_double_null label, composite-null lattice, T5 NO-GO, docs/reports/MBCO-NULL-T5-FEASIBILITY-2026-10-14.md). Open: #47 (model_bootstrap null coverage), #50 (verify Gemini T5 prototype scores; blocked on its script), medfit#213. pmed manuscript: K=50k rerun failed the null gate (docs/reports in pmed CRN50K-RERUN), pmed.qmd NOT edited, pmed draft has 3 unpushed commits; the fix is chosen after Phase 7 I4. Merged worktrees feature-mbco-nloptr / feature-mbco-null are still present (remove on request). ⏸️ ON HOLD (2026-07-24, per user) — pending manuscript submission (same hold reason as medrobust, see medfit CLAUDE.md's ecosystem note). Dependency-wise UNBLOCKED (2026-07-23): medfit 0.3.2 accepted + published on CRAN, satisfying `Imports: medfit (>= 0.3.0)`; the `Remotes: data-wise/medfit@v0.3.0` pin was already dropped (`b552b88`, 2026-07-24), verified `devtools::load_all()` loads cleanly against CRAN medfit 0.3.2. Remaining CRAN-prep checklist, deferred until hold lifts: (1) bump 0.3.0.9000 → next release version (0.3.0 is already released; pick per NEWS), (2) resync cran-comments.md, (3) fresh `R CMD check --as-cran` against the CRAN copy of medfit (should drop from 0/0/1-NOTE to fewer, since the Remotes-pin NOTE goes away), (4) win-builder + submit. ~2-3hr — most other pre-CRAN TODOs (gauge, coverage, vignette) already closed per prose below. Full detail in prose below.
+next: Phase 7 I6 COMPLETE — FAIL (2026-10-19). Hopper job 4341753 completed 300/300 tasks; validation found 60,000 unique rows, 2,000 outer replications in each of 30 cells, 2,000 attempted bootstrap resamples per row, finite ordered active intervals, and zero active failed resamples. Fresh K=200,000 Gaussian candidate d passed both frozen gates in 19/20 cells but failed s6/N=1000: coverage 0.9515 vs exact 0.9425, paired difference +0.0090 with 90% CI [0.0055, 0.0125], width ratio 1.029588. Binary s3/s4 cells used current b and remain report-only; s3 undercoverage at low N is material. Per the prespecified rule, stop before I7: no pmed wording or probmed method/API change is authorized. See docs/reports/I6-GATE-2026-10-19.md, docs/reports/I6-GATE-DECISIONS-2026-10-19.csv, and docs/reports/I6-S6-N1000-DIAGNOSTIC-2026-10-19.md. The exact-Gaussian one-task resource pilot completed, but it is feasibility evidence only; no full 6,000-replication array was submitted or authorized. Next decision: author review of docs/PROPOSAL-exact-gaussian-followup-2026-10-19.md, including the proposed claim gate and separate authorization for any full Hopper run or package API work. Phase 8 remains closed. Open: I5, #47, #50 (blocked on its script), medfit#213. Package/release and pmed submission holds remain active; passing checks does not authorize submission, merge, release, or deployment.
 
 ────────────────────────────────────────────────
 
@@ -14,13 +14,13 @@ next: Phase 7 (tasks/plan-mc-bootstrap.md): I1–I3 and I2 complete 2026-10-15. 
 ~/projects/r-packages/active/probmed/
 
 ⏰ LAST UPDATED
-2026-10-15
+2026-10-20
 
 ────────────────────────────────────────────────
 
 🎯 CURRENT STATUS
 Priority: P1
-Status: active
+Status: on hold
 Progress: 90
 
 📝 DOCS SYNC (2026-08-22, rforge docs:check + site audit). The edits themselves were
@@ -110,7 +110,7 @@ version. Leftover worktree dirs (incremental-pmed / my-sensitivity / sobol-pmed)
    tested. PR #27 (hopper coverage grid + provenance retrieved). PR #28 (weak_id
    guidance corrected; #11 validation grid scripted — see item 5).
 
-🎯 NEXT NON-BLOCKED STEPS (plan, 2026-06-22 — items 1-2 still open, item 3 superseded)
+🎯 HISTORICAL NEXT STEPS (plan dated 2026-06-22; superseded by the top `next:` field)
 1. Package-wide spell cleanup on dev: 15 flags in incr_pmed/sobol_pmed/pmed_sensitivity
    Rd + NEWS (gauge surface already clean). Small hygiene branch → dev.
 2. Reconcile coverage grids → one manuscript coverage table/figure. UNBLOCKED

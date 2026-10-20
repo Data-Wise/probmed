@@ -278,15 +278,16 @@ new base seed.
 
 ## Phase 7: Monte Carlo error in simulation-based bootstrap intervals (plan: `tasks/plan-mc-bootstrap.md`)
 
-- [ ] I1: Audit coverage from raw replications (failures counted as misses) · S
-- [ ] I2: Exact-bootstrap reference grid, Gaussian mechanisms · M
-- [ ] I3: Test the CRN slope-noise mechanism (K × N scaling) · S
-- [ ] Checkpoint: review I1–I3 with the user
-- [ ] I4: Head-to-head of MC controls (fresh, CRN, variance-corrected, large K, exact) · M–L, hopper
-- [ ] Checkpoint: user picks the control
+- [x] I1: Audit coverage from raw replications (failures counted as misses) · S — 0 drops in 210 cells; `docs/reports/I1-COVERAGE-AUDIT-2026-10-15.md`
+- [x] I3: Test the CRN slope-noise mechanism (K × N scaling) · S — 500 datasets per cell; result presented at the I1–I3 checkpoint (historical array streams not replayed)
+- [x] I2: Exact-bootstrap reference grid, Gaussian mechanisms · M — 50,000 matched replications; s6 N=1000 0.944 [0.9330, 0.9537]; see `docs/reports/I2-EXACT-REFERENCE-2026-10-15.md`
+- [x] Checkpoint: review I1–I3 with the user — directed “do next” 2026-10-15
+- [x] I4: Head-to-head of MC controls (fresh, CRN, variance-corrected, large K, exact) · M–L, hopper — 180/180 tasks; no candidate passed every applicable cell; current b retained by the frozen rule
+- [x] Checkpoint: user picks the I6 control — d (fresh K=200k) for Gaussian cells; b for report-only binary cells, 2026-10-19
 - [ ] I5: MBCO side check (s5 misspecification) · S
-- [ ] I6: Authoritative rerun, prespecified gate · M, hopper
-- [ ] I7: Manuscript + probmed #47 updates · M
+- [x] I6: Authoritative rerun, prespecified gate · M, hopper — job 4341753 completed 300/300 tasks; FAIL at s6/N=1000 (19/20 Gaussian cells passed); `docs/reports/I6-GATE-2026-10-19.md`
+- [ ] I7: Manuscript + probmed #47 updates · M — STOPPED because I6 failed; no manuscript or package change authorized
+- [ ] Post-I6 decision: review the exact-Gaussian follow-up proposal and frozen claim gate; the resource pilot does not authorize a full Hopper run
 
 ## Phase 8: MBCO composite null + T22 claim (plan: `tasks/plan-mbco-null.md`, from the Codex review)
 
