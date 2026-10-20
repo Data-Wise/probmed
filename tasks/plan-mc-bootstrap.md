@@ -10,13 +10,13 @@ probmed issue #47; one method decision serves both.
 |---|---|---|
 | Fresh per-resample draws inflate bootstrap width and coverage | probmed T20 (exact vs MC: 0.977 → 0.945); pmed width ratios predicted 1.10/1.15, observed 1.10/1.145 | Verified (positive control) |
 | The manuscript's MBCO width advantage is that artifact | K = 5k and K = 50k reruns: bootstrap/MBCO width 0.97–1.01 in all Gaussian cells | Verified, two runs |
-| Exact Gaussian percentile-bootstrap coverage met the historical pmed gate in six null cells at N >= 250 | I2/I6 references; completed pmed 6,000-per-cell run reported 94.38%–95.32% and six two-sided 90% exact-binomial intervals inside its frozen 93%–97% band; s6/s7 truths are 0.5 | Verified for that reported Gaussian grid and historical gate; not a prospective pass of the later 94% minimum, binary support, or general model support |
+| Exact Gaussian percentile-bootstrap coverage met the retained pmed gate in six null cells at N >= 250 | I2/I6 references; completed pmed 6,000-per-cell run reported 94.38%–95.32% and six two-sided 90% exact-binomial intervals inside its frozen 93%–97% band; s6/s7 truths are 0.5 | Reported and source-checked for that Gaussian grid; not binary or general model support; raw-chunk reconciliation remains open |
 | Finite-K Monte Carlo noise broadens intervals as sampling uncertainty shrinks | I3 scaling check; I4 and I6 s6/N=1000 misses; I6 observed d/e width 1.029588 vs approximation 1.029691 | Verified in the tested cells |
 | CRN may be adequate away from the null | probmed T22 (non-null cells) PASS; pmed non-null s1/s2/s4/s8 ≈ 0.94–0.95 | Probable in tested non-null cells; s8 and s2 slightly low; s7 is a null branch |
 
 ## Open questions
 
-1. Does the exact bootstrap meet a separately prespecified 94% minimum in all six s6/s7 null cells? The completed pmed run used an earlier 93%–97% rule; s8 is not a null branch.
+1. Can the completed exact-Gaussian run's frozen 93%–97% six-cell decision be reproduced from its manifest, saved counts, and chunk integrity checks? The author retained that original gate on 2026-10-20; s8 is not a null branch.
 2. Is the CRN failure the slope noise as derived? Its prediction can fail: per-dataset width sd (CRN vs exact) should scale like 1/√(K/√N).
 3. Which Monte Carlo control is valid everywhere, including binary outcomes with no closed form?
 4. Are the reported coverages computed over all attempted replications? `analyze.R` uses `na.rm = TRUE`, which drops failures instead of counting them as misses.
@@ -33,7 +33,7 @@ probmed issue #47; one method decision serves both.
 - [x] Closed-form P_med per resample for s1, s2, s6, s7 and s8 × all 5 N, 2000 reps, same datasets/resample RNG stream as crn50k (seed base 20261016; 8-worker chunks)
 - [x] Compare exact bootstrap with saved CRN/MBCO: width ratios exact/CRN 0.9988–1.0003, exact/MBCO 0.9658–0.9981; MBCO coverage 0.9400–0.9815, max paired coverage difference 0.0125
 - [x] Positive control: s6 N = 1000 coverage 0.944 [exact-binomial 95% CI 0.9330, 0.9537], containing 0.951; no equality requirement.
-**Partial evidence for Q1.** At 2,000 replications per cell, the tested s6/s7 null cells from N = 250 onward were near 95%; s6 overcovers at N = 50 and 100. This predates the later 94% decision and is not its formal confirmation. See `docs/reports/I2-EXACT-REFERENCE-2026-10-15.md` and the 50,000-row result grid. **Done 2026-10-15.**
+**Earlier supporting evidence, not the Q1 source audit.** At 2,000 replications per cell, the tested s6/s7 null cells from N = 250 onward were near 95%; s6 overcovers at N = 50 and 100. The completed 6,000-per-cell pmed run has a separate manifest and frozen acceptance analysis. See `docs/reports/I2-EXACT-REFERENCE-2026-10-15.md` and the 50,000-row result grid. **Done 2026-10-15.**
 
 ### I3: Test the slope-noise mechanism (S, local, ~1 h)
 - [x] Produce an exact comparator subset for s6 and s1 at N ∈ {250, 1000} (500 matched datasets/seeds), then measure the sd of (CRN width / exact width) per dataset for K ∈ {5k, 20k, 50k, 200k}; this lets I3 run before the full I2 grid.
@@ -82,11 +82,11 @@ I4 ended in a no-go, so I6 did not run "the I4 winner". The user selected fresh 
 
 **Result:** d passed both gates in 19/20 Gaussian cells. It failed s6/N=1000: coverage 0.9515 vs exact 0.9425, paired difference +0.0090 with 90% CI [0.0055, 0.0125], and width ratio 1.029588. Under the frozen all-cell rule, I6 fails and work stops before I7. Binary s3/s4 results are descriptive only; s3 undercoverage at low N must be disclosed if reused. See `docs/reports/I6-GATE-2026-10-19.md` and `docs/reports/I6-S6-N1000-DIAGNOSTIC-2026-10-19.md`.
 
-### Cross-project exact-Gaussian follow-up — historical result and optional new decision
+### Cross-project exact-Gaussian follow-up — original gate retained
 
 - [x] pmed reports a separate 6,000-replication-per-cell exact-Gaussian run with seed base 20261021, accepted under its previously frozen 93%–97% six-cell rule; see its `docs/reports/EDIT-REPORT-pmed-exact-gaussian-2026-10-19.md`. This does **not** reverse I6.
-- [ ] Reconcile its manifest, six cell counts/bounds, hashes, and saved chunks before reusing its results beyond the scoped pmed statement. At least one reported cell has 94.38% observed coverage, below the later rule's 94.52% threshold; even a post hoc application cannot pass all six. Do not recast this as a failed *prespecified* 94% test.
-- [ ] If a new prospective minimum-94% claim is needed, obtain separate compute authorization and freeze a distinct seed family, manifest, all-attempt analysis, and stop rules before a new run. See `docs/PROPOSAL-exact-gaussian-followup-2026-10-19.md`; 6,000 per cell may legitimately yield an inconclusive result.
+- [x] Author decision (2026-10-20): retain the original rule—each of six two-sided 90% exact-binomial intervals wholly inside 93%–97%. Withdraw the later minimum-94% proposal; do not plan a new run or reinterpret the completed result under that post hoc rule.
+- [ ] Reconcile the completed run's manifest, six cell counts/bounds, hashes, and saved chunks against the original gate before reusing its results beyond the scoped pmed statement. Report width, failure counts, and other cells separately; an unresolved discrepancy calls for investigation, not a changed gate.
 - [ ] Keep medfit's generic fitting/extraction/bootstrap contract, RMediation's path-product CI/MBCO, and probmed's tie-adjusted P_med inference distinct. Exact-kernel package integration needs its own decision and tests; neither dependency is a P_med oracle.
 
 ### I7: Manuscript and package updates (M, only after I6 passes) — stopped; I6 failed
