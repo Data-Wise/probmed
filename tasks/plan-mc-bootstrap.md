@@ -10,7 +10,7 @@ probmed issue #47; one method decision serves both.
 |---|---|---|
 | Fresh per-resample draws inflate bootstrap width and coverage | probmed T20 (exact vs MC: 0.977 → 0.945); pmed width ratios predicted 1.10/1.15, observed 1.10/1.145 | Verified (positive control) |
 | The manuscript's MBCO width advantage is that artifact | K = 5k and K = 50k reruns: bootstrap/MBCO width 0.97–1.01 in all Gaussian cells | Verified, two runs |
-| Exact Gaussian percentile-bootstrap coverage met the retained pmed gate in six null cells at N >= 250 | I2/I6 references; completed pmed 6,000-per-cell run reported 94.38%–95.32% and six two-sided 90% exact-binomial intervals inside its frozen 93%–97% band; s6/s7 truths are 0.5 | Reported and source-checked for that Gaussian grid; not binary or general model support; raw-chunk reconciliation remains open |
+| Exact Gaussian percentile-bootstrap coverage met the retained pmed gate in six null cells at N >= 250 | I2/I6 references; completed pmed 6,000-per-cell run reported 94.38%–95.32% and six two-sided 90% exact-binomial intervals inside its frozen 93%–97% band; s6/s7 truths are 0.5 | Saved chunks and counts independently reconciled for that Gaussian grid; not binary or general model support |
 | Finite-K Monte Carlo noise broadens intervals as sampling uncertainty shrinks | I3 scaling check; I4 and I6 s6/N=1000 misses; I6 observed d/e width 1.029588 vs approximation 1.029691 | Verified in the tested cells |
 | CRN may be adequate away from the null | probmed T22 (non-null cells) PASS; pmed non-null s1/s2/s4/s8 ≈ 0.94–0.95 | Probable in tested non-null cells; s8 and s2 slightly low; s7 is a null branch |
 
