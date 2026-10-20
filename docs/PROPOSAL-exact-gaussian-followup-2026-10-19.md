@@ -30,3 +30,5 @@ The manuscript simulation's nonparametric percentile interval, the package's def
 | Other cells show overcoverage, undercoverage, or wide intervals | Disclose and investigate them separately; they do not alter the frozen six-cell acceptance decision. |
 
 **Author decision (2026-10-20):** Keep the original, prespecified 93%–97% gate. The later 94% minimum-coverage proposal is withdrawn as a decision rule; its post hoc comparison is historical context only. No new exact-Gaussian run, package API change, I7 transition, pmed wording change, or submission is authorized by this decision.
+
+**Methodological review (2026-10-20):** [Literature and exact-binomial operating-characteristic audit](reports/REVIEW-exact-gaussian-coverage-gate-literature-2026-10-20.md) supports the equivalence-style all-six test *conditional on the author's prespecified tolerance*, not a claim that statisticians universally recommend 93%–97%. The gate and outstanding source-reconciliation step above are unchanged.
