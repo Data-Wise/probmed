@@ -86,7 +86,7 @@ I4 ended in a no-go, so I6 did not run "the I4 winner". The user selected fresh 
 
 - [x] pmed reports a separate 6,000-replication-per-cell exact-Gaussian run with seed base 20261021, accepted under its previously frozen 93%–97% six-cell rule; see its `docs/reports/EDIT-REPORT-pmed-exact-gaussian-2026-10-19.md`. This does **not** reverse I6.
 - [x] Author decision (2026-10-20): retain the original rule—each of six two-sided 90% exact-binomial intervals wholly inside 93%–97%. Withdraw the later minimum-94% proposal; do not plan a new run or reinterpret the completed result under that post hoc rule.
-- [ ] Reconcile the completed run's manifest, six cell counts/bounds, hashes, and saved chunks against the original gate before reusing its results beyond the scoped pmed statement. Report width, failure counts, and other cells separately; an unresolved discrepancy calls for investigation, not a changed gate.
+- [x] Reconcile the completed run's manifest, six cell counts/bounds, hashes, and saved chunks against the original gate. Independent chunk-level audit found 600 verified parts, 120,000 unique rows, zero failures, and six-cell PASS; width and out-of-gate s6/N=50 overcoverage are reported separately in `docs/reports/AUDIT-exact-gaussian-hopper-2026-10-20.md`. This does not complete the separate kernel/oracle or stream-replay checks.
 - [ ] Keep medfit's generic fitting/extraction/bootstrap contract, RMediation's path-product CI/MBCO, and probmed's tie-adjusted P_med inference distinct. Exact-kernel package integration needs its own decision and tests; neither dependency is a P_med oracle.
 
 ### I7: Manuscript and package updates (M, only after I6 passes) — stopped; I6 failed
