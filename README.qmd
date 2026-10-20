@@ -23,12 +23,15 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![Repo Status](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![R-CMD-check](https://github.com/data-wise/probmed/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/data-wise/probmed/actions/workflows/R-CMD-check.yaml)
 [![Website Status](https://github.com/data-wise/probmed/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/data-wise/probmed/actions/workflows/pkgdown.yaml)
 [![R-hub](https://github.com/data-wise/probmed/actions/workflows/rhub.yaml/badge.svg)](https://github.com/data-wise/probmed/actions/workflows/rhub.yaml)
-[![Codecov](https://codecov.io/gh/data-wise/probmed/graph/badge.svg)](https://app.codecov.io/gh/data-wise/probmed)
 [![r-universe](https://data-wise.r-universe.dev/probmed/badges/version)](https://data-wise.r-universe.dev/probmed)
 <!-- badges: end -->
+
+PR validation uses the [full local gate](https://github.com/Data-Wise/probmed/blob/dev/tasks/PLAN-local-ci-transition-2026-10-20.md),
+which posts a commit-specific required status after passing. GitHub Actions still
+publishes the website on `main`; R-CMD-check remains required on `main` PRs
+until branch protection is switched, while coverage is manual.
 
 **probmed** provides a robust framework for computing **$P_{med}$**, a scale-free probabilistic effect size for causal mediation analysis.
 

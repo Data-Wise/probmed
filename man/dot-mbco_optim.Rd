@@ -2,11 +2,13 @@
 % Please edit documentation in R/compute-mbco-verified.R
 \name{.mbco_optim}
 \alias{.mbco_optim}
-\title{Convergence-checked optimizer with one deterministic retry}
+\title{Convergence-checked nloptr minimizer with one deterministic fallback}
 \usage{
 .mbco_optim(start, fn)
 }
 \description{
-Convergence-checked optimizer with one deterministic retry
+Derivative-free BOBYQA first, then Subplex (a robust Nelder-Mead variant)
+if BOBYQA does not report success. Returns the shape the callers use:
+\code{par}, \code{value}, and \code{convergence} (0 on an nloptr success status 1-4).
 }
 \keyword{internal}

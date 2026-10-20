@@ -1,14 +1,13 @@
 #!/bin/sh
 # Fast local gate for an R package: quick tests, then R CMD check on a built tarball.
 #
-# Runs with NOT_CRAN=false, so skip_on_cran() simulation tests are skipped -- the same
-# tier the pull-request CI job runs. GitHub CI stays the authority (full matrix and the
-# slow tests run there on push to main/dev); this catches the cheap failures first.
+# Runs with NOT_CRAN=false, so skip_on_cran() simulation tests are skipped.
+# This is only a preflight; check-full-local.sh is the commit-bound PR gate.
 #
 # The tests already ran above, so R CMD check skips re-running them (--no-tests); it still
 # checks the test dependencies statically. CI runs the installed-package tests.
 # Vignettes are neither built nor checked here (--no-build-vignettes / --ignore-vignettes),
-# so a quarto/knitr toolchain is not needed; CI and the pre-submission pass cover them.
+# so a quarto/knitr toolchain is not needed; the full local gate covers them.
 #
 # Usage:  scripts/check-local.sh [--tests-only]
 # Background:  scripts/check-local.sh >/dev/null 2>&1 &   then   tail -f "$LOG"
