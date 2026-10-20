@@ -10,7 +10,7 @@ probmed issue #47; one method decision serves both.
 |---|---|---|
 | Fresh per-resample draws inflate bootstrap width and coverage | probmed T20 (exact vs MC: 0.977 → 0.945); pmed width ratios predicted 1.10/1.15, observed 1.10/1.145 | Verified (positive control) |
 | The manuscript's MBCO width advantage is that artifact | K = 5k and K = 50k reruns: bootstrap/MBCO width 0.97–1.01 in all Gaussian cells | Verified, two runs |
-| Exact Gaussian percentile-bootstrap coverage met the retained pmed gate in six null cells at N >= 250 | I2/I6 references; completed pmed 6,000-per-cell run reported 94.38%–95.32% and six two-sided 90% exact-binomial intervals inside its frozen 93%–97% band; s6/s7 truths are 0.5 | Reported and source-checked for that Gaussian grid; not binary or general model support; raw-chunk reconciliation remains open |
+| Exact Gaussian percentile-bootstrap coverage met the retained pmed gate in six null cells at N >= 250 | I2/I6 references; completed pmed 6,000-per-cell run reported 94.38%–95.32% and six two-sided 90% exact-binomial intervals inside its frozen 93%–97% band; s6/s7 truths are 0.5 | Saved chunks and counts independently reconciled for that Gaussian grid; not binary or general model support |
 | Finite-K Monte Carlo noise broadens intervals as sampling uncertainty shrinks | I3 scaling check; I4 and I6 s6/N=1000 misses; I6 observed d/e width 1.029588 vs approximation 1.029691 | Verified in the tested cells |
 | CRN may be adequate away from the null | probmed T22 (non-null cells) PASS; pmed non-null s1/s2/s4/s8 ≈ 0.94–0.95 | Probable in tested non-null cells; s8 and s2 slightly low; s7 is a null branch |
 
@@ -86,7 +86,8 @@ I4 ended in a no-go, so I6 did not run "the I4 winner". The user selected fresh 
 
 - [x] pmed reports a separate 6,000-replication-per-cell exact-Gaussian run with seed base 20261021, accepted under its previously frozen 93%–97% six-cell rule; see its `docs/reports/EDIT-REPORT-pmed-exact-gaussian-2026-10-19.md`. This does **not** reverse I6.
 - [x] Author decision (2026-10-20): retain the original rule—each of six two-sided 90% exact-binomial intervals wholly inside 93%–97%. Withdraw the later minimum-94% proposal; do not plan a new run or reinterpret the completed result under that post hoc rule.
-- [ ] Reconcile the completed run's manifest, six cell counts/bounds, hashes, and saved chunks against the original gate before reusing its results beyond the scoped pmed statement. Report width, failure counts, and other cells separately; an unresolved discrepancy calls for investigation, not a changed gate.
+- [x] Reconcile the completed run's manifest, six cell counts/bounds, hashes, and saved chunks against the original gate. Independent chunk-level audit found 600 verified parts, 120,000 unique rows, zero failures, and six-cell PASS; width and out-of-gate s6/N=50 overcoverage are reported separately in `docs/reports/AUDIT-exact-gaussian-hopper-2026-10-20.md`.
+- [x] Independently derive and integrate the Gaussian kernel, check guards/failure accounting, scan I2/I6 retained grids and hashes, and replay preselected I2/I6/e point estimates and percentile endpoints on the original eight-worker seed streams. All tested errors were below `1e-12`; see `docs/reports/VERIFY-exact-gaussian-kernel-replay-2026-10-20.md`. This does not reverse I6 or validate another family/package method.
 - [ ] Keep medfit's generic fitting/extraction/bootstrap contract, RMediation's path-product CI/MBCO, and probmed's tie-adjusted P_med inference distinct. Exact-kernel package integration needs its own decision and tests; neither dependency is a P_med oracle.
 
 ### I7: Manuscript and package updates (M, only after I6 passes) — stopped; I6 failed
