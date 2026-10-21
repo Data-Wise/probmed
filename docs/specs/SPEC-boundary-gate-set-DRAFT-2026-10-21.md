@@ -31,15 +31,21 @@ TV levels: AUTHOR. Ladder-to-ladder pairs are not yet in the floor (open).
 | 4 | max RMSE over the finer grid (boundary, 4 TV-matched nodes, midpoints of consecutive points; 9 per path, `docs/specs/data/gate-grid-g1c-2026-10-21.txt`) at the SAME tolerances as gates 1-3 | **chosen** (author, 2026-10-21, G1c) | control for estimators that pass only at the nodes [Review G]; the pairwise floors (DERIVE section 7) are not above the boundary-pair floor, so G3 verdicts stand |
 | 5 | Fieller interval coverage | unchanged original gate | already passes in the binary cells |
 | 6 | SE/SD on regular cells | [.90, 1.10] (Q6, provisional) | archived ratios about 1.03 to 1.07 |
-| 7 | SE withheld (NA) when the boundary flag is on; flag miss rate | AUTHOR | Q6 [Review G] |
+| 7 | SE withheld (NA) when the boundary flag is ON; flag miss rate at the two boundary points (direct 0, alpha 0) must be <= .06 (nominal size .05 plus 2 MCSE at R = 2000) | **entered** (author adopting the assistant recommendation, 2026-10-21, G1d) | Q6 [Review G]; tables `docs/specs/data/tabulate-flag-misses-2026-10-21.txt` |
 
 Dropped as a gate for the new estimator: bias/SD < .10 (infeasible in cells 5 and 7, gameable outside
 [0,1]; T3 SPEC section 2). It may still be reported.
 
 ## 4. Boundary flag (needed by gate 7)
 
-Definition (threshold in SE units), tolerable miss rate on the ladder, and how its own Hodges-type
-failure is guarded: AUTHOR. Not specified here because any threshold I pick would be tuned.
+**Entered 2026-10-21 (G1d; author adopted the assistant's recommendation; revisable until Checkpoint G).**
+- Flag ON when min over j of |d_hat_j| / se_j < 1.96.
+- Gate: at the two boundary points the flag stays OFF (a miss) in at most 6% of replicates (nominal 5% plus 2 MCSE at R = 2000;
+  the archive shows .056 and .055, so a real estimator is not excused for non-Gaussian tails).
+- Scope and guard against its own Hodges-type failure: the flag gates ONLY the SE (gate 6/7) on the regular cells. It does not protect
+  any ladder point: ladder risk is gated by max RMSE alone (gates 1-4), and the OFF rate at every grid point is REPORTED, not gated.
+  The tables show the flag is ON at 88% to 95% of the ladder fits at c = 1.96, so the SE is withheld on the ladder by design.
+- Caveat carried forward: Gaussian-approximation tables; n = 1000 SE scaled 1/sqrt(2); indirect-path SE not constant (.0172 to .0235).
 
 ## 5. Procedure constraints
 
