@@ -1,0 +1,14 @@
+TV(cell 5 data law, shifted data law) at n = 500, R = 20000 datasets each:
+ shift     tv       se
+  0.00 0.0000 0.000000
+  0.05 0.1404 0.001198
+  0.25 0.6229 0.002629
+  0.50 0.9207 0.001572
+
+Control shift 0 gives TV = 0.0000 (must be 0): ok
+Controls .25 and .5 exceed the needed .179: ok
+
+POPULATION: TV(cell 5, cell 7) = 0.1404 (MC SE 0.0012); needed >= 0.1791 (loose 0.1680). Population gate infeasible for any [0,1] estimator.
+EMPIRICAL (R = 2000 replicates per cell): needed noise t = 0.0387; worst-case SD of the mean difference = 0.0114 (t = 3.4 SD);
+  Bernstein upper bound on P(empirical pass) = 4.15e-03 ; normal approximation = 3.46e-04
+  Applies to any single estimator evaluated on independent datasets in the two cells.
