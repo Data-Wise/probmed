@@ -99,6 +99,18 @@ author's go/no-go; it does not edit a tolerance. **Pre-committed rule (author, g
 gate-grid point, T6 is NOT run on these estimators, the tolerances stay as registered, and the endpoint is the negative result; continuing requires the
 author to name a NEW candidate family before any further simulation. Loosening a tolerance to what the pilot achieves is excluded. The multipoint (Fano-type) lower bound remains uncomputed.
 
+**Pilot result (run 2026-10-21, R = 2000 per cell, 36 cells, pilot seed block, script committed before the run as `58029e7`; one R = 100 smoke run of the same
+script preceded the full run and its numbers were seen before the full run, but the design was fixed by the commit and nothing was changed after).**
+`docs/specs/data/pilot-g8-2026-10-21.txt` (verdicts), `-by-point.txt` (RMSE and bias by grid point), CSVs in `pilot-g8-2026-10-21/`. Control: wb_binary
+reproduces 15 archived raw_wald estimates to 4e-16. No failed fits.
+PILOT VERDICT: **NEGATIVE.** All five reference estimators (plug-in, C(0, .5), C(1, .5), C(2, .5), C(3.84, .5)) FAIL at least one RMSE gate; none passes all four. Best
+max RMSE (C(3.84, .5)): direct n = 500 .218 (tol .15), indirect n = 500 .204 (.12), direct n = 1000 .183 (.125), indirect n = 1000 .138 (.09); plug-in is .344, .254, .300, .217.
+Where they fail (report, not a tuning): the maximum is at the exact boundary point (param 0) for every estimator, with large bias toward the interior (truth P = 1 or 0; bias -.21
+direct, +.18 indirect for C(3.84)). Away from the boundary C(3.84) is mostly within tolerance (direct n = 500 interior max .136 at .1477; n = 1000 interior max .126 against .125;
+indirect n = 500 fails at .004 with .147). This is the D2/D3 trade-off: the estimators that reduce boundary bias worsen risk at interior nodes.
+**Consequences pre-committed by grill Q8, now in force:** no T6 for these estimators; the tolerances are unchanged; the endpoint is the negative result unless the author names a NEW
+candidate family before any further simulation. The pilot does not show that no estimator can meet the gates (the floor, .09 and .07, is far below the tolerances); it shows these five cannot.
+
 ## 7b. What a pass licenses (author, grill Q9, 2026-10-21)
 
 If a new estimator passes every gate, that licenses a new, separate PR for it, judged by this gate set. PRs #54/#55 stay held under their original
