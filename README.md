@@ -22,24 +22,19 @@ until branch protection is switched, while coverage is manual.
 
 ## What is $P_{med}$?
 
-$P_{med}$ offers an intuitive alternative to traditional mediation effect sizes. It represents the probability that the outcome for an individual in the treatment group is higher than the outcome for an individual in the control group, specifically due to the indirect path through the mediator.
+$P_{med}$ offers an intuitive alternative to traditional mediation effect sizes. With treatment held at its treated level $x$ for both potential outcomes, it is the probability that the outcome when the mediator takes its treated level $M(x)$ exceeds the outcome when it takes its control level $M(x^*)$, with ties counted as one half: $P(Y(x, M(x)) > Y(x, M(x^*))) + \tfrac12 P(Y(x, M(x)) = Y(x, M(x^*)))$. The direct effect cancels, so $P_{med}$ is mediation-only.
 
 Unlike the “Proportion Mediated” or simple indirect effect coefficients, $P_{med}$:
 \* **Is Scale-Free**: Interpretable regardless of the units of measurement for $X$, $M$, or $Y$.
-\* **Is Bounded**: Always falls between 0 and 1 (or 0 and 0.5 for some definitions), making it comparable across studies.
+\* **Is Bounded**: Always falls between 0 and 1, with 0.5 meaning no mediation effect, making it comparable across studies.
 \* **Handles Non-Linearity**: Can be extended to Generalized Linear Models (GLMs) where coefficients are not directly comparable.
 
 ## Features
 
-Development repair note: single-mediator plug-in calls honor an explicit seed
-by resetting and then advancing the caller’s RNG. Gaussian MBCO exact-null
-fits compare both `a = 0` and `b = 0` reduced-model likelihoods. Coverage
-validation and the remaining repair-plan work are pending; defaults are unchanged.
-Single-mediator MBCO now uses ML SSE/n scales and exposes numerical statuses
-in `result@diagnostics`; only verified LR endpoints set `converged = TRUE`.
-Detected disconnected sets or failed profiles return missing interval bounds.
-The bounded scan can miss narrower components; parallel mediation retains
-its legacy inversion path.
+Single-mediator plug-in calls honor an explicit `seed`. MBCO is deterministic and
+reports numerical statuses in `result@diagnostics`; only verified likelihood-ratio
+endpoints set `converged = TRUE`, and detected disconnected sets or failed profiles
+return missing interval bounds. Parallel mediation keeps its legacy inversion path.
 
 - **Flexible Modeling**: Gaussian (identity link) and binary (logit or probit link) mediators and outcomes, with covariates. Binary models are standardized over the observed covariate rows. Other families (Poisson, ordinal, …), interactions and transformed treatment/mediator terms are rejected with an informative error rather than simulated incorrectly.
 - **Comprehensive Effect Reporting**: Provides both $P_{med}$ (probabilistic effect size) and the traditional Indirect Effect ($a \times b$) with bootstrap confidence intervals.
@@ -47,14 +42,31 @@ its legacy inversion path.
   - **Parametric Bootstrap**: Efficient and accurate for large samples with known distributions.
   - **Nonparametric Bootstrap**: Robust to distributional assumptions (resampling-based).
   - **Plug-in Estimator**: Fast point estimation.
-  - **MBCO** (Gaussian): deterministic likelihood-ratio interval with verified endpoints.
-  - **Model-based bootstrap** (opt-in, `method = "model_bootstrap"`): refits both equations on data simulated from the fitted models, so residual scales are re-estimated too. Not yet calibrated.
+  - **MBCO** (Gaussian): deterministic likelihood-ratio interval with verified endpoints. It never undercovers but is conservative near the double null, flagged by `@diagnostics$pmed$near_double_null`.
+  - **Model-based bootstrap** (opt-in, `method = "model_bootstrap"`): refits both equations on data simulated from the fitted models, so residual scales are re-estimated too. Coverage varies by design; see `docs/reports/CALIBRATION-2026-10-14.md` in the repository.
 - **Modern Architecture**: Built on the **S7** object-oriented system, ensuring type safety, stability, and easy extensibility.
 - **Ecosystem Integration**: Works seamlessly with popular R packages:
   - **lavaan**: Extract from Structural Equation Models with FIML and robust estimators
   - **mediation**: Direct integration with `mediate()` objects
   - Standard **lm/glm**: Native support for regression models
 - **User-Friendly Interface**: Designed to work with standard R `formula` interfaces and `data.frame` inputs.
+
+## Modern estimands
+
+Beyond the core `pmed()`, the package ships cross-fitted, influence-function-based estimators, each with its own S7 result class. See the [Modern estimands article](https://data-wise.github.io/probmed/articles/modern-estimands.html) for details and caveats.
+
+| Function | Result class | What it estimates |
+|----|----|----|
+| `ward_residual()` | `GaugePmedResult` | Gauge-calibrated P_med (residual over observed effect) with weak-identification gates |
+| `incr_pmed()`, `incr_sensitivity()` | `IncrPmedResult` | Incremental P_med and its per-delta tipping analysis |
+| `sobol_pmed()` | `SobolPmedResult` | Sobol variance-scale P_med |
+| `wasserstein_pmed()` | `WassersteinPmedResult` | Wasserstein proportion mediated |
+| `rg_flow_contrast()` | `RgFlowResult` | Scale-indexed NIE/TE with cluster-robust inference |
+| `pmed_sensitivity()` | `PmedSensitivity` | Unmeasured mediator-outcome confounding (tipping point) |
+
+## Status and known limitations
+
+The development version is `0.3.0.9000`; a release is on hold pending manuscript submission. For the binary Wasserstein proportion mediated, estimation near an exactly zero mediation path is hard: the plug-in bias is of order $n^{-1/4}$, none of the point estimators tested met the frozen bias gate (\|bias\|/SD \< .10) there, and that gate was shown to be infeasible for any estimator with values in \[0, 1\] in the zero-direct and weak-direct cells at n = 500, and the Fieller interval is the supported uncertainty statement. See the [boundary article section](https://data-wise.github.io/probmed/articles/modern-estimands.html#boundary-behavior) and `docs/reports/REPORT-boundary-point-risk-2026-10-21.md`.
 
 ## Mediationverse Ecosystem
 
@@ -134,12 +146,12 @@ print(result)
 #> P_med: Probability of Mediated Shift
 #> ====================================
 #>
-#> Estimate: 0.563
-#> 95% CI: [0.520, 0.605]
+#> Estimate: 0.55
+#> 95% CI: [0.53, 0.572]
 #>
 #> Indirect Effect (Product of Coefficients):
-#> Estimate: 0.198
-#> 95% CI: [0.134, 0.268]
+#> Estimate: 0.2
+#> 95% CI: [0.129, 0.283]
 #>
 #> Inference: parametric_bootstrap
 #> Bootstrap samples: 1000
@@ -147,15 +159,15 @@ print(result)
 #> Treatment contrast: X = 1 vs. X* = 0
 #>
 #> Interpretation:
-#>   P(Y(1, M(1)) > Y(1, M(0))) = 0.563
+#>   P(Y(1, M(1)) > Y(1, M(0))) = 0.55
 #>   P that the mediator shift (M(0) -> M(1)) leaves a random individual better off, holding X = 1.
 
 summary(result)
 ```
 
 **Interpretation**:
-- **$P_{med}$ = 0.563**: There is a 56.3% probability that a treated individual will have a higher outcome than a control individual through the indirect path. Since 0.50 represents “no effect” (random chance), this indicates a positive mediation effect.
-- **Indirect Effect = 0.198**: The traditional product-of-coefficients indirect effect ($a \times b$) quantifies the average change in outcome due to the mediated path.
+- **$P_{med}$ = 0.55**: Holding treatment at $X = 1$, there is a 55% probability that the outcome under the treated mediator level exceeds the outcome under the control mediator level. Since 0.50 represents “no mediation effect”, this indicates a modest positive mediation effect.
+- **Indirect Effect = 0.2**: The traditional product-of-coefficients indirect effect ($a \times b$) quantifies the average change in outcome due to the mediated path.
 
 ## Workflow Options
 

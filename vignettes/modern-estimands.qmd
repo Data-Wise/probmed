@@ -1,0 +1,67 @@
+---
+title: "Modern estimands: gauge, incremental, Sobol, Wasserstein and rg-flow"
+format: html
+vignette: >
+  %\VignetteIndexEntry{Modern estimands}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+```
+
+## Overview
+
+`pmed()` computes the core $P_{med}$: with treatment held at $x$ for both potential
+outcomes, the probability that $Y(x, M(x))$ exceeds $Y(x, M(x^*))$, ties counted as one
+half. This article maps the other estimands in the package, what each is for, and the
+caveats the package states openly. The code chunks are not evaluated here; see each
+function's help page for runnable examples.
+
+| Function | Result class | What it estimates | Where to read more |
+|----------|--------------|-------------------|--------------------|
+| `ward_residual()` | `GaugePmedResult` | Gauge-calibrated P_med (residual over observed effect), with weak-identification gates | [`ward_residual()`](../reference/ward_residual.html), the gauge-residual article |
+| `incr_pmed()` | `IncrPmedResult` | Incremental P_med at shift $\delta$ | [`incr_pmed()`](../reference/incr_pmed.html), the incremental article |
+| `incr_sensitivity()` | (tipping table) | Per-$\delta$ mediator-outcome tipping analysis | [`incr_sensitivity()`](../reference/incr_sensitivity.html) |
+| `sobol_pmed()` | `SobolPmedResult` | Variance-scale P_med | [`sobol_pmed()`](../reference/sobol_pmed.html) |
+| `wasserstein_pmed()` | `WassersteinPmedResult` | $P^W_{med} = NIE^W / (NIE^W + NDE^W)$ from 2-Wasserstein distances between corner laws | [`wasserstein_pmed()`](../reference/wasserstein_pmed.html) |
+| `rg_flow_contrast()` | `RgFlowResult` | Scale-indexed NIE/TE with cluster-robust influence-function inference | [`rg_flow_contrast()`](../reference/rg_flow_contrast.html) |
+| `pmed_sensitivity()` | `PmedSensitivity` | Unmeasured mediator-outcome confounding (tipping point) shared across estimands | [`pmed_sensitivity()`](../reference/pmed_sensitivity.html) |
+
+`rg_flow_contrast()` and the `multilevel_designs` dataset are deliberately not P_med
+variants: they estimate the classical proportion mediated and describe cluster designs.
+
+## Choosing an estimand
+
+- **Plain P_med** for Gaussian or binary models with a single mediator: `pmed()`.
+- **Interaction between treatment and mediator, or non-additive effects:** the Wasserstein
+  proportion mediated, whose synergy term $G^W = NIE^W + NDE^W - TE^W \ge 0$ absorbs
+  interaction.
+- **Weak identification of one path:** the gauge residual, which reports when $P_{med}$ is
+  unreliable rather than returning a number.
+- **Clustered data:** `rg_flow_contrast()`.
+
+## Boundary behavior {#boundary-behavior}
+
+For the binary-outcome Wasserstein proportion mediated,
+$P = \sqrt{|d_1|} / (\sqrt{|d_1|} + \sqrt{|d_2|})$ has a cusp wherever a contrast $d_j$ is zero.
+Findings from the boundary point-risk study (documented in the repository):
+
+- The plug-in bias at an exact zero contrast is of order $n^{-1/4}$, with coefficient
+  $E|Z|^{1/2} \approx .822$.
+- Thresholding or snapping estimators relocate the bias to a neighborhood of the null; they
+  do not improve the rate.
+- The frozen gate $|\text{bias}|/\text{SD} < .10$ cannot be passed by any estimator with
+  values in $[0, 1]$ in both the zero-direct and weak-direct cells at $n = 500$ (total variation
+  between their data laws is about .14, against about .18 needed).
+- A pilot of five reference estimators failed the author-set RMSE tolerances at the exact
+  boundary; no point estimator is adopted for that case.
+- The Fieller interval passes coverage in every archived binary cell and is the supported
+  uncertainty statement near the boundary.
+
+The full derivations, checks and decision report are in `docs/specs/` and
+`docs/reports/REPORT-boundary-point-risk-2026-10-21.md`. One lemma (a local-minimax two-point
+bound) is derived but not yet independently audited.

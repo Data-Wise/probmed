@@ -61,6 +61,10 @@ navbar:
         href: articles/parallel-mediation.html
       - text: "Gauge residual: when P_med is unreliable"
         href: articles/gauge-residual.html
+      - text: "Incremental P_med"
+        href: articles/incremental-pmed.html
+      - text: "Modern estimands and boundary behavior"
+        href: articles/modern-estimands.html
       - text: "─────────────"
       - text: "Integration Guides"
       - text: "lavaan Integration"
@@ -179,6 +183,7 @@ articles:
       - parallel-mediation
       - gauge-residual
       - incremental-pmed
+      - modern-estimands
   - title: "Integration Guides"
     navbar: ~
     contents:
