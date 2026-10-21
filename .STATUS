@@ -5,12 +5,30 @@ kind: package
 cran_state: unblocked
 next: Phase 7 I6 COMPLETE — FAIL (2026-10-19). Hopper job 4341753 completed 300/300 tasks and 60,000 rows; Gaussian candidate d failed the frozen s6/N=1000 coverage-equivalence and width gates (paired difference +0.0090, 90% CI [0.0055, 0.0125], width ratio 1.029588). Stop before I7; see docs/reports/I6-GATE-2026-10-19.md. A separate pmed exact-Gaussian 6,000-per-cell run (job 4342657, seed 20261021) passed its original prespecified six-cell rule: each two-sided 90% exact-binomial coverage interval inside 93%-97%; see pmed's docs/reports/EDIT-REPORT-pmed-exact-gaussian-2026-10-19.md. Author decision (2026-10-20): keep that original gate and withdraw the later 94% minimum proposal. No new exact-Gaussian run is planned. Its 600 chunk hashes, 120,000 rows, six counts/bounds, and original gate independently reconcile; see docs/reports/AUDIT-exact-gaussian-hopper-2026-10-20.md. The independent Gaussian oracle and selected retained-stream replay of I2/I6/e also passed within 1e-12; see docs/reports/VERIFY-exact-gaussian-kernel-replay-2026-10-20.md. Report width and out-of-gate cells separately. medfit's generic bootstrap and RMediation's path-product CI/MBCO do not validate P_med. Phase 8 remains closed. Open: I5, #47, #50 (blocked on its script), medfit#213. Package/release and pmed submission holds remain active; passing checks do not authorize submission, merge, release, or deployment.
 
-2026-10-20 feature branch `codex/local-ci-transition`: local status gate and staged
-GitHub CI transition in progress. `main` still requires `ubuntu-latest (release)`;
+2026-10-20 planning checkpoint: historical plan and MBCO checklist labels
+reconciled; research-workflow follow-up filed in
+tasks/PLAN-research-workflow-enhancements-2026-10-20.md (proposed, not executed).
+The old hosted CI-tier plan/checklist are superseded by
+tasks/PLAN-local-ci-transition-2026-10-20.md. The adopted policy is commit-bound
+local validation, not the older hosted-tier proposal. No workflow or protection
+setting is changed by this documentation checkpoint.
+The author's scientific merge hold on PRs #54/#55 remains in force until frozen
+diagnostics pass. Boundary point-estimation and interval calibration must be
+investigated together; passing coverage alone does not clear the point-bias gate.
+Full exact-head local CI and the required-status switch remain pending. This is
+the author-directed hold, not a fresh live PR/check assertion or a new simulation.
+Next research action: derive boundary point-risk trade-offs before freezing a
+new candidate and validating it with disjoint fresh simulations. Do not advance
+I7 or change any frozen diagnostic. Private teaching artifacts remain local;
+no book source, PDF, backup, or local registration belongs in this commit.
+
+2026-10-20 local CI transition: PR #53 integrated into `dev` as 5e3d1a3.
+GitHub CI transition remains staged. Last recorded `main` protection required
+`ubuntu-latest (release)`; recheck live settings before changing it;
 do not disable that check until a real PR head has a verified
 `local-ci/probmed-full` status and branch protection is switched. GitHub Pages
 deployment stays active. No package release or submission decision changes.
-PR #53 targets `dev`. Review hardened the exact-commit publication guard and
+PR #53 review hardened the exact-commit publication guard and
 requires measured core expressions (not an empty coverage result); six isolated
 publication scenarios cover success and failure paths.
 

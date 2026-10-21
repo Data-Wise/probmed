@@ -1,5 +1,7 @@
 # Implementation Plan: probmed single-mediator inference repair + open items
 
+> **Superseded 2026-10-15:** This historical plan is not the active execution index. Its repair-plan/spec links point to files absent from this checkout, and its old checklist contains stale statuses. Use `tasks/plan-mc-bootstrap.md` and `tasks/todo.md` for active Phase 7 work; `.STATUS` owns current next actions. This file is retained as historical context.
+
 > **Status 2026-10-14:** Phases 0–5 are complete (PRs #41–#45 merged). Phase 6 (T20–T22, `tasks/todo.md`) replaces the original "scale n_sim with N" follow-up with common random numbers, after a code review showed the simulation draws are fresh in every bootstrap draw.
 
 Created 2026-10-13 (dev @ `4901862`). Task checklist: [`tasks/todo.md`](todo.md).
