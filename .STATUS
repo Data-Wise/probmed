@@ -35,8 +35,16 @@ Both candidates fail exact/weak-boundary stress cells: primary coverage
 PRs #54/#55 are verified OPEN and DRAFT to retain the scientific merge hold.
 The required-status switch stays blocked. See
 docs/reports/VALIDATE-wasserstein-boundary-correction-2026-10-20.md.
-Next research: joint-contrast confidence-set inference before the nonsmooth
-distance/ratio map. Full software CI is not a substitute for that validation.
+Joint-contrast projection research is complete (source f5669a6): another
+14,000 disjoint fresh datasets, zero fit failures, 19 geometry assertions and
+an independent raw-data audit. Boundary projected coverage improves to
+0.9875/0.9910/0.9890, but all three stress cells still fail bias/SE/coverage
+diagnostics; binary regular n=1000 also exceeds the frozen coverage ceiling
+(0.9885 > 0.98). No production adoption or threshold changes. Both PRs stay
+DRAFT and blocked; full exact-commit software CI/status switch remain pending.
+See docs/reports/VALIDATE-wasserstein-joint-contrast-2026-10-20.md. Next research
+must address boundary point estimation and nonregular uncertainty together;
+new candidates require a frozen design and new seeds.
 GitHub CI transition in progress. `main` still requires `ubuntu-latest (release)`;
 do not disable that check until a real PR head has a verified
 `local-ci/probmed-full` status and branch protection is switched. GitHub Pages
