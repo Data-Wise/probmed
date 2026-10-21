@@ -1,6 +1,7 @@
+Blocks (main, confirmation, pilot) mutually disjoint: TRUE; all fit in 32 bits: TRUE
 Proposed block [1000010001, 1000405000]; max 32-bit integer seed 2147483647: fits
 Overlap with 13 earlier ranges: none
-Discovery: 47 seed-line integer literals in 139 files; inside the proposed block: 0
+Discovery: 47 seed-line integer literals in 140 files; inside the proposed block: 0
 AUDIT PASS
 Limit: only seed literals in this repo and the PR #55 scripts directory are covered; hopper jobs run from other
 checkouts (for example ~/gauge_boot_postfix/) are not, and are blocked here only by the stated 1e9 distance.

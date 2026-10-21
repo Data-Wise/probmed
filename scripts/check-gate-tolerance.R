@@ -8,9 +8,9 @@
 #   INFEASIBLE   tol <= floor               no estimator can meet it (Le Cam), a finding, not a reason to retune
 #   BORDERLINE   floor < tol <= floor_hi    within 2 MC SE of the floor; treat as INFEASIBLE unless a larger R says otherwise
 #   NEAR-FLOOR   floor_hi < tol < 1.5 floor floor is a lower bound, not attainable; treat as likely infeasible
-#   ROOM         tol >= 1.5 floor           not excluded by the floor (says nothing about any candidate)
+#   NOT-RULED-OUT tol >= 1.5 floor          the two-point floor does not exclude it; this is NOT evidence that any estimator can meet it (Codex review G2, finding 3)
 # The 1.5 cut is a stated convention for reporting, not a derived constant.
-# Positive controls run first: half the floor gives INFEASIBLE, twice the floor gives ROOM, and a tolerance that
+# Positive controls run first: half the floor gives INFEASIBLE, twice the floor gives NOT-RULED-OUT, and a tolerance that
 # sits below the pairwise maximum but above the ladder maximum gives INFEASIBLE (the case the review flagged).
 args <- commandArgs(TRUE)
 stopifnot(length(args) >= 2L)
@@ -24,12 +24,12 @@ rd <- function(f) {
 f <- rbind(rd("floor-ladder"), rd("floor-pairs"))
 fl <- tapply(f$floor_rmse, f$path, max)
 fh <- tapply(f$floor_hi, f$path, max)
-verdict <- function(t, fl, fh) if (t <= fl) "INFEASIBLE" else if (t <= fh) "BORDERLINE" else if (t < 1.5 * fl) "NEAR-FLOOR" else "ROOM"
+verdict <- function(t, fl, fh) if (t <= fl) "INFEASIBLE" else if (t <= fh) "BORDERLINE" else if (t < 1.5 * fl) "NEAR-FLOOR" else "NOT-RULED-OUT"
 lad <- tapply(rd("floor-ladder")$floor_rmse, rd("floor-ladder")$path, max)
 pr <- tapply(rd("floor-pairs")$floor_rmse, rd("floor-pairs")$path, max)
 mid <- (lad[["direct"]] + pr[["direct"]]) / 2
 stopifnot(verdict(.5 * fl[["direct"]], fl[["direct"]], fh[["direct"]]) == "INFEASIBLE",
-  verdict(2 * fl[["direct"]], fl[["direct"]], fh[["direct"]]) == "ROOM",
+  verdict(2 * fl[["direct"]], fl[["direct"]], fh[["direct"]]) == "NOT-RULED-OUT",
   pr[["direct"]] < lad[["direct"]] || verdict(mid, fl[["direct"]], fh[["direct"]]) == "INFEASIBLE")
 for (i in 1:2) {
   path <- c("direct", "indirect")[i]

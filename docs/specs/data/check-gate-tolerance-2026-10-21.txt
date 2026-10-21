@@ -1,4 +1,4 @@
-n = 500, direct   floor 0.0926 (hi 0.0931), tolerance 0.1500, ratio 1.62: ROOM
-n = 500, indirect floor 0.0675 (hi 0.0678), tolerance 0.1200, ratio 1.78: ROOM
-n = 1000, direct   floor 0.0820 (hi 0.0825), tolerance 0.1250, ratio 1.52: ROOM
-n = 1000, indirect floor 0.0591 (hi 0.0594), tolerance 0.0900, ratio 1.52: ROOM
+n = 500, direct   floor 0.0926 (hi 0.0931), tolerance 0.1500, ratio 1.62: NOT-RULED-OUT
+n = 500, indirect floor 0.0675 (hi 0.0678), tolerance 0.1200, ratio 1.78: NOT-RULED-OUT
+n = 1000, direct   floor 0.0820 (hi 0.0825), tolerance 0.1250, ratio 1.52: NOT-RULED-OUT
+n = 1000, indirect floor 0.0591 (hi 0.0594), tolerance 0.0900, ratio 1.52: NOT-RULED-OUT

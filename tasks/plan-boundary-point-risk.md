@@ -76,8 +76,10 @@ with output, frozen design, tests) rather than a layer.
 - G1c Author: between-ladder-point control (after G2b)
 - G1d Author: boundary flag (last; depends on G1a-G1c)
 - G3 Feasibility pre-check of the tolerances against the floors (`scripts/check-gate-tolerance.R`)
-- G4 ONE complete gate set (Codex G finding 4), then Review G2 and Checkpoint G
-Order: G2b and G2c now (no author input) -> G1a, G1b -> G1c -> G3 -> G1d -> G4.
+- G4 ONE complete gate set (Codex G finding 4): done as `SPEC-boundary-gate-set-2026-10-21.md` v1.1
+- Review G2 (Codex, 2026-10-21): 3 high + 2 medium, all accepted; G5 corrections and G6 decision rule done; G7 (gate 9) and G8 (feasibility pilot, needs the author's go) open
+- Review G3 on the revised set, then Checkpoint G (author registers)
+Order done: G2b, G2c, G1a-G1d, G3, G4, Review G2, G5, G6. Order remaining: G7 -> G8 (pilot) -> Review G3 -> Checkpoint G.
 - Rule: gates are registered before any fresh data and never retrofitted to archived results; PRs #54/#55 stay judged by the original gates (Q4).
 
 ### Phase B: Candidate and tests

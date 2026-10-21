@@ -1,6 +1,6 @@
 # G4: complete gate set v1 for a new binary Wasserstein point estimator (2026-10-21)
 
-**Status: PROPOSED for Codex review G2. NOT REGISTERED, NOT FROZEN.** Registration is Checkpoint G (a commit before any
+**Status: v1.1, PROPOSED, revised after Codex review G2 (`REVIEW-codex-boundary-point-risk-G2-2026-10-21.md`). NOT REGISTERED, NOT FROZEN; to be re-reviewed before Checkpoint G.** Registration is Checkpoint G (a commit before any
 fresh data). Entries marked "author" were entered by the author on 2026-10-21 by adopting the assistant's recommendation
 and are revisable until then; entries marked "assistant" are drafting choices the author must confirm at Checkpoint G.
 Inputs: `GRILL-boundary-gates-2026-10-21.md`, `REVIEW-codex-boundary-point-risk-G-2026-10-21.md` and `-H-`,
@@ -41,20 +41,21 @@ and replicates up to 5000); re-audit at T5.
 | # | Gate | Value | Entered by | Feasibility check |
 |---|------|-------|------------|-------------------|
 | 1 | zero failed fits, every cell | 0 | unchanged original gate | n/a |
-| 2 | max RMSE over the direct ladder (9 points), n = 500 | <= .15 | author | G3 ROOM (floor .0926, 1.62x) |
-| 3 | max RMSE over the indirect ladder, n = 500 | <= .12 | author | G3 ROOM (floor .0675, 1.78x) |
-| 4 | max RMSE over the direct ladder, n = 1000 | <= .125 | author | G3 ROOM (floor .0820, 1.52x) |
-| 5 | max RMSE over the indirect ladder, n = 1000 | <= .09 | author | G3 ROOM (floor .0591, 1.52x) |
-| 6 | 90% interval coverage in [.92, .98] at the regular cells (ids 1-2) and the two boundary points per n (direct 0, alpha 0) | unchanged original range | assistant (scope) | n/a (Fieller passes coverage in the archived binary cells) |
+| 2 | max RMSE over the direct ladder (9 points), n = 500 | <= .15 | author | G3 not ruled out (floor .0926, 1.62x) |
+| 3 | max RMSE over the indirect ladder, n = 500 | <= .12 | author | G3 not ruled out (floor .0675, 1.78x) |
+| 4 | max RMSE over the direct ladder, n = 1000 | <= .125 | author | G3 not ruled out (floor .0820, 1.52x) |
+| 5 | max RMSE over the indirect ladder, n = 1000 | <= .09 | author | G3 not ruled out (floor .0591, 1.52x) |
+| 6 | 95% interval coverage (qnorm(.975), as in the original studies) in [.92, .98] at the regular cells (ids 1-2) and the two boundary points per n (direct 0, alpha 0) | unchanged original range | assistant (scope) | n/a (Fieller passes coverage in the archived binary cells) |
 | 7 | mean SE / empirical SD in [.90, 1.10], regular cells (ids 1-2) only | unchanged original range | author (Q6, scoped to regular cells) | n/a |
 | 8 | boundary flag miss rate at the two boundary points per n <= .06 | see section 3 | author | tables in `tabulate-flag-misses-2026-10-21.txt` |
+| 9 | PROPOSED (Codex G2 finding 2): among UNFLAGGED fits at each ladder point with at least m unflagged fits, SE/SD in [.90, 1.10] and 95% coverage in [.92, .98]; ladder points with fewer than m unflagged fits are reported as "SE withheld" | m and gated-vs-reported: AUTHOR | assistant | none yet; flag-rate tables suggest most ladder points have few unflagged fits at c = 1.96 |
 
 No rounding at any gate. The RMSE gates use the observed Monte Carlo RMSE with its MCSE reported alongside; no allowance is added.
-RMSE is over all 9 grid points per path at that n, so the gate also controls risk between the nodes (G1c).
+RMSE is gated at the nine tested grid points per path at that n (nodes and midpoints, G1c). The gate says nothing about risk at untested points between them; no quantitative between-point bound is registered (Codex G2 finding 4). The pilot (section 7) may report RMSE at extra random in-between points, reported only.
 
 **Dropped as a gate for the new estimator:** |bias| / empirical SD < .10. It is infeasible in cells 5 and 7 (TV .1404 vs needed .179;
 T3 SPEC section 2) and can be gamed by variance inflation outside [0, 1]. It is REPORTED at every cell, not gated.
-**Reported, not gated:** SE/SD and coverage at interior ladder points, the flag OFF rate at every grid point, selection or snap rates.
+**Reported, not gated (unless gate 9 is adopted):** SE/SD and coverage at interior ladder points, the flag OFF rate at every grid point, selection or snap rates.
 
 ## 3. Boundary flag (gate 8)
 
@@ -80,7 +81,23 @@ Q1 (floor anchor): used as a feasibility check on author-set tolerances, not as 
 Q3 (tolerance first, then feasibility): followed (G3). Q4 (PRs #54/#55 under original gates): unchanged. Q5: reversed, per-n tolerances.
 Q6 (SE only away from the boundary): scoped to regular cells with the flag of section 3. Promotion from PROVISIONAL happens at Checkpoint G.
 
-## 6. Open items for review
+## 6. Decision rule near a tolerance (PROPOSED; Codex G2 finding 5; author confirms)
+
+For each RMSE gate: PASS if observed RMSE + 2 MCSE <= tolerance; FAIL if observed RMSE - 2 MCSE > tolerance; otherwise CONFIRM: rerun
+that cell on the confirmation seed block and decide by the confirmation alone, applying the same rule once. `scripts/decide-gate-rmse.R`
+(controls: planted clear pass, clear fail, borderline). MCSE of RMSE = sd(e^2) / (2 * RMSE * sqrt(R)).
+Seed blocks (assistant, proposed, not frozen): main 1.0e9, confirmation 1.2e9, pilot 1.5e9, each base + cell * 10000 + replicate; mutually
+disjoint and disjoint from earlier ranges (`scripts/audit-seed-ranges.R`).
+
+## 7. Feasibility reference (PROPOSED; Codex G2 finding 3; needs the author's go before any simulation)
+
+The two-point floor is a necessary lower bound, so "not ruled out" is the only claim the checker can make. Before presenting the tolerances as
+feasible, run a PILOT on the pilot seed block: the achievable max RMSE of one or two reference estimators (the raw plug-in P-hat and the
+smooth C(kappa, tau) of the T3 SPEC at the grid already tabulated there, with no new tuning) at the gate-grid points. A pilot that shows every
+reference estimator above the tolerances does not prove infeasibility; one below them is an existence proof for the gate. The pilot informs the
+author's go/no-go; it does not edit a tolerance. The multipoint (Fano-type) lower bound remains uncomputed.
+
+## 8. Open items for review
 
 - Coverage gate 6 scope (assistant): which cells carry the original coverage gate for the new estimator.
 - R = 2000 per cell gives RMSE relative MCSE of roughly 1.6% to 2%; an RMSE within about 3% of a tolerance is a coin flip.

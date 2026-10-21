@@ -6,7 +6,9 @@
 # NOT registered or frozen here; the block is frozen only by T5 after the author's gates exist.
 args <- commandArgs(TRUE)
 pr55 <- if (length(args)) args[1] else "/private/tmp/probmed-dev-main-review/scripts"
-prop <- c(lo = 1e9 + 1 * 10000 + 1, hi = 1e9 + 40 * 10000 + 5000)
+blocks <- list(main = 1e9, confirmation = 1.2e9, pilot = 1.5e9) # each: base + cell * 10000 + replicate, cell 1..40, rep 1..5000
+mk <- function(b) c(lo = b + 1 * 10000 + 1, hi = b + 40 * 10000 + 5000)
+prop <- mk(blocks$main) # the block reported below; the others are checked in the same way and against each other
 
 # Earlier ranges, from the formulas read in the repo / PR #55 scripts (source in the last column).
 # Widths are upper bounds: cell <= 40 and replicate <= 5000 for the cell*10000+r studies; hopper i4/i6 use
@@ -27,7 +29,11 @@ overlap <- function(lo, hi) earlier$name[earlier$lo <= hi & lo <= earlier$hi]
 
 # Controls: a planted overlapping block must be flagged; a planted disjoint block must not.
 stopifnot(length(overlap(20461020 + 10001, 20461020 + 10005)) > 0, length(overlap(5e8, 5e8 + 10)) == 0)
-hit <- overlap(prop[["lo"]], prop[["hi"]])
+hit <- unique(unlist(lapply(blocks, function(b) overlap(mk(b)[["lo"]], mk(b)[["hi"]]))))
+bl <- do.call(rbind, lapply(blocks, mk))
+mutual <- FALSE
+for (i in seq_len(nrow(bl) - 1L)) for (j in (i + 1L):nrow(bl)) if (bl[i, "lo"] <= bl[j, "hi"] && bl[j, "lo"] <= bl[i, "hi"]) mutual <- TRUE
+cat(sprintf("Blocks (main, confirmation, pilot) mutually disjoint: %s; all fit in 32 bits: %s\n", !mutual, max(bl[, "hi"]) < 2^31 - 1))
 cat(sprintf("Proposed block [%.0f, %.0f]; max 32-bit integer seed %.0f: %s\n", prop[["lo"]], prop[["hi"]], 2^31 - 1,
   if (prop[["hi"]] < 2^31 - 1) "fits" else "DOES NOT FIT"))
 cat(sprintf("Overlap with %d earlier ranges: %s\n", nrow(earlier), if (length(hit)) paste(hit, collapse = "; ") else "none"))
@@ -52,9 +58,9 @@ for (f in files) {
   }
 }
 found <- do.call(rbind, found)
-inside <- found[found$value >= prop[["lo"]] & found$value <= prop[["hi"]], ]
+inside <- found[Reduce(`|`, lapply(blocks, function(b) found$value >= mk(b)[["lo"]] & found$value <= mk(b)[["hi"]])), ]
 cat(sprintf("Discovery: %d seed-line integer literals in %d files; inside the proposed block: %d\n", nrow(found), length(files), nrow(inside)))
 if (nrow(inside)) print(inside, row.names = FALSE)
-cat(if (length(hit) == 0 && nrow(inside) == 0 && prop[["hi"]] < 2^31 - 1) "AUDIT PASS\n" else "AUDIT FAIL\n")
+cat(if (length(hit) == 0 && nrow(inside) == 0 && !mutual && max(bl[, "hi"]) < 2^31 - 1) "AUDIT PASS\n" else "AUDIT FAIL\n")
 cat("Limit: only seed literals in this repo and the PR #55 scripts directory are covered; hopper jobs run from other\n",
   "checkouts (for example ~/gauge_boot_postfix/) are not, and are blocked here only by the stated 1e9 distance.\n", sep = "")

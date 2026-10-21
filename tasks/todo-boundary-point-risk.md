@@ -84,7 +84,7 @@ Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-code
   - Verify: audit script lists each earlier range and shows no overlap.
   - Files: `scripts/audit-seed-ranges.R`, a line in the gate-set draft
   - Deps: none
-- [x] **G3 Feasibility pre-check of the author's gates** (S) — DONE 2026-10-21 for G1a/G1b: all four ROOM (ratios 1.62, 1.78, 1.52, 1.52; `docs/specs/data/check-gate-tolerance-2026-10-21.txt`); re-run if G1a/G1b change or G1c adds a gate. TOOL 2026-10-21: `Rscript scripts/check-gate-tolerance.R <n> <tol_direct> [<tol_indirect>]` (controls pass; verdict INFEASIBLE / NEAR-FLOOR / ROOM against the G2 floor). Left unchecked: needs the author's tolerances (G1). The 1.5x NEAR-FLOOR cut is a reporting convention, not derived.
+- [x] **G3 Feasibility pre-check of the author's gates** (S) — DONE 2026-10-21 for G1a/G1b: all four NOT-RULED-OUT (ratios 1.62, 1.78, 1.52, 1.52; `docs/specs/data/check-gate-tolerance-2026-10-21.txt`); re-run if G1a/G1b change or G1c adds a gate. TOOL 2026-10-21: `Rscript scripts/check-gate-tolerance.R <n> <tol_direct> [<tol_indirect>]` (controls pass; verdict INFEASIBLE / BORDERLINE / NEAR-FLOOR / NOT-RULED-OUT against the G2 floors). Left unchecked: needs the author's tolerances (G1). The 1.5x NEAR-FLOOR cut is a reporting convention, not derived.
   - Accept: each proposed gate is tested against the G2 floor; any infeasible gate is reported as a finding, not retuned.
   - Deps: G1a, G1b, G1c, G2, G2b
 - [x] **G4 One complete gate set** (S, plan amendment) — DONE 2026-10-21: `docs/specs/SPEC-boundary-gate-set-2026-10-21.md` (38 cells, 8 gates, flag, procedure; PROPOSED, not registered). Assistant-drafted entries (coverage scope, R = 2000, seeds) await the author at Checkpoint G.
@@ -93,6 +93,13 @@ Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-code
 - [x] Review H (Codex) on the gate tooling G2-G3, 2026-10-21: 2 medium findings accepted and fixed; `docs/specs/REVIEW-codex-boundary-point-risk-H-2026-10-21.md`
 - [ ] **Review G2 (Codex)** RUN 2026-10-21: needs-attention, 3 high + 2 medium, all accepted in triage (`docs/specs/REVIEW-codex-boundary-point-risk-G2-2026-10-21.md`); gate-set edits await the author; re-review the revised set on the complete gate set, before any freeze (this is the Review B focus for gates; run once, record verbatim, triage)
   - Deps: G4
+
+### Review G2 follow-ups (added 2026-10-21; from `REVIEW-codex-boundary-point-risk-G2-2026-10-21.md`)
+- [x] **G5 Corrections** (S): gate 6 states 95% intervals (finding 1, verified against the validation script); ROOM renamed NOT-RULED-OUT in the SPEC, the checker and its saved output (finding 3 wording); between-node claim limited to the nine tested points (finding 4). Seed audit extended to main / confirmation / pilot blocks, mutually disjoint, PASS.
+- [x] **G6 Decision rule near a tolerance** (S, implementation): `scripts/decide-gate-rmse.R` (PASS / FAIL / CONFIRM at 2 MCSE; controls pass) and SPEC section 6. PROPOSED; the author confirms (finding 5).
+- [ ] **G7 Gate 9: SE/coverage among unflagged ladder fits** (author decision): minimum unflagged fits m, and gated vs reported (finding 2). Drafted in the SPEC as gate 9.
+- [ ] **G8 Reference-estimator feasibility pilot** (M, needs the author's go before any simulation; finding 3): plug-in and C(kappa, tau) at the gate grid on the pilot seed block, report-only; SPEC section 7. Deps: G7 optional.
+- [ ] **Review G3 (Codex)** on the revised gate set before Checkpoint G. Deps: G7, G8 decision.
 
 ### Checkpoint G (author)
 - [ ] Gate set registered in a commit before any fresh data; feasibility pre-check passed or the negative-result endpoint chosen
