@@ -78,3 +78,17 @@ Q1-Q3 and Q6 should be treated as provisional until the floor, the independent t
 justification, between-ladder-point risk control, and the flag/withholding/conditional-SE
 specification exist, and Q5 should be reversed (per-n tolerances). The plan must be amended
 with one complete gate set before T5 (finding 4).
+
+## Round 2: gate set v1.1 (2026-10-21, after Codex review G2)
+
+### Q7. How is gate 9 (SE/coverage at ladder points) made coherent?
+**Decision: unconditional 95% coverage at every grid point; SE/SD among unflagged fits is reported only.** Rejected: conditional SE/SD and coverage
+on unflagged fits (selection on |d_hat|/se changes the SD, so a calibrated SE can fail it, and most ladder points fall under any useful minimum);
+report-only (leaves the gap Codex flagged). Consequence: 36 more coverage checks, margin about 6 MCSE at nominal .95, R = 2000.
+
+### Q8. What if both reference estimators miss the tolerances in the pilot?
+**Decision: no T6 for these estimators; tolerances stay; negative result unless the author names a NEW family first.** Rejected: proceeding to a predictable
+FAIL; loosening tolerances to the pilot (the retrofit Q1/Q3 forbid).
+
+### Q9. What does a pass license?
+**Decision: a new, separate PR only; PRs #54/#55 stay held under their original gates (Q4).** Rejected: re-judging #55 under v1.1 (retrofit); leaving it open until T6 (the outcome would shape the rule).
