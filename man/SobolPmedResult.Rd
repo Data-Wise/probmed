@@ -174,7 +174,7 @@ single fold partition was ~80\% of \code{Var(Delta_m_hat)} near the null, that t
 analytic se was ~0.8x its sampling SD so Procedure B covered ~0.85, and that a
 refit bootstrap (~1.25x, coverage ~0.97) was the remedy. All three measured the
 corner-EIF weight bug fixed in PR #34 (\code{.corner_fit()} weighted every row of a
-fold by its first row's propensity; NEWS 0.3.0.9000). Post-fix \code{reps > 1} has
+fold by its first row's propensity; NEWS 0.4.0). Post-fix \code{reps > 1} has
 nothing left to remove, and the bootstrap se is 0.84-1.05x the sampling SD
 (slightly \emph{narrower} at the transition); both remain options, not remedies.
 

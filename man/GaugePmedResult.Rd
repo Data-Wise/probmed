@@ -82,7 +82,7 @@ issued on it; \code{print()} reports the ratio when it exceeds the threshold.
 48,000-rep grid as a "narrowness proxy" whose coverage separation was
 explained by Wald width (\code{inst/sim/results/weakid_validation_cells.csv}).
 All of that measured the estimator \emph{before} the corner-EIF weight fix
-(NEWS 0.3.0.9000): the ~30\% se shortfall and the 2x gap were the bug. The
+(NEWS 0.4.0): the ~30\% se shortfall and the 2x gap were the bug. The
 threshold stays at 3 -- with no signal to calibrate to, a new number would
 imply a calibration that does not exist -- and the field is kept because a
 user running the bootstrap may want to see its instability.}
