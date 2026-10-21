@@ -2,7 +2,7 @@
 
 Plan: `tasks/plan-boundary-point-risk.md`. Design only: no fresh datasets, no estimator frozen,
 no gate changed. Inherits Checkpoint A with three limitations: (1) T2b C1 fails 8/10 in
-rare-snap cells; (2) D3 (no threshold improves the n^(-1/4) rate) is an argument, not a theorem;
+rare-snap cells; (2) D3 (no threshold improves the n^(-1/4) rate) was an argument at acceptance and is now backed by the local-minimax two-point lemma D3' (pending independent audit);
 (3) the cell 4 mechanism is a hypothesis. Reviewed by Codex (B1); its three findings are folded in
 below and triaged in `REVIEW-codex-boundary-point-risk-B1-2026-10-21.md`.
 

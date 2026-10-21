@@ -34,7 +34,7 @@ Research checks: `Rscript scripts/test-wasserstein-boundary-selection.R`,
 - [ ] No unresolved high-severity finding: finding 1 fixed (D3 corrected); **finding 2 open**
       (T2 does not test the derivation) -> T2b below. Finding 3 fixed by rewording.
 
-- [ ] **T2b Test the derivation itself** (S, 1 script + output) — RUN 2026-10-21: A1-A3 pass (slope .459, coefficient .964, control 1.977), B1-B3 10/10, **C1 8/10 (FAIL)**: cell 4 select95 and cell 5 select995, the known rare-snap cells. Tolerances fixed before the run, not changed. Left unchecked pending Checkpoint A.
+- [ ] **T2b Test the derivation itself** (S, 1 script + output) — RUN 2026-10-21: A1-A3 pass (slope .470 (corrected from .459, wrong index), coefficient .964, control 1.913), B1-B3 10/10, **C1 8/10 (FAIL)**: cell 4 select95 and cell 5 select995, the known rare-snap cells. Tolerances fixed before the run, not changed. Left unchecked pending Checkpoint A.
   - Accept: (a) a rate check: analytic or large-draw bias of the raw plug-in at an exact
     zero contrast across a grid of s (equivalently n), log-log slope near 1/2 with a stated
     tolerance, plus a planted wrong-rate control; (b) D2's snap formula computed in closed
@@ -51,7 +51,7 @@ Research checks: `Rscript scripts/test-wasserstein-boundary-selection.R`,
 - [x] Review A triaged (finding 2 addressed by T2b)
 - [x] Author approves continuing to Phase B, with these limitations stated:
       (1) T2b C1 fails 8/10 in the rare-snap cells (cell 4 select95, cell 5 select995);
-      (2) D3 (no threshold improves the n^(-1/4) rate) is an argument, not a theorem;
+      (2) D3 (no threshold improves the n^(-1/4) rate) was an argument at acceptance; now a local-minimax two-point lemma D3' pending independent audit;
       (3) the cell 4 mechanism is a hypothesis, not identified.
 
 ## Phase B: candidate and tests
