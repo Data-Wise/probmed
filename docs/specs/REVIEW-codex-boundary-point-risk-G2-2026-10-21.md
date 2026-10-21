@@ -4,7 +4,7 @@ Target: `feature/boundary-point-risk` against `origin/dev`, focus `SPEC-boundary
 
 ## Output (verbatim)
 
-```
+```text
 # Codex Adversarial Review
 
 Target: branch diff against origin/dev

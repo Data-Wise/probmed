@@ -31,6 +31,7 @@ Research checks: `Rscript scripts/test-wasserstein-boundary-selection.R`,
   - Deps: T1
 
 ### Review A: Codex adversarial review (after T2)
+
 - [x] Run `/codex:adversarial-review` on `feature/boundary-point-risk` (verdict: needs-attention, 2 high, 1 medium)
 - [x] Recorded verbatim with triage in `docs/specs/REVIEW-codex-boundary-point-risk-A-2026-10-21.md`
 - [ ] No unresolved high-severity finding: finding 1 fixed (D3 corrected); **finding 2 open**
@@ -48,6 +49,7 @@ Research checks: `Rscript scripts/test-wasserstein-boundary-selection.R`,
   - Deps: T2, Review A
 
 ### Checkpoint A (author) — ACCEPTED 2026-10-21
+
 - [x] Derivation matches the observed bias pattern in the binary cells; SD misses have
       supported (not proven) explanations. T2 verdict FAIL 17/20 stands.
 - [x] Review A triaged (finding 2 addressed by T2b)
@@ -97,6 +99,7 @@ Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-code
   - Deps: G4
 
 ### Review G2 follow-ups (added 2026-10-21; from `REVIEW-codex-boundary-point-risk-G2-2026-10-21.md`)
+
 - [x] **G5 Corrections** (S): gate 6 states 95% intervals (finding 1, verified against the validation script); ROOM renamed NOT-RULED-OUT in the SPEC, the checker and its saved output (finding 3 wording); between-node claim limited to the nine tested points (finding 4). Seed audit extended to main / confirmation / pilot blocks, mutually disjoint, PASS.
 - [x] **G6 Decision rule near a tolerance** (S, implementation): `scripts/decide-gate-rmse.R` (PASS / FAIL / CONFIRM at 2 MCSE; controls pass) and SPEC section 6. PROPOSED; the author confirms (finding 5).
 - [x] **G7 Gate 9** (author decision, grill Q7, 2026-10-21): unconditional 95% coverage in [.92, .98] at every grid point; SE/SD among unflagged fits reported only. In the SPEC as gate 9.
@@ -104,9 +107,11 @@ Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-code
 - [ ] **Review G3 (Codex)** (now optional: only needed if the author names a new family and continues) on the revised gate set (v1.1 plus gate 9, pilot rule, pass licensing) before Checkpoint G. Deps: G8 decision.
 
 ### Checkpoint G (author)
+
 - [ ] Gate set registered in a commit before any fresh data; feasibility pre-check passed or the negative-result endpoint chosen
 
 ## Housekeeping (not blocking)
+
 - [x] `.gitignore` for the private tarballs: NOT NEEDED, already ignored by `.gitignore:10` (`*.tar.gz`); checked 2026-10-21 (3 tarballs show as ignored)
 - [x] External `AGENTS.md` reference exists: `~/.codex/reference/AGENTS.md` (2.2K) and `repos/r-packages-active-probmed/AGENTS-detail-2026-10-12.md` (checked 2026-10-21)
 - [ ] Untracked `.codex/guard-session-counts` in the main checkout (`.claude/guard-session-counts` is ignored; `.codex/` is not): add an ignore line only on the author's go
@@ -134,9 +139,11 @@ Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-code
   - Deps: T3, Checkpoint G (a candidate cannot be tested against an infeasible gate)
 
 ### HOLD 2026-10-21: T4 and T5 are held until Checkpoint G (author's per-cell gates, G1-G4).
+
 ### Codex review G of the infeasibility argument is done and triaged.
 
 ### Review B: Codex adversarial review (after T4, BEFORE T5)
+
 - [ ] (Deps: Checkpoint G, T4) Run `/codex:adversarial-review` with focus: is the design the right one, which
       assumptions can fail, what could be tuned after the fact (gate, seed, tolerance,
       estimator), can the tests fail
@@ -151,6 +158,7 @@ Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-code
   - Deps: T4
 
 ### Checkpoint B (author, go/no-go)
+
 - [ ] Tests pass, nothing about the gates changed, no fresh data generated yet
 - [ ] Review B triaged and the frozen commit matches the reviewed design
 - [ ] Author explicitly approves the fresh-seed run (T6)
@@ -164,6 +172,7 @@ Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-code
   - Deps: Checkpoint B
 
 ### Review C: Codex adversarial review (after T6, before the T7 verdict)
+
 - [ ] Run `/codex:adversarial-review` with focus: retuning or post-hoc gate reading, seed
       disjointness, provenance/hashes, whether the audit reproduces every summary row,
       whether the verdict overclaims

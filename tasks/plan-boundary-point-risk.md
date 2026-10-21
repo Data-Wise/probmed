@@ -39,7 +39,7 @@ those need the author's approval.
 
 ## Dependency graph
 
-```
+```text
 T1 risk/bias derivation (math, per cell)
   ├── G gate design (author-owned; G1-G4) -- blocks T4/T5
   │     G1 author writes per-cell gates -> G2 floor + ladder (TV) -> G3 feasibility pre-check -> G4 complete gate set
@@ -58,19 +58,23 @@ with output, frozen design, tests) rather than a layer.
 ## Phases
 
 ### Phase A: Understand the failure (read/derive only)
+
 - T1 Derive risk/bias trade-off for axis-snapping estimators
 - T2 Check the derivation against the archived replicates (reuses data, no new RNG)
 
 ### Review A: Codex adversarial review (after T2, before Checkpoint A)
+
 - See "Codex review gates" below. Focus: does the derivation survive scrutiny, and do the
   T2 checks (and their follow-ups) actually test it or only restate the archive.
 
 ### Checkpoint A (author review)
+
 - Derivation predicts the observed bias pattern across the binary cells and every SD miss
   has an identified mechanism (met 2026-10-21; T2 verdict stays FAIL 17/20 as recorded).
 - Review A triaged; no unresolved high-severity finding.
 
 ### Phase G: Gate design (added 2026-10-21; author-owned)
+
 - G1a/G1b Author: max-RMSE tolerances at n = 500 and n = 1000 (independent, not scaled)
 - G2 Minimax floor and weak-signal ladder from data-law TV (done, n = 500 and 1000)
 - G2b Floors for in-between and node-to-node pairs (assistant; feeds G1c)
@@ -85,6 +89,7 @@ Order done: G2b, G2c, G1a-G1d, G3, G4, Review G2, G5, G6. Order remaining: G7 ->
 - Rule: gates are registered before any fresh data and never retrofitted to archived results; PRs #54/#55 stay judged by the original gates (Q4).
 
 ### Phase B: Candidate and tests
+
 - T3 Specify smooth constrained candidate (no hard threshold) and its SE. Constraints from
   Phase A: SD/SE acceptance only by fresh-DGP simulation (Gaussian-experiment SD is
   unreliable in rare-snap cells); carry the joint (d_hat, v_hat) dependence; check the
@@ -92,27 +97,33 @@ Order done: G2b, G2c, G1a-G1d, G3, G4, Review G2, G5, G6. Order remaining: G7 ->
 - T4 Independent numerical tests for the candidate
 
 ### Review B: Codex adversarial review (after T4, BEFORE the T5 freeze commit)
+
 - Must precede the freeze: after T5 nothing may change. Focus: is the design the right
   one, which assumptions can fail, which frozen element (gate, seed, tolerance, estimator)
   could be tuned after the fact, are the tests able to fail.
 
 ### Phase B (cont.)
+
 - T5 Frozen design commit, only after Review B is triaged; the freeze commit records the
   Review B triage.
 
 ### Checkpoint B (author review, go/no-go for fresh seeds)
+
 - Design, thresholds, tolerances, seeds, estimators frozen; tests pass; no gate changed.
 - Review B triaged and the frozen commit matches the reviewed design.
 
 ### Phase C: Validation (only after approval)
+
 - T6 Fresh-seed run, unchanged gates, all rows archived
 
 ### Review C: Codex adversarial review (after T6, before the T7 verdict)
+
 - Focus: any retuning or post-hoc gate reading, seed disjointness, provenance and hashes,
   whether the independent audit reproduces every summary row, and whether the verdict
   claims more than the evidence supports.
 
 ### Phase C (cont.)
+
 - T7 Report, `.STATUS`/`CLAUDE.md` sync; PRs stay blocked unless every unchanged gate passes.
   The report includes the Review C triage.
 

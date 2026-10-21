@@ -7,6 +7,7 @@ Guidance for Claude Code in this repo. Current state, research lines and holds l
 R package computing **P_med**, a scale-free probabilistic effect size for causal mediation (P_med in [0, 1]); S7 classes; GLM/lavaan models via **medfit**; Gaussian and binary outcomes.
 
 For treatment X (treated `x`, control `x*`), mediator M, outcome Y:
+
 - P_med = P(Y(x, M(x)) > Y(x, M(x*))) + ½·P(Y(x, M(x)) = Y(x, M(x*)))
 - Treatment is held at `x` for **both** potential outcomes; only the mediator varies (draws independent). The direct effect `c'` cancels, so P_med is mediation-only. > 0.5 = positive mediation; 0.5 = null.
 - Implemented in `.pmed_core_simple()` (`R/compute-core.R`); matches manuscript Definition 1.
@@ -32,7 +33,7 @@ Run covr with `NOT_CRAN=true`; otherwise `skip_on_cran()` tests are skipped and 
 
 ## Code map
 
-```
+```text
 R/
 ├── aaa-imports.R, probmed-package.R, zzz.R, utils.R   # imports, docs, .onLoad, helpers
 ├── classes.R, generics.R, data.R                      # PmedResult, pmed() generic, datasets

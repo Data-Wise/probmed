@@ -5,7 +5,7 @@ Scope note from Codex: the T2 derivation check could not run in its read-only sa
 
 ## Output (verbatim)
 
-```
+```text
 # Codex Adversarial Review
 
 Target: branch diff against origin/dev
