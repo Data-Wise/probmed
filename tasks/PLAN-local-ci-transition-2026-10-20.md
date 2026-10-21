@@ -24,8 +24,12 @@ visible for the PR head. Neither a local pass nor a status authorizes a merge.
 - For an open PR, run `scripts/check-full-local.sh --pr NUMBER` from its exact
   head. It checks the remote, PR base/head/state, rejects fork PRs, posts
   `pending`, and posts
-  `success` only if every gate passes and the head has not moved. Failures post
+  `success` only if every gate passes, the checkout stays clean at the original
+  commit, and the PR head has not moved. Failures post
   `failure`. The GitHub CLI must have permission to write commit statuses.
+- Run `sh scripts/test-full-local.sh` to verify publication guards with isolated
+  Git/CLI fixtures: success, dirty checkout, changed local head, moved PR head,
+  failed stage, and fork rejection. These fixtures never post live statuses.
 - This local Mac run does **not** reproduce the old Windows/Linux/R-version
   matrix or Codecov upload. Use the manual R-CMD-check, coverage, and R-hub
   workflows when cross-platform or release evidence is needed. Do not label

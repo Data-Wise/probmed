@@ -79,17 +79,21 @@ fi
 export NOT_CRAN=true
 stage tests Rscript -e 'devtools::test(stop_on_failure = TRUE)'
 stage rcmdcheck Rscript -e 'x <- rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error"); if (length(x$warnings)) stop("R CMD check warnings: ", paste(x$warnings, collapse = "; "))'
-stage coverage Rscript -e 'cov <- covr::package_coverage(path = ".", type = "tests", quiet = TRUE, clean = FALSE); overall <- covr::percent_coverage(cov); zero <- covr::zero_coverage(cov); core_zero <- zero[grepl("(^|/)R/compute-core[.]R$", zero$filename), , drop = FALSE]; cat("Overall:", overall, "core uncovered:", nrow(core_zero), "\n"); if (!is.finite(overall) || overall <= 90 || nrow(core_zero)) stop("Coverage targets not met")'
+stage coverage Rscript -e 'cov <- covr::package_coverage(path = ".", type = "tests", quiet = TRUE, clean = FALSE); overall <- covr::percent_coverage(cov); tally <- covr::tally_coverage(cov, by = "expression"); core <- tally[grepl("(^|/)R/compute-core[.]R$", tally$filename), , drop = FALSE]; cat("Overall:", overall, "core expressions:", nrow(core), "\n"); if (!is.finite(overall) || overall <= 90 || !nrow(core) || anyNA(core$value) || any(core$value <= 0)) stop("Coverage targets not met")'
 
 mkdir "$work/site-source"
 stage site-copy rsync -a --exclude=.git --exclude=docs --exclude=AGENTS.md --exclude=CLAUDE.md "$root/" "$work/site-source/"
-stage pkgdown Rscript -e "pkgdown::build_site_github_pages(pkg = '$work/site-source', new_process = FALSE, install = TRUE)"
+stage pkgdown Rscript -e 'pkgdown::build_site_github_pages(pkg = commandArgs(trailingOnly = TRUE)[1], new_process = FALSE, install = TRUE)' --args "$work/site-source"
 site="$work/site-source/docs"
 if [ -s "$site/dev/index.html" ]; then site="$site/dev"; fi
 [ -s "$site/index.html" ] && [ -s "$site/reference/index.html" ] || {
   echo 'pkgdown index or reference page missing' >&2; exit 1;
 }
 
+if [ "$(git rev-parse HEAD)" != "$sha" ] || [ -n "$(git status --porcelain --untracked-files=normal)" ]; then
+  echo 'Checkout changed during local CI; refusing success.' >&2
+  exit 1
+fi
 if [ -n "$pr" ]; then
   latest=$(gh pr view "$pr" --repo "$repo" --json headRefOid --jq .headRefOid)
   [ "$latest" = "$sha" ] || { echo 'PR head moved during local CI; refusing success.' >&2; exit 1; }
