@@ -63,7 +63,7 @@ Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-code
   - Deps: none
 - [x] **G1b Author: max-RMSE tolerances at n = 1000** — ENTERED 2026-10-21: direct .125, indirect .09 (same adoption) (author, XS) — stated on their own, not scaled from G1a (floor fell only ~10%: .082 / .059)
   - Deps: none (independent of G1a)
-- [ ] **G1c Author: between-ladder-point risk control** (author, XS)
+- [x] **G1c Author: between-ladder-point risk control** (author, XS) — CHOSEN 2026-10-21: finer grid (nodes + midpoints, 9 points per path) at the same tolerances; grid in `docs/specs/data/gate-grid-g1c-2026-10-21.txt`
   - Accept: a control that rules out passing only at the nodes; recommended default: max RMSE over a finer interpolation grid at the G1a/G1b tolerances.
   - Deps: G2b
 - [ ] **G1d Author: boundary flag** (threshold in SE units, tolerable miss rate on the ladder, guard against its own Hodges-type failure; author, S)
