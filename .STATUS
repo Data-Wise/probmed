@@ -16,7 +16,16 @@ observed-data inference repair. PR #55 now derives a model-based row influence
 function with shared regression/covariate uncertainty and deterministic corner
 integration. Focused tests pass 35 assertions; the existing Wasserstein suite
 passes 42. The omitted-covariate mutation is detected. Repeated-sampling
-validation and full commit-bound CI are pending. No P_med/I6/I7 gate changes.
+validation completed 8,000 datasets with zero failed fits. Three of four cells
+pass the frozen diagnostics; binary n=500 fails bias/SD (0.142817 > 0.10),
+despite SE/SD 0.988387 and coverage 0.9630. Replay attributes 85.8% of bias
+to nonlinear transformation. Author decision: keep merge blocked and investigate
+bias correction. A grouped-jackknife pilot is exploratory only, not a production
+change. The 200-dataset pilot increased RMSE from 0.0678 to 0.1120 and yielded
+an out-of-range estimate; ordinary delete-one jackknife also gives an extreme
+correction on that selected dataset. Do not adopt unguarded jackknife. See
+docs/reports/INVESTIGATE-wasserstein-binary-bias-2026-10-20.md. Full commit-bound
+CI remains pending; no P_med/I6/I7 gate changes.
 GitHub CI transition in progress. `main` still requires `ubuntu-latest (release)`;
 do not disable that check until a real PR head has a verified
 `local-ci/probmed-full` status and branch protection is switched. GitHub Pages

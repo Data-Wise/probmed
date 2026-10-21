@@ -48,10 +48,15 @@ visible for the PR head. Neither a local pass nor a status authorizes a merge.
    `local-ci/probmed-full`, preserving strict mode. Verify the live protection
    response and PR mergeability. If any check is missing, restore the original
    context before proceeding.
-4. In a follow-up reviewed change, remove R-CMD-check's `main` PR trigger,
-   leaving manual dispatch. Review and merge only with separate author
-   authorization. Never bypass a required check. Keep `pkgdown` deployment
-   and manual R-hub available.
+4. The author's subsequent dev -> main instruction authorizes completing the
+   transition. After the replacement status is verified and protection is
+   switched, disable the hosted R-CMD-check workflow through its repository
+   workflow setting, then verify `disabled_manually`. This avoids retiring the
+   old check before its replacement is ready. The YAML's transitional trigger
+   remains present but inactive while the workflow is disabled; re-enabling it
+   also re-enables that trigger. Manual R-CMD-check runs therefore require
+   deliberate re-enablement. Keep manual coverage/R-hub and `pkgdown` deployment
+   available. Never bypass a required check.
 
 This is a reduction in independent platform coverage and automated execution.
 The status is posted with a user's GitHub credentials, not by a trusted hosted
