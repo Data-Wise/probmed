@@ -79,7 +79,7 @@ Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-code
   - Verify: shift 0 gives TV 0; a node pair reproduces the boundary-pair TV when one end is the boundary.
   - Files: `scripts/check-boundary-floor-ladder.R` (extend), `docs/specs/DERIVE-boundary-floor-2026-10-21.md`
   - Deps: G2
-- [ ] **G2c Disjoint seed block** (XS; assistant, runnable now)
+- [x] **G2c Disjoint seed block** (XS) — DONE 2026-10-21, proposed (not frozen) block [1000010001, 1000205000]; `scripts/audit-seed-ranges.R` PASS (controls: planted overlap flagged, planted disjoint passes). Covers this repo and the PR #55 scripts only; hopper jobs from other checkouts are not covered.
   - Accept: a seed range disjoint from every earlier study (20561020 + cell*10000 + replicate and predecessors), audited by script and quoted; not frozen until T5.
   - Verify: audit script lists each earlier range and shows no overlap.
   - Files: `scripts/audit-seed-ranges.R`, a line in the gate-set draft

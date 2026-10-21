@@ -9,7 +9,7 @@ Inputs: `GRILL-boundary-gates-2026-10-21.md`, `REVIEW-codex-boundary-point-risk-
 
 Binary-outcome Wasserstein proportion mediated P = sqrt|d1| / (sqrt|d1| + sqrt|d2|), same DGP as
 `scripts/validate-wasserstein-joint-contrast.R` (PR #55 branch). Seeds disjoint from every earlier
-study: AUTHOR (audited before freeze, T5).
+study: PROPOSED (not frozen) seed = 1,000,000,000 + cell * 10000 + replicate, cell 1..20, replicate 1..5000, i.e. [1000010001, 1000205000]; `scripts/audit-seed-ranges.R` finds no overlap with 13 earlier ranges and no seed literal inside it (output `docs/specs/data/audit-seed-ranges-2026-10-21.txt`). Re-audit at T5 and freeze there.
 
 ## 2. Ladder (positions by data-law TV to the boundary law, from G2)
 
