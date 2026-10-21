@@ -21,8 +21,8 @@ testthat::test_that("damped correction preserves the target geometry", {
   testthat::expect_equal(wb_correct(d, tiny), expected, tolerance = 1e-10)
   # Independent finite-difference Hessian must agree with the derived expression.
   a <- c(0.5 / d[1], -0.5 / d[2])
-  analytic <- p * (1 - p) * ((1 - 2 * p) * tcrossprod(a) +
-    diag(c(-0.5 / d[1]^2, 0.5 / d[2]^2)))
+  logit_hessian <- diag(c(-0.5 / d[1]^2, 0.5 / d[2]^2))
+  analytic <- p * (1 - p) * ((1 - 2 * p) * tcrossprod(a) + logit_hessian)
   testthat::expect_equal(hessian, analytic, tolerance = 1e-7)
 })
 testthat::test_that("independent binary prototype matches production inference", {
