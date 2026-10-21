@@ -77,3 +77,25 @@ direct .0125 / .0250 / .0505 / .1049; indirect .0057 / .0114 / .0231 / .0474
 not by the factor .84 that a pure n^(-1/4) rule would give or .71 for n^(-1/2). The floor is a maximum over a
 ladder whose TV-matched positions move with n, so it does not scale like either rate; a tolerance at n = 1000
 must come from its own floor, as the reversal of Q5 requires, and cannot be derived from the n = 500 tolerance.
+
+## 7. In-between and node-to-node pairs (G2b, added 2026-10-21)
+
+Script `scripts/check-boundary-floor-pairs.R [n]`, outputs `docs/specs/data/check-boundary-floor-pairs-n{500,1000}-2026-10-21.txt` and
+`floor-pairs-n{500,1000}.csv` (all pairs). Grid per path: boundary, the four TV-matched positions, the cell-7-like .05, and midpoints
+of consecutive nodes (R = 10,000 datasets per base law). Each pair uses data from law i and the exact likelihood ratio of law j.
+Controls passed: identical-law TV 0, and the boundary pair at .05 reproduces the section 2 TV within 4 combined MC SE at both n.
+
+| n | Path | Largest boundary-to-node floor | Largest node-to-node floor |
+|---|------|-------------------------------:|---------------------------:|
+| 500 | direct | .0926 | .0634 (.0088 vs .1477) |
+| 500 | indirect | .0675 | .0481 (.0040 vs .0677) |
+| 1000 | direct | .0820 | .0568 (.0063 vs .1049) |
+| 1000 | indirect | .0591 | .0429 (.0029 vs .0500) |
+
+**Reading.** The boundary pair binds: node-to-node floors are about 70% of it, because the truth gap between two interior points
+is smaller while the TV between them is also smaller. So the floors in sections 3 and 6 stand as the two-point floor, and an
+in-between control (G1c) does not raise the floor. It still matters as a guard against estimators that pass only at the nodes.
+
+**Limits.** These are two-point bounds. A multi-point (Fano-type) bound over the whole ladder can be larger; it is not computed here,
+so the floor remains a lower bound on max RMSE, not a tight one. MC SE is in the output; the boundary maxima differ from sections 3
+and 6 by up to .0003 because R here is 10,000 and the seed differs.

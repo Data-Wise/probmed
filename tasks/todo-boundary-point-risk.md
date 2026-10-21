@@ -74,7 +74,7 @@ Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-code
   - Verify: script generalizes `scripts/check-gate-feasibility-tv.R`; controls (shift 0, large shift) reproduced; output saved under `docs/specs/data/`.
   - Files: `docs/specs/DERIVE-boundary-floor-<date>.md`, `scripts/check-boundary-floor-ladder.R`
   - Deps: none
-- [ ] **G2b Floor for in-between and ladder-to-ladder pairs** (S, extend script; assistant, runnable now)
+- [x] **G2b Floor for in-between and ladder-to-ladder pairs** (S) — DONE 2026-10-21 via `scripts/check-boundary-floor-pairs.R`: node-to-node floors are about 70% of the boundary-to-node floors (boundary pair binds); DERIVE section 7. Multi-point (Fano) bound not computed.
   - Accept: floors at points between the ladder nodes and for node-to-node pairs, n = 500 and 1000, using the law at each point (not only the boundary law); controls as in G2; output under `docs/specs/data/`; says whether the in-between floor exceeds the boundary-to-node floor.
   - Verify: shift 0 gives TV 0; a node pair reproduces the boundary-pair TV when one end is the boundary.
   - Files: `scripts/check-boundary-floor-ladder.R` (extend), `docs/specs/DERIVE-boundary-floor-2026-10-21.md`

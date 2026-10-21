@@ -1,0 +1,7 @@
+Controls: identical-law TV 0 (checked per base); boundary pair at .05 matches floor-ladder-n1000.csv: TRUE
+
+n = 1000, R = 10000 datasets per base law. Largest floors by pair type:
+  direct   boundary-to-node max 0.0820 (b = 0.1049);  node-to-node max 0.0568 (a = 0.0063, b = 0.1049)
+  indirect boundary-to-node max 0.0591 (b = 0.0500);  node-to-node max 0.0429 (a = 0.0029, b = 0.0500)
+
+All pairs written to docs/specs/data/floor-pairs-n1000.csv
