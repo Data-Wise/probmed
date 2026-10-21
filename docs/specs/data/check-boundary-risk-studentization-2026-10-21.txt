@@ -1,0 +1,33 @@
+Reimplementation vs archived estimates, max abs diff over all rows: 1.50e-15
+
+ cell              meth obs_sd pair_sd shuf_sd pair_ratio shuf_ratio snap_obs
+    2  select95_fieller 0.2179  0.2177  0.2182      0.999      1.002    0.230
+    2 select995_fieller 0.2669  0.2668  0.2671      1.000      1.001    0.527
+    4  select95_fieller 0.0770  0.0765  0.0802      0.994      1.041    0.019
+    4 select995_fieller 0.1655  0.1652  0.1697      0.998      1.025    0.120
+    5  select95_fieller 0.1126  0.1134  0.1109      1.007      0.985    0.944
+    5 select995_fieller 0.0378  0.0373  0.0572      0.986      1.513    0.994
+    6  select95_fieller 0.1532  0.1530  0.1592      0.999      1.040    0.796
+    6 select995_fieller 0.1554  0.1558  0.1633      1.003      1.051    0.578
+    7  select95_fieller 0.1084  0.1080  0.1103      0.996      1.018    0.950
+    7 select995_fieller 0.0287  0.0287  0.0550      0.999      1.917    0.997
+ snap_pair snap_shuf cor_d1_v11 pair_ok shuf_ok
+    0.2290    0.2307     0.7741    TRUE    TRUE
+    0.5273    0.5345     0.7741    TRUE    TRUE
+    0.0187    0.0212     0.7823    TRUE    TRUE
+    0.1196    0.1273     0.7823    TRUE    TRUE
+    0.9431    0.9461     0.7234    TRUE    TRUE
+    0.9942    0.9841     0.7234    TRUE   FALSE
+    0.7983    0.7935     0.0141    TRUE    TRUE
+    0.5798    0.5758     0.0141    TRUE    TRUE
+    0.9496    0.9475     0.7265    TRUE    TRUE
+    0.9965    0.9858     0.7265    TRUE   FALSE
+
+Original 3 misses (cell 4 select95; cells 5, 7 select995):
+ cell              meth obs_sd pair_sd shuf_sd pair_ok shuf_ok
+    4  select95_fieller 0.0770  0.0765  0.0802    TRUE    TRUE
+    5 select995_fieller 0.0378  0.0373  0.0572    TRUE   FALSE
+    7 select995_fieller 0.0287  0.0287  0.0550    TRUE   FALSE
+
+Arm P (pair bootstrap) SD gate: 10/10 pass; on the 3 original misses: 3/3.
+Arm S (shuffled v_hat)  SD gate: 8/10 pass; on the 3 original misses: 1/3.
