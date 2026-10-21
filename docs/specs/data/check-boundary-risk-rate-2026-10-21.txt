@@ -9,9 +9,9 @@
 7 0.0006687           -0.05906    1.507e-06
 8 0.0003344           -0.04262    3.915e-07
 9 0.0001672           -0.03058    1.126e-07
-A1 slope (zero contrast, 4 smallest s) = 0.459, gate [.45,.55] -> PASS
+A1 slope (zero contrast, 4 smallest s) = 0.470, gate [.45,.55] -> PASS
 A2 bias/leading-term at smallest s = 0.964, gate [.93,1.07] -> PASS
-A3 control: regular-configuration slope = 1.977, must be outside [.45,.55] -> PASS (check discriminates)
+A3 control: regular-configuration slope = 1.913, must be outside [.45,.55] -> PASS (check discriminates)
 
 (b) SNAP FORMULA and (c) RISK DECOMPOSITION
  cell              meth snap_exact snap_indep snap_mc snap_obs   B1   B2   B3

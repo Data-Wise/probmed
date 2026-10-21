@@ -40,7 +40,7 @@ bias_raw <- function(d1, d2, s1, s2, truth, h = .006, lim = 9) {
 d1 <- .1123045; s2g <- .0428 / 2^(0:8); ratio <- .522
 bz <- vapply(s2g, function(s) bias_raw(d1, 0, ratio * s, s, 1), 0)
 sl <- function(b, s) unname(coef(lm(log(abs(b)) ~ log(s)))[2])
-last4 <- 5:8
+last4 <- 6:9
 slope_zero <- sl(bz[last4], s2g[last4])
 lead <- -(2^(1 / 4) * gamma(3 / 4) / sqrt(pi)) * sqrt(s2g[9]) / sqrt(d1)
 coef_ratio <- bz[9] / lead

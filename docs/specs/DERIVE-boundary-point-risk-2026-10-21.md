@@ -19,12 +19,15 @@ snap to the axis (`P = 0` if j = 1, `P = 1` if j = 2).
 the delta method does not apply near an axis. For `X ~ N(0, s^2)`,
 `E sqrt|X| = s^(1/2) * E|Z|^(1/2)` with `E|Z|^(1/2) = 2^(1/4) Gamma(3/4) / sqrt(pi) ~ 0.822`.
 When `delta_j = 0` the plug-in is therefore biased at rate `s_j^(1/2)`, and the other axis
-enters through `sqrt|d_k|` at its true value. Leading-order prediction:
+enters through `sqrt|d_k|` at its true value. Ratio-of-means heuristic (relabeled after the independent audit; it replaces `E sqrt|X2|` by its mean inside the ratio and is not a first-order expansion):
 
 - zero direct (cell 5): `d1 = .1123`, `s2 = .0428`: `P_hat ~ .3351 / (.3351 + .822*sqrt(.0428)) = .663`
-  against truth 1, bias about -.337; archived raw bias -.326.
+  against truth 1, bias about -.337; archived raw bias -.326. The literal first-order term
+  `-E|Z|^(1/2) sqrt(s2) / sqrt(d1)` is -.508 here and the quadrature bias at this s is -.325, so
+  the heuristic is close partly by luck (the first-order term is only 64% of the bias at
+  s = .0428 and reaches 96% at s/256).
 - zero indirect (cell 6): `d2 = .1191`, `s1 = .01726`: `P_hat ~ .108 / (.108 + .345) = .238`
-  against truth 0; archived raw bias +.2377.
+  against truth 0; archived raw bias +.2377 (literal first-order term +.313).
 
 **D2. Snapping decomposes the bias.** Write `S` for the snap event and `c in {0, 1}` for the
 axis value. Then `P_tilde = k4 + (c - k4) S` and
@@ -48,6 +51,19 @@ tested threshold snaps to 1 with high probability (formula: `Phi(lambda - .23) -
 lambda = 1), so the claim holds for lambda of about 1.96 and above, not for "any lambda >= 1"
 (corrected after Codex Review A, finding 1). Stronger selection helped cell 5
 (bias/SD .243 to .076) and hurt cell 7 (1.87 to 7.88) for the same reason.
+
+**D3'. Two-point lemma (promotes D3 for the local-minimax rate; derived by the literature
+subagent and re-checked by me, not yet independently audited).** Model: `X ~ N(delta, s^2)`,
+`d1 > 0` known, target `P(delta) = sqrt(d1) / (sqrt(d1) + sqrt|delta|)`. Take `delta_0 = 0`
+and `delta_1 = s`. Then `P(delta_0) = 1` and `1 - P(delta_1) = sqrt(s) / (sqrt(d1) + sqrt(s))`,
+which is of order `s^(1/2) / sqrt(d1)`. `TV(N(0, s^2), N(s, s^2)) = 2 Phi(1/2) - 1 = .383`, free
+of `n`. Le Cam's two-point bound gives, for every estimator (any threshold or `lambda_n`
+included), `max over {delta_0, delta_1} of E|T - P| >= (gap / 2)(1 - TV)`, so the local
+minimax risk is at least a constant times `n^(-1/4)`. **Scope:** this is a local-minimax
+statement over a `1/sqrt(n)` neighborhood. Pointwise at exactly `delta = 0` a constant (or a
+threshold) has zero risk (Hodges), which is why the Hodges-problem decision (Q2) needs a
+ladder. It says nothing about RMSE scaling at regular cells, where the rate is `n^(-1/2)`
+(independent audit, Q5), so it does not license an `n^(-1/4)` tolerance there.
 
 **D4. Interval and point disagree under strong selection.** The Fieller interval is
 computed from the unselected `(d_hat, V)`; a snapped point can lie outside it
@@ -165,9 +181,9 @@ run removed a dead line (identical output).
 
 | Gate | Result |
 |---|---|
-| A1: log-log slope of the raw bias at an exact zero contrast, 4 smallest s, in [.45, .55] | **.459, pass** (narrowly) |
+| A1: log-log slope of the raw bias at an exact zero contrast, 4 smallest s, in [.45, .55] | **.470, pass** (the first run used the wrong index and gave .459; corrected after the independent audit) |
 | A2: bias / leading term `-E|Z|^(1/2) sqrt(s2) / sqrt(d1)` at the smallest s in [.93, 1.07] | **.964, pass** |
-| A3 control: a regular configuration must NOT show slope .5 | slope 1.977, pass (the check discriminates) |
+| A3 control: a regular configuration must NOT show slope .5 | slope 1.913, pass (the check discriminates) |
 | B1: independence-product snap probability within .01 of the exact correlated value | 10/10 pass |
 | B2: exact correlated value within 4 MC SE of a 4e6-draw simulation | 10/10 pass |
 | B3: exact value within .03 of the archived snap rate | 10/10 pass |
@@ -190,8 +206,7 @@ run removed a dead line (identical output).
   These are the cells where the Gaussian SD predictions also missed, so C1 does not
   independently confirm the tail-shape hypothesis; it shows the same limitation. Cell 7
   select995, an earlier SD miss, now passes because its RMSE is bias-dominated.
-- **What this does not show:** D3's non-improvability of the rate by any threshold is still
-  an argument, not a theorem; T2b tests D1 and D2, not D3.
+- **What this does not show:** T2b tests D1 and D2, not D3. D3's rate statement is now backed by the two-point lemma D3' (local minimax only, pending independent audit).
 
 ## Consequence for T3 (if the author approves continuing)
 

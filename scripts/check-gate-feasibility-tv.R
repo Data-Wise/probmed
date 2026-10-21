@@ -44,16 +44,29 @@ cat(sprintf("\nPOPULATION: TV(cell 5, cell 7) = %.4f (MC SE %.4f); needed >= %.4
   tv, se, need_pop, .9901 - .8221,
   if (tv + 4 * se < need_pop) "Population gate infeasible for any [0,1] estimator." else "Not ruled out."))
 
-# EMPIRICAL: probability that sampling noise lifts a population-infeasible estimator over the
-# empirical gate. Need noise t = need_pop - tv in (mbar5 - mbar7); worst-case variances:
-Rr <- 2000
-sd5 <- sqrt(.9901 * .0099 / Rr)          # cell 5 mean near 1: Var(mbar5) <= E5(1-E5)/R
-sd7 <- sqrt(.25 / Rr)                    # cell 7: worst case Var(mbar7) <= .25/R
-sdd <- sqrt(sd5^2 + sd7^2)
-t <- need_pop - tv
-bern <- exp(-t^2 / (2 * (sdd^2 + (1 / Rr) * t / 3)))
-cat(sprintf("EMPIRICAL (R = %d replicates per cell): needed noise t = %.4f; worst-case SD of the mean difference = %.4f (t = %.1f SD);\n",
-  Rr, t, sdd, t / sdd))
-cat(sprintf("  Bernstein upper bound on P(empirical pass) = %.2e ; normal approximation = %.2e\n",
-  bern, stats::pnorm(-t / sdd)))
-cat("  Applies to any single estimator evaluated on independent datasets in the two cells.\n")
+# EMPIRICAL: an empirical pass needs BOTH sample means to satisfy their one-sided conditions
+# separately: mbar5 >= .9901 and mbar7 <= .8112 (cell 7 also needs a lower condition, ignored: this
+# only enlarges the bound). The cells use independent datasets, so P(pass) <= P5 * P7 with
+# P5 = P(mbar5 >= c5), P7 = P(mbar7 <= c7). The population means must satisfy |E5 - E7| <= TV.
+# Worst case over E5 (E7 = E5 - TV, the value most favorable to a pass), using Bernstein
+# (variance E(1-E)/R, range 1/R) and the normal approximation. Replaces an earlier difference-of-
+# means argument whose worst-case variance was mis-specified (independent audit, 2026-10-21).
+Rr <- 2000; c5 <- .9901; c7 <- .8112; tvw <- tv
+bern1 <- function(t, v) if (t <= 0) 1 else exp(-t^2 / (2 * (v + (1 / Rr) * t / 3)))
+norm1 <- function(t, v) if (t <= 0) 1 else stats::pnorm(-t / sqrt(v))
+grid <- seq(c7 + .0005, 1, by = .0005)
+best <- c(bern = 0, norm = 0, e5_bern = NA, e5_norm = NA)
+for (e5 in grid) {
+  e7 <- e5 - tvw
+  if (e7 <= 0 || e7 >= 1) next
+  v5 <- e5 * (1 - e5) / Rr; v7 <- e7 * (1 - e7) / Rr
+  pb <- bern1(c5 - e5, v5) * bern1(e7 - c7, v7)
+  pn <- norm1(c5 - e5, v5) * norm1(e7 - c7, v7)
+  if (pb > best["bern"]) { best["bern"] <- pb; best["e5_bern"] <- e5 }
+  if (pn > best["norm"]) { best["norm"] <- pn; best["e5_norm"] <- e5 }
+}
+cat(sprintf("EMPIRICAL (R = %d independent replicates per cell): P(empirical pass) <= P(mbar5 >= %.4f) * P(mbar7 <= %.4f)\n",
+  Rr, c5, c7))
+cat(sprintf("  worst case over population means (E7 = E5 - TV): Bernstein <= %.2e (at E5 = %.4f); normal approximation <= %.2e (at E5 = %.4f)\n",
+  best["bern"], best["e5_bern"], best["norm"], best["e5_norm"]))
+cat("  Applies to any single estimator with values in [0,1] evaluated on independent datasets in the two cells.\n")

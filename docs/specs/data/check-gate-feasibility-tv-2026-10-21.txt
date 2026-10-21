@@ -9,6 +9,6 @@ Control shift 0 gives TV = 0.0000 (must be 0): ok
 Controls .25 and .5 exceed the needed .179: ok
 
 POPULATION: TV(cell 5, cell 7) = 0.1404 (MC SE 0.0012); needed >= 0.1791 (loose 0.1680). Population gate infeasible for any [0,1] estimator.
-EMPIRICAL (R = 2000 replicates per cell): needed noise t = 0.0387; worst-case SD of the mean difference = 0.0114 (t = 3.4 SD);
-  Bernstein upper bound on P(empirical pass) = 4.15e-03 ; normal approximation = 3.46e-04
-  Applies to any single estimator evaluated on independent datasets in the two cells.
+EMPIRICAL (R = 2000 independent replicates per cell): P(empirical pass) <= P(mbar5 >= 0.9901) * P(mbar7 <= 0.8112)
+  worst case over population means (E7 = E5 - TV): Bernstein <= 8.28e-05 (at E5 = 0.9852); normal approximation <= 6.91e-07 (at E5 = 0.9902)
+  Applies to any single estimator with values in [0,1] evaluated on independent datasets in the two cells.

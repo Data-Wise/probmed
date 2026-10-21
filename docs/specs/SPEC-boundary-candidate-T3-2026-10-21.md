@@ -11,8 +11,8 @@ below and triaged in `REVIEW-codex-boundary-point-risk-B1-2026-10-21.md`.
 At n = 500, **no [0,1]-valued estimator can pass the frozen `|bias|/SD < .10` gate in both cell 5
 and cell 7 at the population level**: the two data laws are too close (TV .140) for any estimator
 to separate their means by the .179 the gate requires. For the frozen empirical gate (2000
-replicates per cell) a pass is possible only by sampling accident: probability <= .0042
-(Bernstein, worst-case variance; .0003 by normal approximation). A smooth candidate that
+replicates per cell) a pass is possible only by sampling accident: probability <= 8.3e-5
+(Bernstein, worst case over the population means; 7e-7 by normal approximation). A smooth candidate that
 reduces stress-cell bias is specified below; it fails the complete gate in every cell it targets.
 T3 therefore does not recommend freezing any candidate against the gate as written.
 
@@ -35,12 +35,28 @@ estimator `T` with values in [0,1] (randomized allowed), writing `E_k` for its m
 
 **Empirical gate.** For values in [0,1] the sample SD obeys `s^2 <= R/(R-1) m (1 - m)`
 deterministically, so steps 1-3 hold for the sample means (approximately, since `R/(R-1) =
-1.0005`). With `E5 - E7 <= .140`, an empirical pass needs sampling noise of at least .039 in
-`mbar5 - mbar7`. Its worst-case SD is .0114, so the needed noise is 3.4 SD, giving the bounds
-above for any single estimator on independent datasets.
+1.0005`): an empirical pass needs `mbar5 >= .9901` AND `mbar7 <= .8112` separately. The two
+cells use independent datasets, so `P(pass) <= P(mbar5 >= .9901) * P(mbar7 <= .8112)`, with
+population means constrained by `|E5 - E7| <= .140`. Maximizing over `E5` (taking `E7 = E5 -
+TV`, the most favorable value), Bernstein (variance `E(1-E)/R`, range `1/R`) gives
+**<= 8.3e-5** and the normal approximation **<= 7e-7**
+(`scripts/check-gate-feasibility-tv.R`). An earlier version of this paragraph bounded a
+difference of means with a non-worst-case variance (.0114) and quoted .0042; the
+independent audit showed that derivation was wrong (a worst-case difference variance gives
+about .007), although the conclusion held. It is replaced by the product bound above.
 
 **Assumptions:** estimator values in [0,1]; the gate applies to both cells as frozen; the two
 cells' replicates are independent; TV is a Monte Carlo estimate, not a closed form.
+
+**Why the [0,1] assumption carries the result (literature subagent, 2026-10-21; its own
+derivation, not yet independently checked).** The two-point inequality gives
+`(E1 T - E0 T)^2 <= chi2 * Var0(T)`, so it only bounds the mean gap relative to the SD.
+Bias/SD is scale-free: an estimator allowed outside [0,1] can pass the gate by inflating its
+variance, which is the Doss-Sethuraman / Hirano-Porter mechanism (small bias forces large
+variance; Hirano and Porter 2012 abstract read by the subagent: "no locally asymptotically
+unbiased estimators and no regular estimators"). My bound `SD <= sqrt(E(1-E))` is what blocks
+this inside [0,1]. Consequence: bias/SD alone is a gameable gate, which supports gating RMSE or
+risk, not bias/SD.
 
 **Reading.** This does not say the Fieller interval work is wrong (its coverage passes), nor
 that the gate was badly meant. Truths .228 apart differ by only about .23 standard errors in
@@ -53,7 +69,7 @@ that the gate was badly meant. Truths .228 apart differ by only about .23 standa
 
 - Smooth and strictly positive for `tau > 0`, defined at `d = 0`; `psi` is homogeneous of
   degree 2 in `(d, s)`, so `P_hat` is scale-invariant; swapping `d_1`, `d_2` gives `1 - P_hat`.
-- `kappa = 1` makes `d^2 - v` unbiased for `delta^2`; larger `kappa` shrinks harder toward 0.
+- `kappa = 1` makes `d^2 - v` unbiased for `delta^2` when `v` is fixed or independent of `d`; in the archive `cor(d_hat_1, v_hat_11)` is .72 to .78, so this is not exact there. Larger `kappa` shrinks harder toward 0.
 - It keeps the n^(-1/4) rate; only the coefficient `c(kappa, tau)` replaces .822 (D1, D3).
 
 **Predicted bias** (Gaussian experiment at the archived cell parameters; bias was validated
@@ -70,9 +86,12 @@ direct, 6 zero indirect, 7 weak direct):
 | k4 (archived) | | +.004 | -.001 | -.333 | +.239 | -.108 |
 
 Against k4, cell by cell, at `kappa = 3.84, tau = .5`: better absolute bias in cells 5, 6 and 7
-(cell 7: +.013 vs -.108), worse in the regular cells 2 and 4 (+.074 and +.028 vs +.004 and
--.001). Stronger shrinkage lowers the zero-contrast coefficient by at most about 2x and the
-cell 5 and 6 bias by at most about 1.7x, while the regular-cell bias grows about tenfold.
+(cell 7: +.013 vs -.108, a sign crossing from over-shrinkage, not accuracy: bias/SD is still
+.22), worse in the regular cells 2 and 4 (+.074 and +.028 vs +.004 and -.001). Within the
+family (against `kappa = 0, tau = .5`): the zero-contrast coefficient falls 2.2x (.94 to .42;
+1.96x against the raw .822), the cell 5 bias falls 1.71x and the cell 6 bias 1.44x, while
+the regular-cell bias grows about 11x (cell 2) and 8x (cell 4). Against k4 the regular-cell
+growth is about 18x and 28x.
 
 **Pass/fail expectation (T3 verifiability criterion).** Predicted `|bias|/SD` is 2 to 11 in
 cells 5 and 6 at every grid point, and .22 in cell 7 even at the best grid point (gate .10);

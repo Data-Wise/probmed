@@ -59,6 +59,7 @@ Open consequence: the flag is itself a data-dependent threshold and needs its ow
 and validation; it can fail silently near the boundary, which is the Hodges problem again.
 
 ## Open Questions (not yet grilled)
+- Ladder metric (independent audit, 2026-10-21): positions must be set by total variation (or Hellinger) distance between the actual data laws along the DGP path, not by SE units of d2; TV .1404 for the cell 5 to 7 shift is a Gaussian shift of .353 versus .2285 SE of d2, about 1.55x. Floors must come from data-law TV, not from d2 alone.
 - Ladder positions in SE units, and the zero-indirect side (cell 6 analog).
 - The floor derivation per cell and how it is computed from the DGP laws (the TV method of
   `scripts/check-gate-feasibility-tv.R` generalizes to each ladder pair).
