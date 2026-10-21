@@ -8,6 +8,13 @@ pmed_closed_form <- function(a, b, sigma_m = 1, sigma_y = 1) {
   stats::pnorm(a * b / sqrt(2 * (b^2 * sigma_m^2 + sigma_y^2)))
 }
 
+test_that("missing intercept coefficients use the requested default", {
+  estimates <- c("y_(Intercept)" = 0.4)
+  expect_identical(.named_or(estimates, "y_(Intercept)"), 0.4)
+  expect_identical(.named_or(estimates, "m_(Intercept)"), 0)
+  expect_identical(.named_or(NULL, "m_(Intercept)", default = 2), 2)
+})
+
 # ==============================================================================
 # Core estimand: closed-form agreement + c' invariance (deterministic)
 # ==============================================================================

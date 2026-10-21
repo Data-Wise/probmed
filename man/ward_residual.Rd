@@ -84,7 +84,7 @@ bug. They are superseded. The bootstrap arm and both gates were
 re-measured with the fix the same day
 (\code{docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md},
 \code{inst/sim/results/boot_gates_postfix.csv}): see above, and the \code{weak_id} /
-\code{oe_regular} property docs of \code{\link{GaugePmedResult}}.}
+\code{oe_regular} property docs of \link{GaugePmedResult}.}
 
 \item{B}{Integer: number of bootstrap resamples when \code{se_method = "bootstrap"}
 (default \code{200}). Cost is \code{B} (x \code{reps}) refits.}
@@ -102,16 +102,16 @@ Multi-valued / continuous exposures are future work.}
 percentile \code{W}-CI is at least this many times wider than the Wald interval
 (default \code{3}). \strong{Not calibrated to coverage, and cannot be} (2026-08-22,
 corrected weights): flagged and unflagged draws cover alike at every
-threshold from 1.2 to 3 -- see the \code{weak_id} property of \code{\link{GaugePmedResult}}.
+threshold from 1.2 to 3 -- see the \code{weak_id} property of \link{GaugePmedResult}.
 Left at 3 so the flag stays rare outside the near-null regime (0\% of
 regular-cell draws, 19\% near the null). Exposed so it can be tuned without
 editing the source.}
 
 \item{oe_snr_threshold}{Numeric: the \code{oe_regular} guard flags a near-singular
-denominator when \code{|OE|/se(OE)} falls below this (default \code{2}). Validated
-in the same grid as marking \strong{uninformatively wide} (over-covering)
-intervals, not under-coverage -- see the \code{oe_regular} property
-documentation of \code{\link{GaugePmedResult}}.}
+denominator when \verb{|OE|/se(OE)} falls below this (default \code{2}). Validated in
+the same grid as marking \strong{uninformatively wide} (over-covering) intervals,
+not under-coverage -- see the \code{oe_regular} property documentation of
+\link{GaugePmedResult}.}
 
 \item{...}{Unused.}
 }

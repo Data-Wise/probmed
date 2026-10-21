@@ -90,38 +90,37 @@ user running the bootstrap may want to see its instability.}
 \item{weak_id_ratio}{Numeric: ratio of the percentile \code{W}-interval width to the
 Wald \code{W}-interval width; \code{NA} if not computed.}
 
-\item{oe_snr}{Numeric: signal-to-noise of the denominator, \code{|OE| / se(OE)}.
+\item{oe_snr}{Numeric: signal-to-noise of the denominator, \verb{|OE| / se(OE)}.
 Small values indicate \code{OE} near 0, where \code{W = R/OE} is non-regular.}
 
 \item{oe_regular}{Logical: \code{TRUE} when \code{oe_snr >= 2}; \code{FALSE} flags a
 near-singular \code{OE} -- the denominator of the ratio \code{W = R/OE}, whose
 interval estimation is the classical Fieller (1954) problem. Computed unconditionally from the
 analytic se(OE) regardless of \code{se_method} (only the accompanying
-\code{warning()} is gated on \code{se_method = "bootstrap"}). \code{NA} only in
-the degenerate case \code{se(OE) == 0}.
+\code{warning()} is gated on \code{se_method = "bootstrap"}). \code{NA} only in the
+degenerate case \code{se(OE) == 0}.
 
 \strong{What \code{FALSE} means -- width, not under-coverage.} (Re-measured with the
 corrected corner weights, 2026-08-22, same reading: in the near-null cell
 flagged draws cover 0.99 at a median Wald width 8.7x |W|, while the
 near-null draws that \emph{pass} the gate cover 0.90 at 4.1x --
-\code{docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md}.) In the
-48,000-rep validation grid, draws flagged by this gate did \strong{not}
-under-cover; they \emph{over}-covered (+0.10, in 22/22 qualifying cells, stable
-across every design slice). The mechanism: as \code{OE} approaches 0 the ratio
-\code{W = R/OE} and its intervals blow up -- flagged Wald intervals were a
-median \strong{21x wider than the true |W|} (vs 3x unflagged). Such an interval
-contains the truth and nearly everything else; it is untrustworthy because it
-is \strong{uninformative}, not because it misses. Of the two gates this is the
+\code{docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md}.) In the 48,000-rep
+validation grid, draws flagged by this gate did \strong{not} under-cover; they
+\emph{over}-covered (+0.10, in 22/22 qualifying cells, stable across every
+design slice). The mechanism: as \code{OE} approaches 0 the ratio \code{W = R/OE}
+and its intervals blow up -- flagged Wald intervals were a median \strong{21x
+wider than the true |W|} (vs 3x unflagged). Such an interval contains the
+truth and nearly everything else; it is untrustworthy because it is
+\strong{uninformative}, not because it misses. Of the two gates this is the
 stronger diagnostic -- its effect survives controlling for interval width
-(+0.036, SE 0.003), unlike \code{weak_id}'s. Treat \code{oe_regular = FALSE}
-as "the point estimate and CI for \code{W} are numerically meaningless here",
-not as a coverage warning.}
+(+0.036, SE 0.003), unlike \code{weak_id}'s. Treat \code{oe_regular = FALSE} as
+"the point estimate and CI for \code{W} are numerically meaningless here", not
+as a coverage warning.}
 
 \item{weak_id_ratio_threshold, oe_snr_threshold}{Numeric: the threshold values
-actually used for the \code{weak_id}/\code{oe_regular} gates on this result (see
-the identically-named arguments of \code{\link{ward_residual}}). Stored so
-\code{print()} can report the threshold that was actually applied, not a
-hardcoded default.}
+actually used for the \code{weak_id}/\code{oe_regular} gates on this result (see the
+identically-named arguments of \code{\link[=ward_residual]{ward_residual()}}). Stored so \code{print()} can
+report the threshold that was actually applied, not a hardcoded default.}
 
 \item{OE, IDE, IIE, R}{Numeric: overall, interventional direct, interventional
 indirect effects and the remainder.}
