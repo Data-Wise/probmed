@@ -1,0 +1,60 @@
+# G2: minimax floor and weak-signal ladder (2026-10-21)
+
+Plan: `tasks/plan-boundary-point-risk.md` (Phase G). Script: `scripts/check-boundary-floor-ladder.R`;
+output: `docs/specs/data/check-boundary-floor-ladder-2026-10-21.txt`. No candidate estimator and no
+archived estimate is used. Nothing here is a registered gate; the author's tolerance (G1) is separate.
+
+## 1. Floor (Le Cam two-point)
+
+For any estimator T and two data laws with truths theta0, theta1 (gap D = |theta1 - theta0|) and
+total variation tau between the n-sample laws:
+
+    max_i E_i (T - theta_i)^2 >= D^2 (1 - tau) / 8,   so   max RMSE >= D sqrt((1 - tau) / 8).
+
+Derivation: let psi pick the nearer truth. Each wrong pick costs at least (D/2)^2, so
+R0 + R1 >= (D/2)^2 (P0(psi = 1) + P1(psi = 0)) >= (D/2)^2 (1 - tau), and max >= average.
+This is a lower bound on risk, not an attainable rate. It applies to any estimator, randomized or not.
+
+## 2. Ladder at n = 500 (exact likelihood-ratio TV, Monte Carlo R = 20,000 datasets per row)
+
+Positions are set by data-law TV to the boundary law, not by SE units of d2 (audit finding).
+
+| Path | Boundary truth | TV target | Parameter at target |
+|------|---------------:|----------:|--------------------:|
+| direct (alpha .7, interaction 0) | P = 1 at direct 0 | .05 / .10 / .20 / .40 | .0175 / .0352 / .0713 / .1477 |
+| indirect (direct .6, interaction .2) | P = 0 at alpha 0 | .05 / .10 / .20 / .40 | .0080 / .0160 / .0324 / .0677 |
+
+Positions come from linear interpolation of the parameter on TV between grid rows, so they are
+approximate; the unrounded table is in the output file.
+
+## 3. Floors
+
+| Path | Row (param) | Gap D | TV | Floor on max RMSE |
+|------|------------:|------:|---:|------------------:|
+| direct | .01 | .117 | .029 | .041 |
+| direct | .05 (cell 7) | .228 | .142 | .075 |
+| direct | .15 | .339 | .406 | **.092** (largest) |
+| direct | .25 | .399 | .625 | .086 |
+| indirect | .10 | .285 | .571 | **.066** (largest) |
+
+**Reading.** Over the direct ladder no estimator can have worst-case RMSE below about .09 at
+n = 500; over the indirect ladder, about .07. A per-cell gate tighter than that is infeasible by
+construction, which is the same kind of finding as the bias/SD infeasibility in the T3 SPEC. The
+floor is largest at middle TV (D grows while 1 - tau shrinks), not at the cusp.
+
+## 4. Controls (script stops if any fails; all passed)
+
+- shift 0 gives TV 0 on both paths.
+- direct .05 gives TV .1418 vs the independent .1404 (`check-gate-feasibility-tv.R`), within 4 MC SE.
+- largest shifts give TV > .9 on both paths (.9997 and 1.0000).
+
+## 5. Limits and what this does not settle
+
+- Boundary-to-point pairs only. Ladder-to-ladder pairs, and the max over the ladder of a combined
+  risk, need the law at each point; not computed, so the floors are a lower envelope.
+- The cusp is steep: D is .117 at direct .01 and .151 at alpha .02, so small shifts already carry
+  large truth gaps. A tolerance must be read against D, not against the shift.
+- Floors are for n = 500. Rate in n is an open assumption: Q5 was reversed, so n = 1000 needs its
+  own floor from the same script with n changed, and its own tolerance.
+- The tolerance and multiple (Q3) remain the author's G1 input; this document only says which
+  tolerances are infeasible.

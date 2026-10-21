@@ -5,7 +5,7 @@ Does not touch the older `tasks/plan.md` / `tasks/todo.md` (superseded Phase 0-6
 
 ## Status (2026-10-21)
 
-Phase A and T3 done; Reviews A and B1 triaged; grill ledger Q1-Q6 recorded (Q5 reversed, Q1-Q3 and Q6 provisional). T4/T5 held pending the author's per-cell gates. See `docs/specs/` and `.STATUS`.
+Phase A, T3 and Checkpoint A done (2026-10-21); Reviews A, B1 and G triaged; grill ledger Q1-Q6 recorded (Q5 reversed, Q1-Q3 and Q6 provisional). **New Phase G (gate design) added 2026-10-21 and now gates T4/T5**: the frozen bias/SD gate is infeasible in cells 5 and 7 (TV .1404 vs needed .179), so no candidate can be tested until the author registers feasible per-cell gates. Branch `feature/boundary-point-risk` is pushed (0 behind `origin/dev`, 9 ahead). See `docs/specs/` and `.STATUS`.
 
 ## Overview
 
@@ -39,6 +39,8 @@ those need the author's approval.
 
 ```
 T1 risk/bias derivation (math, per cell)
+  ├── G gate design (author-owned; G1-G4) -- blocks T4/T5
+  │     G1 author writes per-cell gates -> G2 floor + ladder (TV) -> G3 feasibility pre-check -> G4 complete gate set
   ├── T2 numerical check of derivation against existing replicates.csv (no new sims)
   │     └── T3 candidate family + frozen design (smooth constrained estimator + uncertainty)
   │           ├── T4 independent numerical tests (scalar/vector, scale, axis, precision)
@@ -65,6 +67,13 @@ with output, frozen design, tests) rather than a layer.
 - Derivation predicts the observed bias pattern across the binary cells and every SD miss
   has an identified mechanism (met 2026-10-21; T2 verdict stays FAIL 17/20 as recorded).
 - Review A triaged; no unresolved high-severity finding.
+
+### Phase G: Gate design (added 2026-10-21; author-owned)
+- G1 Author writes per-cell gates (the author's input; nothing proceeds without it)
+- G2 Derive the minimax floor and weak-signal ladder from data-law TV (no candidate, no archived estimates)
+- G3 Feasibility pre-check of every proposed gate with the two-point condition
+- G4 Amend the plan with ONE complete gate set (Codex G finding 4): ladder, tolerances per n, boundary flag, between-ladder-point control
+- Rule: gates are registered before any fresh data and never retrofitted to archived results; PRs #54/#55 stay judged by the original gates (Q4).
 
 ### Phase B: Candidate and tests
 - T3 Specify smooth constrained candidate (no hard threshold) and its SE. Constraints from
@@ -135,5 +144,5 @@ Rules:
 ## Open questions for the author
 
 1. (Resolved 2026-10-21) Branch from `dev`.
-2. Is a negative result (no admissible estimator) an acceptable endpoint for this plan?
+2. Is a negative result (no admissible estimator under any feasible gate set) an acceptable endpoint? Candidate endpoint recorded in the T3 SPEC: derived rate (D1), trade-off (D2/D3'), measured gate infeasibility, Fieller interval as the supported deliverable. Author decides after G3.
 3. Budget for T6 (Hopper vs local; earlier study took 318 s locally for 44,000 rows).

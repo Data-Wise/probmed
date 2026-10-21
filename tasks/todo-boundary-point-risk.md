@@ -54,6 +54,36 @@ Research checks: `Rscript scripts/test-wasserstein-boundary-selection.R`,
       (2) D3 (no threshold improves the n^(-1/4) rate) was an argument at acceptance; now a local-minimax two-point lemma D3' pending independent audit;
       (3) the cell 4 mechanism is a hypothesis, not identified.
 
+## Phase G: gate design (added 2026-10-21; blocks T4/T5)
+
+Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-codex-boundary-point-risk-G-2026-10-21.md`.
+
+- [ ] **G1 Author writes per-cell gates** (author; XS) — HELD on the author
+  - Accept: per-cell risk/bias gates stated on substantive grounds, separate tolerances at n = 500 and n = 1000 (Q5 reversal), no reference to any candidate's archived risk.
+  - Deps: none
+- [x] **G2 Floor and ladder derivation** (S, 1 doc + script) — DONE 2026-10-21 at n = 500 only: floor on max RMSE about .09 (direct ladder) and .07 (indirect); `docs/specs/DERIVE-boundary-floor-2026-10-21.md`. n = 1000 and ladder-to-ladder pairs still open.
+  - Accept: two-point/minimax floor per ladder point from the DGP laws alone; ladder positions set by data-law TV along the DGP path (not SE units of d2); zero-indirect side (cell 6 analog) included.
+  - Verify: script generalizes `scripts/check-gate-feasibility-tv.R`; controls (shift 0, large shift) reproduced; output saved under `docs/specs/data/`.
+  - Files: `docs/specs/DERIVE-boundary-floor-<date>.md`, `scripts/check-boundary-floor-ladder.R`
+  - Deps: none (can run before G1; available on request)
+- [ ] **G3 Feasibility pre-check of the author's gates** (S)
+  - Accept: each proposed gate is tested against the G2 floor; any infeasible gate is reported as a finding, not retuned.
+  - Deps: G1, G2
+- [ ] **G4 One complete gate set** (S, plan amendment)
+  - Accept: ladder, tolerances per n, boundary flag definition and miss-rate gate, between-ladder-point risk control, and which of bias/SD, SE/SD, coverage are kept; Q1-Q3, Q6 promoted from PROVISIONAL or reversed in the ledger.
+  - Deps: G3
+- [ ] **Review G2 (Codex)** on the complete gate set, before any freeze (this is the Review B focus for gates; run once, record verbatim, triage)
+  - Deps: G4
+
+### Checkpoint G (author)
+- [ ] Gate set registered in a commit before any fresh data; feasibility pre-check passed or the negative-result endpoint chosen
+
+## Housekeeping (not blocking)
+- [ ] `.gitignore` entry for private teaching tarballs (`wasserstein-inference-private-*.tar.gz`, ~73 MB) in the main checkout
+- [ ] Check the external `AGENTS.md` reference under `~/.codex/reference/` exists
+- [ ] F7 teaching files (pmed-modern, uncommitted by instruction) need an Obsidian vault copy to survive re-sync; commit only on the user's go
+- [ ] Reconcile T2/T2b boxes after the author accepts the recorded FAILs as results (currently left unchecked on purpose)
+
 ## Phase B: candidate and tests
 
 - [x] **T3 Candidate specification** (M, 1-2 docs) — DONE 2026-10-21, `docs/specs/SPEC-boundary-candidate-T3-2026-10-21.md`. Result: smooth family C(kappa, tau) specified and predicted to fail the bias gate in cells 5, 6 at every grid point; **gate feasibility check shows no [0,1]-valued estimator can pass bias/SD < .10 in cells 5 and 7 together at n = 500 (TV .141 < needed .168-.179)**. T4/T5 paused pending author decision on the gate set; nothing frozen.
@@ -72,13 +102,13 @@ Research checks: `Rscript scripts/test-wasserstein-boundary-selection.R`,
   - Verify: `Rscript scripts/test-wasserstein-smooth-boundary.R` pass counts quoted;
     planted defect caught.
   - Files: `R/` or `scripts/` candidate code, `scripts/test-...R`
-  - Deps: T3
+  - Deps: T3, Checkpoint G (a candidate cannot be tested against an infeasible gate)
 
-### HOLD 2026-10-21: T4 and T5 are held until the author proposes feasible per-cell gates to
-### pre-register. Codex review of the T3 infeasibility argument runs first (see below).
+### HOLD 2026-10-21: T4 and T5 are held until Checkpoint G (author's per-cell gates, G1-G4).
+### Codex review G of the infeasibility argument is done and triaged.
 
 ### Review B: Codex adversarial review (after T4, BEFORE T5)
-- [ ] Run `/codex:adversarial-review` with focus: is the design the right one, which
+- [ ] (Deps: Checkpoint G, T4) Run `/codex:adversarial-review` with focus: is the design the right one, which
       assumptions can fail, what could be tuned after the fact (gate, seed, tolerance,
       estimator), can the tests fail
 - [ ] Record verbatim in `docs/specs/REVIEW-codex-boundary-point-risk-B-<date>.md`, triage
