@@ -1,4 +1,4 @@
-Controls: shift 0 gives TV 0: TRUE; direct .05 gives 0.1418 vs .1404: TRUE; largest shifts give TV > .9: TRUE
+Controls: shift 0 gives TV 0: TRUE; direct .05 gives 0.1418 (n = 500 value .1404/.1418; at n = 1000 must exceed it): TRUE; largest shifts give TV > .9: TRUE
 
 direct ladder (n = 500, R = 20000 datasets per row; boundary truth 1.0000)
  param  theta    gap      tv        se floor_rmse

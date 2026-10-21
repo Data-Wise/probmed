@@ -16,8 +16,12 @@
 #   so max RMSE >= D sqrt((1 - tau) / 8). Reported per ladder point.
 # Controls (must pass or the script stops): shift 0 gives TV = 0; the direct shift .05 reproduces the
 # cell 5 / cell 7 TV .1404 of scripts/check-gate-feasibility-tv.R within 4 MC SE; a large shift gives TV > .9.
-set.seed(20261022)
-n <- 500L; R <- 20000L
+# Usage: Rscript scripts/check-boundary-floor-ladder.R [n]   (n defaults to 500; the .1404 control applies at 500 only)
+args <- commandArgs(TRUE)
+n <- if (length(args)) as.integer(args[1]) else 500L
+stopifnot(n %in% c(500L, 1000L))
+set.seed(if (n == 500L) 20261022 else 20261022 + n) # n = 500 keeps the seed of the archived output
+R <- 20000L
 
 corner_mean <- function(direct, alpha, inter, a, ap) {
   b <- .8 + inter * a
@@ -80,9 +84,9 @@ ta <- tv_alpha(agrid)
 # controls
 ok0 <- td[1, "tv"] == 0 && ta[1, "tv"] == 0
 i05 <- which(dgrid == .05)
-ok05 <- abs(td[i05, "tv"] - .1404) < 4 * sqrt(td[i05, "se"]^2 + .0012^2)
+ok05 <- if (n == 500L) abs(td[i05, "tv"] - .1404) < 4 * sqrt(td[i05, "se"]^2 + .0012^2) else td[i05, "tv"] > .1418 # n = 1000: more data, TV must exceed the n = 500 value
 okbig <- td[length(dgrid), "tv"] > .9 && ta[length(agrid), "tv"] > .9
-cat(sprintf("Controls: shift 0 gives TV 0: %s; direct .05 gives %.4f vs .1404: %s; largest shifts give TV > .9: %s\n",
+cat(sprintf("Controls: shift 0 gives TV 0: %s; direct .05 gives %.4f (n = 500 value .1404/.1418; at n = 1000 must exceed it): %s; largest shifts give TV > .9: %s\n",
   ok0, td[i05, "tv"], ok05, okbig))
 stopifnot(ok0, ok05, okbig)
 

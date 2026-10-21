@@ -58,3 +58,22 @@ floor is largest at middle TV (D grows while 1 - tau shrinks), not at the cusp.
   own floor from the same script with n changed, and its own tolerance.
 - The tolerance and multiple (Q3) remain the author's G1 input; this document only says which
   tolerances are infeasible.
+
+## 6. n = 1000 (added 2026-10-21; `Rscript scripts/check-boundary-floor-ladder.R 1000`)
+
+Output: `docs/specs/data/check-boundary-floor-ladder-n1000-2026-10-21.txt`. Same laws, same controls
+(the .1404 control applies at n = 500 only; at n = 1000 the cell 5 to 7 TV must exceed the n = 500 value, and does: .1981).
+
+| Path | n = 500 largest floor | n = 1000 largest floor | Ratio |
+|------|----------------------:|-----------------------:|------:|
+| direct | .092 (param .15) | .082 (param .10) | .89 |
+| indirect | .066 (param .10) | .059 (param .05) | .90 |
+
+Ladder positions at TV .05 / .10 / .20 / .40:
+direct .0125 / .0250 / .0505 / .1049; indirect .0057 / .0114 / .0231 / .0474
+(each about .71 times its n = 500 position, consistent with 1/sqrt(n) scaling of the parameter at fixed TV).
+
+**Reading.** Doubling n lowers the worst-case two-point floor only by about 10% (.092 to .082, .066 to .059),
+not by the factor .84 that a pure n^(-1/4) rule would give or .71 for n^(-1/2). The floor is a maximum over a
+ladder whose TV-matched positions move with n, so it does not scale like either rate; a tolerance at n = 1000
+must come from its own floor, as the reversal of Q5 requires, and cannot be derived from the n = 500 tolerance.
