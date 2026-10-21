@@ -1,0 +1,26 @@
+Control: wb_binary reproduces 15 archived raw_wald estimates, max abs difference 4.44e-16 (need < 1e-8)
+
+Pilot gate verdicts (max over the 9 grid points; PASS < CONFIRM < FAIL):
+ estimator         gate   tol max_rmse at_param verdict
+    plugin    direct500 0.150    0.344        0    FAIL
+    plugin  indirect500 0.120    0.254        0    FAIL
+    plugin   direct1000 0.125    0.300        0    FAIL
+    plugin indirect1000 0.090    0.217        0    FAIL
+        C0    direct500 0.150    0.371        0    FAIL
+        C0  indirect500 0.120    0.274        0    FAIL
+        C0   direct1000 0.125    0.326        0    FAIL
+        C0 indirect1000 0.090    0.236        0    FAIL
+        C1    direct500 0.150    0.309        0    FAIL
+        C1  indirect500 0.120    0.234        0    FAIL
+        C1   direct1000 0.125    0.267        0    FAIL
+        C1 indirect1000 0.090    0.193        0    FAIL
+        C2    direct500 0.150    0.265        0    FAIL
+        C2  indirect500 0.120    0.211        0    FAIL
+        C2   direct1000 0.125    0.226        0    FAIL
+        C2 indirect1000 0.090    0.164        0    FAIL
+     C3.84    direct500 0.150    0.218        0    FAIL
+     C3.84  indirect500 0.120    0.204        0    FAIL
+     C3.84   direct1000 0.125    0.183        0    FAIL
+     C3.84 indirect1000 0.090    0.138        0    FAIL
+
+PILOT VERDICT: NEGATIVE (every reference estimator FAILs at least one gate; no T6 for these estimators)

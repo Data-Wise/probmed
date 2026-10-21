@@ -92,12 +92,12 @@ print(result)
 #> P_med: Probability of Mediated Shift
 #> ====================================
 #> 
-#> Estimate: 0.55 
-#> 95% CI: [ 0.53 ,  0.575 ]
+#> Estimate: 0.551 
+#> 95% CI: [ 0.529 ,  0.578 ]
 #> 
 #> Indirect Effect (Product of Coefficients):
-#> Estimate: 0.201 
-#> 95% CI: [ 0.12 ,  0.301 ]
+#> Estimate: 0.204 
+#> 95% CI: [ 0.116 ,  0.317 ]
 #> 
 #> Inference: parametric_bootstrap 
 #> Bootstrap samples: 500 
@@ -105,7 +105,7 @@ print(result)
 #> Treatment contrast: X = 1 vs. X* = 0 
 #> 
 #> Interpretation:
-#>   P(Y(1, M(1)) > Y(1, M(0))) = 0.55
+#>   P(Y(1, M(1)) > Y(1, M(0))) = 0.551
 #>   P that the mediator shift (M(0) -> M(1)) leaves a random individual better off, holding X = 1.
 #> 
 

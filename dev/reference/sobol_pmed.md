@@ -1,0 +1,163 @@
+# Sobol / Variance-Scale Proportion Mediated
+
+Estimate the **Sobol proportion mediated**
+`P_med^{sigma2} = V_med / V_T` – the share of the total interventional
+outcome variance carried by the mediated pathway, i.e. the first-order
+Sobol (functional-ANOVA) sensitivity index of the outcome with respect
+to the mediator. The estimator is cross-fitted and built on the same
+triply-robust corner pseudo-outcomes as
+[`ward_residual()`](https://data-wise.github.io/probmed/dev/reference/ward_residual.md)
+and
+[`incr_pmed()`](https://data-wise.github.io/probmed/dev/reference/incr_pmed.md);
+the standard error uses the delta method through the quadratic variance
+components and the ratio identity. See
+[SobolPmedResult](https://data-wise.github.io/probmed/dev/reference/SobolPmedResult.md)
+for the variance decomposition and the boundary remedy.
+
+## Usage
+
+``` r
+sobol_pmed(
+  object,
+  pd = 0.5,
+  pm = 0.5,
+  covars = "C",
+  K = 5L,
+  seed = 1L,
+  ci_level = 0.95,
+  warn_boundary = TRUE,
+  boundary_test = c("split", "plugin", "none"),
+  procedure = c("B", "A"),
+  reps = 1L,
+  se_method = c("analytic", "bootstrap"),
+  B = 200L,
+  ...
+)
+```
+
+## Arguments
+
+- object:
+
+  A `data.frame` with columns `A` (binary treatment), `M` (mediator),
+  `Y` (continuous outcome), and the covariates named in `covars`.
+
+- pd, pm:
+
+  Numeric: tilt probabilities for the direct and mediated pathways
+  (Bernoulli design points); defaults `0.5`.
+
+- covars:
+
+  Character vector of covariate column names. Default `"C"`.
+
+- K:
+
+  Integer: number of cross-fitting folds (default `5`).
+
+- seed:
+
+  Integer: RNG seed for fold assignment and the boundary split (default
+  `1`).
+
+- ci_level:
+
+  Numeric: confidence level (default `0.95`).
+
+- warn_boundary:
+
+  Logical: warn when the boundary test does not reject and the reported
+  interval falls back to the Procedure-A upper bound (default `TRUE`).
+
+- boundary_test:
+
+  Character: boundary test for `H0: V_med = 0`. `"split"` (default) is
+  the Williamson sample-split test on `Delta_m`; `"plugin"` is the
+  (over-rejecting) plug-in Wald test, diagnostic only.
+
+- procedure:
+
+  Character: interval procedure for `ci`. `"B"` (default) is the
+  sample-split CI (image of the `Delta_m` CI); `"A"` is the legacy gated
+  interval (non-uniform near the boundary). See
+  [SobolPmedResult](https://data-wise.github.io/probmed/dev/reference/SobolPmedResult.md).
+
+- reps:
+
+  Integer: repeated cross-fitting draws averaged for the point estimate
+  (default `1`). `reps > 1` averages the corner influence matrix over
+  independent fold draws, making the point estimate reproducible across
+  partitions; the efficiency effect is small (post-fix the single-draw
+  estimator is already within 3% of oracle efficiency).
+
+- se_method:
+
+  Character: `"analytic"` (default, influence-function se, calibrated
+  from strong effects to the null – see
+  [SobolPmedResult](https://data-wise.github.io/probmed/dev/reference/SobolPmedResult.md))
+  or `"bootstrap"` (nonparametric resample-and-refit se, `B` x `reps`
+  refits; an option, not a remedy – post-fix it is no better than the
+  analytic se and slightly anti-conservative at the near-null
+  transition).
+
+- B:
+
+  Integer: bootstrap resamples when `se_method = "bootstrap"` (default
+  `200`).
+
+- ...:
+
+  Unused.
+
+## Value
+
+A
+[SobolPmedResult](https://data-wise.github.io/probmed/dev/reference/SobolPmedResult.md)
+object.
+
+## Details
+
+At the null `V_med = 0` (equivalently `Delta_m = 0`) the
+squared-variance influence function degenerates and the symmetric Wald
+interval is non-regular. A Williamson et al. (2021) sample-split test on
+the regular contrast `Delta_m` decides the boundary. The default
+reported interval is **Procedure B** (`procedure = "B"`): the image of
+the regular `Delta_m` Wald CI under `delta -> (c_m/V_T) delta^2`
+(continuous mapping, no gate). Its validity inherits that of the input
+`Delta_m` CI, which the analytic se delivers: post-fix (2026-08-22) the
+`Delta_m` se is exact from strong effects to the null and the
+Procedure-B interval covers 0.952-0.996 across six cells (see the
+boundary coverage section of
+[SobolPmedResult](https://data-wise.github.io/probmed/dev/reference/SobolPmedResult.md)).
+**Procedure A** (`procedure = "A"`) is the legacy gated rule (Wald on
+rejection, one-sided `[0, Pmed_upper]` otherwise), pointwise- but
+**not** uniformly-valid across the near-null transition (Leeb-Potscher
+pre-test under-coverage). The boundary machinery recurses through a
+plain internal fitter (not this generic), so the point estimate, fold
+draw, and split are deterministic in `seed`. See the boundary coverage
+section in
+[SobolPmedResult](https://data-wise.github.io/probmed/dev/reference/SobolPmedResult.md).
+
+## References
+
+Williamson, B. D., Gilbert, P. B., Carone, M., & Simon, N. (2021).
+Nonparametric variable importance assessment using machine learning
+techniques. *Biometrics*, 77(1), 9–22.
+
+## Examples
+
+``` r
+set.seed(1)
+n <- 1500; C <- rnorm(n)
+A <- rbinom(n, 1, plogis(-0.2 + 0.8 * C))
+M <- 0.6 * A + 0.4 * C + rnorm(n)
+# strong mediation (off-boundary): Wald interval reported
+Y <- 0.5 * A + 0.7 * M + 0.3 * C + rnorm(n)
+sobol_pmed(data.frame(A, M, Y, C))
+#> Sobol / variance-scale proportion mediated P_med^sigma2 (onestep-crossfit, n=1500)
+#>   P_med = 0.486  se = 0.086
+#>   Wald 95% CI [0.299, 0.718]
+#>   H0 V_med=0 rejected (split p=1.19e-09).
+#>   S1_med = 0.486  ST_med = 0.488
+#>   Vd=0.0524  Vm=0.0498  Vint=0.0002  VT=0.1024
+```

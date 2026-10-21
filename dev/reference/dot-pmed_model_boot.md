@@ -1,0 +1,49 @@
+# Model-based response bootstrap for P_med (opt-in)
+
+Holds the observed treatment and covariate rows fixed and, for each
+draw, simulates a complete synthetic dataset from the fitted sequential
+models: the mediator from its fitted conditional model, then the outcome
+from its fitted model **using the simulated mediator**. Both equations
+are refitted on those same rows (so coefficients and residual scales are
+re-estimated jointly, keeping their pairing), and P_med is recomputed,
+standardized over the original covariate rows when the model needs it.
+
+## Usage
+
+``` r
+.pmed_model_boot(
+  extract,
+  x_ref,
+  x_value,
+  n_boot,
+  ci_level,
+  seed,
+  n_sim = 10000,
+  ...
+)
+```
+
+## Details
+
+The point estimate is the fitted-model plug-in estimate (not the mean of
+the draws, which is the legacy bootstraps' convention). The interval is
+the percentile interval of the valid draws, reported only when at least
+99% of the requested draws are valid (finite estimate, converged
+supported fits, no separation); otherwise both bounds are `NA` with
+status `"bootstrap_incomplete"`. Failed draws are never recycled or
+replaced.
+
+Monte Carlo control: every draw evaluates P_med on one shared set of
+uniforms `u` (common random numbers), reducing independent per-draw
+noise. To remove the shared anchor shift, each draw is re-centered as
+`P_u(draw) - P_u(fit) + point`, where `P_u(fit)` is P_med at the fitted
+coefficients on the same `u` (a control variate) and `point` uses
+`100 * n_sim` simulated pairs. Parameter-dependent finite-`n_sim` error
+remains; this correction does not guarantee unchanged interval width.
+The point estimate's Monte Carlo standard deviation is at most
+approximately `0.5 / sqrt(100 * n_sim)` for independent bounded pair
+scores.
+
+This models uncertainty under the specified sequential model and its
+assumed confounding structure. It does not correct misspecification, and
+it does not resample the covariate distribution.

@@ -1,5 +1,12 @@
 # probmed
 
+PR validation uses the [full local
+gate](https://github.com/Data-Wise/probmed/blob/dev/tasks/PLAN-local-ci-transition-2026-10-20.md),
+which posts a commit-specific required status after passing. GitHub
+Actions still publishes the website on `main`; R-CMD-check remains
+required on `main` PRs until branch protection is switched, while
+coverage is manual.
+
 **probmed** provides a robust framework for computing **$`P_{med}`$**, a
 scale-free probabilistic effect size for causal mediation analysis.
 
@@ -21,9 +28,23 @@ comparable.
 
 ## Features
 
-- **Flexible Modeling**: Supports both **Linear Models (LM)** and
-  **Generalized Linear Models (GLM)** (e.g., Logistic, Poisson) for the
-  mediator and outcome.
+Development repair note: single-mediator plug-in calls honor an explicit
+seed by resetting and then advancing the caller’s RNG. Gaussian MBCO
+exact-null fits compare both `a = 0` and `b = 0` reduced-model
+likelihoods. Coverage validation and the remaining repair-plan work are
+pending; defaults are unchanged. Single-mediator MBCO now uses ML SSE/n
+scales and exposes numerical statuses in `result@diagnostics`; only
+verified LR endpoints set `converged = TRUE`. Detected disconnected sets
+or failed profiles return missing interval bounds. The bounded scan can
+miss narrower components; parallel mediation retains its legacy
+inversion path.
+
+- **Flexible Modeling**: Gaussian (identity link) and binary (logit or
+  probit link) mediators and outcomes, with covariates. Binary models
+  are standardized over the observed covariate rows. Other families
+  (Poisson, ordinal, …), interactions and transformed treatment/mediator
+  terms are rejected with an informative error rather than simulated
+  incorrectly.
 - **Comprehensive Effect Reporting**: Provides both $`P_{med}`$
   (probabilistic effect size) and the traditional Indirect Effect
   ($`a \times b`$) with bootstrap confidence intervals.
@@ -34,6 +55,11 @@ comparable.
   - **Nonparametric Bootstrap**: Robust to distributional assumptions
     (resampling-based).
   - **Plug-in Estimator**: Fast point estimation.
+  - **MBCO** (Gaussian): deterministic likelihood-ratio interval with
+    verified endpoints.
+  - **Model-based bootstrap** (opt-in, `method = "model_bootstrap"`):
+    refits both equations on data simulated from the fitted models, so
+    residual scales are re-estimated too. Not yet calibrated.
 - **Modern Architecture**: Built on the **S7** object-oriented system,
   ensuring type safety, stability, and easy extensibility.
 - **Ecosystem Integration**: Works seamlessly with popular R packages:
@@ -270,6 +296,14 @@ print(result_bin)
 - **Nonparametric Bootstrap** (`method = "nonparametric_bootstrap"`):
   More robust to distributional assumptions but computationally
   intensive. Use when parametric assumptions are questionable.
+- **MBCO** (`method = "mbco"`): Gaussian models only. Deterministic
+  likelihood-ratio interval; check `result@diagnostics` for endpoint
+  status.
+- **Model-based bootstrap** (`method = "model_bootstrap"`, opt-in):
+  simulates complete datasets from the fitted models with the observed
+  treatment and covariates fixed, refits both equations, and reports the
+  percentile interval only when at least 99% of draws are valid. Its
+  coverage has not yet been calibrated.
 
 ``` r
 

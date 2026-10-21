@@ -1,0 +1,49 @@
+Step 0: max |reimplemented - archived| over 900 rows = 1.17e-15
+ cell              meth obs_bias pred_bias obs_sd pred_sd snap_obs snap_pred
+    2        k4_fieller  0.00407   0.00431 0.0641  0.0660       NA        NA
+    2  select95_fieller  0.09637   0.09228 0.2179  0.2154    0.230    0.2217
+    2 select995_fieller  0.23832   0.23867 0.2669  0.2699    0.527    0.5344
+    2          raw_wald  0.00785   0.00800 0.0659  0.0679       NA        NA
+    4        k4_fieller -0.00109   0.00102 0.0409  0.0426       NA        NA
+    4  select95_fieller  0.00600   0.01180 0.0770  0.0905    0.019    0.0289
+    4 select995_fieller  0.04922   0.06296 0.1655  0.1799    0.120    0.1471
+    4          raw_wald  0.00134   0.00353 0.0420  0.0439       NA        NA
+    5        k4_fieller -0.33306  -0.33181 0.1038  0.1042       NA        NA
+    5  select95_fieller -0.02737  -0.02525 0.1126  0.1091    0.944    0.9488
+    5 select995_fieller -0.00288  -0.00795 0.0378  0.0620    0.994    0.9829
+    5          raw_wald -0.32631  -0.32514 0.1030  0.1034       NA        NA
+    6        k4_fieller  0.23942   0.24017 0.0913  0.0902       NA        NA
+    6  select95_fieller  0.07046   0.06659 0.1532  0.1531    0.796    0.8114
+    6 select995_fieller  0.11636   0.11838 0.1554  0.1536    0.578    0.5698
+    6          raw_wald  0.23769   0.23842 0.0918  0.0907       NA        NA
+    7        k4_fieller -0.10761  -0.10704 0.1034  0.1056       NA        NA
+    7  select95_fieller  0.20297   0.19917 0.1084  0.1168    0.950    0.9427
+    7 select995_fieller  0.22624   0.21897 0.0287  0.0671    0.997    0.9818
+    7          raw_wald -0.10083  -0.10040 0.1027  0.1050       NA        NA
+ bias_ok sd_ok snap_ok
+    TRUE  TRUE    TRUE
+    TRUE  TRUE    TRUE
+    TRUE  TRUE    TRUE
+    TRUE  TRUE    TRUE
+    TRUE  TRUE    TRUE
+    TRUE FALSE    TRUE
+    TRUE  TRUE    TRUE
+    TRUE  TRUE    TRUE
+    TRUE  TRUE    TRUE
+    TRUE  TRUE    TRUE
+    TRUE FALSE    TRUE
+    TRUE  TRUE    TRUE
+    TRUE  TRUE    TRUE
+    TRUE  TRUE    TRUE
+    TRUE  TRUE    TRUE
+    TRUE  TRUE    TRUE
+    TRUE  TRUE    TRUE
+    TRUE  TRUE    TRUE
+    TRUE FALSE    TRUE
+    TRUE  TRUE    TRUE
+
+Gates: bias within max(4*MCSE, .03): 20/20; SD ratio in [.85,1.15]: 17/20; snap rate within .03: 20/20
+Control A (delta-method bias = 0) rejected in cells: 5,6,7 (must include the 3 stress cells 5,6,7)
+Control B (lambda-1 at cell 2): predicted snap 0.0387 vs observed 0.2295 -> rejected (good)
+
+T2 overall: FAIL

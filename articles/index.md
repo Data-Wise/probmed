@@ -9,8 +9,6 @@
 
 - [Parallel mediation: joint
   P_med](https://data-wise.github.io/probmed/articles/parallel-mediation.md):
-- [Gauge-calibrated proportion mediated: the residual
-  W](https://data-wise.github.io/probmed/articles/gauge-residual.md):
 
 ### Integration Guides
 
