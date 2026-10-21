@@ -13,7 +13,7 @@ T6 (fresh-seed validation), Review B/C and the T7 gate run are NOT carried out: 
 
 | # | Finding | Status | Evidence |
 |---|---------|--------|----------|
-| 1 | Plug-in bias at an exact zero contrast is of order n^(-1/4), coefficient E|Z|^(1/2) = .822; the "leading-order" label is a ratio-of-means heuristic | derived, verified (T2b rate slope .470) | `DERIVE-boundary-point-risk-2026-10-21.md` D1; `data/` |
+| 1 | Plug-in bias at an exact zero contrast is of order n^(-1/4), coefficient E\|Z\|^(1/2) = .822; the "leading-order" label is a ratio-of-means heuristic | derived, verified (T2b rate slope .470) | `DERIVE-boundary-point-risk-2026-10-21.md` D1; `data/` |
 | 2 | Snap/threshold estimators move the bias; no threshold improves the rate (local-minimax two-point lemma D3') | derived, pending independent audit | DERIVE D2, D3' |
 | 3 | The frozen bias/SD < .10 gate is infeasible for any [0,1]-valued estimator in cells 5 and 7 at n = 500 (TV .1404 vs needed .179); empirical-pass probability <= 8.3e-5 | audited | `SPEC-boundary-candidate-T3-2026-10-21.md` section 2; `check-gate-feasibility-tv.R` |
 | 4 | Two-point floor on max RMSE along the weak-signal ladders: about .09 (direct) and .07 (indirect) at n = 500; .08 and .06 at n = 1000; the boundary pair binds | computed, controls pass; multipoint bound not computed | `DERIVE-boundary-floor-2026-10-21.md` |
@@ -34,6 +34,7 @@ T6 (fresh-seed validation), Review B/C and the T7 gate run are NOT carried out: 
 `scripts/check-boundary-risk-*.R` (T2/T2b), `scripts/check-gate-feasibility-tv.R`, `scripts/check-boundary-floor-ladder.R [n]`, `scripts/check-boundary-floor-pairs.R [n]`,
 `scripts/check-gate-tolerance.R`, `scripts/decide-gate-rmse.R`, `scripts/audit-seed-ranges.R`, `scripts/tabulate-flag-misses.R`,
 `scripts/pilot-reference-estimators.R <out_dir> 2000` (set `VECLIB_MAXIMUM_THREADS=1` and `OPENBLAS_NUM_THREADS=1` first, or the forked workers stall on BLAS threads).
+The audit and pilot scripts need the PR #55 checkout path (env `PROBMED_PR55_SCRIPTS` / `PROBMED_PR55_DIR`, or an argument); they stop with a message if it is missing.
 Archived data (read only): `docs/reports/data/wasserstein-selection-2026-10-20/replicates.csv` on the PR #55 branch checkout.
 
 ## Held and open

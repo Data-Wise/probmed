@@ -48,7 +48,7 @@ and replicates up to 5000); re-audit at T5.
 | 6 | 95% interval coverage (qnorm(.975), as in the original studies) in [.92, .98] at the regular cells (ids 1-2) and the two boundary points per n (direct 0, alpha 0) | unchanged original range | assistant (scope) | n/a (Fieller passes coverage in the archived binary cells) |
 | 7 | mean SE / empirical SD in [.90, 1.10], regular cells (ids 1-2) only | unchanged original range | author (Q6, scoped to regular cells) | n/a |
 | 8 | boundary flag miss rate at the two boundary points per n <= .06 | see section 3 | author | tables in `tabulate-flag-misses-2026-10-21.txt` |
-| 9 | 95% interval coverage in [.92, .98] UNCONDITIONALLY at every grid point (all 36 ladder cells), no flag dependence (author, grill Q7, 2026-10-21; replaces the conditional-on-unflagged draft: selection on the flag changes the SD of the estimate, so a calibrated SE would fail a conditional SE/SD gate, and only 5% to 12% of ladder fits are unflagged) | author | at nominal .95 the margin to .92 is about 6 MCSE at R = 2000 (MCSE about .005); SE/SD among unflagged fits is REPORTED, not gated |
+| 9 | 95% interval coverage unconditionally at every grid point (all 36 ladder cells), no flag dependence | in [.92, .98] | author (grill Q7, 2026-10-21) | replaces the conditional-on-unflagged draft: selection on the flag changes the SD of the estimate, so a calibrated SE would fail a conditional SE/SD gate, and only 5% to 12% of ladder fits are unflagged; at nominal .95 the margin to .92 is about 6 MCSE at R = 2000 (MCSE about .005); SE/SD among unflagged fits is REPORTED, not gated |
 
 No rounding at any gate. The RMSE gates use the observed Monte Carlo RMSE with its MCSE reported alongside; no allowance is added.
 RMSE is gated at the nine tested grid points per path at that n (nodes and midpoints, G1c). The gate says nothing about risk at untested points between them; no quantitative between-point bound is registered (Codex G2 finding 4). The pilot (section 7) may report RMSE at extra random in-between points, reported only.
@@ -85,7 +85,7 @@ Q6 (SE only away from the boundary): scoped to regular cells with the flag of se
 
 For each RMSE gate: PASS if observed RMSE + 2 MCSE <= tolerance; FAIL if observed RMSE - 2 MCSE > tolerance; otherwise CONFIRM: rerun
 that cell on the confirmation seed block and decide by the confirmation alone, applying the same rule once. `scripts/decide-gate-rmse.R`
-(controls: planted clear pass, clear fail, borderline). MCSE of RMSE = sd(e^2) / (2 * RMSE * sqrt(R)).
+(controls: planted clear pass, clear fail, borderline). MCSE of RMSE = `sd(e^2) / (2 * RMSE * sqrt(R))`.
 Seed blocks (assistant, proposed, not frozen): main 1.0e9, confirmation 1.2e9, pilot 1.5e9, each base + cell * 10000 + replicate; mutually
 disjoint and disjoint from earlier ranges (`scripts/audit-seed-ranges.R`).
 

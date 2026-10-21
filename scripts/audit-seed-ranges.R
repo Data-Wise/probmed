@@ -1,11 +1,12 @@
 #!/usr/bin/env Rscript
 # G2c: audit a proposed fresh seed block against every earlier seed range used in this project.
 # Usage: Rscript scripts/audit-seed-ranges.R [pr55_scripts_dir]
-#   pr55_scripts_dir defaults to /private/tmp/probmed-dev-main-review/scripts (the PR #55 checkout).
+#   pr55_scripts_dir is REQUIRED (argument or env PROBMED_PR55_SCRIPTS): the scripts/ folder of a PR #55 checkout.
 # Proposed block: seed = 1,000,000,000 + cell * 10000 + replicate, cell 1..40, replicate 1..5000.
 # NOT registered or frozen here; the block is frozen only by T5 after the author's gates exist.
 args <- commandArgs(TRUE)
-pr55 <- if (length(args)) args[1] else "/private/tmp/probmed-dev-main-review/scripts"
+pr55 <- if (length(args)) args[1] else Sys.getenv("PROBMED_PR55_SCRIPTS", "")
+if (!nzchar(pr55)) stop("Give the PR #55 scripts directory as the first argument or set PROBMED_PR55_SCRIPTS", call. = FALSE)
 blocks <- list(main = 1e9, confirmation = 1.2e9, pilot = 1.5e9) # each: base + cell * 10000 + replicate, cell 1..40, rep 1..5000
 mk <- function(b) c(lo = b + 1 * 10000 + 1, hi = b + 40 * 10000 + 5000)
 prop <- mk(blocks$main) # the block reported below; the others are checked in the same way and against each other

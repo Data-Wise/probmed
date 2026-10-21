@@ -10,14 +10,14 @@
 #     NEGATIVE if every reference estimator FAILs at least one gate (then no T6 for these estimators, tolerances unchanged);
 #     INDETERMINATE otherwise (the author decides; no tolerance changes either way).
 # Usage: Rscript scripts/pilot-reference-estimators.R <out_dir> [R_per_cell=2000] [pr55_dir]
-#   <pr55_dir> defaults to /private/tmp/probmed-dev-main-review (read only: wb_binary and the quadrature rule are taken from there).
+#   <pr55_dir> is REQUIRED (argument 3 or env PROBMED_PR55_DIR): the root of a PR #55 checkout, read only (wb_binary and the archive come from there).
 # Control: wb_binary reproduces the archived raw_wald estimates of PR #55 cells 5, 6, 7 (selection-study seeds) to 1e-8.
 args <- commandArgs(TRUE)
 stopifnot(length(args) >= 1L)
 out <- args[1]; dir.create(out, showWarnings = FALSE, recursive = TRUE)
 R <- if (length(args) >= 2L) as.integer(args[2]) else 2000L
-pr55 <- if (length(args) >= 3L) args[3] else "/private/tmp/probmed-dev-main-review"
-stopifnot(dir.exists(pr55))
+pr55 <- if (length(args) >= 3L) args[3] else Sys.getenv("PROBMED_PR55_DIR", "")
+if (!nzchar(pr55) || !dir.exists(pr55)) stop("Give the PR #55 checkout root as the third argument or set PROBMED_PR55_DIR", call. = FALSE)
 
 # quadrature rule copied from PR #55 R/wasserstein-observed.R (lines 3-14); the candidates script calls it as probmed:::.wasserstein_rule
 .wasserstein_rule <- function(order, normal = FALSE) {

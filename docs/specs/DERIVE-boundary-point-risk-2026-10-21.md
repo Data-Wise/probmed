@@ -182,7 +182,7 @@ run removed a dead line (identical output).
 | Gate | Result |
 |---|---|
 | A1: log-log slope of the raw bias at an exact zero contrast, 4 smallest s, in [.45, .55] | **.470, pass** (the first run used the wrong index and gave .459; corrected after the independent audit) |
-| A2: bias / leading term `-E|Z|^(1/2) sqrt(s2) / sqrt(d1)` at the smallest s in [.93, 1.07] | **.964, pass** |
+| A2: bias / leading term `-E\|Z\|^(1/2) sqrt(s2) / sqrt(d1)` at the smallest s in [.93, 1.07] | **.964, pass** |
 | A3 control: a regular configuration must NOT show slope .5 | slope 1.913, pass (the check discriminates) |
 | B1: independence-product snap probability within .01 of the exact correlated value | 10/10 pass |
 | B2: exact correlated value within 4 MC SE of a 4e6-draw simulation | 10/10 pass |

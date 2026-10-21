@@ -4,9 +4,9 @@
 
 | id | claim | verdict | evidence / recomputed | sev |
 |---|---|---|---|---|
-| 1a | target P=sqrt|d1|/(sqrt|d1|+sqrt|d2|); truths cell5=1, cell6=0, cell7=.7721 | CONFIRMED | rebuilt from DGP script: d=(.11230,0) P=1; d=(0,.11908) P=0; d=(.11262,.009811) P=.772109 | - |
-| 1b | E|Z|^(1/2)=2^(1/4)G(3/4)/sqrt(pi)=.822 | CONFIRMED | closed form .822179 = integrate .822179 | - |
-| 1c | "leading-order" cell 5 P_hat=.663 (bias -.337), cell 6 .238 | UNSUPPORTED as labeled | The formula is a ratio-of-means heuristic (E sqrt|X2| plugged inside 1/(a+b)), not a leading-order expansion. Literal leading term -c*sqrt(s2)/sqrt(d1) is -.508 (cell 5) and +.313 (cell 6). Quadrature bias at cell-5 s: -.325 (P_hat .675); heuristic .663 is close by luck (b/a=.51, not small). bias/leading term is .64 at s=.0428, reaching .964 only at s/256. Cell 6 quadrature used s1/s2=.522 but archived ratio is .432 (cell 6 s1=.01726, s2=.0399); heuristic .238 vs quad .235, harmless | low |
+| 1a | target P=sqrt\|d1\|/(sqrt\|d1\|+sqrt\|d2\|); truths cell5=1, cell6=0, cell7=.7721 | CONFIRMED | rebuilt from DGP script: d=(.11230,0) P=1; d=(0,.11908) P=0; d=(.11262,.009811) P=.772109 | - |
+| 1b | E\|Z\|^(1/2)=2^(1/4)G(3/4)/sqrt(pi)=.822 | CONFIRMED | closed form .822179 = integrate .822179 | - |
+| 1c | "leading-order" cell 5 P_hat=.663 (bias -.337), cell 6 .238 | UNSUPPORTED as labeled | The formula is a ratio-of-means heuristic (E sqrt\|X2\| plugged inside 1/(a+b)), not a leading-order expansion. Literal leading term -c*sqrt(s2)/sqrt(d1) is -.508 (cell 5) and +.313 (cell 6). Quadrature bias at cell-5 s: -.325 (P_hat .675); heuristic .663 is close by luck (b/a=.51, not small). bias/leading term is .64 at s=.0428, reaching .964 only at s/256. Cell 6 quadrature used s1/s2=.522 but archived ratio is .432 (cell 6 s1=.01726, s2=.0399); heuristic .238 vs quad .235, harmless | low |
 | 1d | A1 slope "4 smallest s" = .459 | MISLABELED | script uses `last4 <- 5:8` (not 6:9; s2g has 9 entries). 6:9 gives .470. Still passes; local slopes .349,.377,...,.479 rise toward .5. A2 uses index 9, ratio .964 reproduced | low |
 | 1e | zero-contrast bias is O(s^(1/2)) | CONFIRMED | slopes above; sqrt non-differentiable at 0 | - |
 | 2a | snap formula (independence product) and exact bivariate-normal version | CONFIRMED (as a fixed-V Gaussian statement) | cell 2 mu=(5.434,2.729): pw2*(1-pw1)=.2209 vs archived .2295. Formula xor = pw1+pw2-2*p11 is correct; independence gap <.004 per T2b. Ignores studentization (v_hat random, cor(d,v_hat)=.72-.77), which is why archived .994/.997 exceed formula .983 | low |
@@ -14,7 +14,7 @@
 | 2c | cell 2 "+.096 bias because snap sends estimate to 1 when truth .51" | LOOSE | .22*(1-.5097)=.108, archived .0964 (rest from snap-to-0 and non-snap bias) | low |
 | 3.1 | cell 5: gate => E5 >= .9901 | CONFIRMED | (1-E)<.1 sqrt(E(1-E)) <=> E>1/1.01=.990099. Strict ">" not ">=" (immaterial). SD<=sqrt(E(1-E)) valid since Var=E T^2-E^2<=E-E^2 for T in [0,1]. Edge: SD=0 gives 0/0, gate returns NA/fail | - |
 | 3.2 | cell 7: E7 <= .811 (loose .8221) | CONFIRMED | root of x-.7721=.1 sqrt(x(1-x)) is .81124; loose .7721+.05=.8221. Lower-side (E7<.7721) irrelevant for the needed TV | - |
-| 3.3 | |E5-E7|<=TV; needed TV>=.179 | CONFIRMED | .990099-.81124=.17886 (strict). Valid for randomized T in [0,1] on the full data law | - |
+| 3.3 | \|E5-E7\|<=TV; needed TV>=.179 | CONFIRMED | .990099-.81124=.17886 (strict). Valid for randomized T in [0,1] on the full data law | - |
 | 4a | LR formula TV=E_P[(1-Q/P)_+] as coded | CONFIRMED | correct; LLR sums Bernoulli terms with Q (shift) in numerator, sampled under P=cell 5; E_P[Q/P]=.9992 sanity | - |
 | 4b | cells 5 and 7 differ only by .05*A in the Y logit | CONFIRMED | validate script: alpha .7 both, interaction 0 both, direct 0 vs .05, n=500 both; X=(C,A,M) law identical | - |
 | 4c | TV=.1404 | CONFIRMED | independent run (seed 20261021, R=40000): E_P (1-Q/P)+ = .1407+-.0008; E_Q (1-P/Q)+ = .1412+-.0008; Gaussian-LLR approx .1413. Well below .179 (>40 SE) | - |
