@@ -66,7 +66,7 @@ Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-code
 - [x] **G1c Author: between-ladder-point risk control** (author, XS) — CHOSEN 2026-10-21: finer grid (nodes + midpoints, 9 points per path) at the same tolerances; grid in `docs/specs/data/gate-grid-g1c-2026-10-21.txt`
   - Accept: a control that rules out passing only at the nodes; recommended default: max RMSE over a finer interpolation grid at the G1a/G1b tolerances.
   - Deps: G2b
-- [ ] **G1d Author: boundary flag** (threshold in SE units, tolerable miss rate on the ladder, guard against its own Hodges-type failure; author, S)
+- [ ] **G1d Author: boundary flag** — INPUT READY 2026-10-21: miss-probability tables by threshold at every gate-grid point (`scripts/tabulate-flag-misses.R`, `docs/specs/data/tabulate-flag-misses-2026-10-21.txt`); still needs the author's threshold, miss-rate tolerance and guard (threshold in SE units, tolerable miss rate on the ladder, guard against its own Hodges-type failure; author, S)
   - Accept: defined before any fresh data; decided last because it depends on G1a-G1c; the assistant proposes no threshold (it would be tuned).
   - Deps: G1a, G1b, G1c
 - [x] **G2 Floor and ladder derivation** (S, 1 doc + script) — DONE 2026-10-21 at n = 500 and n = 1000: floor on max RMSE about .09 / .07 (n = 500) and .08 / .06 (n = 1000) on the direct / indirect ladders; `docs/specs/DERIVE-boundary-floor-2026-10-21.md` (sections 3, 6). Ladder-to-ladder pairs are G2b.
