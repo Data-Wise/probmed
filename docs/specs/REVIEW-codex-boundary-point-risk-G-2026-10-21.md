@@ -37,4 +37,4 @@ Codex applied no fixes. Status below is my assessment; each reversal is the auth
 | 3 | high | Q6: SE withheld near a data-dependent flag can hide failures | **Valid.** Flag, false-negative limit, withholding cap and SE calibration conditional on unflagged are all unspecified. | Mark Q6 provisional until those four are specified and tested across the ladder. |
 | 4 | med | The plan still requires unchanged gates and no relaxation; no complete new gate set exists | **Valid.** T5 under the current plan would have no unambiguous pass rule. | Before T5, amend the plan and T3 spec with ONE complete gate set and scope, and run Review B on that exact text. Q4 (PRs stay under original gates) stands, as Codex agrees. |
 
-Not decided here: whether to reverse Q5, and the provisional marks on Q1-Q3 and Q6.
+Applied 2026-10-21 on the author's instruction: Q5 reversed; Q1-Q3 and Q6 marked provisional in the ledger.
