@@ -13,6 +13,8 @@
   W](https://data-wise.github.io/probmed/dev/articles/gauge-residual.md):
 - [Incremental mediated elasticity: the P_med^delta
   curve](https://data-wise.github.io/probmed/dev/articles/incremental-pmed.md):
+- [Modern estimands: gauge, incremental, Sobol, Wasserstein and
+  rg-flow](https://data-wise.github.io/probmed/dev/articles/modern-estimands.md):
 
 ### Integration Guides
 
