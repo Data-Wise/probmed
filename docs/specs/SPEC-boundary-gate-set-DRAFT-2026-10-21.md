@@ -1,6 +1,6 @@
 # G4 DRAFT: one complete gate set (skeleton, 2026-10-21)
 
-**Status: DRAFT, NOT REGISTERED.** Every value marked AUTHOR is yours to write (G1). Nothing here is
+**Status: DRAFT. Gates 1-3 entered by the author 2026-10-21 (G1a, G1b) and pre-checked by G3: all ROOM (`docs/specs/data/check-gate-tolerance-2026-10-21.txt`). Not frozen; registration is Checkpoint G, after G1c, G1d, G4 and Review G2.** Every value marked AUTHOR is yours to write (G1). Nothing here is
 frozen, nothing changes a frozen diagnostic, and PRs #54/#55 stay judged by the original gates (Q4).
 Inputs: `GRILL-boundary-gates-2026-10-21.md`, `REVIEW-codex-boundary-point-risk-G-2026-10-21.md`,
 `DERIVE-boundary-floor-2026-10-21.md`. Applies only to a NEW point estimator and its own change.
@@ -25,9 +25,9 @@ TV levels: AUTHOR. Ladder-to-ladder pairs are not yet in the floor (open).
 
 | # | Gate | Value | Basis |
 |---|------|-------|-------|
-| 1 | max RMSE over the direct ladder, n = 500 | AUTHOR | substantive tolerance; G3 verdict must not be INFEASIBLE [Q1-Q3] |
-| 2 | max RMSE over the indirect ladder, n = 500 | AUTHOR | same |
-| 3 | same, n = 1000 (own tolerances, not scaled) | AUTHOR | Q5 reversed; floors .082 / .059 |
+| 1 | max RMSE over the direct ladder, n = 500 | **.15** (author, 2026-10-21) | substantive tolerance; G3 verdict must not be INFEASIBLE [Q1-Q3] |
+| 2 | max RMSE over the indirect ladder, n = 500 | **.12** (author, 2026-10-21) | same |
+| 3 | same, n = 1000 (own tolerances, not scaled) | **.125 direct, .09 indirect** (author, 2026-10-21) | Q5 reversed; floors .082 / .059 |
 | 4 | risk between ladder points | AUTHOR | control for estimators that pass only at the nodes [Review G] |
 | 5 | Fieller interval coverage | unchanged original gate | already passes in the binary cells |
 | 6 | SE/SD on regular cells | [.90, 1.10] (Q6, provisional) | archived ratios about 1.03 to 1.07 |

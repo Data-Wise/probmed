@@ -58,10 +58,10 @@ Research checks: `Rscript scripts/test-wasserstein-boundary-selection.R`,
 
 Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-codex-boundary-point-risk-G-2026-10-21.md`.
 
-- [ ] **G1a Author: max-RMSE tolerances at n = 500** (direct, indirect; author, XS) — HELD on the author
+- [x] **G1a Author: max-RMSE tolerances at n = 500** — ENTERED 2026-10-21: direct .15, indirect .12 (author said "register my numbers", adopting the assistant's suggestion; revisable until Checkpoint G) (direct, indirect; author, XS) — HELD on the author
   - Accept: two numbers on substantive grounds ("largest error in P defensible in a paper"), no reference to any candidate's archived risk; each at least the G2 floor (.092 / .066), recommended >= 1.5x (about .14 / .10).
   - Deps: none
-- [ ] **G1b Author: max-RMSE tolerances at n = 1000** (author, XS) — stated on their own, not scaled from G1a (floor fell only ~10%: .082 / .059)
+- [x] **G1b Author: max-RMSE tolerances at n = 1000** — ENTERED 2026-10-21: direct .125, indirect .09 (same adoption) (author, XS) — stated on their own, not scaled from G1a (floor fell only ~10%: .082 / .059)
   - Deps: none (independent of G1a)
 - [ ] **G1c Author: between-ladder-point risk control** (author, XS)
   - Accept: a control that rules out passing only at the nodes; recommended default: max RMSE over a finer interpolation grid at the G1a/G1b tolerances.
@@ -84,7 +84,7 @@ Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-code
   - Verify: audit script lists each earlier range and shows no overlap.
   - Files: `scripts/audit-seed-ranges.R`, a line in the gate-set draft
   - Deps: none
-- [ ] **G3 Feasibility pre-check of the author's gates** (S) — TOOL READY 2026-10-21: `Rscript scripts/check-gate-tolerance.R <n> <tol_direct> [<tol_indirect>]` (controls pass; verdict INFEASIBLE / NEAR-FLOOR / ROOM against the G2 floor). Left unchecked: needs the author's tolerances (G1). The 1.5x NEAR-FLOOR cut is a reporting convention, not derived.
+- [x] **G3 Feasibility pre-check of the author's gates** (S) — DONE 2026-10-21 for G1a/G1b: all four ROOM (ratios 1.62, 1.78, 1.52, 1.52; `docs/specs/data/check-gate-tolerance-2026-10-21.txt`); re-run if G1a/G1b change or G1c adds a gate. TOOL 2026-10-21: `Rscript scripts/check-gate-tolerance.R <n> <tol_direct> [<tol_indirect>]` (controls pass; verdict INFEASIBLE / NEAR-FLOOR / ROOM against the G2 floor). Left unchecked: needs the author's tolerances (G1). The 1.5x NEAR-FLOOR cut is a reporting convention, not derived.
   - Accept: each proposed gate is tested against the G2 floor; any infeasible gate is reported as a finding, not retuned.
   - Deps: G1a, G1b, G1c, G2, G2b
 - [ ] **G4 One complete gate set** (S, plan amendment) — SKELETON DRAFTED 2026-10-21 (`docs/specs/SPEC-boundary-gate-set-DRAFT-2026-10-21.md`); all AUTHOR cells blank, not registered
