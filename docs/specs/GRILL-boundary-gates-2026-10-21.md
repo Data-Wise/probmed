@@ -1,0 +1,94 @@
+# GRILL: boundary point-risk plan and the per-cell gates to pre-register (2026-10-21)
+
+Target: `tasks/plan-boundary-point-risk.md`, `docs/specs/SPEC-boundary-candidate-T3-2026-10-21.md`.
+Interrogation of the author. Decisions below are the author's; none changes a frozen gate
+until the author pre-registers it. Ledger appended after each branch.
+
+## Decisions
+
+### Q1. What anchors the new gates so they cannot be read as retrofitted?
+**[PROVISIONAL after review G] Decision: derived minimax floor.** Per-cell risk gates are set as a fixed multiple of a
+two-point lower bound computed from the DGP laws alone (no candidate, no archived estimates).
+Rejected: non-inferiority to k4 (k4 already fails the old gates; the margin is arbitrary),
+dropping cells 5 and 7 (reads as relaxation), interval-only (leaves the point estimator open).
+Open consequence: the floor and the multiple must be derived and stated before any fresh data.
+
+### Q2. What makes per-cell risk gates meaningful given the Hodges problem?
+**[PROVISIONAL after review G] Decision: weak-signal ladder.** Add cells with the direct effect at 0 and about .25, .5 and 1
+standard errors (fresh DGPs) and gate the maximum risk over the ladder against the floor.
+Rejected: paired existing cells (spacing .23 SE is the spacing that defeats the old gate, so it
+may be too tight and guards only two neighborhoods), per-cell-only with a documented loophole
+(would pass a degenerate snap-to-boundary estimator).
+Open consequence: ladder positions (in SE units, not raw coefficients, at fixed n) and the zero
+indirect side (cell 6 analog) must be fixed before data; cost is a few extra cells in T6.
+
+### Q3. Who picks the multiple, and from what?
+**[PROVISIONAL after review G] Decision: scientific tolerance, then feasibility check.** The author states the largest
+acceptable error in P (a maximum RMSE over the ladder) on substantive grounds, without
+reference to any candidate's archived risk. It is then checked against the derived floor and
+registered. Rejected: an a priori multiple of the floor (still a judgment number, and the floor
+depends on ladder design), calibrating on a disjoint pilot (fits the gate to the candidates).
+Open consequence: the author must commit to the number; if it is below the floor the result is
+a finding, not a reason to retune.
+
+### Q4. What are PRs #54/#55 judged against once new gates exist?
+**Decision: original gates stand for existing PR content.** The new gates apply only to a new
+point estimator and its own change. The existing k4/selection work in #54/#55 stays judged by
+the unchanged gates and stays held. Rejected: re-judging the PRs under the new gates (the new
+gates would visibly decide a pre-existing result, the retrofit Q1 guards against); separating
+the interval from the point estimator (changes the meaning of "complete diagnostics"; needs
+the author's separate, explicit decision and a code-level split).
+Open consequence: the PRs may stay blocked unless a new estimator, or a separate decision on
+the interval, is made.
+
+### Q5. How does the tolerance scale with n?
+**[REVERSED after review G, 2026-10-21] Original decision: rate-scaled tolerance per n.** Replacement: separate, substantively justified tolerances at n = 500 and n = 1000, unless an RMSE scaling for the gated estimator and ladder is derived and independently validated. Original text follows for the record. Register the tolerance at n = 500 and scale it as
+n^(-1/4) for n = 1000 (the D1 rate; local slopes .445 to .479 toward .5 in T2b), recomputing the
+floor at each n. Rejected: n = 500 only (cells at n = 1000 get no gate), fixed absolute tolerance
+across n (passes more easily at large n for reasons unrelated to the estimator).
+Open consequence: commits to the D1 rate as an assumption; D3 (no threshold improves the rate)
+is still an argument, not a theorem.
+
+### Q6. What does the new gate set claim about the SE?
+**[PROVISIONAL after review G] Decision: report the SE only away from the boundary.** Keep SE/SD in [.90, 1.10] on the
+regular cells (archived ratios about 1.03 to 1.07), and require the SE to be withheld (NA) when
+a pre-registered boundary flag is on, with a gate on the flag's miss rate. Rejected: dropping the
+SE from the point estimator (loses a calibrated SE where it works), keeping SE/SD in every cell
+(feasibility of a calibrated SE near the boundary is unproven; likely a second infeasible gate).
+Open consequence: the flag is itself a data-dependent threshold and needs its own definition
+and validation; it can fail silently near the boundary, which is the Hodges problem again.
+
+## Open Questions (not yet grilled)
+- Ladder metric (independent audit, 2026-10-21): positions must be set by total variation (or Hellinger) distance between the actual data laws along the DGP path, not by SE units of d2; TV .1404 for the cell 5 to 7 shift is a Gaussian shift of .353 versus .2285 SE of d2, about 1.55x. Floors must come from data-law TV, not from d2 alone.
+- Ladder positions in SE units, and the zero-indirect side (cell 6 analog).
+- The floor derivation per cell and how it is computed from the DGP laws (the TV method of
+  `scripts/check-gate-feasibility-tv.R` generalizes to each ladder pair).
+- Whether bias/SD, SE/SD and coverage gates are kept alongside the risk gate or replaced
+  (SE calibration was never shown feasible near the boundary; coverage gate passes for Fieller).
+- The boundary flag: its definition (threshold in SE units), tolerable miss rate on the ladder, and how its own Hodges-type failure is guarded.
+- Review B timing: Codex review of the new gate text before any freeze.
+- Hopper vs local for T6.
+
+## Status after Codex review G (2026-10-21)
+
+See `REVIEW-codex-boundary-point-risk-G-2026-10-21.md`. Applied on the author's instruction (2026-10-21): Q5 reversed; Q1-Q3 and Q6 marked provisional.
+Until the conditions below are met no gate in this ledger is registrable. Codex (needs-attention, 3 high, 1 medium) recommends reversing Q1-Q3 as an
+acceptance rule, Q5 and Q6, and keeping Q4. My assessment is that all four findings are valid:
+Q1-Q3 and Q6 should be treated as provisional until the floor, the independent tolerance
+justification, between-ladder-point risk control, and the flag/withholding/conditional-SE
+specification exist, and Q5 should be reversed (per-n tolerances). The plan must be amended
+with one complete gate set before T5 (finding 4).
+
+## Round 2: gate set v1.1 (2026-10-21, after Codex review G2)
+
+### Q7. How is gate 9 (SE/coverage at ladder points) made coherent?
+**Decision: unconditional 95% coverage at every grid point; SE/SD among unflagged fits is reported only.** Rejected: conditional SE/SD and coverage
+on unflagged fits (selection on |d_hat|/se changes the SD, so a calibrated SE can fail it, and most ladder points fall under any useful minimum);
+report-only (leaves the gap Codex flagged). Consequence: 36 more coverage checks, margin about 6 MCSE at nominal .95, R = 2000.
+
+### Q8. What if both reference estimators miss the tolerances in the pilot?
+**Decision: no T6 for these estimators; tolerances stay; negative result unless the author names a NEW family first.** Rejected: proceeding to a predictable
+FAIL; loosening tolerances to the pilot (the retrofit Q1/Q3 forbid).
+
+### Q9. What does a pass license?
+**Decision: a new, separate PR only; PRs #54/#55 stay held under their original gates (Q4).** Rejected: re-judging #55 under v1.1 (retrofit); leaving it open until T6 (the outcome would shape the rule).

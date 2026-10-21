@@ -1,0 +1,34 @@
+Controls: shift 0 gives TV 0: TRUE; direct .05 gives 0.1981 (n = 500 value .1404/.1418; at n = 1000 must exceed it): TRUE; largest shifts give TV > .9: TRUE
+
+direct ladder (n = 1000, R = 20000 datasets per row; boundary truth 1.0000)
+ param  theta    gap      tv        se floor_rmse
+  0.00 1.0000 0.0000 0.00000 0.000e+00  0.0000000
+  0.01 0.8834 0.1166 0.04018 3.946e-04  0.0403790
+  0.02 0.8427 0.1573 0.08017 7.440e-04  0.0533300
+  0.05 0.7721 0.2279 0.19813 1.564e-03  0.0721496
+  0.10 0.7054 0.2946 0.38380 2.347e-03  0.0817639
+  0.15 0.6614 0.3386 0.54785 2.620e-03  0.0804974
+  0.25 0.6015 0.3985 0.78943 2.309e-03  0.0646503
+  0.50 0.5138 0.4862 0.98813 6.299e-04  0.0187297
+  1.00 0.4185 0.5815 1.00000 5.733e-09  0.0000206
+
+indirect ladder (n = 1000, R = 20000 datasets per row; boundary truth 0.0000)
+ param  theta    gap     tv        se floor_rmse
+  0.00 0.0000 0.0000 0.0000 0.000e+00  0.000e+00
+  0.02 0.1513 0.1513 0.1749 1.421e-03  4.858e-02
+  0.05 0.2198 0.2198 0.4209 2.439e-03  5.914e-02
+  0.10 0.2848 0.2848 0.7340 2.474e-03  5.193e-02
+  0.15 0.3277 0.3277 0.9052 1.694e-03  3.568e-02
+  0.25 0.3859 0.3859 0.9946 4.225e-04  1.002e-02
+  0.50 0.4692 0.4692 1.0000 7.135e-14  5.018e-08
+  1.00 0.5512 0.5512 1.0000 0.000e+00  0.000e+00
+
+Ladder positions at data-law TV to the boundary law:
+ target_tv  direct indirect
+      0.05 0.01246 0.005717
+      0.10 0.02504 0.011434
+      0.20 0.05050 0.023058
+      0.40 0.10494 0.047447
+
+Limits: boundary-to-point pairs only (ladder-to-ladder pairs need the law at each point);
+the floor is a two-point lower bound on max RMSE, not an attainable rate; TV is Monte Carlo.

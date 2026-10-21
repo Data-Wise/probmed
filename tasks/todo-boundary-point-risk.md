@@ -1,0 +1,190 @@
+# Boundary point-risk: task list
+
+**CLOSED 2026-10-21: negative-result endpoint** (G8 pilot NEGATIVE; author chose option 1). T4, T5, T6, T7, Review B/C, Review G3 and Checkpoint G are NOT run (left unchecked on purpose). Report: `docs/reports/REPORT-boundary-point-risk-2026-10-21.md`. Reopen only if the author names a new candidate family.
+
+Plan: [`plan-boundary-point-risk.md`](plan-boundary-point-risk.md). Created 2026-10-21.
+Source of the failing evidence: PR #55 branch `codex/dev-main-review`,
+`docs/reports/VALIDATE-wasserstein-boundary-selection-2026-10-20.md` and
+`docs/reports/data/wasserstein-selection-2026-10-20/replicates.csv`.
+Research checks: `Rscript scripts/test-wasserstein-boundary-selection.R`,
+`Rscript scripts/audit-wasserstein-boundary-selection.R`.
+
+## Phase A: understand the failure
+
+- [x] **T1 Risk/bias derivation** (S, 1 doc) — done 2026-10-21, `docs/specs/DERIVE-boundary-point-risk-2026-10-21.md`
+  - Accept: derives bias and risk of an axis-snapping estimator as a function of the
+    snap probability and the distance of the true score from the axis, for the regular,
+    zero-direct, zero-indirect and weak-direct cells; states what any threshold rule
+    must trade off.
+  - Verify: every claim is derived or cited to a source actually read; no claim about a
+    paper not opened.
+  - Files: `docs/specs/DERIVE-boundary-point-risk-<date>.md`
+  - Deps: none
+
+- [ ] **T2 Check against archived replicates** (S, 1 script + output) — RUN 2026-10-21, overall FAIL on the SD gate (bias 20/20, snap 10/10, SD 17/20; both controls rejected as required). Deviations from the criteria below: covers the 5 binary cells only (cells 1, 3 are Gaussian), and uses a seeded Gaussian-experiment prediction, so it does use RNG (seed 91, not a study seed). Follow-up (`scripts/check-boundary-risk-studentization.R`): shuffling v_hat reproduces the cell 5 and 7 select995 misses (studentization explains 2 of 3); cell 4 select95 miss traced to d_hat tail shape/scale (`scripts/check-boundary-risk-cell4.R`; not sampling noise, P = .003; v_hat variability irrelevant); pair bootstrap passes 10/10 but cannot fail. Left unchecked; author decides at Checkpoint A.
+  - Accept: the T1 formulas, evaluated with the observed snap rates (22.95%, 52.70%,
+    94.95%, 99.65%) and cell truths, reproduce the reported bias/SD within stated
+    tolerance in all 7 cells; includes a positive control (a cell where the formula must
+    fail if wrongly specified).
+  - Verify: script run, output quoted; no new simulation or RNG.
+  - Files: `scripts/check-boundary-risk-derivation.R`
+  - Deps: T1
+
+### Review A: Codex adversarial review (after T2)
+
+- [x] Run `/codex:adversarial-review` on `feature/boundary-point-risk` (verdict: needs-attention, 2 high, 1 medium)
+- [x] Recorded verbatim with triage in `docs/specs/REVIEW-codex-boundary-point-risk-A-2026-10-21.md`
+- [ ] No unresolved high-severity finding: finding 1 fixed (D3 corrected); **finding 2 open**
+      (T2 does not test the derivation) -> T2b below. Finding 3 fixed by rewording.
+
+- [ ] **T2b Test the derivation itself** (S, 1 script + output) — RUN 2026-10-21: A1-A3 pass (slope .470 (corrected from .459, wrong index), coefficient .964, control 1.913), B1-B3 10/10, **C1 8/10 (FAIL)**: cell 4 select95 and cell 5 select995, the known rare-snap cells. Tolerances fixed before the run, not changed. Left unchecked pending Checkpoint A.
+  - Accept: (a) a rate check: analytic or large-draw bias of the raw plug-in at an exact
+    zero contrast across a grid of s (equivalently n), log-log slope near 1/2 with a stated
+    tolerance, plus a planted wrong-rate control; (b) D2's snap formula computed in closed
+    form (independence product and, separately, with the correlation) compared with
+    simulation per cell, stated tolerance; (c) a squared-risk decomposition
+    (bias^2 + variance, with conditional snap terms) reproducing the observed RMSE per cell.
+  - Verify: script run, output quoted, tolerances fixed before the run; failures reported.
+  - Files: `scripts/check-boundary-risk-rate.R`, `docs/specs/data/`
+  - Deps: T2, Review A
+
+### Checkpoint A (author) — ACCEPTED 2026-10-21
+
+- [x] Derivation matches the observed bias pattern in the binary cells; SD misses have
+      supported (not proven) explanations. T2 verdict FAIL 17/20 stands.
+- [x] Review A triaged (finding 2 addressed by T2b)
+- [x] Author approves continuing to Phase B, with these limitations stated:
+      (1) T2b C1 fails 8/10 in the rare-snap cells (cell 4 select95, cell 5 select995);
+      (2) D3 (no threshold improves the n^(-1/4) rate) was an argument at acceptance; now a local-minimax two-point lemma D3' pending independent audit;
+      (3) the cell 4 mechanism is a hypothesis, not identified.
+
+## Phase G: gate design (added 2026-10-21; blocks T4/T5)
+
+Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-codex-boundary-point-risk-G-2026-10-21.md`.
+
+- [x] **G1a Author: max-RMSE tolerances at n = 500** — ENTERED 2026-10-21: direct .15, indirect .12 (author said "register my numbers", adopting the assistant's suggestion; revisable until Checkpoint G) (direct, indirect; author, XS) — HELD on the author
+  - Accept: two numbers on substantive grounds ("largest error in P defensible in a paper"), no reference to any candidate's archived risk; each at least the G2 floor (.092 / .066), recommended >= 1.5x (about .14 / .10).
+  - Deps: none
+- [x] **G1b Author: max-RMSE tolerances at n = 1000** — ENTERED 2026-10-21: direct .125, indirect .09 (same adoption) (author, XS) — stated on their own, not scaled from G1a (floor fell only ~10%: .082 / .059)
+  - Deps: none (independent of G1a)
+- [x] **G1c Author: between-ladder-point risk control** (author, XS) — CHOSEN 2026-10-21: finer grid (nodes + midpoints, 9 points per path) at the same tolerances; grid in `docs/specs/data/gate-grid-g1c-2026-10-21.txt`
+  - Accept: a control that rules out passing only at the nodes; recommended default: max RMSE over a finer interpolation grid at the G1a/G1b tolerances.
+  - Deps: G2b
+- [x] **G1d Author: boundary flag** — ENTERED 2026-10-21: c = 1.96, boundary-point miss rate <= .06, flag gates SE on regular cells only, ladder OFF rates reported not gated (author adopted the assistant recommendation; revisable until Checkpoint G). INPUT WAS 2026-10-21: miss-probability tables by threshold at every gate-grid point (`scripts/tabulate-flag-misses.R`, `docs/specs/data/tabulate-flag-misses-2026-10-21.txt`); still needs the author's threshold, miss-rate tolerance and guard (threshold in SE units, tolerable miss rate on the ladder, guard against its own Hodges-type failure; author, S)
+  - Accept: defined before any fresh data; decided last because it depends on G1a-G1c; the assistant proposes no threshold (it would be tuned).
+  - Deps: G1a, G1b, G1c
+- [x] **G2 Floor and ladder derivation** (S, 1 doc + script) — DONE 2026-10-21 at n = 500 and n = 1000: floor on max RMSE about .09 / .07 (n = 500) and .08 / .06 (n = 1000) on the direct / indirect ladders; `docs/specs/DERIVE-boundary-floor-2026-10-21.md` (sections 3, 6). Ladder-to-ladder pairs are G2b.
+  - Accept: two-point/minimax floor per ladder point from the DGP laws alone; ladder positions set by data-law TV along the DGP path (not SE units of d2); zero-indirect side (cell 6 analog) included.
+  - Verify: script generalizes `scripts/check-gate-feasibility-tv.R`; controls (shift 0, large shift) reproduced; output saved under `docs/specs/data/`.
+  - Files: `docs/specs/DERIVE-boundary-floor-<date>.md`, `scripts/check-boundary-floor-ladder.R`
+  - Deps: none
+- [x] **G2b Floor for in-between and ladder-to-ladder pairs** (S) — DONE 2026-10-21 via `scripts/check-boundary-floor-pairs.R`: node-to-node floors are about 70% of the boundary-to-node floors (boundary pair binds); DERIVE section 7. Multi-point (Fano) bound not computed.
+  - Accept: floors at points between the ladder nodes and for node-to-node pairs, n = 500 and 1000, using the law at each point (not only the boundary law); controls as in G2; output under `docs/specs/data/`; says whether the in-between floor exceeds the boundary-to-node floor.
+  - Verify: shift 0 gives TV 0; a node pair reproduces the boundary-pair TV when one end is the boundary.
+  - Files: `scripts/check-boundary-floor-ladder.R` (extend), `docs/specs/DERIVE-boundary-floor-2026-10-21.md`
+  - Deps: G2
+- [x] **G2c Disjoint seed block** (XS) — DONE 2026-10-21, proposed (not frozen) block [1000010001, 1000205000]; `scripts/audit-seed-ranges.R` PASS (controls: planted overlap flagged, planted disjoint passes). Covers this repo and the PR #55 scripts only; hopper jobs from other checkouts are not covered.
+  - Accept: a seed range disjoint from every earlier study (20561020 + cell*10000 + replicate and predecessors), audited by script and quoted; not frozen until T5.
+  - Verify: audit script lists each earlier range and shows no overlap.
+  - Files: `scripts/audit-seed-ranges.R`, a line in the gate-set draft
+  - Deps: none
+- [x] **G3 Feasibility pre-check of the author's gates** (S) — DONE 2026-10-21 for G1a/G1b: all four NOT-RULED-OUT (ratios 1.62, 1.78, 1.52, 1.52; `docs/specs/data/check-gate-tolerance-2026-10-21.txt`); re-run if G1a/G1b change or G1c adds a gate. TOOL 2026-10-21: `Rscript scripts/check-gate-tolerance.R <n> <tol_direct> [<tol_indirect>]` (controls pass; verdict INFEASIBLE / BORDERLINE / NEAR-FLOOR / NOT-RULED-OUT against the G2 floors). Left unchecked: needs the author's tolerances (G1). The 1.5x NEAR-FLOOR cut is a reporting convention, not derived.
+  - Accept: each proposed gate is tested against the G2 floor; any infeasible gate is reported as a finding, not retuned.
+  - Deps: G1a, G1b, G1c, G2, G2b
+- [x] **G4 One complete gate set** (S, plan amendment) — DONE 2026-10-21: `docs/specs/SPEC-boundary-gate-set-2026-10-21.md` (38 cells, 8 gates, flag, procedure; PROPOSED, not registered). Assistant-drafted entries (coverage scope, R = 2000, seeds) await the author at Checkpoint G.
+  - Accept: ladder, tolerances per n, boundary flag definition and miss-rate gate, between-ladder-point risk control, and which of bias/SD, SE/SD, coverage are kept; Q1-Q3, Q6 promoted from PROVISIONAL or reversed in the ledger.
+  - Deps: G3, G1d, G2c
+- [x] Review H (Codex) on the gate tooling G2-G3, 2026-10-21: 2 medium findings accepted and fixed; `docs/specs/REVIEW-codex-boundary-point-risk-H-2026-10-21.md`
+- [ ] **Review G2 (Codex)** RUN 2026-10-21: needs-attention, 3 high + 2 medium, all accepted in triage (`docs/specs/REVIEW-codex-boundary-point-risk-G2-2026-10-21.md`); gate-set edits await the author; re-review the revised set on the complete gate set, before any freeze (this is the Review B focus for gates; run once, record verbatim, triage)
+  - Deps: G4
+
+### Review G2 follow-ups (added 2026-10-21; from `REVIEW-codex-boundary-point-risk-G2-2026-10-21.md`)
+
+- [x] **G5 Corrections** (S): gate 6 states 95% intervals (finding 1, verified against the validation script); ROOM renamed NOT-RULED-OUT in the SPEC, the checker and its saved output (finding 3 wording); between-node claim limited to the nine tested points (finding 4). Seed audit extended to main / confirmation / pilot blocks, mutually disjoint, PASS.
+- [x] **G6 Decision rule near a tolerance** (S, implementation): `scripts/decide-gate-rmse.R` (PASS / FAIL / CONFIRM at 2 MCSE; controls pass) and SPEC section 6. PROPOSED; the author confirms (finding 5).
+- [x] **G7 Gate 9** (author decision, grill Q7, 2026-10-21): unconditional 95% coverage in [.92, .98] at every grid point; SE/SD among unflagged fits reported only. In the SPEC as gate 9.
+- [x] **G8 Reference-estimator feasibility pilot** — RUN 2026-10-21 (the author said "go"): PILOT VERDICT NEGATIVE (all five reference estimators FAIL at least one RMSE gate; best C(3.84, .5): .218 / .204 / .183 / .138 vs tolerances .15 / .12 / .125 / .09; max at the exact boundary). Pre-committed consequence (Q8): no T6 for these estimators, tolerances unchanged; the author names a NEW family to continue. `docs/specs/data/pilot-g8-2026-10-21.txt`. ORIGINAL TEXT: (M, needs the author's explicit go before any simulation; finding 3): plug-in and C(kappa, tau) at the gate grid on the pilot seed block, report-only; SPEC section 7. Pre-committed rule (grill Q8): both reference estimators above a tolerance at any grid point means no T6 for them, tolerances unchanged, negative result unless a NEW family is named. Pass licensing fixed by grill Q9 (separate PR only).
+- [ ] **Review G3 (Codex)** (now optional: only needed if the author names a new family and continues) on the revised gate set (v1.1 plus gate 9, pilot rule, pass licensing) before Checkpoint G. Deps: G8 decision.
+
+### Checkpoint G (author)
+
+- [ ] Gate set registered in a commit before any fresh data; feasibility pre-check passed or the negative-result endpoint chosen
+
+## Housekeeping (not blocking)
+
+- [x] `.gitignore` for the private tarballs: NOT NEEDED, already ignored by `.gitignore:10` (`*.tar.gz`); checked 2026-10-21 (3 tarballs show as ignored)
+- [x] External `AGENTS.md` reference exists: `~/.codex/reference/AGENTS.md` (2.2K) and `repos/r-packages-active-probmed/AGENTS-detail-2026-10-12.md` (checked 2026-10-21)
+- [ ] Untracked `.codex/guard-session-counts` in the main checkout (`.claude/guard-session-counts` is ignored; `.codex/` is not): add an ignore line only on the author's go
+- [ ] F7 teaching files (pmed-modern, uncommitted by instruction) need an Obsidian vault copy to survive re-sync; commit only on the user's go
+- [ ] Reconcile T2/T2b boxes after the author accepts the recorded FAILs as results (currently left unchecked on purpose)
+
+## Phase B: candidate and tests
+
+- [x] **T3 Candidate specification** (M, 1-2 docs) — DONE 2026-10-21, `docs/specs/SPEC-boundary-candidate-T3-2026-10-21.md`. Result: smooth family C(kappa, tau) specified and predicted to fail the bias gate in cells 5, 6 at every grid point; **gate feasibility check shows no [0,1]-valued estimator can pass bias/SD < .10 in cells 5 and 7 together at n = 500 (TV .141 < needed .168-.179)**. T4/T5 paused pending author decision on the gate set; nothing frozen.
+  - Accept: one smooth constrained estimator family (no hard threshold), its
+    uncertainty estimate with an explicit justification, and written pass/fail
+    expectations for regular and weak-signal cells; says which of the derived
+    trade-offs it accepts.
+  - Verify: a reviewer can predict, from the doc alone, in which cells it should fail.
+  - Files: `docs/specs/PLAN-wasserstein-smooth-boundary-<date>.md`
+  - Deps: T2
+
+- [ ] **T4 Independent numerical tests** (M, 2-3 files)
+  - Accept: scalar vs vectorized agreement, scale invariance, axis/symmetry cases,
+    independent high-draw reference for the SE proxy within 10%, and a planted-defect
+    check that the tests fail on a wrong implementation.
+  - Verify: `Rscript scripts/test-wasserstein-smooth-boundary.R` pass counts quoted;
+    planted defect caught.
+  - Files: `R/` or `scripts/` candidate code, `scripts/test-...R`
+  - Deps: T3, Checkpoint G (a candidate cannot be tested against an infeasible gate)
+
+### HOLD 2026-10-21: T4 and T5 are held until Checkpoint G (author's per-cell gates, G1-G4).
+
+### Codex review G of the infeasibility argument is done and triaged.
+
+### Review B: Codex adversarial review (after T4, BEFORE T5)
+
+- [ ] (Deps: Checkpoint G, T4) Run `/codex:adversarial-review` with focus: is the design the right one, which
+      assumptions can fail, what could be tuned after the fact (gate, seed, tolerance,
+      estimator), can the tests fail
+- [ ] Record verbatim in `docs/specs/REVIEW-codex-boundary-point-risk-B-<date>.md`, triage
+      every finding; accepted findings are applied by us, then re-review only if the design changed
+- [ ] No unresolved high-severity finding before T5
+
+- [ ] **T5 Freeze commit** (XS) — only after Review B is triaged; records the triage
+  - Accept: design, estimator, tolerances, gates (unchanged), seeds (disjoint from all
+    prior studies, audited), and source SHA-256 committed before any fresh dataset.
+  - Verify: `git log` shows freeze commit; seed-disjointness audit output quoted.
+  - Deps: T4
+
+### Checkpoint B (author, go/no-go)
+
+- [ ] Tests pass, nothing about the gates changed, no fresh data generated yet
+- [ ] Review B triaged and the frozen commit matches the reviewed design
+- [ ] Author explicitly approves the fresh-seed run (T6)
+
+## Phase C: validation (not started without approval)
+
+- [ ] **T6 Fresh-seed validation** (M)
+  - Accept: unchanged gates on all 7 cells, zero failures, MCSE, selection rates, raw
+    rows and provenance archived.
+  - Verify: independent audit script reproduces every summary row.
+  - Deps: Checkpoint B
+
+### Review C: Codex adversarial review (after T6, before the T7 verdict)
+
+- [ ] Run `/codex:adversarial-review` with focus: retuning or post-hoc gate reading, seed
+      disjointness, provenance/hashes, whether the audit reproduces every summary row,
+      whether the verdict overclaims
+- [ ] Record verbatim in `docs/specs/REVIEW-codex-boundary-point-risk-C-<date>.md`, triage
+      every finding
+- [ ] No unresolved high-severity finding before T7
+
+- [ ] **T7 Decision report and doc sync** (S) — includes the Review C triage
+  - Accept: pass/fail verdict per cell; PRs #54/#55 stay blocked unless every unchanged
+    gate passes; `.STATUS` updated once, without restating the report.
+  - Deps: T6
+
+## Not in scope
+
+I7, I6 reruns, production adoption, merge, required-status switch, release, submission.

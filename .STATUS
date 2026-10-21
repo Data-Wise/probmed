@@ -57,11 +57,44 @@ docs/reports/. Next research must derive point-risk trade-offs before a new
 frozen smooth-boundary candidate; preserve all existing diagnostics.
 Author-requested teaching book is local-only and excluded from Git tracking.
 Scientific merge holds remain unchanged.
-GitHub CI transition in progress. `main` still requires `ubuntu-latest (release)`;
+
+2026-10-20 planning checkpoint: historical plan and MBCO checklist labels
+reconciled; research-workflow follow-up filed in
+tasks/PLAN-research-workflow-enhancements-2026-10-20.md (proposed, not executed).
+The old hosted CI-tier plan/checklist are superseded by
+tasks/PLAN-local-ci-transition-2026-10-20.md. The adopted policy is commit-bound
+local validation, not the older hosted-tier proposal. No workflow or protection
+setting is changed by this documentation checkpoint.
+The author's scientific merge hold on PRs #54/#55 remains in force until frozen
+diagnostics pass. Boundary point-estimation and interval calibration must be
+investigated together; passing coverage alone does not clear the point-bias gate.
+Full exact-head local CI and the required-status switch remain pending. This is
+the author-directed hold, not a fresh live PR/check assertion or a new simulation.
+Next research action: derive boundary point-risk trade-offs before freezing a
+new candidate and validating it with disjoint fresh simulations. Do not advance
+I7 or change any frozen diagnostic. Private teaching artifacts remain local;
+no book source, PDF, backup, or local registration belongs in this commit.
+
+2026-10-21 boundary point-risk (branch `feature/boundary-point-risk`, from `dev`; plan
+`tasks/plan-boundary-point-risk.md`, list `tasks/todo-boundary-point-risk.md`): Phase A and
+T3 done. CLOSED 2026-10-21 (author: negative-result endpoint): the G8 pilot of five reference
+estimators failed the author's RMSE tolerances, so T4-T7 are not run; report
+`docs/reports/REPORT-boundary-point-risk-2026-10-21.md`; reopen only if the author names a new
+family. Result: the
+frozen bias/SD < .10 gate cannot be passed by any [0,1]-valued estimator in cells 5 and 7 at
+n = 500 (population TV .1404 vs needed .179; empirical-pass probability <= 8.3e-5). No gate is
+changed, registered or frozen; PRs #54/#55 stay held under the original gates. Evidence and
+reviews: `docs/specs/` (DERIVE, SPEC-...-T3, GRILL, REVIEW-codex A/B1/G, AUDIT-math, LIT).
+Known failures kept on record: T2 SD gate 17/20, T2b C1 8/10. Teaching copy drafted in
+pmed-modern `teaching/foundation/F7-*` (uncommitted there).
+
+2026-10-20 local CI transition: PR #53 integrated into `dev` as 5e3d1a3.
+GitHub CI transition remains staged. Last recorded `main` protection required
+`ubuntu-latest (release)`; recheck live settings before changing it;
 do not disable that check until a real PR head has a verified
 `local-ci/probmed-full` status and branch protection is switched. GitHub Pages
 deployment stays active. No package release or submission decision changes.
-PR #53 hardened the exact-commit publication guard and
+PR #53 review hardened the exact-commit publication guard and
 requires measured core expressions (not an empty coverage result); six isolated
 publication scenarios cover success and failure paths.
 
@@ -598,3 +631,29 @@ vignettes/      # Usage tutorials
 🔗 DEPENDENCIES
 Imports: medfit, methods, S7, stats
 Part of: mediationverse ecosystem
+
+Moved from CLAUDE.md footer (2026-10-21), written 2026-08-22/2026-07-26:
+Active research lines beyond the merged core (see `.STATUS` for worktree detail):
+gauge-calibrated P_med (`ward_residual`/`GaugePmedResult`, PR #8 + bootstrap-SE follow-up),
+incremental P_med^δ (`incr_pmed`, g-score EIF merged via PR #10; per-δ M–Y tipping via
+`incr_sensitivity`, feature/gauge-bootstrap-se), Sobol variance-scale (`sobol_pmed`),
+Wasserstein, and the shared M–Y sensitivity helper (`pmed_sensitivity`).
+
+2026-08-22: the shared corner-EIF engine had weighted every row of a cross-fit fold by
+its first row's propensity since PR #8 (fixed PR #34). Re-measured post-fix: the gauge
+analytic Wald is calibrated (PR #35 dropped the `weak_id` warning), `sobol_pmed`'s
+near-null "bootstrap remedy" story was the bug (PR #37), `pmedW_dr` unchanged in
+conclusions. Manuscript-side corrections are tracked in issue #38; the gauge Table 1
+rerun runs on hopper from `~/gauge_boot_postfix/` (`inst/sim/hopper/README.md`).
+
+Two additions merged 2026-07-26, deliberately **not** P_med variants:
+`rg_flow_contrast()`/`RgFlowResult` (PR #30) — scale-indexed classical proportion
+mediated (NIE/TE) with cluster-robust EIF inference, probmed's first multilevel
+estimator; the data-contract question (raw clustered data vs. extending
+`medfit::MediationData` with a cluster slot) is open, deliberately unresolved.
+`multilevel_designs` (PR #31) — the package's first shipped dataset, cluster-design
+metadata for ECLS-K:1998-99/2011 + `mediation::student`; the naming convention (D1)
+and whether the table grows beyond 3 rows (Q6) are open follow-ups from the PR. Three
+other PR-body questions were resolved at merge, not left open: the R >= 3.5 floor (D7),
+the free-text `sampling_note` schema over structured columns (D2), and keeping the
+`mediation::student` row beside the two NCES cohorts (D6) — all kept as merged.

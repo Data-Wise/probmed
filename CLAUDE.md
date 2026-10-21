@@ -1,256 +1,88 @@
-# CLAUDE.md for probmed Package
+# CLAUDE.md for probmed
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code in this repo. Current state, research lines and holds live in `.STATUS` (single source).
 
----
+## What this is
 
-## About This Package
+R package computing **P_med**, a scale-free probabilistic effect size for causal mediation (P_med in [0, 1]); S7 classes; GLM/lavaan models via **medfit**; Gaussian and binary outcomes.
 
-**probmed** is an R package for computing P_med, a scale-free probabilistic effect size for causal mediation analysis. P_med quantifies mediation as the probability that the outcome under treatment with the mediator at its **treated** level exceeds the outcome with the mediator at its **control** level (treatment held fixed for both, so the direct effect cancels). See the P_med Definition section below.
+For treatment X (treated `x`, control `x*`), mediator M, outcome Y:
 
-### Core Mission
+- P_med = P(Y(x, M(x)) > Y(x, M(x*))) + ½·P(Y(x, M(x)) = Y(x, M(x*)))
+- Treatment is held at `x` for **both** potential outcomes; only the mediator varies (draws independent). The direct effect `c'` cancels, so P_med is mediation-only. > 0.5 = positive mediation; 0.5 = null.
+- Implemented in `.pmed_core_simple()` (`R/compute-core.R`); matches manuscript Definition 1.
 
-Provide researchers with a scale-free, interpretable effect size measure (P_med in [0, 1]) for mediation analysis that works consistently across mixed variable types and avoids limitations of traditional mean-difference approaches.
-
-### Key Features
-
-- Scale-free interpretation: P_med in [0, 1] with clear probabilistic meaning
-- Flexible estimation: Works with GLMs, SEM (lavaan), and fitted models via medfit
-- Mixed outcome types: continuous (Gaussian) and binary outcomes, simulated on the
-  correct link scale via medfit's family/link slot
-- Bootstrap inference: Parametric and nonparametric methods
-- S7 OOP architecture for type safety and extensibility
-
----
-
-## Common Development Commands
+## Commands
 
 ```r
-# Install dependencies and check package
 remotes::install_deps(dependencies = TRUE)
+devtools::load_all(); devtools::document(); devtools::test()
 rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
-
-# Development workflow
-devtools::load_all()
-devtools::document()
-devtools::test()
-
-# Build pkgdown site
 pkgdown::build_site()
 ```
 
----
+Run covr with `NOT_CRAN=true`; otherwise `skip_on_cran()` tests are skipped and coverage reads low.
 
-## Coding Standards
+## Coding standards
 
-### R Version and Style
+- R >= 4.1.0, native pipe `|>`, tidyverse style, S7 for classes.
+- Always namespace non-base calls: `package::function()`.
+- Naming: functions/args/properties snake_case; internals dot-prefixed (`.pmed_core_simple()`); S7 classes CamelCase (`PmedResult`).
+- **Scalar branches:** never `ifelse(scalar, vec, vec)` (returns length 1; it made corner-EIF weights one constant per fold from PR #8 to PR #34). Use `if (z == 1) p1 else 1 - p1`.
+- Check an estimator by simulation against exact truth with a positive control, never against its own grid.
 
-- **Minimum R version**: 4.1.0 (native pipe `|>` support)
-- **OOP Framework**: S7 (modern object system)
-- **Style**: tidyverse style guide with native pipe
-- **Namespacing**: ALWAYS use explicit `package::function()` for non-base functions
-- **Scalar branches**: never `ifelse(scalar, vec, vec)` — it returns length 1 (the
-  corner-EIF weights were one constant per fold from PR #8 to PR #34 because of this).
-  Use `if (z == 1) p1 else 1 - p1`. Simulation checks of an estimator run against
-  exact truth with a positive control, not against the estimator's own grid.
+## Code map
 
-### Naming Conventions
-
-| Type | Convention | Examples |
-|------|------------|----------|
-| Functions | snake_case | `pmed()`, `extract_mediation()` |
-| Internal | dot prefix | `.pmed_core()`, `.pmed_parametric_boot()` |
-| S7 Classes | CamelCase | `PmedResult` |
-| Properties | snake_case | `@a_path`, `@ci_lower` |
-| Arguments | snake_case | `formula_y`, `treatment`, `n_boot`, `ci_level` |
-
-### Code Organization
-
-```
+```text
 R/
-├── aaa-imports.R           # Package imports
-├── classes.R               # S7 class definitions (PmedResult)
-├── generics.R              # S7 generic functions (pmed)
-├── methods-pmed.R          # pmed() methods (formula + MediationData)
-├── methods-print.R         # print/summary/plot methods
-├── compute-core.R          # Core P_med computation (.pmed_core_simple)
-├── compute-bootstrap.R     # Parametric + nonparametric bootstrap
-├── compute-model-bootstrap.R # Opt-in method = "model_bootstrap" (simulate M, Y|M*; refit)
-├── support-guard.R         # Rejects unsupported families/terms before any RNG use
-├── standardize.R           # Observed-sample covariate standardization (binary models)
-├── separation.R            # LP separation detector (lpSolve, Suggests)
-├── probmed-package.R       # Package-level docs
-├── zzz.R                   # .onLoad (S7 dispatch registration)
-└── utils.R                 # Utility functions
+├── aaa-imports.R, probmed-package.R, zzz.R, utils.R   # imports, docs, .onLoad, helpers
+├── classes.R, generics.R, data.R                      # PmedResult, pmed() generic, datasets
+├── methods-pmed.R, methods-print.R                    # pmed() methods; print/summary/plot
+├── compute-core.R                                     # core P_med
+├── compute-bootstrap.R, compute-parallel.R            # parametric + nonparametric bootstrap
+├── compute-model-bootstrap.R                          # method = "model_bootstrap"
+├── compute-mbco.R, compute-mbco-verified.R, compute-parallel-mbco.R  # MBCO intervals
+├── support-guard.R, separation.R, standardize.R       # pre-RNG family guard, LP separation, standardization
+├── corner.R                                           # shared corner-EIF engine
+├── gauge-pmed.R, incremental-pmed.R, incremental-sensitivity.R
+└── sobol-pmed.R, wasserstein-pmed.R, rg-flow.R, sensitivity.R
 ```
 
-Note: model extraction lives in **medfit** (`extract_mediation()` is re-exported);
-probmed no longer defines its own extraction methods.
+Model extraction lives in **medfit** (`extract_mediation()` re-exported; returns `medfit::MediationData`). probmed's bootstrap is its own (`R/compute-bootstrap.R`), not `medfit::bootstrap_mediation()`. Requires medfit >= 0.3.0 (on CRAN).
 
----
+| Generic | Returns | Notes |
+|---------|---------|-------|
+| `pmed()` | `PmedResult` | `estimate`, `ci_lower`, `ci_upper`, `boot_estimates`, `ie_estimate` |
+| `ward_residual()` | `GaugePmedResult` | gauge-calibrated P_med |
+| `incr_pmed()` | `IncrPmedResult` | incremental P_med^delta |
+| `sobol_pmed()` | `SobolPmedResult` | Sobol variance-scale |
+| `wasserstein_pmed()` | `WassersteinPmedResult` | Wasserstein proportion mediated |
+| `rg_flow_contrast()` | `RgFlowResult` | scale-indexed NIE/TE; cluster-robust EIF |
+| `pmed_sensitivity()` | `PmedSensitivity` | M-Y sensitivity |
 
-## Code Architecture
+## Computation methods (`pmed(method = )`)
 
-### S7 Classes
-
-| Class | Purpose | Key Properties |
-|-------|---------|----------------|
-| `PmedResult` | P_med computation results | `estimate`, `ci_lower`, `ci_upper`, `boot_estimates`, `ie_estimate` |
-
-The extracted mediation structure is `medfit::MediationData` (provides `a_path`,
-`b_path`, `c_prime`, `vcov`, `sigma_m`/`sigma_y`, and `family_m`/`family_y`) — not
-a probmed-owned class.
-
-### S7 Generics
-
-| Generic | Purpose | Returns |
-|---------|---------|---------|
-| `extract_mediation()` | Extract from fitted models (re-exported from medfit) | `medfit::MediationData` |
-| `pmed()` | Compute P_med | `PmedResult` |
-
-### P_med Definition
-
-For treatment X (treated `x`, control `x*`), mediator M, outcome Y:
-- P_med = P(Y(x, M(x)) > Y(x, M(x*))) + ½·P(Y(x, M(x)) = Y(x, M(x*)))
-- Treatment is held at `x` for **both** potential outcomes; only the mediator
-  varies between its treated `M(x)` and control `M(x*)` levels (drawn
-  independently). The direct effect `c'` cancels, so P_med is mediation-only.
-- Values > 0.5 indicate positive mediation; 0.5 = null (no mediation effect)
-- Implemented in `.pmed_core_simple()` (`R/compute-core.R`), matching the
-  manuscript estimand (Definition 1).
-
-### Computation Methods
-
-| Method | Description | Use When |
+| Method | Description | Use when |
 |--------|-------------|----------|
-| `"plugin"` | Point estimate only | Quick checks, no CI needed |
+| `"plugin"` | Point estimate only | Quick checks |
 | `"parametric_bootstrap"` | Sample from N(theta, Sigma) | Default, fast |
 | `"nonparametric_bootstrap"` | Resample data, refit | Normality questionable |
-| `"mbco"` | LR-inversion interval (Tofighi & Kelley 2020); deterministic; nloptr inner solver | Gaussian + covariates; closed-form CI for P_med and a*b. Never undercovers; conservative (up to ~1-α²) while both paths are within a few SE of zero — `@diagnostics$pmed$near_double_null` flags the core of that band. Calibrated cutoffs rejected (Phase 8, `docs/reports/MBCO-NULL-T5-FEASIBILITY-2026-10-14.md`) |
-| `"model_bootstrap"` | Response bootstrap: simulate M, then Y given M*, refit; ≥99% valid draws | Binary M/Y with covariates; see `docs/reports/CALIBRATION-2026-10-14.md` for where coverage holds |
+| `"mbco"` | Deterministic LR-inversion interval (Tofighi & Kelley 2020), nloptr inner solver | Gaussian + covariates. Never undercovers; conservative (up to ~1-α²) near the double null; `@diagnostics$pmed$near_double_null` flags its core. Calibrated cutoffs rejected (`docs/reports/MBCO-NULL-T5-FEASIBILITY-2026-10-14.md`) |
+| `"model_bootstrap"` | Simulate M, then Y given M*, refit; >= 99% valid draws | Binary M/Y with covariates; coverage: `docs/reports/CALIBRATION-2026-10-14.md` |
 
----
+## Testing
 
-## Testing Strategy
+- Target > 90% overall, 100% for the P_med core.
+- `tests/testthat/`: one `test-<topic>.R` per `R/` area (24 files, 5 helpers). `test-pmed-estimand.R` is the estimand gate (closed form, c'-invariance, IE = a*b).
 
-### Coverage Targets
+## Ecosystem
 
-- **Target**: >90% overall, 100% for P_med computation core
-- Test P_med accuracy, bootstrap reproducibility, model extraction, edge cases
+probmed is an application package in the mediationverse (medfit foundation, RMediation CIs, medrobust sensitivity, medsim simulation; all under `github.com/data-wise/`). Cascade checklist: `docs/CASCADE-PLAN-2026-06-25.md`. Each package's own `.STATUS` is the source of truth for its state. Manuscript source: `~/projects/research/pmed/` (target *Psychological Methods*).
 
-### Test Organization
+## Git workflow
 
-```
-tests/testthat/
-├── test-pmed-glm.R          # Formula/GLM interface + parametric bootstrap CIs
-├── test-pmed-ie.R           # Indirect effect (a*b) reporting
-└── test-pmed-estimand.R     # Estimand correctness: closed-form agreement,
-                             #   c'-invariance, binary non-degeneracy, IE = a*b
-```
+- `main` protected (PR required, no force-push/deletion; required check `ubuntu-latest (release)`; admin override available). `dev` = integration. `gh-pages` = pkgdown. `feature/*` = worktrees.
+- **CI policy (2026-10-20):** hosted R-CMD-check runs on PRs to `main` only. Commit-bound local CI (PR #53, `local-ci/probmed-full`) is being staged; do not disable the hosted required check until a real PR head has a verified local status (`tasks/PLAN-local-ci-transition-2026-10-20.md`).
+- **Holds (author, 2026-10-20/21):** PRs #54/#55 stay unmerged until the frozen boundary diagnostics pass; passing checks do not authorize release, submission, or deployment.
 
----
-
-## Ecosystem Coordination
-
-probmed is an **application package** in the mediationverse ecosystem.
-
-### Central Planning
-
-Ecosystem coordination managed in `/Users/dt/mediation-planning/`:
-- `ECOSYSTEM-COORDINATION.md` - Version matrix, release timeline
-- `MONTHLY-CHECKLIST.md` - Health checks
-
-### Related Packages
-
-| Package | Repository | Purpose |
-|---------|-----------|---------|
-| medfit | https://github.com/data-wise/medfit | Foundation (model fitting, extraction) |
-| RMediation | https://github.com/data-wise/rmediation | Confidence intervals (DOP, MBCO) |
-| medrobust | https://github.com/data-wise/medrobust | Sensitivity analysis |
-| medsim | https://github.com/data-wise/medsim | Simulation infrastructure |
-
-### Integration with medfit
-
-probmed uses medfit for:
-- Model extraction via `medfit::extract_mediation()` → `medfit::MediationData`
-- The outcome/mediator family/link (`@family_y`, `@family_m`), used to simulate
-  non-Gaussian potential outcomes on the correct scale
-
-probmed's bootstrap (parametric + nonparametric) is implemented in
-`R/compute-bootstrap.R` — it does **not** use `medfit::bootstrap_mediation()`.
-
-Requires **medfit (>= 0.3.0)**; medfit 0.3.2 is on CRAN, so the former
-`Remotes: data-wise/medfit@v0.3.0` pin was dropped (`b552b88`, 2026-07-24).
-
----
-
-## Key References
-
-- McGraw & Wong (1992): Common language effect size statistics
-- Vargha & Delaney (2000): CL effect sizes improvements
-- Imai, Keele, & Tingley (2010): Causal mediation analysis
-- Tofighi et al. (2025): P_med manuscript (in preparation)
-  - Manuscript source: `~/projects/research/pmed/` (pmed.qmd, apaquarto; target *Psychological Methods*)
-
----
-
-## Git Workflow
-
-Multi-branch pattern (aligned with global craft-style workflow):
-
-- `main` - production (protected: PR required, no force-push, no deletions; required status check: `ubuntu-latest (release)`)
-- `dev` - integration / planning hub
-- `gh-pages` - pkgdown site
-- `feature/*` - isolated work in worktrees
-
-Branch protection on `main` was added 2026-05-09 via `gh api repos/Data-Wise/probmed/branches/main/protection`. Admin override available (`enforce_admins: false`).
-
----
-
-## Development Roadmap
-
-### Completed
-
-- [x] S7 class architecture (`PmedResult`)
-- [x] Formula interface with GLM
-- [x] Bootstrap inference (parametric + nonparametric)
-- [x] medfit integration (extraction, family/link slot)
-- [x] Correct mediation estimand (matches manuscript Definition 1)
-- [x] Binary / non-Gaussian outcomes (Bernoulli simulation via the link)
-- [x] Print/summary/plot methods
-- [x] method = "mbco" — closed-form MBCO interval (P_med + indirect effect)
-
-### Future
-- [ ] P_med for parallel / sequential structures (medfit already provides
-      `ParallelMediationData` / `SerialMediationData`; probmed needs the estimands)
-- [ ] Exposure-mediator interactions (`InteractionMediationData`)
-- [ ] Expand vignettes; integration with medrobust
-
----
-
-**Version**: 0.3.0.9000 (dev; release ON HOLD pending manuscript submission) · **Last Updated**: 2026-08-22
-
-> Active research lines beyond the merged core (see `.STATUS` for worktree detail):
-> gauge-calibrated P_med (`ward_residual`/`GaugePmedResult`, PR #8 + bootstrap-SE follow-up),
-> incremental P_med^δ (`incr_pmed`, g-score EIF merged via PR #10; per-δ M–Y tipping via
-> `incr_sensitivity`, feature/gauge-bootstrap-se), Sobol variance-scale (`sobol_pmed`),
-> Wasserstein, and the shared M–Y sensitivity helper (`pmed_sensitivity`).
->
-> 2026-08-22: the shared corner-EIF engine had weighted every row of a cross-fit fold by
-> its first row's propensity since PR #8 (fixed PR #34). Re-measured post-fix: the gauge
-> analytic Wald is calibrated (PR #35 dropped the `weak_id` warning), `sobol_pmed`'s
-> near-null "bootstrap remedy" story was the bug (PR #37), `pmedW_dr` unchanged in
-> conclusions. Manuscript-side corrections are tracked in issue #38; the gauge Table 1
-> rerun runs on hopper from `~/gauge_boot_postfix/` (`inst/sim/hopper/README.md`).
->
-> Two additions merged 2026-07-26, deliberately **not** P_med variants:
-> `rg_flow_contrast()`/`RgFlowResult` (PR #30) — scale-indexed classical proportion
-> mediated (NIE/TE) with cluster-robust EIF inference, probmed's first multilevel
-> estimator; the data-contract question (raw clustered data vs. extending
-> `medfit::MediationData` with a cluster slot) is open, deliberately unresolved.
-> `multilevel_designs` (PR #31) — the package's first shipped dataset, cluster-design
-> metadata for ECLS-K:1998-99/2011 + `mediation::student`; the naming convention (D1)
-> and whether the table grows beyond 3 rows (Q6) are open follow-ups from the PR. Three
-> other PR-body questions were resolved at merge, not left open: the R >= 3.5 floor (D7),
-> the free-text `sampling_note` schema over structured columns (D2), and keeping the
-> `mediation::student` row beside the two NCES cohorts (D6) — all kept as merged.
+**Version**: 0.3.0.9000 (dev; release on hold pending manuscript submission) · **Last Updated**: 2026-10-21

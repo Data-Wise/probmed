@@ -1,5 +1,7 @@
 # Plan: MBCO at the composite null, and the T22 claim (Codex review, 2026-10-14)
 
+> **Status 2026-10-15: CLOSED — NO-GO for calibration.** Retain χ²₁ and the `near_double_null` diagnostic/labeling; T5 is closed because no calibration candidate passed.
+
 ## Findings being addressed
 - **F1 (high).** MBCO 95% intervals cover 0.997–0.998 at a = b = 0 and about 0.994 near
   (0.05, 0.05). Cause: at p* = 0.5 the profile LR is the minimum of the two branch
@@ -82,7 +84,7 @@ The decision is to stop at labeling: keep χ²₁ plus `near_double_null`, and c
 literature construction (Miles–Chambaz, He–Song–Xu) would need a test at every p*,
 not only 0.5. It would be a new research task, not a reopening of T5.
 
-### T5: Opt-in calibrated MBCO (M, only if T4 passes)
+### T5: Opt-in calibrated MBCO (M, only if T4 passes) — CLOSED; T4 failed
 A `null_calibration = c("none", "adaptive")` argument, default "none", with tests that
 reproduce the T4 coverage on a fixed seed. The calibration report gets an addendum.
 

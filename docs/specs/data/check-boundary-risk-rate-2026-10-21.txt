@@ -1,0 +1,44 @@
+(a) RATE
+         s2 bias_zero_contrast bias_regular
+1 0.0428000           -0.32515    7.915e-03
+2 0.0214000           -0.25522    1.612e-03
+3 0.0107000           -0.19658    3.859e-04
+4 0.0053500           -0.14862    9.552e-05
+5 0.0026750           -0.11058    2.384e-05
+6 0.0013375           -0.08122    5.970e-06
+7 0.0006687           -0.05906    1.507e-06
+8 0.0003344           -0.04262    3.915e-07
+9 0.0001672           -0.03058    1.126e-07
+A1 slope (zero contrast, 4 smallest s) = 0.470, gate [.45,.55] -> PASS
+A2 bias/leading-term at smallest s = 0.964, gate [.93,1.07] -> PASS
+A3 control: regular-configuration slope = 1.913, must be outside [.45,.55] -> PASS (check discriminates)
+
+(b) SNAP FORMULA and (c) RISK DECOMPOSITION
+ cell              meth snap_exact snap_indep snap_mc snap_obs   B1   B2   B3
+    2  select95_fieller     0.2212     0.2211  0.2211    0.230 TRUE TRUE TRUE
+    2 select995_fieller     0.5340     0.5309  0.5341    0.527 TRUE TRUE TRUE
+    4  select95_fieller     0.0287     0.0287  0.0289    0.019 TRUE TRUE TRUE
+    4 select995_fieller     0.1463     0.1463  0.1463    0.120 TRUE TRUE TRUE
+    5  select95_fieller     0.9493     0.9491  0.9490    0.944 TRUE TRUE TRUE
+    5 select995_fieller     0.9830     0.9828  0.9829    0.994 TRUE TRUE TRUE
+    6  select95_fieller     0.8125     0.8124  0.8124    0.796 TRUE TRUE TRUE
+    6 select995_fieller     0.5695     0.5695  0.5696    0.578 TRUE TRUE TRUE
+    7  select95_fieller     0.9434     0.9431  0.9433    0.950 TRUE TRUE TRUE
+    7 select995_fieller     0.9820     0.9815  0.9818    0.997 TRUE TRUE TRUE
+ pred_rmse obs_rmse    C1
+    0.2341   0.2382  TRUE
+    0.3602   0.3578  TRUE
+    0.0910   0.0772 FALSE
+    0.1900   0.1726  TRUE
+    0.1115   0.1159  TRUE
+    0.0621   0.0379 FALSE
+    0.1667   0.1686  TRUE
+    0.1941   0.1941  TRUE
+    0.2309   0.2301  TRUE
+    0.2290   0.2281  TRUE
+B1: 10/10 pass
+B2: 10/10 pass
+B3: 10/10 pass
+C1: 8/10 pass
+
+T2b overall: FAIL (failed: C1)
