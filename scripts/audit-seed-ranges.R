@@ -33,8 +33,16 @@ cat(sprintf("Proposed block [%.0f, %.0f]; max 32-bit integer seed %.0f: %s\n", p
 cat(sprintf("Overlap with %d earlier ranges: %s\n", nrow(earlier), if (length(hit)) paste(hit, collapse = "; ") else "none"))
 
 # Independent discovery: every integer literal >= 6 digits on a line mentioning seed, in this repo and PR #55 scripts.
+# The PR #55 scripts are required evidence: fail loudly if the directory or the expected scripts are absent
+# (Codex review 2026-10-21, finding 1), rather than skipping them and printing AUDIT PASS.
+expected <- c("validate-wasserstein-observed.R", "validate-wasserstein-boundary-correction.R",
+  "validate-wasserstein-joint-contrast.R", "validate-wasserstein-boundary-selection.R")
+if (!dir.exists(pr55) || !all(expected %in% list.files(pr55))) {
+  cat(sprintf("AUDIT FAIL: PR #55 scripts missing in '%s' (need %s)\n", pr55, paste(expected, collapse = ", ")))
+  quit(status = 2)
+}
 files <- c(list.files(c("scripts", "inst", "R", "tests"), pattern = "[.](R|sh|dcf)$", recursive = TRUE, full.names = TRUE),
-  if (dir.exists(pr55)) list.files(pr55, pattern = "[.]R$", full.names = TRUE))
+  list.files(pr55, pattern = "[.]R$", full.names = TRUE))
 found <- list()
 for (f in files) {
   ln <- readLines(f, warn = FALSE)
