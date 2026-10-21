@@ -28,7 +28,7 @@ TV levels: AUTHOR. Ladder-to-ladder pairs are not yet in the floor (open).
 | 1 | max RMSE over the direct ladder, n = 500 | **.15** (author, 2026-10-21) | substantive tolerance; G3 verdict must not be INFEASIBLE [Q1-Q3] |
 | 2 | max RMSE over the indirect ladder, n = 500 | **.12** (author, 2026-10-21) | same |
 | 3 | same, n = 1000 (own tolerances, not scaled) | **.125 direct, .09 indirect** (author, 2026-10-21) | Q5 reversed; floors .082 / .059 |
-| 4 | risk between ladder points | AUTHOR | control for estimators that pass only at the nodes [Review G] |
+| 4 | max RMSE over the finer grid (boundary, 4 TV-matched nodes, midpoints of consecutive points; 9 per path, `docs/specs/data/gate-grid-g1c-2026-10-21.txt`) at the SAME tolerances as gates 1-3 | **chosen** (author, 2026-10-21, G1c) | control for estimators that pass only at the nodes [Review G]; the pairwise floors (DERIVE section 7) are not above the boundary-pair floor, so G3 verdicts stand |
 | 5 | Fieller interval coverage | unchanged original gate | already passes in the binary cells |
 | 6 | SE/SD on regular cells | [.90, 1.10] (Q6, provisional) | archived ratios about 1.03 to 1.07 |
 | 7 | SE withheld (NA) when the boundary flag is on; flag miss rate | AUTHOR | Q6 [Review G] |
