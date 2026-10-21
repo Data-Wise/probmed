@@ -99,6 +99,8 @@ pos <- function(r) vapply(targets, function(t) {
   if (t > max(r$tv)) return(NA_real_)
   stats::approx(r$tv, r$param, xout = t, ties = "ordered")$y
 }, 0)
+csv <- rbind(cbind(path = "direct", rd), cbind(path = "indirect", ra))
+utils::write.csv(csv, sprintf("docs/specs/data/floor-ladder-n%d.csv", n), row.names = FALSE)
 cat("\nLadder positions at data-law TV to the boundary law:\n")
 print(data.frame(target_tv = targets, direct = pos(rd), indirect = pos(ra)), row.names = FALSE, digits = 4)
 cat("\nLimits: boundary-to-point pairs only (ladder-to-ladder pairs need the law at each point);\n",
