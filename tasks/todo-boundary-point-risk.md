@@ -98,8 +98,9 @@ Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-code
 - [ ] Gate set registered in a commit before any fresh data; feasibility pre-check passed or the negative-result endpoint chosen
 
 ## Housekeeping (not blocking)
-- [ ] `.gitignore` entry for private teaching tarballs (`wasserstein-inference-private-*.tar.gz`, ~73 MB) in the main checkout
-- [ ] Check the external `AGENTS.md` reference under `~/.codex/reference/` exists
+- [x] `.gitignore` for the private tarballs: NOT NEEDED, already ignored by `.gitignore:10` (`*.tar.gz`); checked 2026-10-21 (3 tarballs show as ignored)
+- [x] External `AGENTS.md` reference exists: `~/.codex/reference/AGENTS.md` (2.2K) and `repos/r-packages-active-probmed/AGENTS-detail-2026-10-12.md` (checked 2026-10-21)
+- [ ] Untracked `.codex/guard-session-counts` in the main checkout (`.claude/guard-session-counts` is ignored; `.codex/` is not): add an ignore line only on the author's go
 - [ ] F7 teaching files (pmed-modern, uncommitted by instruction) need an Obsidian vault copy to survive re-sync; commit only on the user's go
 - [ ] Reconcile T2/T2b boxes after the author accepts the recorded FAILs as results (currently left unchecked on purpose)
 
