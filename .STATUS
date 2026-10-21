@@ -24,7 +24,10 @@ no book source, PDF, backup, or local registration belongs in this commit.
 
 2026-10-21 boundary point-risk (branch `feature/boundary-point-risk`, from `dev`; plan
 `tasks/plan-boundary-point-risk.md`, list `tasks/todo-boundary-point-risk.md`): Phase A and
-T3 done; T4/T5 HELD until the author proposes per-cell gates to pre-register. Result: the
+T3 done. CLOSED 2026-10-21 (author: negative-result endpoint): the G8 pilot of five reference
+estimators failed the author's RMSE tolerances, so T4-T7 are not run; report
+`docs/reports/REPORT-boundary-point-risk-2026-10-21.md`; reopen only if the author names a new
+family. Result: the
 frozen bias/SD < .10 gate cannot be passed by any [0,1]-valued estimator in cells 5 and 7 at
 n = 500 (population TV .1404 vs needed .179; empirical-pass probability <= 8.3e-5). No gate is
 changed, registered or frozen; PRs #54/#55 stay held under the original gates. Evidence and

@@ -1,5 +1,7 @@
 # Boundary point-risk: task list
 
+**CLOSED 2026-10-21: negative-result endpoint** (G8 pilot NEGATIVE; author chose option 1). T4, T5, T6, T7, Review B/C, Review G3 and Checkpoint G are NOT run (left unchecked on purpose). Report: `docs/reports/REPORT-boundary-point-risk-2026-10-21.md`. Reopen only if the author names a new candidate family.
+
 Plan: [`plan-boundary-point-risk.md`](plan-boundary-point-risk.md). Created 2026-10-21.
 Source of the failing evidence: PR #55 branch `codex/dev-main-review`,
 `docs/reports/VALIDATE-wasserstein-boundary-selection-2026-10-20.md` and

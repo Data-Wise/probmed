@@ -5,6 +5,8 @@ Does not touch the older `tasks/plan.md` / `tasks/todo.md` (superseded Phase 0-6
 
 ## Status (2026-10-21)
 
+**CLOSED 2026-10-21 at the negative-result endpoint (author: "option 1").** G8 pilot NEGATIVE; T4-T7, Review B/C and Checkpoint G are not run. Report: `docs/reports/REPORT-boundary-point-risk-2026-10-21.md`. Reopen only if the author names a new candidate family.
+
 Phase A, T3 and Checkpoint A done (2026-10-21); Reviews A, B1 and G triaged; grill ledger Q1-Q6 recorded (Q5 reversed, Q1-Q3 and Q6 provisional). **New Phase G (gate design) added 2026-10-21 and now gates T4/T5**: the frozen bias/SD gate is infeasible in cells 5 and 7 (TV .1404 vs needed .179), so no candidate can be tested until the author registers feasible per-cell gates. G2 (floor and ladder, n = 500 and 1000), the G3 checker and the G4 skeleton are done; branch `feature/boundary-point-risk` is pushed. See `docs/specs/` and `.STATUS`.
 
 ## Overview
