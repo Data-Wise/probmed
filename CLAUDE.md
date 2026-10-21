@@ -68,20 +68,20 @@ pkgdown::build_site()
 
 ```
 R/
-├── aaa-imports.R           # Package imports
-├── classes.R               # S7 class definitions (PmedResult)
-├── generics.R              # S7 generic functions (pmed)
-├── methods-pmed.R          # pmed() methods (formula + MediationData)
-├── methods-print.R         # print/summary/plot methods
-├── compute-core.R          # Core P_med computation (.pmed_core_simple)
-├── compute-bootstrap.R     # Parametric + nonparametric bootstrap
-├── compute-model-bootstrap.R # Opt-in method = "model_bootstrap" (simulate M, Y|M*; refit)
-├── support-guard.R         # Rejects unsupported families/terms before any RNG use
-├── standardize.R           # Observed-sample covariate standardization (binary models)
-├── separation.R            # LP separation detector (lpSolve, Suggests)
-├── probmed-package.R       # Package-level docs
-├── zzz.R                   # .onLoad (S7 dispatch registration)
-└── utils.R                 # Utility functions
+├── aaa-imports.R, probmed-package.R, zzz.R, utils.R   # imports, package docs, .onLoad, helpers
+├── classes.R, generics.R, data.R                      # PmedResult, pmed() generic, datasets
+├── methods-pmed.R, methods-print.R                    # pmed() methods; print/summary/plot
+├── compute-core.R                                     # Core P_med (.pmed_core_simple)
+├── compute-bootstrap.R, compute-parallel.R            # Parametric + nonparametric bootstrap
+├── compute-model-bootstrap.R                          # method = "model_bootstrap"
+├── compute-mbco.R, compute-mbco-verified.R, compute-parallel-mbco.R  # MBCO intervals
+├── support-guard.R, separation.R, standardize.R       # Pre-RNG family guard, LP separation, standardization
+├── corner.R                                           # Shared corner-EIF engine
+├── gauge-pmed.R                                       # ward_residual / GaugePmedResult
+├── incremental-pmed.R, incremental-sensitivity.R      # incr_pmed, incr_sensitivity
+├── sobol-pmed.R, wasserstein-pmed.R                   # sobol_pmed, wasserstein_pmed
+├── rg-flow.R                                          # rg_flow_contrast / RgFlowResult
+└── sensitivity.R                                      # pmed_sensitivity / PmedSensitivity
 ```
 
 Note: model extraction lives in **medfit** (`extract_mediation()` is re-exported);
@@ -96,6 +96,12 @@ probmed no longer defines its own extraction methods.
 | Class | Purpose | Key Properties |
 |-------|---------|----------------|
 | `PmedResult` | P_med computation results | `estimate`, `ci_lower`, `ci_upper`, `boot_estimates`, `ie_estimate` |
+| `GaugePmedResult` | Gauge-calibrated P_med | `ward_residual()` output |
+| `IncrPmedResult` | Incremental P_med^delta | `incr_pmed()` output |
+| `SobolPmedResult` | Sobol variance-scale P_med | `sobol_pmed()` output |
+| `WassersteinPmedResult` | Wasserstein proportion mediated | `wasserstein_pmed()` output |
+| `RgFlowResult` | Scale-indexed proportion mediated (NIE/TE) | `rg_flow_contrast()` output |
+| `PmedSensitivity` | M-Y sensitivity | `pmed_sensitivity()` output |
 
 The extracted mediation structure is `medfit::MediationData` (provides `a_path`,
 `b_path`, `c_prime`, `vcov`, `sigma_m`/`sigma_y`, and `family_m`/`family_y`) — not
@@ -107,6 +113,10 @@ a probmed-owned class.
 |---------|---------|---------|
 | `extract_mediation()` | Extract from fitted models (re-exported from medfit) | `medfit::MediationData` |
 | `pmed()` | Compute P_med | `PmedResult` |
+| `ward_residual()` | Gauge-calibrated P_med | `GaugePmedResult` |
+| `incr_pmed()` | Incremental P_med^delta | `IncrPmedResult` |
+| `sobol_pmed()` | Sobol variance-scale P_med | `SobolPmedResult` |
+| `wasserstein_pmed()` | Wasserstein proportion mediated | `WassersteinPmedResult` |
 
 ### P_med Definition
 
@@ -141,12 +151,16 @@ For treatment X (treated `x`, control `x*`), mediator M, outcome Y:
 ### Test Organization
 
 ```
-tests/testthat/
-├── test-pmed-glm.R          # Formula/GLM interface + parametric bootstrap CIs
-├── test-pmed-ie.R           # Indirect effect (a*b) reporting
-└── test-pmed-estimand.R     # Estimand correctness: closed-form agreement,
-                             #   c'-invariance, binary non-degeneracy, IE = a*b
+tests/testthat/   # 24 test files, 5 helper-*.R; one test-<topic>.R per R/ area
+├── test-pmed-estimand.R   # Estimand correctness: closed form, c'-invariance, IE = a*b (core, 100%)
+├── test-pmed-glm.R, test-pmed-ie.R, test-pmed-print.R, test-pmed-parallel.R
+├── test-pmed-mbco.R, test-mbco-null*.R, test-model-bootstrap.R, test-crn.R
+├── test-support-guard.R, test-separation.R, test-standardize.R
+└── test-gauge-pmed.R, test-incremental-*.R, test-sobol-pmed.R, test-wasserstein-pmed.R,
+    test-rg-flow.R, test-sensitivity.R, test-repair-*.R, test-covariance-extraction.R,
+    test-data-multilevel-designs.R
 ```
+Run covr with `NOT_CRAN=true`, otherwise `skip_on_cran()` tests are skipped and coverage reads low.
 
 ---
 
@@ -156,9 +170,7 @@ probmed is an **application package** in the mediationverse ecosystem.
 
 ### Central Planning
 
-Ecosystem coordination managed in `/Users/dt/mediation-planning/`:
-- `ECOSYSTEM-COORDINATION.md` - Version matrix, release timeline
-- `MONTHLY-CHECKLIST.md` - Health checks
+Cascade checklist: `docs/CASCADE-PLAN-2026-06-25.md`. Each package's own `.STATUS` is the source of truth for its state.
 
 ### Related Packages
 
@@ -205,6 +217,10 @@ Multi-branch pattern (aligned with global craft-style workflow):
 
 Branch protection on `main` was added 2026-05-09 via `gh api repos/Data-Wise/probmed/branches/main/protection`. Admin override available (`enforce_admins: false`).
 
+**CI policy (2026-10-20):** hosted R-CMD-check runs on PRs to `main` only. A commit-bound local CI (PR #53, `local-ci/probmed-full`) is being staged; do not disable the hosted required check until a real PR head has a verified local status. Details: `tasks/PLAN-local-ci-transition-2026-10-20.md`.
+
+**Holds (author, 2026-10-20/21):** PRs #54/#55 stay unmerged until the frozen boundary diagnostics pass; no release, submission, or deployment is authorized by passing checks. See `.STATUS`.
+
 ---
 
 ## Development Roadmap
@@ -228,29 +244,6 @@ Branch protection on `main` was added 2026-05-09 via `gh api repos/Data-Wise/pro
 
 ---
 
-**Version**: 0.3.0.9000 (dev; release ON HOLD pending manuscript submission) · **Last Updated**: 2026-08-22
+**Version**: 0.3.0.9000 (dev; release ON HOLD pending manuscript submission) · **Last Updated**: 2026-10-21
 
-> Active research lines beyond the merged core (see `.STATUS` for worktree detail):
-> gauge-calibrated P_med (`ward_residual`/`GaugePmedResult`, PR #8 + bootstrap-SE follow-up),
-> incremental P_med^δ (`incr_pmed`, g-score EIF merged via PR #10; per-δ M–Y tipping via
-> `incr_sensitivity`, feature/gauge-bootstrap-se), Sobol variance-scale (`sobol_pmed`),
-> Wasserstein, and the shared M–Y sensitivity helper (`pmed_sensitivity`).
->
-> 2026-08-22: the shared corner-EIF engine had weighted every row of a cross-fit fold by
-> its first row's propensity since PR #8 (fixed PR #34). Re-measured post-fix: the gauge
-> analytic Wald is calibrated (PR #35 dropped the `weak_id` warning), `sobol_pmed`'s
-> near-null "bootstrap remedy" story was the bug (PR #37), `pmedW_dr` unchanged in
-> conclusions. Manuscript-side corrections are tracked in issue #38; the gauge Table 1
-> rerun runs on hopper from `~/gauge_boot_postfix/` (`inst/sim/hopper/README.md`).
->
-> Two additions merged 2026-07-26, deliberately **not** P_med variants:
-> `rg_flow_contrast()`/`RgFlowResult` (PR #30) — scale-indexed classical proportion
-> mediated (NIE/TE) with cluster-robust EIF inference, probmed's first multilevel
-> estimator; the data-contract question (raw clustered data vs. extending
-> `medfit::MediationData` with a cluster slot) is open, deliberately unresolved.
-> `multilevel_designs` (PR #31) — the package's first shipped dataset, cluster-design
-> metadata for ECLS-K:1998-99/2011 + `mediation::student`; the naming convention (D1)
-> and whether the table grows beyond 3 rows (Q6) are open follow-ups from the PR. Three
-> other PR-body questions were resolved at merge, not left open: the R >= 3.5 floor (D7),
-> the free-text `sampling_note` schema over structured columns (D2), and keeping the
-> `mediation::student` row beside the two NCES cohorts (D6) — all kept as merged.
+Current state, active research lines and holds: `.STATUS` (single source; not restated here).
