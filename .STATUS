@@ -5,6 +5,59 @@ kind: package
 cran_state: unblocked
 next: Phase 7 I6 COMPLETE — FAIL (2026-10-19). Hopper job 4341753 completed 300/300 tasks and 60,000 rows; Gaussian candidate d failed the frozen s6/N=1000 coverage-equivalence and width gates (paired difference +0.0090, 90% CI [0.0055, 0.0125], width ratio 1.029588). Stop before I7; see docs/reports/I6-GATE-2026-10-19.md. A separate pmed exact-Gaussian 6,000-per-cell run (job 4342657, seed 20261021) passed its original prespecified six-cell rule: each two-sided 90% exact-binomial coverage interval inside 93%-97%; see pmed's docs/reports/EDIT-REPORT-pmed-exact-gaussian-2026-10-19.md. Author decision (2026-10-20): keep that original gate and withdraw the later 94% minimum proposal. No new exact-Gaussian run is planned. Its 600 chunk hashes, 120,000 rows, six counts/bounds, and original gate independently reconcile; see docs/reports/AUDIT-exact-gaussian-hopper-2026-10-20.md. The independent Gaussian oracle and selected retained-stream replay of I2/I6/e also passed within 1e-12; see docs/reports/VERIFY-exact-gaussian-kernel-replay-2026-10-20.md. Report width and out-of-gate cells separately. medfit's generic bootstrap and RMediation's path-product CI/MBCO do not validate P_med. Phase 8 remains closed. Open: I5, #47, #50 (blocked on its script), medfit#213. Package/release and pmed submission holds remain active; passing checks do not authorize submission, merge, release, or deployment.
 
+2026-10-20 dev-to-main integration PR #54 is open. PR #53 (local CI) is merged
+into `dev`. Review fixes are in PR #55: R >= 4.1 and qualified inference docs.
+BLOCKER: the new public Wasserstein EIF interval uses simulated-corner
+sample size, omitting fitted-model uncertainty. On the same 500 rows,
+raising n_mc from 2,000 to 200,000 reduces SE from 0.03781 to 0.003726.
+See docs/reports/REVIEW-dev-main-blocker-2026-10-20.md. Full CI was stopped;
+neither PR is merged and protection is unchanged. The author selected a proper
+observed-data inference repair. PR #55 now derives a model-based row influence
+function with shared regression/covariate uncertainty and deterministic corner
+integration. Focused tests pass 35 assertions; the existing Wasserstein suite
+passes 42. The omitted-covariate mutation is detected. Repeated-sampling
+validation completed 8,000 datasets with zero failed fits. Three of four cells
+pass the frozen diagnostics; binary n=500 fails bias/SD (0.142817 > 0.10),
+despite SE/SD 0.988387 and coverage 0.9630. Replay attributes 85.8% of bias
+to nonlinear transformation. Author decision: keep merge blocked and investigate
+bias correction. A grouped-jackknife pilot is exploratory only, not a production
+change. The 200-dataset pilot increased RMSE from 0.0678 to 0.1120 and yielded
+an out-of-range estimate; ordinary delete-one jackknife also gives an extreme
+correction on that selected dataset. Do not adopt unguarded jackknife. See
+docs/reports/INVESTIGATE-wasserstein-binary-bias-2026-10-20.md. Full commit-bound
+CI remains pending; no P_med/I6/I7 gate changes.
+Fresh boundary-aware research (source fa353d5) completed 14,000 datasets with
+zero failed fits. The prespecified damped-curvature primary candidate k=4
+passes all four original regular-cell diagnostics, reducing binary n=500
+bias/SD from 0.1292 to 0.0767. Sensitivity k=9 narrowly fails (0.100275).
+Both candidates fail exact/weak-boundary stress cells: primary coverage
+0.5020, 0.5605, 0.7855, despite bounded estimates. No production adoption;
+PRs #54/#55 are verified OPEN and DRAFT to retain the scientific merge hold.
+The required-status switch stays blocked. See
+docs/reports/VALIDATE-wasserstein-boundary-correction-2026-10-20.md.
+Joint-contrast projection research is complete (source f5669a6): another
+14,000 disjoint fresh datasets, zero fit failures, 19 geometry assertions and
+an independent raw-data audit. Boundary projected coverage improves to
+0.9875/0.9910/0.9890, but all three stress cells still fail bias/SE/coverage
+diagnostics; binary regular n=1000 also exceeds the frozen coverage ceiling
+(0.9885 > 0.98). No production adoption or threshold changes. Both PRs stay
+DRAFT and blocked; full exact-commit software CI/status switch remain pending.
+See docs/reports/VALIDATE-wasserstein-joint-contrast-2026-10-20.md. Next research
+must address boundary point estimation and nonregular uncertainty together;
+new candidates require a frozen design and new seeds.
+Boundary point-selection/Fieller research is complete (source f27e796): 14000
+new disjoint datasets, 44000 method rows, zero failures. Fieller interval coverage
+passes every binary cell (.9440–.9715), but neither thresholded point candidate
+passes any binary cell's complete frozen diagnostics. Stronger selection harms
+regular/weak signals; exact-null bias improvement does not fix SE calibration.
+Independent 22-summary audit and numerical/oracle tests pass. No production
+adoption: PRs #54/#55 remain DRAFT and blocked, full local CI/status switch
+pending. See VALIDATE-wasserstein-boundary-selection-2026-10-20.md under
+docs/reports/. Next research must derive point-risk trade-offs before a new
+frozen smooth-boundary candidate; preserve all existing diagnostics.
+Author-requested teaching book is local-only and excluded from Git tracking.
+Scientific merge holds remain unchanged.
+
 2026-10-20 planning checkpoint: historical plan and MBCO checklist labels
 reconciled; research-workflow follow-up filed in
 tasks/PLAN-research-workflow-enhancements-2026-10-20.md (proposed, not executed).

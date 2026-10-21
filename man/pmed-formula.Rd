@@ -34,9 +34,9 @@ and bootstrap methods, an explicit seed resets the caller's RNG and the
 computation then advances it. MBCO does not use the seed.}
 
 \item{n_sim}{Number of cross-world pairs drawn per evaluation of the P_med
-core (default 10000). Used by the plug-in and both bootstrap methods, once
-per bootstrap draw; ignored by \code{"mbco"}, which is closed form. Distinct
-from \code{n_boot}.}
+core (default 10000). Used by the plug-in and bootstrap methods per
+evaluation. \code{"model_bootstrap"} uses \code{100 * n_sim} pairs for its point
+estimate. Ignored by \code{"mbco"}, which is closed form. Distinct from \code{n_boot}.}
 
 \item{...}{Additional arguments}
 }
@@ -69,7 +69,8 @@ only when at least 99\% of draws are valid (finite, converged, not
 separated), otherwise both bounds are \code{NA} with
 \code{result@diagnostics$interval_status = "bootstrap_incomplete"}. It models
 uncertainty under the specified model; it does not correct misspecification.
-No coverage calibration has been established for it yet.
+Calibration is limited to the documented simulation cells (see NEWS);
+it does not establish general nominal coverage.
 
 \code{method = "mbco"} returns a Model-Based Constrained Optimization interval
 (Tofighi & Kelley, 2020): a likelihood-ratio interval for P_med and for the
@@ -93,8 +94,9 @@ calibration coverage was 0.997 to 0.998 at the 95\% level, and about 0.994
 near the origin. \verb{@diagnostics$pmed$branch_lr} holds the LR statistics for
 a = 0 and b = 0. \verb{@diagnostics$pmed$near_double_null} is \code{TRUE} when both
 are below the cutoff (neither path individually significant), and \code{print()}
-then notes that the interval is conservative. The interval never
-undercovered in calibration. It stays conservative until one path is about
+then notes that the interval is conservative. Minimum observed coverage
+on the tested lattice was 0.9415, not a uniform coverage guarantee.
+It stays conservative until one path is about
 4 standard errors from zero, so a single null with a weak other path is
 conservative too, and the flag can be \code{FALSE} there.
 }

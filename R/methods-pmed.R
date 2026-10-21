@@ -18,9 +18,9 @@
 #'   and bootstrap methods, an explicit seed resets the caller's RNG and the
 #'   computation then advances it. MBCO does not use the seed.
 #' @param n_sim Number of cross-world pairs drawn per evaluation of the P_med
-#'   core (default 10000). Used by the plug-in and both bootstrap methods, once
-#'   per bootstrap draw; ignored by `"mbco"`, which is closed form. Distinct
-#'   from `n_boot`.
+#'   core (default 10000). Used by the plug-in and bootstrap methods per
+#'   evaluation. `"model_bootstrap"` uses `100 * n_sim` pairs for its point
+#'   estimate. Ignored by `"mbco"`, which is closed form. Distinct from `n_boot`.
 #' @param ... Additional arguments
 #'
 #' @return PmedResult object
@@ -48,7 +48,8 @@
 #' separated), otherwise both bounds are `NA` with
 #' `result@diagnostics$interval_status = "bootstrap_incomplete"`. It models
 #' uncertainty under the specified model; it does not correct misspecification.
-#' No coverage calibration has been established for it yet.
+#' Calibration is limited to the documented simulation cells (see NEWS);
+#' it does not establish general nominal coverage.
 #'
 #' `method = "mbco"` returns a Model-Based Constrained Optimization interval
 #' (Tofighi & Kelley, 2020): a likelihood-ratio interval for P_med and for the
@@ -72,8 +73,9 @@
 #' near the origin. `@diagnostics$pmed$branch_lr` holds the LR statistics for
 #' a = 0 and b = 0. `@diagnostics$pmed$near_double_null` is `TRUE` when both
 #' are below the cutoff (neither path individually significant), and `print()`
-#' then notes that the interval is conservative. The interval never
-#' undercovered in calibration. It stays conservative until one path is about
+#' then notes that the interval is conservative. Minimum observed coverage
+#' on the tested lattice was 0.9415, not a uniform coverage guarantee.
+#' It stays conservative until one path is about
 #' 4 standard errors from zero, so a single null with a weak other path is
 #' conservative too, and the flag can be `FALSE` there.
 #'
