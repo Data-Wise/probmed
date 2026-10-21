@@ -69,7 +69,7 @@ Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-code
 - [ ] **G3 Feasibility pre-check of the author's gates** (S) — TOOL READY 2026-10-21: `Rscript scripts/check-gate-tolerance.R <n> <tol_direct> [<tol_indirect>]` (controls pass; verdict INFEASIBLE / NEAR-FLOOR / ROOM against the G2 floor). Left unchecked: needs the author's tolerances (G1). The 1.5x NEAR-FLOOR cut is a reporting convention, not derived.
   - Accept: each proposed gate is tested against the G2 floor; any infeasible gate is reported as a finding, not retuned.
   - Deps: G1, G2
-- [ ] **G4 One complete gate set** (S, plan amendment)
+- [ ] **G4 One complete gate set** (S, plan amendment) — SKELETON DRAFTED 2026-10-21 (`docs/specs/SPEC-boundary-gate-set-DRAFT-2026-10-21.md`); all AUTHOR cells blank, not registered
   - Accept: ladder, tolerances per n, boundary flag definition and miss-rate gate, between-ladder-point risk control, and which of bias/SD, SE/SD, coverage are kept; Q1-Q3, Q6 promoted from PROVISIONAL or reversed in the ledger.
   - Deps: G3
 - [ ] **Review G2 (Codex)** on the complete gate set, before any freeze (this is the Review B focus for gates; run once, record verbatim, triage)
