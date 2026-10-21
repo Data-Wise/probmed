@@ -83,7 +83,7 @@ stage coverage Rscript -e 'cov <- covr::package_coverage(path = ".", type = "tes
 
 mkdir "$work/site-source"
 stage site-copy rsync -a --exclude=.git --exclude=docs --exclude=AGENTS.md --exclude=CLAUDE.md "$root/" "$work/site-source/"
-stage pkgdown Rscript -e 'pkgdown::build_site_github_pages(pkg = commandArgs(trailingOnly = TRUE)[1], new_process = FALSE, install = TRUE)' --args "$work/site-source"
+stage pkgdown Rscript -e 'pkgdown::build_site_github_pages(pkg = commandArgs(trailingOnly = TRUE)[1], new_process = FALSE, install = TRUE)' "$work/site-source"
 site="$work/site-source/docs"
 if [ -s "$site/dev/index.html" ]; then site="$site/dev"; fi
 [ -s "$site/index.html" ] && [ -s "$site/reference/index.html" ] || {
