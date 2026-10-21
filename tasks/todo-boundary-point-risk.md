@@ -87,7 +87,7 @@ Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-code
 - [x] **G3 Feasibility pre-check of the author's gates** (S) — DONE 2026-10-21 for G1a/G1b: all four ROOM (ratios 1.62, 1.78, 1.52, 1.52; `docs/specs/data/check-gate-tolerance-2026-10-21.txt`); re-run if G1a/G1b change or G1c adds a gate. TOOL 2026-10-21: `Rscript scripts/check-gate-tolerance.R <n> <tol_direct> [<tol_indirect>]` (controls pass; verdict INFEASIBLE / NEAR-FLOOR / ROOM against the G2 floor). Left unchecked: needs the author's tolerances (G1). The 1.5x NEAR-FLOOR cut is a reporting convention, not derived.
   - Accept: each proposed gate is tested against the G2 floor; any infeasible gate is reported as a finding, not retuned.
   - Deps: G1a, G1b, G1c, G2, G2b
-- [ ] **G4 One complete gate set** (S, plan amendment) — SKELETON DRAFTED 2026-10-21 (`docs/specs/SPEC-boundary-gate-set-DRAFT-2026-10-21.md`); all AUTHOR cells blank, not registered
+- [x] **G4 One complete gate set** (S, plan amendment) — DONE 2026-10-21: `docs/specs/SPEC-boundary-gate-set-2026-10-21.md` (38 cells, 8 gates, flag, procedure; PROPOSED, not registered). Assistant-drafted entries (coverage scope, R = 2000, seeds) await the author at Checkpoint G.
   - Accept: ladder, tolerances per n, boundary flag definition and miss-rate gate, between-ladder-point risk control, and which of bias/SD, SE/SD, coverage are kept; Q1-Q3, Q6 promoted from PROVISIONAL or reversed in the ledger.
   - Deps: G3, G1d, G2c
 - [x] Review H (Codex) on the gate tooling G2-G3, 2026-10-21: 2 medium findings accepted and fixed; `docs/specs/REVIEW-codex-boundary-point-risk-H-2026-10-21.md`

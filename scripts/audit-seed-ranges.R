@@ -2,14 +2,14 @@
 # G2c: audit a proposed fresh seed block against every earlier seed range used in this project.
 # Usage: Rscript scripts/audit-seed-ranges.R [pr55_scripts_dir]
 #   pr55_scripts_dir defaults to /private/tmp/probmed-dev-main-review/scripts (the PR #55 checkout).
-# Proposed block: seed = 1,000,000,000 + cell * 10000 + replicate, cell 1..20, replicate 1..5000.
+# Proposed block: seed = 1,000,000,000 + cell * 10000 + replicate, cell 1..40, replicate 1..5000.
 # NOT registered or frozen here; the block is frozen only by T5 after the author's gates exist.
 args <- commandArgs(TRUE)
 pr55 <- if (length(args)) args[1] else "/private/tmp/probmed-dev-main-review/scripts"
-prop <- c(lo = 1e9 + 1 * 10000 + 1, hi = 1e9 + 20 * 10000 + 5000)
+prop <- c(lo = 1e9 + 1 * 10000 + 1, hi = 1e9 + 40 * 10000 + 5000)
 
 # Earlier ranges, from the formulas read in the repo / PR #55 scripts (source in the last column).
-# Widths are upper bounds: cell <= 20 and replicate <= 5000 for the cell*10000+r studies; hopper i4/i6 use
+# Widths are upper bounds: cell <= 40 and replicate <= 5000 for the cell*10000+r studies; hopper i4/i6 use
 # base + task*1100000 + i*5000 + j*2 + k with task <= 400 assumed (arrays used are 1-300).
 earlier <- data.frame(
   name = c("PR55 observed (20261020 + cell*1e4 + r)", "PR55 bias diagnostics (20261020 + 20000 + r)",
