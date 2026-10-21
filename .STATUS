@@ -55,11 +55,8 @@ adoption: PRs #54/#55 remain DRAFT and blocked, full local CI/status switch
 pending. See VALIDATE-wasserstein-boundary-selection-2026-10-20.md under
 docs/reports/. Next research must derive point-risk trade-offs before a new
 frozen smooth-boundary candidate; preserve all existing diagnostics.
-Author-requested teaching architecture saved at
-docs/tutorials/wasserstein-inference/outline.md: 16 dependency-ordered chapters,
-source map, technical derivation scope and exercises. Proposed outline only;
-configured Tome preflight is blocked by missing PyYAML/book configuration.
-No chapter prose or rendered book is claimed; scientific merge holds unchanged.
+Author-requested teaching book is local-only and excluded from Git tracking.
+Scientific merge holds remain unchanged.
 GitHub CI transition in progress. `main` still requires `ubuntu-latest (release)`;
 do not disable that check until a real PR head has a verified
 `local-ci/probmed-full` status and branch protection is switched. GitHub Pages
