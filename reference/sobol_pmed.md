@@ -85,15 +85,20 @@ sobol_pmed(
 - reps:
 
   Integer: repeated cross-fitting draws averaged for the point estimate
-  (default `1`). Use `reps > 1` near the boundary for a reproducible,
-  lower-variance estimate (it removes the ~80% fold-split variance).
+  (default `1`). `reps > 1` averages the corner influence matrix over
+  independent fold draws, making the point estimate reproducible across
+  partitions; the efficiency effect is small (post-fix the single-draw
+  estimator is already within 3% of oracle efficiency).
 
 - se_method:
 
-  Character: `"analytic"` (default) or `"bootstrap"`. The bootstrap
-  gives a valid (conservative) se near the non-regular boundary, where
-  the analytic se is anti-conservative; off the boundary the analytic se
-  is calibrated.
+  Character: `"analytic"` (default, influence-function se, calibrated
+  from strong effects to the null – see
+  [SobolPmedResult](https://data-wise.github.io/probmed/reference/SobolPmedResult.md))
+  or `"bootstrap"` (nonparametric resample-and-refit se, `B` x `reps`
+  refits; an option, not a remedy – post-fix it is no better than the
+  analytic se and slightly anti-conservative at the near-null
+  transition).
 
 - B:
 
@@ -119,9 +124,11 @@ the regular contrast `Delta_m` decides the boundary. The default
 reported interval is **Procedure B** (`procedure = "B"`): the image of
 the regular `Delta_m` Wald CI under `delta -> (c_m/V_T) delta^2`
 (continuous mapping, no gate). Its validity inherits that of the input
-`Delta_m` CI – so near the boundary use `reps > 1` and
-`se_method = "bootstrap"` for a valid interval (the analytic `Delta_m`
-se is anti-conservative there; see the boundary coverage section).
+`Delta_m` CI, which the analytic se delivers: post-fix (2026-08-22) the
+`Delta_m` se is exact from strong effects to the null and the
+Procedure-B interval covers 0.952-0.996 across six cells (see the
+boundary coverage section of
+[SobolPmedResult](https://data-wise.github.io/probmed/reference/SobolPmedResult.md)).
 **Procedure A** (`procedure = "A"`) is the legacy gated rule (Wald on
 rejection, one-sided `[0, Pmed_upper]` otherwise), pointwise- but
 **not** uniformly-valid across the near-null transition (Leeb-Potscher
@@ -148,9 +155,9 @@ M <- 0.6 * A + 0.4 * C + rnorm(n)
 Y <- 0.5 * A + 0.7 * M + 0.3 * C + rnorm(n)
 sobol_pmed(data.frame(A, M, Y, C))
 #> Sobol / variance-scale proportion mediated P_med^sigma2 (onestep-crossfit, n=1500)
-#>   P_med = 0.407  se = 0.104
-#>   Wald 95% CI [0.221, 0.649]
-#>   H0 V_med=0 rejected (split p=0.0114).
-#>   S1_med = 0.407  ST_med = 0.416
-#>   Vd=0.0503  Vm=0.0350  Vint=0.0008  VT=0.0861
+#>   P_med = 0.486  se = 0.086
+#>   Wald 95% CI [0.299, 0.718]
+#>   H0 V_med=0 rejected (split p=1.19e-09).
+#>   S1_med = 0.486  ST_med = 0.488
+#>   Vd=0.0524  Vm=0.0498  Vint=0.0002  VT=0.1024
 ```

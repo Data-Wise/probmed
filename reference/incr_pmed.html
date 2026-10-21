@@ -15,7 +15,7 @@ ratio-identity influence function for med / tot at each delta."><meta property="
 
     <a class="navbar-brand me-2" href="../index.html">probmed</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.0</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,23 +32,15 @@ ratio-identity influence function for med / tot at each delta."><meta property="
     <li><h6 class="dropdown-header" data-toc-skip>Methods</h6></li>
     <li><a class="dropdown-item" href="../articles/parallel-mediation.html">Parallel Mediation: joint P_med</a></li>
     <li><a class="dropdown-item" href="../articles/gauge-residual.html">Gauge residual: when P_med is unreliable</a></li>
+    <li><a class="dropdown-item" href="../articles/incremental-pmed.html">Incremental P_med</a></li>
+    <li><a class="dropdown-item" href="../articles/modern-estimands.html">Modern estimands and boundary behavior</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>─────────────</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>Integration Guides</h6></li>
     <li><a class="dropdown-item" href="../articles/lavaan-integration.html">lavaan Integration</a></li>
     <li><a class="dropdown-item" href="../articles/mediation-integration.html">mediation Package Integration</a></li>
     <li><a class="dropdown-item" href="../articles/package-comparison.html">Package Comparison</a></li>
   </ul></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-ecosystem" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Ecosystem</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-ecosystem"><li><h6 class="dropdown-header" data-toc-skip>Core Packages</h6></li>
-    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/medfit/">medfit (Foundation)</a></li>
-    <li><a class="dropdown-item" href="https://data-wise.github.io/probmed/">probmed (P_med Effect Size)</a></li>
-    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/rmediation/">RMediation (Confidence Intervals)</a></li>
-    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/medrobust/">medrobust (Sensitivity Analysis)</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Support Packages</h6></li>
-    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/medsim/">medsim (Simulation Infrastructure)</a></li>
-  </ul></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://data-wise.github.io/mediationverse/articles/ecosystem.html">Ecosystem</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-status" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fas fa-chart-line"></span> Status</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-status"><li><a class="external-link dropdown-item" href="https://github.com/data-wise/mediationverse/blob/main/STATUS.md">📊 Package Status Dashboard</a></li>
@@ -69,7 +61,7 @@ ratio-identity influence function for med / tot at each delta."><meta property="
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Incremental Mediated Elasticity Curve</h1>
-      <small class="dont-index">Source: <a href="https://github.com/data-wise/probmed/blob/v0.3.0/R/incremental-pmed.R" class="external-link"><code>R/incremental-pmed.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/data-wise/probmed/blob/main/R/incremental-pmed.R" class="external-link"><code>R/incremental-pmed.R</code></a></small>
       <div class="d-none name"><code>incr_pmed.Rd</code></div>
     </div>
 
@@ -145,11 +137,26 @@ sum to the total elasticity exactly, so <code>P_med^delta = med / (dir + med)</c
 <code>q' = g(1 - g) / (delta g + 1 - g)^2</code> (Kennedy 2019, Corollary 2, Term I).
 Standard errors use the full efficient influence function for the ratio
 <code>P_med = med / tot</code>, which adds the g-score correction
-<code>(dq/dg) * (A - g(C)) * (dir * gamma_med - med * gamma_dir) / tot^2</code>
-with <code>dq/dg = delta / (delta g + 1 - g)^2</code> (Term II). Term II is
-mean-zero (by <code>E[A - g(C) | C] = 0</code>), so it does not shift the point
-estimate but restores Neyman orthogonality w.r.t. the propensity score,
-ensuring the CI is consistent under nonparametric estimation of <code>g</code>.</p>
+<code>(dq/dg) * (A - g(C)) * (dir * E[a_med | C] - med * E[a_dir | C]) / tot^2</code>,
+where <code>a_med = q' * gamma_med</code> and <code>a_dir = q' * gamma_dir</code> are the same
+tilt-weighted corner contrasts used in the point estimate (the g-score
+term must carry the <code>q'</code> weight to match the units of <code>dir</code>/<code>med</code>/<code>tot</code>)
+and <code>E[. | C]</code> is a linear projection on the covariates, with
+<code>dq/dg = delta / (delta g + 1 - g)^2</code> (Term II). Term II is mean-zero (by
+<code>E[A - g(C) | C] = 0</code>), so it does not shift the point estimate but
+restores Neyman orthogonality w.r.t. the propensity score, ensuring the CI
+is consistent under nonparametric estimation of <code>g</code>. The projection
+matters: the per-row <code>a_med</code>/<code>a_dir</code> carry the corner EIF's
+inverse-probability noise, and multiplying that by <code>A - g(C)</code> inflated the
+se by 1.40x at <code>delta = 2</code> (fixed 2026-08-22; se/empSD now 0.94-0.97 across
+<code>delta</code>).</p>
+<p><strong>Scope (exposure type).</strong> The incremental intervention is defined only for a
+<strong>binary</strong> treatment <code>A</code>: the odds-ratio tilt <code>q = delta g / (delta g + 1 - g)</code>
+requires <code>g = P(A = 1 | C)</code> to be a Bernoulli probability. Continuous or
+multi-valued exposures are a distinct object requiring a <em>modified treatment
+policy</em> (shift) intervention with its own estimand and efficient influence
+function; they are deliberately out of scope here (deferred to future work –
+a separate MTP-mediation paper).</p>
     </div>
 
     <div class="section level2">
@@ -163,10 +170,9 @@ ensuring the CI is consistent under nonparametric estimation of <code>g</code>.<
 <span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">A</span>, <span class="va">M</span>, <span class="va">Y</span>, <span class="va">C</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">incr_pmed</span><span class="op">(</span><span class="va">d</span>, deltas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Incremental mediated elasticity P_med^delta(delta) (onestep-crossfit, n=1500)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   delta=0.5    P_med=0.500  [0.337, 0.662]  (dir=0.147 med=0.147 tot=0.293)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   delta=1      P_med=0.467  [0.224, 0.710]  (dir=0.091 med=0.080 tot=0.171)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   delta=2      P_med=0.434  [0.004, 0.864]  (dir=0.049 med=0.037 tot=0.086)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   curve bends with delta =&gt; treatment-by-mediator interaction present.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   delta=0.5    P_med=0.499  [0.405, 0.593]  (dir=0.164 med=0.163 tot=0.327)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   delta=1      P_med=0.493  [0.405, 0.580]  (dir=0.097 med=0.094 tot=0.191)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   delta=2      P_med=0.486  [0.401, 0.570]  (dir=0.049 med=0.046 tot=0.095)</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

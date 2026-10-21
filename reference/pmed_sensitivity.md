@@ -116,9 +116,9 @@ Y <- 0.4 * A + 0.6 * M + 0.2 * C + rnorm(n)
 fit <- ward_residual(data.frame(A, M, Y, C))
 pmed_sensitivity(fit, threshold = 0)
 #> P_med M-Y confounding sensitivity (A4)
-#>   P_med = 0.443  (indirect=0.281 / total=0.634)
-#>   Tipping bias (indirect -> 0): b = -0.281
-#>   Tipping bias (P_med -> 0.000): b = -0.281
-#>   P_med over bias grid [-0.281, 0.281]: [0.000, 0.886]
+#>   P_med = 0.514  (indirect=0.338 / total=0.658)
+#>   Tipping bias (indirect -> 0): b = -0.338
+#>   Tipping bias (P_med -> 0.000): b = -0.338
+#>   P_med over bias grid [-0.338, 0.338]: [0.000, 1.028]
 # }
 ```

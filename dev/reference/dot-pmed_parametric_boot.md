@@ -5,14 +5,5 @@ Parametric Bootstrap for P_med
 ## Usage
 
 ``` r
-.pmed_parametric_boot(
-  extract,
-  x_ref,
-  x_value,
-  n_boot,
-  ci_level,
-  seed,
-  n_sim = 10000,
-  ...
-)
+.pmed_parametric_boot(extract, x_ref, x_value, n_boot, ci_level, seed, ...)
 ```

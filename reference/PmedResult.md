@@ -21,6 +21,7 @@ PmedResult(
   x_value = integer(0),
   source_extract = NULL,
   converged = logical(0),
+  diagnostics = list(),
   call = NULL
 )
 ```
@@ -86,6 +87,10 @@ PmedResult(
 - converged:
 
   Logical: did computation converge
+
+- diagnostics:
+
+  List: method-specific numerical interval diagnostics
 
 - call:
 

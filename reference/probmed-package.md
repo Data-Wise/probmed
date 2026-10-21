@@ -64,6 +64,7 @@ The basic workflow involves three steps:
 
 3.  Interpret results (both \\P\_{med}\\ and Indirect Effect)
 
+
     # Example workflow
     library(probmed)
 
@@ -137,4 +138,4 @@ Useful links:
 ## Author
 
 **Maintainer**: Davood Tofighi <dtofighi@gmail.com>
-([ORCID](https://orcid.org/0000-0001-8523-7776))
+([ORCID](https://orcid.org/0000-0001-8523-7776)) \[copyright holder\]

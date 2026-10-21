@@ -21,7 +21,7 @@ variance decomposition and the boundary remedy."><meta property="og:image" conte
 
     <a class="navbar-brand me-2" href="../index.html">probmed</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.0</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,23 +38,15 @@ variance decomposition and the boundary remedy."><meta property="og:image" conte
     <li><h6 class="dropdown-header" data-toc-skip>Methods</h6></li>
     <li><a class="dropdown-item" href="../articles/parallel-mediation.html">Parallel Mediation: joint P_med</a></li>
     <li><a class="dropdown-item" href="../articles/gauge-residual.html">Gauge residual: when P_med is unreliable</a></li>
+    <li><a class="dropdown-item" href="../articles/incremental-pmed.html">Incremental P_med</a></li>
+    <li><a class="dropdown-item" href="../articles/modern-estimands.html">Modern estimands and boundary behavior</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>─────────────</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>Integration Guides</h6></li>
     <li><a class="dropdown-item" href="../articles/lavaan-integration.html">lavaan Integration</a></li>
     <li><a class="dropdown-item" href="../articles/mediation-integration.html">mediation Package Integration</a></li>
     <li><a class="dropdown-item" href="../articles/package-comparison.html">Package Comparison</a></li>
   </ul></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-ecosystem" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Ecosystem</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-ecosystem"><li><h6 class="dropdown-header" data-toc-skip>Core Packages</h6></li>
-    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/medfit/">medfit (Foundation)</a></li>
-    <li><a class="dropdown-item" href="https://data-wise.github.io/probmed/">probmed (P_med Effect Size)</a></li>
-    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/rmediation/">RMediation (Confidence Intervals)</a></li>
-    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/medrobust/">medrobust (Sensitivity Analysis)</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Support Packages</h6></li>
-    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/medsim/">medsim (Simulation Infrastructure)</a></li>
-  </ul></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://data-wise.github.io/mediationverse/articles/ecosystem.html">Ecosystem</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-status" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fas fa-chart-line"></span> Status</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-status"><li><a class="external-link dropdown-item" href="https://github.com/data-wise/mediationverse/blob/main/STATUS.md">📊 Package Status Dashboard</a></li>
@@ -75,7 +67,7 @@ variance decomposition and the boundary remedy."><meta property="og:image" conte
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Sobol / Variance-Scale Proportion Mediated</h1>
-      <small class="dont-index">Source: <a href="https://github.com/data-wise/probmed/blob/v0.3.0/R/sobol-pmed.R" class="external-link"><code>R/sobol-pmed.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/data-wise/probmed/blob/main/R/sobol-pmed.R" class="external-link"><code>R/sobol-pmed.R</code></a></small>
       <div class="d-none name"><code>sobol_pmed.Rd</code></div>
     </div>
 
@@ -161,14 +153,18 @@ sample-split CI (image of the <code>Delta_m</code> CI); <code>"A"</code> is the 
 
 <dt id="arg-reps">reps<a class="anchor" aria-label="anchor" href="#arg-reps"></a></dt>
 <dd><p>Integer: repeated cross-fitting draws averaged for the point estimate
-(default <code>1</code>). Use <code>reps &gt; 1</code> near the boundary for a reproducible, lower-variance
-estimate (it removes the ~80% fold-split variance).</p></dd>
+(default <code>1</code>). <code>reps &gt; 1</code> averages the corner influence matrix over
+independent fold draws, making the point estimate reproducible across
+partitions; the efficiency effect is small (post-fix the single-draw
+estimator is already within 3% of oracle efficiency).</p></dd>
 
 
 <dt id="arg-se-method">se_method<a class="anchor" aria-label="anchor" href="#arg-se-method"></a></dt>
-<dd><p>Character: <code>"analytic"</code> (default) or <code>"bootstrap"</code>. The bootstrap
-gives a valid (conservative) se near the non-regular boundary, where the analytic
-se is anti-conservative; off the boundary the analytic se is calibrated.</p></dd>
+<dd><p>Character: <code>"analytic"</code> (default, influence-function se,
+calibrated from strong effects to the null – see <a href="SobolPmedResult.html">SobolPmedResult</a>) or
+<code>"bootstrap"</code> (nonparametric resample-and-refit se, <code>B</code> x <code>reps</code> refits; an
+option, not a remedy – post-fix it is no better than the analytic se and
+slightly anti-conservative at the near-null transition).</p></dd>
 
 
 <dt id="arg-b">B<a class="anchor" aria-label="anchor" href="#arg-b"></a></dt>
@@ -191,9 +187,10 @@ A Williamson et al. (2021) sample-split test on the regular contrast <code>Delta
 decides the boundary. The default reported interval is <strong>Procedure B</strong>
 (<code>procedure = "B"</code>): the image of the regular <code>Delta_m</code> Wald CI under
 <code>delta -&gt; (c_m/V_T) delta^2</code> (continuous mapping, no gate). Its validity inherits
-that of the input <code>Delta_m</code> CI – so near the boundary use <code>reps &gt; 1</code> and
-<code>se_method = "bootstrap"</code> for a valid interval (the analytic <code>Delta_m</code> se is
-anti-conservative there; see the boundary coverage section). <strong>Procedure A</strong>
+that of the input <code>Delta_m</code> CI, which the analytic se delivers: post-fix
+(2026-08-22) the <code>Delta_m</code> se is exact from strong effects to the null and the
+Procedure-B interval covers 0.952-0.996 across six cells (see the boundary
+coverage section of <a href="SobolPmedResult.html">SobolPmedResult</a>). <strong>Procedure A</strong>
 (<code>procedure = "A"</code>) is the legacy gated rule (Wald on rejection, one-sided
 <code>[0, Pmed_upper]</code> otherwise), pointwise- but <strong>not</strong> uniformly-valid across the
 near-null transition (Leeb-Potscher pre-test under-coverage). The boundary
@@ -218,11 +215,11 @@ techniques. <em>Biometrics</em>, 77(1), 9–22.</p>
 <span class="r-in"><span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">A</span> <span class="op">+</span> <span class="fl">0.7</span> <span class="op">*</span> <span class="va">M</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">C</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">sobol_pmed</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">A</span>, <span class="va">M</span>, <span class="va">Y</span>, <span class="va">C</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Sobol / variance-scale proportion mediated P_med^sigma2 (onestep-crossfit, n=1500)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   P_med = 0.407  se = 0.104</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Wald 95% CI [0.221, 0.649]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   H0 V_med=0 rejected (split p=0.0114).</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   S1_med = 0.407  ST_med = 0.416</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Vd=0.0503  Vm=0.0350  Vint=0.0008  VT=0.0861</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   P_med = 0.486  se = 0.086</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Wald 95% CI [0.299, 0.718]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   H0 V_med=0 rejected (split p=1.19e-09).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   S1_med = 0.486  ST_med = 0.488</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Vd=0.0524  Vm=0.0498  Vint=0.0002  VT=0.1024</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

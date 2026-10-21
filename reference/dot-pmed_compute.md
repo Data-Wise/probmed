@@ -5,5 +5,15 @@ Core P_med Computation Dispatcher
 ## Usage
 
 ``` r
-.pmed_compute(extract, x_ref, x_value, method, n_boot, ci_level, seed, ...)
+.pmed_compute(
+  extract,
+  x_ref,
+  x_value,
+  method,
+  n_boot,
+  ci_level,
+  seed,
+  n_sim = 10000,
+  ...
+)
 ```

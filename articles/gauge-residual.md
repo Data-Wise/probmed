@@ -46,10 +46,10 @@ M <- 0.6 * A + 0.4 * C + rnorm(n)
 Y <- 0.5 * A + 0.7 * M + 0.3 * C + rnorm(n)        # no A*M term
 ward_residual(data.frame(A, M, Y, C))
 #> Gauge-calibrated proportion mediated (onestep-crossfit, n=1500)
-#>   P_med = 0.502  Wald [0.310, 0.695]
-#>     Fieller 95% CI [0.321, 0.714]
-#>   W=R/OE = -0.053  Wald [-0.261, 0.155]  (p=0.616)
-#>   OE=0.872  IDE=0.480  IIE=0.438  R=-0.046
+#>   P_med = 0.446  Wald [0.355, 0.538]
+#>     Fieller 95% CI [0.357, 0.542]
+#>   W=R/OE = 0.059  Wald [-0.031, 0.150]  (p=0.199)
+#>   OE=0.971  IDE=0.480  IIE=0.433  R=0.058
 ```
 
 The `W` confidence interval covers 0: the single-number `P_med` is safe
@@ -65,10 +65,10 @@ positive and the printout warns that the additive split is unreliable.
 Yi <- 0.5 * A + 0.7 * M + 0.8 * A * M + 0.3 * C + rnorm(n)
 ward_residual(data.frame(A, M, Y = Yi, C))
 #> Gauge-calibrated proportion mediated (onestep-crossfit, n=1500)
-#>   P_med = 0.288  Wald [0.163, 0.413]
-#>     Fieller 95% CI [0.166, 0.418]
-#>   W=R/OE = 0.427  Wald [0.284, 0.569]  (p=4.78e-09)
-#>   OE=1.392  IDE=0.398  IIE=0.401  R=0.594
+#>   P_med = 0.322  Wald [0.264, 0.380]
+#>     Fieller 95% CI [0.264, 0.381]
+#>   W=R/OE = 0.444  Wald [0.337, 0.550]  (p=3.41e-16)
+#>   OE=1.423  IDE=0.333  IIE=0.459  R=0.632
 #>   ! |W| large: additive split unreliable; interpret P_med with care.
 ```
 
@@ -84,10 +84,10 @@ dat <- data.frame(A = factor(ifelse(A == 1, "drug", "placebo")),
                   M = M, Y = Yi, C = C)
 ward_residual(dat, a0 = "placebo", a1 = "drug")
 #> Gauge-calibrated proportion mediated (onestep-crossfit, n=1500)
-#>   P_med = 0.288  Wald [0.163, 0.413]
-#>     Fieller 95% CI [0.166, 0.418]
-#>   W=R/OE = 0.427  Wald [0.284, 0.569]  (p=4.78e-09)
-#>   OE=1.392  IDE=0.398  IIE=0.401  R=0.594
+#>   P_med = 0.322  Wald [0.264, 0.380]
+#>     Fieller 95% CI [0.264, 0.381]
+#>   W=R/OE = 0.444  Wald [0.337, 0.550]  (p=3.41e-16)
+#>   OE=1.423  IDE=0.333  IIE=0.459  R=0.632
 #>   ! |W| large: additive split unreliable; interpret P_med with care.
 ```
 
@@ -110,33 +110,74 @@ ward_residual(multi, a0 = 0, a1 = 1)
 #> ! A has more than two levels (extra: {2}). ward_residual contrasts exactly two levels; subsetting a multi-valued A would change the estimand. Pre-filter to the two levels you intend, or see the manuscript for the multi-valued generalization (not yet implemented).
 ```
 
-## Inference for a skewed ratio
+## Inference: what the two arms actually do
 
-`W` and `P_med` are **ratios**, with right-skewed sampling
-distributions. The default `se_method = "analytic"` reports the
-influence-function standard error and a symmetric Wald interval, which
-is convenient but mildly anti-conservative for the ratio near the null.
+`W` and `P_med` are **ratios**. The default `se_method = "analytic"`
+reports the influence-function standard error of the cross-fit one-step
+estimator and a symmetric Wald interval. Measured against exact truth
+(`inst/sim/se_shipped_check.R`, 250 datasets per cell, n = 800) it
+covers 0.936 for a continuous outcome and 0.972 for a binary one under
+strong identification, 0.912 when the total effect is moderate, and its
+dispersion from dataset to dataset matches that of an oracle that knows
+the nuisance functions. `reps > 1` averages the influence matrix over
+several independent partitions; it removes the fold-split component of
+the variance, which with correct weights is small (empSD 0.063 at
+`reps = 1` vs 0.061 at `reps = 10`, oracle 0.056):
+
+``` r
+
+ward_residual(data.frame(A, M, Y = Yi, C), reps = 10)
+#> Gauge-calibrated proportion mediated (onestep-crossfit, n=1500)
+#>   P_med = 0.327  Wald [0.269, 0.384]
+#>     Fieller 95% CI [0.269, 0.385]
+#>   W=R/OE = 0.437  Wald [0.332, 0.543]  (p=5.12e-16)
+#>   OE=1.410  IDE=0.332  IIE=0.461  R=0.617
+#>   ! |W| large: additive split unreliable; interpret P_med with care.
+```
+
+A note on history, because the earlier documentation said the opposite:
+before 2026-08-22 the corner influence function used one
+inverse-probability weight per fold —
+[`ifelse()`](https://rdrr.io/r/base/ifelse.html) on a scalar test
+silently returned the first fold row’s propensity for every row — and
+every coverage figure the package reported (Wald ~0.85–0.90, percentile
+~1.00, the gate-validation grid, the variance decomposition in
+`docs/specs/FINDINGS-2026-08-22-phi-decomposition.md`) was produced with
+that bug. Those numbers are superseded; the bootstrap arm and the two
+gates were re-measured the same day
+(`docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md`).
+
 Setting `se_method = "bootstrap"` switches the `W` and `P_med` intervals
-to the tail-aware **percentile** bootstrap — the appropriate
-construction for a skewed ratio (widening a symmetric SE fails to cover
-it). The printed label tracks which construction produced the interval.
+to **percentile** intervals of a nonparametric bootstrap that resamples
+rows and refits the whole cross-fit, with a fresh partition each
+resample. With correct weights it buys nothing: percentile coverage
+0.905–0.930 in the regular cells at the same width as the Wald interval,
+and a bootstrap standard error that is unstable for binary outcomes. It
+remains available for users who want a refit bootstrap. The `weak_id`
+flag it enables — percentile interval at least 3× wider than Wald — is a
+symptom of bootstrap instability near `OE = 0`, not a coverage
+diagnostic: flagged and unflagged draws cover alike at every threshold
+tried; it no longer warns. The printed label tracks which construction
+produced the interval.
 
 ``` r
 
 ward_residual(data.frame(A, M, Y = Yi, C), se_method = "bootstrap", B = 200)
 #> Gauge-calibrated proportion mediated (onestep-crossfit, n=1500)
-#>   P_med = 0.288  percentile [0.213, 0.408]
-#>     Fieller 95% CI [0.166, 0.418]
-#>   W=R/OE = 0.427  percentile [0.250, 0.510]  (p=5.79e-08)
-#>   OE=1.392  IDE=0.398  IIE=0.401  R=0.594
+#>   P_med = 0.322  percentile [0.266, 0.384]
+#>     Fieller 95% CI [0.264, 0.381]
+#>   W=R/OE = 0.444  percentile [0.337, 0.535]  (p=2.36e-17)
+#>   OE=1.423  IDE=0.333  IIE=0.459  R=0.632
 #>   ! |W| large: additive split unreliable; interpret P_med with care.
 ```
 
 For the near-null / weak-identification regime — `OE` not bounded away
-from 0 — prefer the **Fieller** confidence set (`fieller = TRUE`, on by
-default), which is honest about being unbounded when the total effect is
-not significant, where both Wald and percentile intervals understate the
-uncertainty.
+from 0 — the ratio itself is non-regular: in the grid’s near-null cells
+even an oracle with known nuisances produces exploding standard errors,
+and `oe_regular = FALSE` flags exactly this. Prefer the **Fieller**
+confidence set there (`fieller = TRUE`, on by default), which is honest
+about being unbounded when the total effect is not significant, and
+report the unnormalized effects.
 
 ## Summary
 
@@ -146,5 +187,10 @@ uncertainty.
   single-number `P_med` — is unreliable.
 - Use `a0` / `a1` for any two-level exposure coding; `>2` levels is an
   error by design.
-- For ratio inference, `se_method = "bootstrap"` gives percentile
-  intervals and the Fieller set handles the near-null case.
+- For ratio inference, the default analytic Wald interval is calibrated
+  under regular identification (0.936 continuous / 0.972 binary at n =
+  800); `reps > 1` adds a small efficiency gain;
+  `se_method = "bootstrap"` gives percentile intervals that are no
+  better (0.905–0.930) and its `weak_id` flag is not a coverage
+  diagnostic; `oe_regular` and the Fieller set handle the near-null
+  case, where the ratio is non-regular.

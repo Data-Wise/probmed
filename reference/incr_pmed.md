@@ -75,11 +75,28 @@ rule) they sum to the total elasticity exactly, so
 `q' = g(1 - g) / (delta g + 1 - g)^2` (Kennedy 2019, Corollary 2, Term
 I). Standard errors use the full efficient influence function for the
 ratio `P_med = med / tot`, which adds the g-score correction
-`(dq/dg) * (A - g(C)) * (dir * gamma_med - med * gamma_dir) / tot^2`
-with `dq/dg = delta / (delta g + 1 - g)^2` (Term II). Term II is
-mean-zero (by `E[A - g(C) | C] = 0`), so it does not shift the point
-estimate but restores Neyman orthogonality w.r.t. the propensity score,
-ensuring the CI is consistent under nonparametric estimation of `g`.
+`(dq/dg) * (A - g(C)) * (dir * E[a_med | C] - med * E[a_dir | C]) / tot^2`,
+where `a_med = q' * gamma_med` and `a_dir = q' * gamma_dir` are the same
+tilt-weighted corner contrasts used in the point estimate (the g-score
+term must carry the `q'` weight to match the units of `dir`/`med`/`tot`)
+and `E[. | C]` is a linear projection on the covariates, with
+`dq/dg = delta / (delta g + 1 - g)^2` (Term II). Term II is mean-zero
+(by `E[A - g(C) | C] = 0`), so it does not shift the point estimate but
+restores Neyman orthogonality w.r.t. the propensity score, ensuring the
+CI is consistent under nonparametric estimation of `g`. The projection
+matters: the per-row `a_med`/`a_dir` carry the corner EIF's
+inverse-probability noise, and multiplying that by `A - g(C)` inflated
+the se by 1.40x at `delta = 2` (fixed 2026-08-22; se/empSD now 0.94-0.97
+across `delta`).
+
+**Scope (exposure type).** The incremental intervention is defined only
+for a **binary** treatment `A`: the odds-ratio tilt
+`q = delta g / (delta g + 1 - g)` requires `g = P(A = 1 | C)` to be a
+Bernoulli probability. Continuous or multi-valued exposures are a
+distinct object requiring a *modified treatment policy* (shift)
+intervention with its own estimand and efficient influence function;
+they are deliberately out of scope here (deferred to future work – a
+separate MTP-mediation paper).
 
 ## Examples
 
@@ -93,8 +110,7 @@ Y <- 0.5 * A + 0.7 * M + 0.3 * C + rnorm(n)
 d <- data.frame(A, M, Y, C)
 incr_pmed(d, deltas = c(0.5, 1, 2))
 #> Incremental mediated elasticity P_med^delta(delta) (onestep-crossfit, n=1500)
-#>   delta=0.5    P_med=0.500  [0.337, 0.662]  (dir=0.147 med=0.147 tot=0.293)
-#>   delta=1      P_med=0.467  [0.224, 0.710]  (dir=0.091 med=0.080 tot=0.171)
-#>   delta=2      P_med=0.434  [0.004, 0.864]  (dir=0.049 med=0.037 tot=0.086)
-#>   curve bends with delta => treatment-by-mediator interaction present.
+#>   delta=0.5    P_med=0.499  [0.405, 0.593]  (dir=0.164 med=0.163 tot=0.327)
+#>   delta=1      P_med=0.493  [0.405, 0.580]  (dir=0.097 med=0.094 tot=0.191)
+#>   delta=2      P_med=0.486  [0.401, 0.570]  (dir=0.049 med=0.046 tot=0.095)
 ```

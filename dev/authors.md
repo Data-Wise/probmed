@@ -5,22 +5,21 @@
 - **[![ORCID iD
   icon](https://orcid.org/sites/default/files/images/orcid_16x16.png)
   Davood Tofighi](https://orcid.org/0000-0001-8523-7776)**. Author,
-  maintainer, copyright holder.
-  [](https://orcid.org/0000-0001-8523-7776)
+  maintainer. [](https://orcid.org/0000-0001-8523-7776)
 
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/data-wise/probmed/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/data-wise/probmed/blob/HEAD/DESCRIPTION)
 
 Tofighi D (2026). *probmed: Probabilistic Effect Sizes for Causal
-Mediation Analysis*. R package version 0.3.0.9000,
+Mediation Analysis*. R package version 0.1.0.9000,
 <https://data-wise.github.io/probmed/>.
 
     @Manual{,
       title = {probmed: Probabilistic Effect Sizes for Causal Mediation Analysis},
       author = {Davood Tofighi},
       year = {2026},
-      note = {R package version 0.3.0.9000},
+      note = {R package version 0.1.0.9000},
       url = {https://data-wise.github.io/probmed/},
     }

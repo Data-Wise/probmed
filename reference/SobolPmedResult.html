@@ -23,7 +23,7 @@ P_med^{sigma2} is well defined even under treatment-by-mediator interaction."><m
 
     <a class="navbar-brand me-2" href="../index.html">probmed</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.0</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,23 +40,15 @@ P_med^{sigma2} is well defined even under treatment-by-mediator interaction."><m
     <li><h6 class="dropdown-header" data-toc-skip>Methods</h6></li>
     <li><a class="dropdown-item" href="../articles/parallel-mediation.html">Parallel Mediation: joint P_med</a></li>
     <li><a class="dropdown-item" href="../articles/gauge-residual.html">Gauge residual: when P_med is unreliable</a></li>
+    <li><a class="dropdown-item" href="../articles/incremental-pmed.html">Incremental P_med</a></li>
+    <li><a class="dropdown-item" href="../articles/modern-estimands.html">Modern estimands and boundary behavior</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>─────────────</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>Integration Guides</h6></li>
     <li><a class="dropdown-item" href="../articles/lavaan-integration.html">lavaan Integration</a></li>
     <li><a class="dropdown-item" href="../articles/mediation-integration.html">mediation Package Integration</a></li>
     <li><a class="dropdown-item" href="../articles/package-comparison.html">Package Comparison</a></li>
   </ul></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-ecosystem" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Ecosystem</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-ecosystem"><li><h6 class="dropdown-header" data-toc-skip>Core Packages</h6></li>
-    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/medfit/">medfit (Foundation)</a></li>
-    <li><a class="dropdown-item" href="https://data-wise.github.io/probmed/">probmed (P_med Effect Size)</a></li>
-    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/rmediation/">RMediation (Confidence Intervals)</a></li>
-    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/medrobust/">medrobust (Sensitivity Analysis)</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Support Packages</h6></li>
-    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/medsim/">medsim (Simulation Infrastructure)</a></li>
-  </ul></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://data-wise.github.io/mediationverse/articles/ecosystem.html">Ecosystem</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-status" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fas fa-chart-line"></span> Status</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-status"><li><a class="external-link dropdown-item" href="https://github.com/data-wise/mediationverse/blob/main/STATUS.md">📊 Package Status Dashboard</a></li>
@@ -77,7 +69,7 @@ P_med^{sigma2} is well defined even under treatment-by-mediator interaction."><m
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Sobol / Variance-Scale Proportion Mediated Result</h1>
-      <small class="dont-index">Source: <a href="https://github.com/data-wise/probmed/blob/v0.3.0/R/sobol-pmed.R" class="external-link"><code>R/sobol-pmed.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/data-wise/probmed/blob/main/R/sobol-pmed.R" class="external-link"><code>R/sobol-pmed.R</code></a></small>
       <div class="d-none name"><code>SobolPmedResult.Rd</code></div>
     </div>
 
@@ -222,15 +214,16 @@ otherwise (<code>NA</code> when the test was not run).</p></dd>
 
 
 <dt id="arg-se-method">se_method<a class="anchor" aria-label="anchor" href="#arg-se-method"></a></dt>
-<dd><p>Character: <code>"analytic"</code> (default, influence-function se) or
-<code>"bootstrap"</code> (nonparametric resample-and-refit se; valid but conservative near
-the boundary). See the boundary coverage section.</p></dd>
+<dd><p>Character: <code>"analytic"</code> (default, influence-function se,
+calibrated from strong effects to the null) or <code>"bootstrap"</code> (nonparametric
+resample-and-refit se; an option, not a remedy). See the boundary coverage
+section.</p></dd>
 
 
 <dt id="arg-reps">reps<a class="anchor" aria-label="anchor" href="#arg-reps"></a></dt>
 <dd><p>Integer: number of repeated cross-fitting fold draws averaged for the
-point estimate (default <code>1</code>); <code>reps &gt; 1</code> removes the near-boundary fold-split
-Monte-Carlo variance (mean DML aggregation).</p></dd>
+point estimate (default <code>1</code>); <code>reps &gt; 1</code> makes the point estimate reproducible
+across fold draws (mean DML aggregation; small efficiency effect).</p></dd>
 
 
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
@@ -276,39 +269,40 @@ brackets <code>p_med</code>); <code>ci_B2</code> is an <em>experimental</em> sin
 not improve coverage (see its note). <strong>Procedure A</strong> (<code>procedure = "A"</code>,
 <code>ci_A</code>) is the legacy <em>gated</em> rule: Wald on rejection, one-sided
 <code>[0, Pmed_upper]</code> otherwise.</p>
-<p><strong>Coverage near the boundary – mechanism and remedies (A-15).</strong> Two distinct
-issues; the second is now decomposed (reproducible fixed-seed variance
-decomposition) into three findings, each with a concrete remedy.</p>
+<p><strong>Coverage near the boundary (A-15).</strong> Two distinct issues.</p>
 <p><em>(1) Procedure A is not uniformly valid.</em> As a pre-test (gating) rule A is only
 pointwise valid: near the boundary it routes downward-selected <code>Delta_m_hat</code> to
 the contracting one-sided bound, a Leeb-Potscher post-selection effect. Prefer B,
-which does not gate.</p>
-<p><em>(2) The near-null <code>Delta_m</code> standard error.</em> Three pinned facts:</p><ul><li><p><strong>Fold-split Monte-Carlo variance dominates.</strong> A single cross-fitting
-fold partition contributes ~80% of <code>Var(Delta_m_hat)</code> in the near-null regime
-(~45% at ordinary effect sizes), persistent across <code>n = 2000</code> to <code>8000</code>. This
-is an algorithmic nuisance, not sampling information: it inflates the
-estimator's variance and makes the single-split point estimate seed-dependent.
-<em>Remedy:</em> <strong><code>reps &gt; 1</code></strong> (repeated cross-fitting – the corner influence matrix
-is averaged over <code>reps</code> independent fold draws), which removes it and yields a
-reproducible, lower-variance point estimate (mean DML aggregation).</p></li>
-<li><p><strong><code>Delta_m_hat</code> is approximately normal at the null.</strong> Recomputing coverage
-with the oracle Monte-Carlo SD gives ~0.95, so the Wald <em>shape</em> is correct for
-the regular contrast <code>Delta_m</code>: the under-coverage is a wrong interval <em>width</em>,
-not a wrong <em>shape</em> (there is no boundary non-normality for <code>Delta_m</code> itself).</p></li>
-<li><p><strong>A residual analytic-se bias remains.</strong> Even after fold noise is removed,
-the analytic influence-function se for <code>Delta_m</code> is ~0.8x its true sampling SD
-near the null (structural; persistent in <code>n</code>); it is well calibrated (ratio
-~1) at ordinary effect sizes. So the <em>default</em> analytic near-null interval –
-and its Procedure-B image – covers only ~0.85. <em>Remedy:</em> <strong><code>se_method = "bootstrap"</code></strong> (resample rows, refit the cross-fit estimator), which recovers a
-valid but mildly <strong>conservative</strong> se (~1.25x the true SD, coverage ~0.97 near
-null) and is calibrated off-boundary.</p></li>
-</ul><p><strong>Practical guidance.</strong> Off the boundary the analytic default is calibrated and
-fast. Near the boundary (the split test does not reject), pass <code>reps &gt; 1</code> for a
-reproducible point and <code>se_method = "bootstrap"</code> for a valid interval (conservative
-there – it trades width for guaranteed coverage). <code>V_T</code> is well calibrated
-throughout. The full coverage grid across the <code>Delta_m</code> transition is validated by
-a separate large simulation. Use <code>procedure = "A"</code> only to reproduce the legacy
-gated behaviour.</p>
+which does not gate. (Measured 2026-08-22: A covers 0.90-0.92 at the
+transition, B 0.95-0.97.)</p>
+<p><em>(2) The near-null <code>Delta_m</code> standard error – exact after the corner-weight
+fix (2026-08-22).</em> Against exact truth in six cells (n = 800 and 3000; strong,
+intermediate and near-null <code>Delta_m</code>; 250 datasets each;
+<code>inst/sim/sobol_shipped_check.R</code>, <code>inst/sim/results/sobol_postfix_summary.csv</code>,
+<code>docs/specs/FINDINGS-2026-08-22-sobol-pmedw-postfix.md</code>) the analytic
+influence-function se of <code>Delta_m</code> matches its sampling SD (ratio 0.99, CV
+0.08) from strong effects to the null, with <code>Delta_m</code> Wald coverage 0.95-0.96;
+the estimator's empirical SD is within 3% of an oracle's with known nuisances;
+and <code>p_med</code>'s Procedure-B1 interval covers 0.952-0.996 (conservative under a
+strong interaction; 0.952 at the boundary with 98% of draws gated). The only
+near-null pathology is the symmetric Wald interval for <code>p_med</code> itself (0.74 at
+the boundary – the same for the oracle: the square map, not the se), which
+Procedure B avoids by construction.</p>
+<p><em>History.</em> Before the fix this entry reported three "pinned facts": that a
+single fold partition was ~80% of <code>Var(Delta_m_hat)</code> near the null, that the
+analytic se was ~0.8x its sampling SD so Procedure B covered ~0.85, and that a
+refit bootstrap (~1.25x, coverage ~0.97) was the remedy. All three measured the
+corner-EIF weight bug fixed in PR #34 (<code>.corner_fit()</code> weighted every row of a
+fold by its first row's propensity; NEWS 0.4.0). Post-fix <code>reps &gt; 1</code> has
+nothing left to remove, and the bootstrap se is 0.84-1.05x the sampling SD
+(slightly <em>narrower</em> at the transition); both remain options, not remedies.</p>
+<p><strong>Practical guidance.</strong> The analytic Procedure-B default is valid across the
+measured transition; nothing needs switching near the boundary. <code>reps &gt; 1</code>
+makes the point estimate reproducible across fold draws (small efficiency
+effect). <code>se_method = "bootstrap"</code> is an option costing <code>B</code> (x <code>reps</code>)
+refits; post-fix it is not better than the analytic se and slightly
+anti-conservative at the transition. <code>V_T</code> is well calibrated throughout. Use
+<code>procedure = "A"</code> only to reproduce the legacy gated behavior.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

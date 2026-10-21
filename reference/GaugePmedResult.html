@@ -17,7 +17,7 @@ overall effect fails and the single-number P_med is unreliable."><meta property=
 
     <a class="navbar-brand me-2" href="../index.html">probmed</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.0</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,23 +34,15 @@ overall effect fails and the single-number P_med is unreliable."><meta property=
     <li><h6 class="dropdown-header" data-toc-skip>Methods</h6></li>
     <li><a class="dropdown-item" href="../articles/parallel-mediation.html">Parallel Mediation: joint P_med</a></li>
     <li><a class="dropdown-item" href="../articles/gauge-residual.html">Gauge residual: when P_med is unreliable</a></li>
+    <li><a class="dropdown-item" href="../articles/incremental-pmed.html">Incremental P_med</a></li>
+    <li><a class="dropdown-item" href="../articles/modern-estimands.html">Modern estimands and boundary behavior</a></li>
     <li><h6 class="dropdown-header" data-toc-skip>─────────────</h6></li>
     <li><h6 class="dropdown-header" data-toc-skip>Integration Guides</h6></li>
     <li><a class="dropdown-item" href="../articles/lavaan-integration.html">lavaan Integration</a></li>
     <li><a class="dropdown-item" href="../articles/mediation-integration.html">mediation Package Integration</a></li>
     <li><a class="dropdown-item" href="../articles/package-comparison.html">Package Comparison</a></li>
   </ul></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-ecosystem" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Ecosystem</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-ecosystem"><li><h6 class="dropdown-header" data-toc-skip>Core Packages</h6></li>
-    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/medfit/">medfit (Foundation)</a></li>
-    <li><a class="dropdown-item" href="https://data-wise.github.io/probmed/">probmed (P_med Effect Size)</a></li>
-    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/rmediation/">RMediation (Confidence Intervals)</a></li>
-    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/medrobust/">medrobust (Sensitivity Analysis)</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Support Packages</h6></li>
-    <li><a class="external-link dropdown-item" href="https://data-wise.github.io/medsim/">medsim (Simulation Infrastructure)</a></li>
-  </ul></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://data-wise.github.io/mediationverse/articles/ecosystem.html">Ecosystem</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-status" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fas fa-chart-line"></span> Status</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-status"><li><a class="external-link dropdown-item" href="https://github.com/data-wise/mediationverse/blob/main/STATUS.md">📊 Package Status Dashboard</a></li>
@@ -71,7 +63,7 @@ overall effect fails and the single-number P_med is unreliable."><meta property=
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Gauge-Calibrated Proportion Mediated Result</h1>
-      <small class="dont-index">Source: <a href="https://github.com/data-wise/probmed/blob/v0.3.0/R/gauge-pmed.R" class="external-link"><code>R/gauge-pmed.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/data-wise/probmed/blob/main/R/gauge-pmed.R" class="external-link"><code>R/gauge-pmed.R</code></a></small>
       <div class="d-none name"><code>GaugePmedResult.Rd</code></div>
     </div>
 
@@ -95,6 +87,13 @@ overall effect fails and the single-number <code>P_med</code> is unreliable.</p>
 <span>  W_ci <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  W_se <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  W_p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  W_ci_wald <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  weak_id <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  weak_id_ratio <span class="op">=</span> <span class="cn">NA_real_</span>,</span>
+<span>  oe_snr <span class="op">=</span> <span class="cn">NA_real_</span>,</span>
+<span>  oe_regular <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  weak_id_ratio_threshold <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  oe_snr_threshold <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  OE <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  IDE <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  IIE <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
@@ -145,6 +144,85 @@ unbounded, or empty); <code>NA</code> if not computed.</p></dd>
 
 <dt id="arg-w-p">W_p<a class="anchor" aria-label="anchor" href="#arg-w-p"></a></dt>
 <dd><p>Numeric: two-sided p-value for <code>H0: W = 0</code>.</p></dd>
+
+
+<dt id="arg-w-ci-wald">W_ci_wald<a class="anchor" aria-label="anchor" href="#arg-w-ci-wald"></a></dt>
+<dd><p>Numeric length-2: symmetric Wald interval for <code>W</code>, retained
+as the reference for the weak-identification diagnostic even under
+<code>se_method = "bootstrap"</code> (where <code>W_ci</code> holds the percentile interval).</p></dd>
+
+
+<dt id="arg-weak-id">weak_id<a class="anchor" aria-label="anchor" href="#arg-weak-id"></a></dt>
+<dd><p>Logical: <code>TRUE</code> when the percentile CI for <code>W</code> is at least
+<code>weak_id_ratio_threshold</code> (default 3) times wider than the symmetric Wald
+interval. <code>NA</code> unless <code>se_method = "bootstrap"</code> (both intervals are
+required), and <code>NA</code> (not <code>FALSE</code>) when the Wald interval has zero width.
+The ratio is a scale-only adaptation of the bootstrap-vs-asymptotic-
+discrepancy idea in Zhan (2026); it is not Zhan's statistic, which is a
+Kolmogorov-Smirnov distance for linear IV.</p>
+<p><strong>What it measures</strong> (2026-08-22, corrected corner weights;
+<code>docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md</code>): a
+bootstrap-vs-Wald width discrepancy, a symptom of bootstrap instability
+near <code>OE = 0</code> – <strong>not a coverage diagnostic</strong>. Against exact truth (4
+cells x 200 datasets, n = 800) draws flagged at <em>any</em> threshold from 1.2
+to 3 have the same Wald coverage as unflagged draws (0.94-0.95 vs
+0.94-0.97). In the regular cells the ratio is 1.02 (median), 1.22 (q95),
+1.49 (q99); near the null it tracks <code>oe_regular = FALSE</code> (P(flag |
+irregular) 0.82-0.88 at thresholds &gt;= 1.5 vs 0.15-0.40 given regular) and
+at 3x adds 2 of the 98 near-null draws that pass A1. No <code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code> is
+issued on it; <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> reports the ratio when it exceeds the threshold.
+<code>oe_regular</code> is the gate to consult, with the Fieller set.</p>
+<p><strong>History.</strong> The flag shipped with its 3x threshold "calibrated above the
+~2x width gap of the anti-conservative Wald interval" and was validated on a
+48,000-rep grid as a "narrowness proxy" whose coverage separation was
+explained by Wald width (<code>inst/sim/results/weakid_validation_cells.csv</code>).
+All of that measured the estimator <em>before</em> the corner-EIF weight fix
+(NEWS 0.4.0): the ~30% se shortfall and the 2x gap were the bug. The
+threshold stays at 3 – with no signal to calibrate to, a new number would
+imply a calibration that does not exist – and the field is kept because a
+user running the bootstrap may want to see its instability.</p></dd>
+
+
+<dt id="arg-weak-id-ratio">weak_id_ratio<a class="anchor" aria-label="anchor" href="#arg-weak-id-ratio"></a></dt>
+<dd><p>Numeric: ratio of the percentile <code>W</code>-interval width to the
+Wald <code>W</code>-interval width; <code>NA</code> if not computed.</p></dd>
+
+
+<dt id="arg-oe-snr">oe_snr<a class="anchor" aria-label="anchor" href="#arg-oe-snr"></a></dt>
+<dd><p>Numeric: signal-to-noise of the denominator, <code>|OE| / se(OE)</code>.
+Small values indicate <code>OE</code> near 0, where <code>W = R/OE</code> is non-regular.</p></dd>
+
+
+<dt id="arg-oe-regular">oe_regular<a class="anchor" aria-label="anchor" href="#arg-oe-regular"></a></dt>
+<dd><p>Logical: <code>TRUE</code> when <code>oe_snr &gt;= 2</code>; <code>FALSE</code> flags a
+near-singular <code>OE</code> – the denominator of the ratio <code>W = R/OE</code>, whose
+interval estimation is the classical Fieller (1954) problem. Computed unconditionally from the
+analytic se(OE) regardless of <code>se_method</code> (only the accompanying
+<code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code> is gated on <code>se_method = "bootstrap"</code>). <code>NA</code> only in the
+degenerate case <code>se(OE) == 0</code>.</p>
+<p><strong>What <code>FALSE</code> means – width, not under-coverage.</strong> (Re-measured with the
+corrected corner weights, 2026-08-22, same reading: in the near-null cell
+flagged draws cover 0.99 at a median Wald width 8.7x |W|, while the
+near-null draws that <em>pass</em> the gate cover 0.90 at 4.1x –
+<code>docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md</code>.) In the 48,000-rep
+validation grid, draws flagged by this gate did <strong>not</strong> under-cover; they
+<em>over</em>-covered (+0.10, in 22/22 qualifying cells, stable across every
+design slice). The mechanism: as <code>OE</code> approaches 0 the ratio <code>W = R/OE</code>
+and its intervals blow up – flagged Wald intervals were a median <strong>21x
+wider than the true |W|</strong> (vs 3x unflagged). Such an interval contains the
+truth and nearly everything else; it is untrustworthy because it is
+<strong>uninformative</strong>, not because it misses. Of the two gates this is the
+stronger diagnostic – its effect survives controlling for interval width
+(+0.036, SE 0.003), unlike <code>weak_id</code>'s. Treat <code>oe_regular = FALSE</code> as
+"the point estimate and CI for <code>W</code> are numerically meaningless here", not
+as a coverage warning.</p></dd>
+
+
+<dt id="arg-weak-id-ratio-threshold-oe-snr-threshold">weak_id_ratio_threshold, oe_snr_threshold<a class="anchor" aria-label="anchor" href="#arg-weak-id-ratio-threshold-oe-snr-threshold"></a></dt>
+<dd><p>Numeric: the threshold values
+actually used for the <code>weak_id</code>/<code>oe_regular</code> gates on this result (see the
+identically-named arguments of <code><a href="ward_residual.html">ward_residual()</a></code>). Stored so <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> can
+report the threshold that was actually applied, not a hardcoded default.</p></dd>
 
 
 <dt id="arg-oe-ide-iie-r">OE, IDE, IIE, R<a class="anchor" aria-label="anchor" href="#arg-oe-ide-iie-r"></a></dt>

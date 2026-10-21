@@ -139,7 +139,7 @@ pmed(ex, method = "parametric_bootstrap", n_boot = 500, seed = 1)
 #> 
 #> Indirect Effect (Product of Coefficients):
 #> Estimate: 0.508 
-#> 95% CI: [ 0.455 ,  0.563 ]
+#> 95% CI: [ 0.456 ,  0.564 ]
 #> 
 #> Inference: parametric_bootstrap 
 #> Bootstrap samples: 500 
