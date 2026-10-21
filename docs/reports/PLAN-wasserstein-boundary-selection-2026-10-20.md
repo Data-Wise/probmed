@@ -50,6 +50,12 @@ package CI. Only a passing scientific study can advance the existing CI workflow
 
 ## Sources and limitations
 
+Pre-simulation numerical amendment: the frozen 32768-draw check failed the
+unchanged 10% tolerance (ratio 1.102004 for lambda=2.807, d=(.4,8), unit variances,
+correlation .3). Increase common antithetic draws to 65536, retaining seed 816,
+all candidates and the independent 262144-draw reference. No dataset results
+were generated before this amendment.
+
 von Luxburg and Franz (2009), Statistica Sinica 19, 1095–1117, sections 2–3,
 https://www3.stat.sinica.edu.tw/sstest/oldpdf/A19n312.pdf: geometric ratio-test
 inversion motivation; their exact normal-mean result does not establish exact
