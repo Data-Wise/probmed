@@ -1,5 +1,13 @@
 # probmed 0.3.0.9000 (development)
 
+## Integration review
+
+* Declare the actual R >= 4.1 source requirement (native pipes), independently
+  of the older minimum needed to read the format-2 datasets.
+* Qualify the finite-Monte-Carlo and calibration claims: common random numbers
+  reduce noise but do not eliminate parameter-dependent simulation error;
+  observed coverage in a finite lattice is not a uniform guarantee.
+
 ## MBCO: composite-null diagnostic
 
 * `method = "mbco"` now reports `@diagnostics$pmed$branch_lr`, the LR
@@ -8,7 +16,7 @@
   `print()` notes that the interval is conservative. At the double null the
   chi-square(1) inversion covers about 1 - alpha^2: 0.997 to 0.998 in the
   calibration, against nominal 0.95. A 100-point local lattice shows the
-  interval never undercovers (minimum 0.9415). It stays conservative until
+  minimum observed coverage was 0.9415, not a uniform guarantee. It stays conservative until
   one path is about 4 SE from zero, so single nulls with a weak other path
   are conservative too.
 * No calibrated cutoff ships. Three candidates (pretest switches and a
@@ -23,8 +31,8 @@
 * The constrained profiles behind `method = "mbco"` (P_med, the indirect
   effect, and the parallel-mediator interval) now minimize with nloptr:
   derivative-free BOBYQA, falling back to Subplex. Before, they used
-  `stats::optim()` (BFGS / Nelder-Mead). nloptr was already in Imports, so no
-  dependency is added.
+  `stats::optim()` (BFGS / Nelder-Mead). The optional nloptr dependency in
+  Suggests is required for MBCO.
 * Results are unchanged: on 84 single-mediator fits (double null, near-null,
   a = 0, b = 0, interior, negative a, near-boundary; with and without a
   covariate; N = 80 and 400), every interval endpoint for P_med and a*b
@@ -39,9 +47,10 @@
 ## `model_bootstrap`: Monte Carlo control (common random numbers)
 
 * Every bootstrap draw now evaluates P_med on one shared set of uniforms
-  (common random numbers), so the simulation error no longer widens the
-  percentile interval. The calibration positive control (T20) showed that
-  error inflated coverage to 0.977 at N = 1000; with it removed, coverage was
+  (common random numbers), reducing independent per-draw simulation noise.
+  Parameter-dependent finite-`n_sim` error can still affect interval width.
+  The calibration positive control (T20) showed that
+  independent noise inflated coverage to 0.977 at N = 1000; with CRN, coverage was
   0.945.
 * A shared error would instead shift the whole interval (a hopper pilot gave
   coverage 0.79 for binary M and Y at N = 1000). Each draw is therefore
@@ -73,7 +82,7 @@
   draws are counted by reason, never recycled. The default method is unchanged.
 * Known-answer check: on a Gaussian fixture the bootstrap SD is within 20% of
   the delta-method SE of the closed-form P_med (coefficients and variances).
-  No coverage calibration has been established yet.
+  Subsequent calibration results and limitations are recorded above.
 * Prespecified calibration (2000 reps × 36 cells; `docs/reports/CALIBRATION-2026-10-14.md`):
   17 PASS, 15 FAIL, 4 INCONCLUSIVE. MBCO is nominal at single-null and
   non-null configurations and conservative (≈0.997) at and near the double

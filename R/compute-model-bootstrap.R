@@ -16,13 +16,14 @@
 #' `"bootstrap_incomplete"`. Failed draws are never recycled or replaced.
 #'
 #' Monte Carlo control: every draw evaluates P_med on one shared set of
-#' uniforms `u` (common random numbers), so the simulation error is common to
-#' all draws and does not widen the interval. That common error would instead
-#' shift the whole interval, so each draw is re-centered as
+#' uniforms `u` (common random numbers), reducing independent per-draw noise.
+#' To remove the shared anchor shift, each draw is re-centered as
 #' `P_u(draw) - P_u(fit) + point`, where `P_u(fit)` is P_med at the fitted
 #' coefficients on the same `u` (a control variate) and `point` uses
-#' `100 * n_sim` simulated pairs. The remaining Monte Carlo error is the point
-#' estimate's own, about `0.5 / sqrt(100 * n_sim)`.
+#' `100 * n_sim` simulated pairs. Parameter-dependent finite-`n_sim` error
+#' remains; this correction does not guarantee unchanged interval width.
+#' The point estimate's Monte Carlo standard deviation is at most approximately
+#' `0.5 / sqrt(100 * n_sim)` for independent bounded pair scores.
 #'
 #' This models uncertainty under the specified sequential model and its
 #' assumed confounding structure. It does not correct misspecification, and it
