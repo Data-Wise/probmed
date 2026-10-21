@@ -22,6 +22,16 @@ new candidate and validating it with disjoint fresh simulations. Do not advance
 I7 or change any frozen diagnostic. Private teaching artifacts remain local;
 no book source, PDF, backup, or local registration belongs in this commit.
 
+2026-10-21 boundary point-risk (branch `feature/boundary-point-risk`, from `dev`; plan
+`tasks/plan-boundary-point-risk.md`, list `tasks/todo-boundary-point-risk.md`): Phase A and
+T3 done; T4/T5 HELD until the author proposes per-cell gates to pre-register. Result: the
+frozen bias/SD < .10 gate cannot be passed by any [0,1]-valued estimator in cells 5 and 7 at
+n = 500 (population TV .1404 vs needed .179; empirical-pass probability <= 8.3e-5). No gate is
+changed, registered or frozen; PRs #54/#55 stay held under the original gates. Evidence and
+reviews: `docs/specs/` (DERIVE, SPEC-...-T3, GRILL, REVIEW-codex A/B1/G, AUDIT-math, LIT).
+Known failures kept on record: T2 SD gate 17/20, T2b C1 8/10. Teaching copy drafted in
+pmed-modern `teaching/foundation/F7-*` (uncommitted there).
+
 2026-10-20 local CI transition: PR #53 integrated into `dev` as 5e3d1a3.
 GitHub CI transition remains staged. Last recorded `main` protection required
 `ubuntu-latest (release)`; recheck live settings before changing it;

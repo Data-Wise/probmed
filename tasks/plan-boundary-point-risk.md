@@ -3,6 +3,10 @@
 Created 2026-10-21 (dev @ `eb6516f`). Task checklist: [`todo-boundary-point-risk.md`](todo-boundary-point-risk.md).
 Does not touch the older `tasks/plan.md` / `tasks/todo.md` (superseded Phase 0-6 work, left as is).
 
+## Status (2026-10-21)
+
+Phase A and T3 done; Reviews A and B1 triaged; grill ledger Q1-Q6 recorded (Q5 reversed, Q1-Q3 and Q6 provisional). T4/T5 held pending the author's per-cell gates. See `docs/specs/` and `.STATUS`.
+
 ## Overview
 
 `.STATUS` next research action: derive the boundary point-estimation risk/bias
