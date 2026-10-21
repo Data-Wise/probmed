@@ -91,7 +91,7 @@ Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-code
   - Accept: ladder, tolerances per n, boundary flag definition and miss-rate gate, between-ladder-point risk control, and which of bias/SD, SE/SD, coverage are kept; Q1-Q3, Q6 promoted from PROVISIONAL or reversed in the ledger.
   - Deps: G3, G1d, G2c
 - [x] Review H (Codex) on the gate tooling G2-G3, 2026-10-21: 2 medium findings accepted and fixed; `docs/specs/REVIEW-codex-boundary-point-risk-H-2026-10-21.md`
-- [ ] **Review G2 (Codex)** on the complete gate set, before any freeze (this is the Review B focus for gates; run once, record verbatim, triage)
+- [ ] **Review G2 (Codex)** RUN 2026-10-21: needs-attention, 3 high + 2 medium, all accepted in triage (`docs/specs/REVIEW-codex-boundary-point-risk-G2-2026-10-21.md`); gate-set edits await the author; re-review the revised set on the complete gate set, before any freeze (this is the Review B focus for gates; run once, record verbatim, triage)
   - Deps: G4
 
 ### Checkpoint G (author)
