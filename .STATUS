@@ -45,6 +45,16 @@ DRAFT and blocked; full exact-commit software CI/status switch remain pending.
 See docs/reports/VALIDATE-wasserstein-joint-contrast-2026-10-20.md. Next research
 must address boundary point estimation and nonregular uncertainty together;
 new candidates require a frozen design and new seeds.
+Boundary point-selection/Fieller research is complete (source f27e796): 14000
+new disjoint datasets, 44000 method rows, zero failures. Fieller interval coverage
+passes every binary cell (.9440–.9715), but neither thresholded point candidate
+passes any binary cell's complete frozen diagnostics. Stronger selection harms
+regular/weak signals; exact-null bias improvement does not fix SE calibration.
+Independent 22-summary audit and numerical/oracle tests pass. No production
+adoption: PRs #54/#55 remain DRAFT and blocked, full local CI/status switch
+pending. See VALIDATE-wasserstein-boundary-selection-2026-10-20.md under
+docs/reports/. Next research must derive point-risk trade-offs before a new
+frozen smooth-boundary candidate; preserve all existing diagnostics.
 GitHub CI transition in progress. `main` still requires `ubuntu-latest (release)`;
 do not disable that check until a real PR head has a verified
 `local-ci/probmed-full` status and branch protection is switched. GitHub Pages
