@@ -26,6 +26,17 @@ an out-of-range estimate; ordinary delete-one jackknife also gives an extreme
 correction on that selected dataset. Do not adopt unguarded jackknife. See
 docs/reports/INVESTIGATE-wasserstein-binary-bias-2026-10-20.md. Full commit-bound
 CI remains pending; no P_med/I6/I7 gate changes.
+Fresh boundary-aware research (source fa353d5) completed 14,000 datasets with
+zero failed fits. The prespecified damped-curvature primary candidate k=4
+passes all four original regular-cell diagnostics, reducing binary n=500
+bias/SD from 0.1292 to 0.0767. Sensitivity k=9 narrowly fails (0.100275).
+Both candidates fail exact/weak-boundary stress cells: primary coverage
+0.5020, 0.5605, 0.7855, despite bounded estimates. No production adoption;
+PRs #54/#55 are verified OPEN and DRAFT to retain the scientific merge hold.
+The required-status switch stays blocked. See
+docs/reports/VALIDATE-wasserstein-boundary-correction-2026-10-20.md.
+Next research: joint-contrast confidence-set inference before the nonsmooth
+distance/ratio map. Full software CI is not a substitute for that validation.
 GitHub CI transition in progress. `main` still requires `ubuntu-latest (release)`;
 do not disable that check until a real PR head has a verified
 `local-ci/probmed-full` status and branch protection is switched. GitHub Pages
