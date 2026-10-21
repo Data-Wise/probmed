@@ -1,0 +1,14 @@
+run: T22, prespecified rerun of the 15 bootstrap cells after T21 (common random numbers, 10 x n_sim point estimate)
+written: 2026-10-14, before the full array was run (one pilot task, below)
+package_commit: 41d71de (feature/crn; control-variate centering)
+pilot: job 4337060 task 720 (boot-5-N1000, reps 1901-2000) at 4bba493 covered 0.79 with uncentered CRN; design fixed before the full array. Pilot output discarded, not collated.
+cells: boot-1..5 x N in {50, 250, 1000}; worker main-mode tasks 421-720 (20 chunks x 100 reps per cell)
+replications: 2000 per cell
+base_seed: 20261015 (CALIB_BASE_SEED); stream rule otherwise identical to calib_manifest.dcf
+controls: n_boot 1000, n_sim 10000 (point estimate uses 10 x n_sim inside the package)
+decision_rule: unchanged and frozen (calib_collate.R): exact 95% binomial CI over all attempted reps; PASS inside [0.93, 0.97], FAIL wholly outside, else INCONCLUSIVE
+collate: CALIB_FAMILY=boot Rscript inst/sim/calibration/calib_collate.R <parts> <out>
+calib_design_sha256: 7de91745a7db4bd4726798f6667e9765d4af4666f27f18db551d3ba275b65bb8
+calib_worker_sha256: 9e39ae252dd43fe44386c1f26cee76dcbd9b6ce0928c336a70effa6b89c688cd
+calib_collate_sha256: b4d5734f28c752fca9e0bcd9e314a88a7d4ca40d4dc613ab2349f031a7a1915b
+calib_fixtures_sha256: 5f36dc8f4487f6c831a12c63e76ff6fb2c9b5ec8f2237ddf2a5533919001c17c

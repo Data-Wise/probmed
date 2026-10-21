@@ -11,8 +11,8 @@ Maximized joint log-likelihood, or NA_real_ if the fit fails.
 }
 \description{
 Profiles out intercepts, the direct effect, and covariate coefficients by OLS,
-so only (a, log Vm, log|b|) are optimized numerically (b is sign-pinned to the
-target branch; Vy is fixed by the P_med constraint). Nelder-Mead is used because
-the Vy <= 0 infeasible region is a hard penalty wall that defeats gradient methods.
+with both compatible coefficient signs explored. Positive Vm and Vy/b^2
+coordinates enforce the original signed constraint; b is profiled by its
+quadratic stationary equation. Two numerical coordinates remain.
 }
 \keyword{internal}

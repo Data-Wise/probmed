@@ -1,3 +1,107 @@
+status: on-hold
+priority: P1
+progress: 90
+kind: package
+cran_state: unblocked
+next: Phase 7 I6 COMPLETE — FAIL (2026-10-19). Hopper job 4341753 completed 300/300 tasks and 60,000 rows; Gaussian candidate d failed the frozen s6/N=1000 coverage-equivalence and width gates (paired difference +0.0090, 90% CI [0.0055, 0.0125], width ratio 1.029588). Stop before I7; see docs/reports/I6-GATE-2026-10-19.md. A separate pmed exact-Gaussian 6,000-per-cell run (job 4342657, seed 20261021) passed its original prespecified six-cell rule: each two-sided 90% exact-binomial coverage interval inside 93%-97%; see pmed's docs/reports/EDIT-REPORT-pmed-exact-gaussian-2026-10-19.md. Author decision (2026-10-20): keep that original gate and withdraw the later 94% minimum proposal. No new exact-Gaussian run is planned. Its 600 chunk hashes, 120,000 rows, six counts/bounds, and original gate independently reconcile; see docs/reports/AUDIT-exact-gaussian-hopper-2026-10-20.md. The independent Gaussian oracle and selected retained-stream replay of I2/I6/e also passed within 1e-12; see docs/reports/VERIFY-exact-gaussian-kernel-replay-2026-10-20.md. Report width and out-of-gate cells separately. medfit's generic bootstrap and RMediation's path-product CI/MBCO do not validate P_med. Phase 8 remains closed. Open: I5, #47, #50 (blocked on its script), medfit#213. Package/release and pmed submission holds remain active; passing checks do not authorize submission, merge, release, or deployment.
+
+2026-10-20 dev-to-main integration PR #54 is open. PR #53 (local CI) is merged
+into `dev`. Review fixes are in PR #55: R >= 4.1 and qualified inference docs.
+BLOCKER: the new public Wasserstein EIF interval uses simulated-corner
+sample size, omitting fitted-model uncertainty. On the same 500 rows,
+raising n_mc from 2,000 to 200,000 reduces SE from 0.03781 to 0.003726.
+See docs/reports/REVIEW-dev-main-blocker-2026-10-20.md. Full CI was stopped;
+neither PR is merged and protection is unchanged. The author selected a proper
+observed-data inference repair. PR #55 now derives a model-based row influence
+function with shared regression/covariate uncertainty and deterministic corner
+integration. Focused tests pass 35 assertions; the existing Wasserstein suite
+passes 42. The omitted-covariate mutation is detected. Repeated-sampling
+validation completed 8,000 datasets with zero failed fits. Three of four cells
+pass the frozen diagnostics; binary n=500 fails bias/SD (0.142817 > 0.10),
+despite SE/SD 0.988387 and coverage 0.9630. Replay attributes 85.8% of bias
+to nonlinear transformation. Author decision: keep merge blocked and investigate
+bias correction. A grouped-jackknife pilot is exploratory only, not a production
+change. The 200-dataset pilot increased RMSE from 0.0678 to 0.1120 and yielded
+an out-of-range estimate; ordinary delete-one jackknife also gives an extreme
+correction on that selected dataset. Do not adopt unguarded jackknife. See
+docs/reports/INVESTIGATE-wasserstein-binary-bias-2026-10-20.md. Full commit-bound
+CI remains pending; no P_med/I6/I7 gate changes.
+Fresh boundary-aware research (source fa353d5) completed 14,000 datasets with
+zero failed fits. The prespecified damped-curvature primary candidate k=4
+passes all four original regular-cell diagnostics, reducing binary n=500
+bias/SD from 0.1292 to 0.0767. Sensitivity k=9 narrowly fails (0.100275).
+Both candidates fail exact/weak-boundary stress cells: primary coverage
+0.5020, 0.5605, 0.7855, despite bounded estimates. No production adoption;
+PRs #54/#55 are verified OPEN and DRAFT to retain the scientific merge hold.
+The required-status switch stays blocked. See
+docs/reports/VALIDATE-wasserstein-boundary-correction-2026-10-20.md.
+Joint-contrast projection research is complete (source f5669a6): another
+14,000 disjoint fresh datasets, zero fit failures, 19 geometry assertions and
+an independent raw-data audit. Boundary projected coverage improves to
+0.9875/0.9910/0.9890, but all three stress cells still fail bias/SE/coverage
+diagnostics; binary regular n=1000 also exceeds the frozen coverage ceiling
+(0.9885 > 0.98). No production adoption or threshold changes. Both PRs stay
+DRAFT and blocked; full exact-commit software CI/status switch remain pending.
+See docs/reports/VALIDATE-wasserstein-joint-contrast-2026-10-20.md. Next research
+must address boundary point estimation and nonregular uncertainty together;
+new candidates require a frozen design and new seeds.
+Boundary point-selection/Fieller research is complete (source f27e796): 14000
+new disjoint datasets, 44000 method rows, zero failures. Fieller interval coverage
+passes every binary cell (.9440–.9715), but neither thresholded point candidate
+passes any binary cell's complete frozen diagnostics. Stronger selection harms
+regular/weak signals; exact-null bias improvement does not fix SE calibration.
+Independent 22-summary audit and numerical/oracle tests pass. No production
+adoption: PRs #54/#55 remain DRAFT and blocked, full local CI/status switch
+pending. See VALIDATE-wasserstein-boundary-selection-2026-10-20.md under
+docs/reports/. Next research must derive point-risk trade-offs before a new
+frozen smooth-boundary candidate; preserve all existing diagnostics.
+Author-requested teaching book is local-only and excluded from Git tracking.
+Scientific merge holds remain unchanged.
+
+2026-10-20 planning checkpoint: historical plan and MBCO checklist labels
+reconciled; research-workflow follow-up filed in
+tasks/PLAN-research-workflow-enhancements-2026-10-20.md (proposed, not executed).
+The old hosted CI-tier plan/checklist are superseded by
+tasks/PLAN-local-ci-transition-2026-10-20.md. The adopted policy is commit-bound
+local validation, not the older hosted-tier proposal. No workflow or protection
+setting is changed by this documentation checkpoint.
+The author's scientific merge hold on PRs #54/#55 remains in force until frozen
+diagnostics pass. Boundary point-estimation and interval calibration must be
+investigated together; passing coverage alone does not clear the point-bias gate.
+Full exact-head local CI and the required-status switch remain pending. This is
+the author-directed hold, not a fresh live PR/check assertion or a new simulation.
+Next research action: derive boundary point-risk trade-offs before freezing a
+new candidate and validating it with disjoint fresh simulations. Do not advance
+I7 or change any frozen diagnostic. Private teaching artifacts remain local;
+no book source, PDF, backup, or local registration belongs in this commit.
+
+2026-10-21 boundary point-risk (branch `feature/boundary-point-risk`, from `dev`; plan
+`tasks/plan-boundary-point-risk.md`, list `tasks/todo-boundary-point-risk.md`): Phase A and
+T3 done. CLOSED 2026-10-21 (author: negative-result endpoint): the G8 pilot of five reference
+estimators failed the author's RMSE tolerances, so T4-T7 are not run; report
+`docs/reports/REPORT-boundary-point-risk-2026-10-21.md`; reopen only if the author names a new
+family. Result: the
+frozen bias/SD < .10 gate cannot be passed by any [0,1]-valued estimator in cells 5 and 7 at
+n = 500 (population TV .1404 vs needed .179; empirical-pass probability <= 8.3e-5). No gate is
+changed, registered or frozen; PRs #54/#55 stay held under the original gates. Evidence and
+reviews: `docs/specs/` (DERIVE, SPEC-...-T3, GRILL, REVIEW-codex A/B1/G, AUDIT-math, LIT).
+Known failures kept on record: T2 SD gate 17/20, T2b C1 8/10. Teaching copy drafted in
+pmed-modern `teaching/foundation/F7-*` (uncommitted there).
+
+2026-10-20 local CI transition: PR #53 integrated into `dev` as 5e3d1a3.
+GitHub CI transition remains staged. Last recorded `main` protection required
+`ubuntu-latest (release)`; recheck live settings before changing it;
+do not disable that check until a real PR head has a verified
+`local-ci/probmed-full` status and branch protection is switched. GitHub Pages
+deployment stays active. No package release or submission decision changes.
+PR #53 review hardened the exact-commit publication guard and
+requires measured core expressions (not an empty coverage result); six isolated
+publication scenarios cover success and failure paths.
+
+2026-10-20 feature branch `feature/exact-gaussian-gate-literature`: `docs/reports/REVIEW-exact-gaussian-coverage-gate-literature-2026-10-20.md` checks the original gate against primary statistical-methods literature and exact binomial calculations. The test structure is defensible, but 93%-97% is an author-chosen tolerance, not a universal statistical recommendation. No gate, I6, I7, or submission decision changed; the subsequent raw Hopper reconciliation is complete; see docs/reports/AUDIT-exact-gaussian-hopper-2026-10-20.md.
+
+────────────────────────────────────────────────
+
 📦 probmed - Probabilistic Effect Sizes for Mediation
 ────────────────────────────────────────────────
 
@@ -5,47 +109,380 @@
 ~/projects/r-packages/active/probmed/
 
 ⏰ LAST UPDATED
-2026-06-21
+2026-10-20
 
 ────────────────────────────────────────────────
 
 🎯 CURRENT STATUS
 Priority: P1
-Status: active
-Progress: 85
+Status: on hold
+Progress: 90
 
-🧭 INTEGRATION STATE (2026-06-21 — corrects the "HELD" framing below)
-dev = main + 90 commits and ALREADY CONTAINS gauge (#8), incremental/g-score (#10),
-sobol, and sensitivity — all merged. The incremental-pmed / my-sensitivity / sobol-pmed
-worktree blocks below are STALE: their code is on dev (R/incremental-pmed.R, R/sensitivity.R,
-R/sobol-pmed.R all present on dev). Worktrees are leftover dirs, safe to prune. Not yet on
-dev: feature/wasserstein-pmed (4 commits, "CRAN-ready", sim validating). main is 90 commits
-stale (still v0.2.0).
+📝 DOCS SYNC (2026-08-22, rforge docs:check + site audit). The edits themselves were
+   committed + pushed as 4494d79 by a PARALLEL SESSION (same git identity, co-author tag
+   "Claude Sonnet 5", 14:12 MDT) while this session was still verifying them — see its
+   bullet under ACTIVE WORKTREE. ⚠️ Two sessions were committing to dev concurrently;
+   content verified identical (clean tree), but watch for this. This block records the
+   AUDIT FINDINGS that commit message does not.
+⚠️ THE ONLINE SITE IS STALE BY CONSTRUCTION, NOT BY NEGLECT: data-wise.github.io/probmed
+   was deployed 2026-06-22 from main @ 0486b01 (= v0.3.0). pkgdown.yaml publishes only on
+   push to main, and main is 57 commits behind dev. Nothing on dev — gauge gates, incr/sobol/
+   wasserstein, rg_flow, multilevel_designs, the decomposition — is visible online until a
+   dev→main release (version bump off .9000; package ON HOLD pending manuscript). Docs
+   deploy is automatic on that push; no manual step.
+   Fixed on dev this pass: (1) _pkgdown.yml reference index listed NONE of the 13
+   post-0.3.0 topics (reachable by URL only) — added "Modern estimands", "Sensitivity
+   analysis", and the 6 S7 classes; check_pkgdown OK, rendered index verified. (2) NEWS.md
+   had no entry for PR #30 (rg_flow_contrast) or PR #33 — added. (3) Refuted framing
+   purged from user-facing docs: vignettes/gauge-residual.qmd ("appropriate construction
+   for a skewed ratio"), roxygen + hand-mirrored Rd for se_method / weak_id / oe_regular
+   ("Bootstrap validity follows from … Lin et al. 2026" — the refit miscitation; "1.00 in
+   all 8 cells"), and the oe_regular warning text. The Rd and its roxygen had already
+   drifted from each other (Rd carried an extra sentence) — now identical. Gauge tests
+   31/31; tools::checkRd clean. Advisory, not changed: README.qmd mentions none of the
+   modern estimators (core-P_med story only) — a content decision, not drift.
 
-🚀 RELEASE 0.3.0 IN PROGRESS (2026-06-21, prep-only — no merge/push to main)
-- Version bumped 0.2.0.9000 → 0.3.0 on feature/gauge-bootstrap-se (3f9eef6); NEWS heading
-  finalized; CLAUDE.md footer synced. Non-CRAN GitHub release (Remotes pin retained).
-- PR #12 OPEN: feature/gauge-bootstrap-se → dev (gauge bootstrap-SE + a0/a1 + vignette +
-  0.3.0 prep). MERGE THIS FIRST.
-- THEN open the release PR (staged): gh pr create --base main --head dev
-  --title "Release: v0.3.0". main needs CI check "ubuntu-latest (release)" green before merge.
-- After main merge: tag v0.3.0 + GitHub release + r-universe picks up main. (user-driven)
+✅ MERGED TO DEV (2026-07-26) — two features, while the CRAN-prep hold stands
+PR #30 `rg_flow_contrast()`/`RgFlowResult` (d8fd376) — scale-indexed classical
+proportion mediated (NIE/TE ratio, NOT P_med) with cluster-robust EIF inference;
+probmed's first multilevel estimator. 458/458 tests passing (+44 over the 414
+baseline, no regressions). Data-contract question left OPEN on purpose: g_l
+refits at every scale and needs raw clustered data + cluster labels, which
+medfit::MediationData doesn't carry (fitted paths only) — resolve via a
+data.frame/matrix + cluster-label API (current) vs. extending MediationData with
+a cluster slot, later.
+PR #31 `multilevel_designs` (31536f2) — probmed's first shipped dataset: 3-row
+cluster-design metadata table (ECLS-K:1998-99, ECLS-K:2011, mediation::student).
+Reviewed and merged on green CI (8/8 checks); one drive-by fix applied during
+review (DESCRIPTION field ordering + a roxygen-skew note, commit 5c26932). Two
+open questions from the PR body carried forward, not resolved: D1 (dataset
+naming convention — first shipped data, no prior art) and Q6 (does the table
+grow beyond 3 rows, and does mediation::student belong beside the two NCES
+cohorts). Author confirmed keeping R >= 3.5 floor, the free-text sampling_note
+schema, and the student row as merged.
 
-🎯 NEXT NON-BLOCKED STEPS (plan, 2026-06-21)
-1. Merge PR #12 (gauge → dev), then open dev→main 0.3.0 release PR. [user triggers]
-2. Package-wide spell cleanup on dev: 15 flags in incr_pmed/sobol_pmed/pmed_sensitivity
+✅ FIXED ON DEV (2026-07-15) — incr_pmed() g-score SE mis-weighting (issue #20)
+PR #21 squash-merged to dev (f9bac34), 8/8 CI green. The g-score EIF term now
+carries the q' tilt weight (a_med/a_dir) instead of bare gamma; CIs were
+over-covering (se_ratio up to ~4.6 at δ=2), now calibrated (1.09/1.09/1.00 at
+δ=0.5/1/2). Point estimate unchanged (T2 mean-zero). Added SE-calibration
+regression test. Spec: docs/specs/SPEC-2026-07-15-incr-se-fix.md. Issue #20
+stays OPEN until dev→main (Closes keyword only auto-fires on default branch).
+
+🧭 INTEGRATION STATE (2026-06-22 — v0.3.0 SHIPPED)
+main == dev at v0.3.0 (merge commit 0486b01, released 2026-06-22). main carries all four
+estimators: gauge (#8), incremental/g-score (#10), sobol, sensitivity. main CI green
+(R-CMD-check, pkgdown, test-coverage). Not yet on dev: feature/wasserstein-pmed (34
+behind / 4 ahead of dev). CORRECTION (2026-06-22, verified via git merge-tree): a normal
+merge does NOT delete sobol — merge-base 0f8b0df predates sobol, so wasserstein never had
+it and cannot delete it; dry-run merge keeps both sobol-pmed.R and wasserstein-pmed.R. The
+only real friction is a roxygen NAMESPACE conflict (auto-resolves via devtools::document())
+plus a stale DESCRIPTION (Version: 0.2.0). Prep = merge dev in, regenerate docs, bump
+version. Leftover worktree dirs (incremental-pmed / my-sensitivity / sobol-pmed) safe to prune.
+
+🚀 RELEASE 0.3.0 SHIPPED (2026-06-22)
+- Pipeline: PR #12 (gauge → dev) → PR #14 (rhub-v2 + cran-comments → dev) → PR #13
+  (dev → main) → tag v0.3.0 + GitHub release. All CI green at every stage.
+  Release: https://github.com/Data-Wise/probmed/releases/tag/v0.3.0
+- Local R CMD check --as-cran: 0E / 0W / 1 NOTE (expected: Remotes pin + new submission;
+  documented in cran-comments.md, buildignored).
+- rhub-v2 workflow_dispatch now live on main; hosted rhub::rhub_check() dispatches
+  (linux/windows/macos) — legacy r-lib template (no dispatch) was the prior blocker.
+- r-universe picks up the v0.3.0 tag on its next build.
+
+✅ DONE (2026-07-15/16, superseding the 2026-06-22 plan below):
+   #20 incr_pmed SE fix (PR #21), #19 Wasserstein CRAN-readiness verified + closed,
+   #11 gauge weak-ID/regularity gates (PR #22 + review-driven follow-up PR #23),
+   #17 closed (stale, already integrated), CRAN-compliance audit (PR #24: unjustified
+   \dontrun{} fixed; 0E/0W/1N confirmed clean otherwise). feature/wasserstein-pmed
+   closed out as fully redundant with dev (see ACTIVE WORKTREE above) — item 3 below
+   is DONE, not merge-prep (branch had zero unique content left).
+   Also: PR #26 (GAUGE_SIM_OUT default aligned across the 3 sim scripts; spawned
+   session). PR #25 — PmedResult validator's ci_lower<=ci_upper check was SILENTLY
+   INERT (an S7 validator returns only its last expression, so independent if-blocks
+   discard all but the final message); now accumulates + returns all. Found by
+   closing a 0% coverage gap on the core print/summary/plot methods, which are now
+   tested. PR #27 (hopper coverage grid + provenance retrieved). PR #28 (weak_id
+   guidance corrected; #11 validation grid scripted — see item 5).
+
+🎯 HISTORICAL NEXT STEPS (plan dated 2026-06-22; superseded by the top `next:` field)
+1. Package-wide spell cleanup on dev: 15 flags in incr_pmed/sobol_pmed/pmed_sensitivity
    Rd + NEWS (gauge surface already clean). Small hygiene branch → dev.
-3. Reconcile coverage grids: gaugeboot (64-cell) + in-repo analytic (12-cell, nsim=1000)
-   → one manuscript coverage table/figure. Design now; numbers when gaugeboot finishes.
-4. Wasserstein merge-prep: review feature/wasserstein-pmed (4 commits, CRAN-ready) for
-   dev; code review non-blocked (only sim-validation waits on wassgrid).
-5. dev → main GitHub release (NON-CRAN — not blocked by medfit): main is 90 commits stale;
-   refreshes main + r-universe with all four estimators. [user triggers]
-6. Manuscript 01-gauge-pmed: cite implemented a0/a1 + validated analytic coverage.
+2. Reconcile coverage grids → one manuscript coverage table/figure. UNBLOCKED
+   (2026-07-16): the gaugeboot numbers are DONE — the 64-task array finished
+   2026-06-23 and is now retrieved into the repo as
+   inst/sim/results/gauge_boot_coverage_nsim2000.csv (8 cells, nsim=2000,
+   16,000 reps, stale-package guard PASSED). Generating scripts also brought
+   in under inst/sim/hopper/ (were cluster-only ⇒ results were unreproducible).
+   Remaining: merge it with the local analytic 12-cell grid into the manuscript
+   table. NOTE the two grids are different designs (see inst/sim/hopper/README.md):
+   local = 24-cell, nsim=1000, closed-form truth, continuous-Y only; hopper =
+   8-cell, nsim=2000, MC truth, includes binary-Y and reports both arms per row.
+3. ~~Wasserstein merge-prep~~ SUPERSEDED — branch closed out, no unique content remained.
+4. Manuscript 01-gauge-pmed: cite implemented a0/a1 + validated analytic coverage.
+   ⚠️ TWO OPEN MANUSCRIPT-SIDE DISCREPANCIES (found 2026-08-21, auditing #11/#32
+   against ~/projects/research/pmed-modern/01-gauge-pmed/manuscript/gauge-pmed.qmd).
+   (b) is manuscript-text-only; (a) may imply a probmed code change depending on
+   how its diagnosis lands — see docs/specs/SPEC-2026-08-21-bootstrap-calibration.md.
+   NOT yet raised in the pmed-modern repo (cross-repo; needs explicit go-ahead there).
+   PRECONDITION VERIFIED: the two DGPs are the same family, so these are direct
+   comparisons, not cross-design analogies. Manuscript (gauge-pmed.qmd:207-212)
+   C~N(0,1), A~Bern(expit(-0.2+0.8C)), M=0.6A+0.4C+e, lp=0.5A+0.7M+tau*AM+0.3C;
+   grid (inst/sim/hopper/run_weakid_validation.R:58-64) is identical with an added
+   `s` scaling the A-paths to sweep identification strength toward OE->0. The 48k
+   grid is literally the manuscript's design continued into the weak-ID regime.
+   (a) COVERAGE IS REPORTED WITHOUT A LENGTH CHECK. ⚠️ PARTLY RETRACTED 2026-08-22 —
+       see docs/specs/REVIEW-2026-08-22-adversarial-refutation.md. What SURVIVES:
+       manuscript Table 1 (tbl-sim) reports percentile-bootstrap coverage near 1 in
+       every cell at nominal 0.95 (analytic: 0.86-0.91) and reads it as success
+       ("restores coverage to nominal-or-above, confirming the ratio diagnosis"),
+       with no accompanying length or informativeness measure. That is the defensible
+       criticism, and it is the one thing both sides of the Canty-Davison-Hinkley vs
+       DiCiccio-Efron exchange agree on.
+       WITHDRAWN: (i) "8/8 cells at 1.00" — two cells store mcse 5e-04, i.e. coverage
+       0.9995, one miss each; it is 6/8 at 1.000. (ii) "an interval at 1.00 is
+       uninformative, not calibrated" — measured interval width is 0.80-0.83x a
+       calibrated normal interval in the two strong-ID cells tested, i.e. NARROWER
+       than calibrated, so length is not what buys the coverage there. (iii) the
+       over-dispersion speculation — reweighting a fixed phi reproduces the analytic
+       variance identically, and the refit arm's SD is correct at n=3000.
+       The A1 "21x wider than |truth|" figure is NOT withdrawn: it comes from
+       A1-flagged near-null draws in the 48k grid, a regime the review never entered.
+       Unreplicated in the tested cells, not refuted — the two regimes can differ.
+       RESOLVED 2026-08-22 (PR #33, docs/specs/FINDINGS-2026-08-22-phi-decomposition.md):
+       the "0.65-0.83 under-dispersion" was a skewness artifact of an UNSTABLE SE
+       (RMS ratio ~1 at n=800), not a biased formula. In the manuscript's regime the
+       shipped estimator's excess variance is fold-split noise; reps>1 (shipped)
+       brings the point estimate to oracle efficiency; coverage stays ~0.88 only
+       because the SE estimator has CV 0.5-0.8 (oracle 0.17). Near the null, even
+       the oracle SE explodes — A1's regime, and the manuscript's Application-section
+       argument. The percentile arm's ~1.00 follows: each resample refits with a
+       fresh partition, so it carries the reps=1 fold-split noise. Open problem, now
+       well-posed: an SE estimator for the reps>1 point estimator; plus robust
+       partition aggregation for binary Y. SE ESTIMATOR FOUND later 2026-08-22 (IF
+       variance from full-sample nuisance fits; oracle-matching CV in 3 cells) —
+       see FINDINGS §Open item 1; shipping it is a code change, not yet started.
+   (b) THE ZHAN (2026) MECHANISM IS ASSERTED, BUT OUR OWN GRID FOUND IT
+       WIDTH-EXPLAINED. Supplement (gauge-pmed.qmd:422-424) states weak
+       identification is "signalled by divergence between the Wald and percentile
+       intervals [@zhan2026]" as established mechanism, and §Validation gates lists
+       it as gate (ii). Item 5's 48k-rep grid found that divergence ~97% explained
+       by Wald width alone (flag coef -0.051 -> -0.002 under a flexible width
+       control). R/gauge-pmed.R's own in-code comment already records this
+       ("Zhan (2026)'s premise did not survive for coverage") and the package docs
+       were rewritten to the corrected hierarchy 2026-07-19 (95dfc0f) — the
+       manuscript supplement was not. CAREFUL FRAMING: the grid tested
+       coverage-beyond-width, which is not identical to weak-ID detection per se,
+       so the honest claim is "the manuscript asserts a mechanism our grid found
+       width-explained," NOT "Zhan is wrong."
+   Bearing on the open issues: (a) is the prior question behind #32 (BCa reshapes
+   endpoints; it does not fix an over-dispersed resample distribution) and (b) is
+   the theory behind #11's A2 gate. Both issues carry this analysis in comments.
+5. #11 threshold validation — SCRIPTED, NOT RUN (PR #28, 2026-07-16).
+   ⚠️ CORRECTION of an earlier entry here: I previously wrote that the gaugeboot
+   grid's median seW_bt/seW_an = 1.82 "independently corroborates"
+   weak_id_ratio_threshold=3. That claim is WITHDRAWN — the transfer does not hold.
+   The stored grid has NO CI widths (verified against the artifact's own columns,
+   not the script): only seW_an, seW_bt, and divW = a max endpoint DISPLACEMENT.
+   Wald width is recoverable (2*z*seW_an, symmetric); percentile width is NOT
+   (quantile-based; seW_bt is a replicate SD, and the skew between them IS the
+   phenomenon). A sweep on the se_ratio = seW_bt/seW_an stand-in looks encouraging
+   (separation peaks near 3) but a direct 64-rep check found se_ratio correlates
+   with the shipped weak_id_ratio at only r ~ 0.41 (Spearman 0.53), different scale
+   (medians 2.39 vs 1.66), agreeing on ">= 3" ~72% of the time. So the shipped
+   threshold remains UNVALIDATED and the hopper grid is still required.
+   COMPLETE 2026-07-16 (hopper job 4277259, 192/192 tasks, 0 failures, 48,000 reps
+   across 24 cells; collate 4277455). CSVs committed to inst/sim/results/:
+   weakid_validation_cells.csv, weakid_threshold_sweep.csv, oe_snr_threshold_sweep.csv.
+   RESULT (as corrected by adversarial re-analysis of the raw 48k reps -- an earlier
+   version of this block said "A2 validated, A1's premise wrong", which had the
+   hierarchy BACKWARDS):
+     * A2 (weak_id, ratio >= 3): direction real but ~97% WIDTH-TAUTOLOGY. Flagged
+       draws have worse Wald coverage in all 24/24 cells (each > 2xSE; sign-test
+       p = 6e-8; pooled -0.016, within-cell -0.030..-0.073 depending on weighting).
+       BUT the flag's numerator adds nothing: regressing covW_an on flag + cell FE
+       gives -0.051, which collapses to -0.002 (SE 0.003) under a flexible
+       log(wid_wald) control, while controlling log(wid_pct) instead makes it
+       STRONGER. The flag operates purely through "the analytic interval is narrow".
+       Honest claim: narrow Wald intervals under-cover in this DGP, and the ratio is
+       a usable SELF-CONTAINED PROXY for narrowness (a user has no cell reference);
+       it does NOT validate the bootstrap-vs-Wald comparison as a diagnostic.
+       Thresholds 1.75-4 are NOT distinguished; apparent "flatness" was an artifact
+       of min-n weighting (equal-cell weighting grows -0.056 -> -0.079 over t =
+       1.75 -> 4). t = 3 is a convention, kept as such.
+     * A1 (oe_regular, oe_snr < 2): the STRONGER diagnostic, with semantics opposite
+       to its docs. Flagged draws OVER-cover (+0.10; 22/22 cells; uncannily stable
+       +0.099..+0.104 across binY / s-range / n slices). Mechanism verified: fires as
+       OE -> 0; flagged intervals are median 21x wider than |truth| vs 3x unflagged,
+       and Wald width 2.0x-5.2x wider within cell. Unlike A2 it SURVIVES the width
+       control (+0.036, SE 0.003 residual), i.e. it carries information beyond width.
+       So A1 flags width-untrustworthiness (uninformative interval), not
+       under-coverage; its docs said "bootstrap CI may be invalid", which reads as a
+       coverage warning and needs restating.
+     * Single-DGP caveat: all 24 cells share one DGP family; no basis for claiming
+       either threshold transfers.
+   Doc surfaces (R/gauge-pmed.R roxygen, man/, NEWS, hopper README) rewritten to this
+   hierarchy 2026-07-19. Commit c4397a1's message carries the superseded framing --
+   history is immutable; this block and the README are the corrected record.
+   OPEN: collator still reports only the pooled sweep (understates A2 ~3x); should
+   report pooled + within-cell (weighting named) + per-cell.
+   Deploying it surfaced two script bugs, both now fixed (see inst/sim/hopper/README.md):
+     - hopper's R_LIBS held probmed 0.2.0.9000, which predates the weak-ID fields;
+       0.3.0.9000 now installed to ~/Rlib/4.4-weakid (4.4-gauge left intact so the
+       coverage grid stays reproducible), and both sbatch files prepend it.
+     - `module load ... 2>/dev/null` silently failed in SLURM's non-login batch shell,
+       killing a first submission (job 4277033) 192/192 at exit 127 in 0s. The scripts
+       now source /etc/profile.d/modules.sh and hard-fail if Rscript is off PATH. The
+       same latent bug was fixed in the coverage grid's sbatch files.
+   ✅ What IS established (metric-independent, from the 16k reps): Wald coverage
+   ~0.88 overall, never nominal in ANY cell — so an absent weak_id flag does not
+   buy nominal coverage. Now documented user-facing (PR #28).
 BLOCKED (not actionable): probmed→CRAN (needs medfit 0.3.x on CRAN, then drop Remotes +
-cran-comments + bump 0.3.0); bootstrap coverage NUMBERS (hopper CPU, gaugeboot queued).
+cran-comments + bump version).
 
 🌿 ACTIVE WORKTREE
+✅ feature/sobol-doc-disposition — MERGED 2026-08-22 (night) as PR #37 → dev, squash
+   c28c31e (8/8 CI green; 504 tests/0 fail NOT_CRAN; R CMD check --as-cran 0E/0W/2N —
+   the .git NOTE fixed via ^\.git$ in .Rbuildignore, the version NOTE clears at the
+   release bump). Executed PLAN-2026-08-22-sobol-doc-disposition: sobol_pmed docs +
+   boundary message (only runtime change) + A-15 test bound; review pass retired the
+   stale near-null rationale from the 0.3.0.9000 feature bullet + reps test comment.
+   Scripts (sobol_shipped_check.R, sobol_collate.R, pmedw_shipped_check.R) and
+   results/sobol_postfix_summary.csv promoted to inst/sim/. Worktree removed, local +
+   remote branch deleted (gate: tip 20791cf == PR head, clean).
+   ✅ feature/weakid-disposition — MERGED 2026-08-22 as PR #35 → dev, squash
+   8fbfa43 (8/8 CI green; 501 tests/0 fail NOT_CRAN; R CMD check --as-cran 0E/0W/2N).
+   Worktree removed, local + remote branch deleted (gate: head 6813b1d == PR head).
+   Session total: PR #34 (weight bug + incr g-score fix) and PR #35 (A2 disposition),
+   both merged; dev CI green through aee7bfb. Open follow-ups (user's call):
+   sobol_pmed / pmedW_dr post-fix coverage; the gauge manuscript's coverage and
+   weak-ID claims (pmed-modern, cross-repo); dev→main release to put the corrected
+   📊 PLAN-2026-08-22-postfix-followups items 1-2 DONE (2026-08-22 night, FINDINGS-2026-08-22-sobol-pmedw-postfix.md):
+   sobol_pmed at oracle efficiency in 6 cells, Delta_m se exact (0.99), Procedure B1
+   valid everywhere (0.952-0.996); the near-null "0.8x se / fold-split 80% / bootstrap
+   remedy" doc story was the weight bug -> needs a worktree (doc + boundary message).
+   pmedW_dr: weight fix cut empSD ~25%, no bias, dr bootstrap calibrated (0.93-1.00)
+   -> nothing to change. Item 3 handoff written (HANDOFF-2026-08-22-gauge-manuscript-postfix.md); tracked as
+   issue #38 (gauge Table 1 rerun + sobol near-null story; pmed-modern edits are the author's).
+   🚀 #38 gauge Table 1 RERUN LAUNCHED on hopper 2026-08-22 21:53 MDT: jobs 4311422 (pilot,
+   tasks 1+33, kept) + 4311424 (tasks 2-32,34-64), account 2016507, all 64 RUNNING at
+   submit; ~6-7 h/task. Dir ~/gauge_boot_postfix/ (frozen ~/gauge_boot/ untouched); lib
+   ~/Rlib/4.4-postfix (known-answer probe matches local dev to 1e-10; old libs give the
+   pre-fix W = 0.2096 — positive control). Grid scripts now take GAUGE_BOOT_DIR/GAUGE_R_LIBS;
+   collate stale-guard relaxed to exact equality (post-fix se_bt ~= se_an is expected).
+   NEXT: when the watcher reports all COMPLETED -> sbatch submit_collate.sh (same env) ->
+   scp gauge_boot_grid.csv to inst/sim/results/gauge_boot_coverage_nsim2000_postfix.csv
+   -> compare with the committed CSV -> post to #38.
+   docs online (package ON HOLD). Issue #11 CLOSED 2026-08-22 (resolved by PR #34 +
+   #35: A2 uninformative, A1 stands); #32 CLOSED not-planned 2026-08-22 (BCa: nothing
+   left for it to fix post-fix; reopen only on a post-fix miscalibration in a regular
+   regime).
+   History of the branch (off dev 699ca23): the code consequence of
+   FINDINGS-2026-08-22-postfix-bootstrap-gates: weak_id no longer warn()s (not a
+   coverage diagnostic); print() reports it as a "bootstrap/Wald width discrepancy";
+   threshold kept at 3; weak_id / weak_id_ratio_threshold / se_method / oe_regular
+   docs rewritten (roxygen + hand-mirrored Rd), vignette, NEWS; scripts promoted to
+   inst/sim/boot_gates_check.R + boot_gates_calibrate.R, results/boot_gates_postfix.csv.
+   Tests: new "weak_id does not warn" test; print-wording test updated.
+   ✅ feature/gauge-se-fullsample — MERGED 2026-08-22 as PR #34 → dev, squash a73efc8
+   (8/8 CI green; 496 tests/0 fail NOT_CRAN; R CMD check --as-cran 0E/0W/2N benign).
+   Worktree removed, local + remote branch deleted (gate: head c99fbad == local tip,
+   merge commit on dev). Review finding (covariate named `v` shadowed the g-score
+   projection's response) fixed in c99fbad via lm.fit on the model matrix. Correction
+   comments posted to #11 and #32.
+   📊 POST-FIX BOOTSTRAP + GATES RE-MEASURED (2026-08-22 evening, 4 cells x 200
+   datasets x B=200): docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md.
+   Percentile arm covers 0.905-0.930 in regular cells (Wald 0.91-0.97), same width
+   as Wald, unstable for binary Y (boot-SD CV 2.2); A2 weak_id CANNOT be calibrated —
+   flagged draws cover as well as unflagged at every threshold 1.2-3; it tracks
+   bootstrap instability = A1; beyond A1 it flags 2/98 near-null draws. A1 stands
+   (flagged = over-covering, 0.99). Disposition (needs worktree): drop the weak_id
+   warning, re-document A2/bootstrap, keep threshold at 3.
+   Next (user's call): the weak_id/bootstrap doc+warning change; sobol_pmed/pmedW_dr coverage; the gauge
+   manuscript's coverage + weak-ID claims rest on the pre-fix grids; dev→main release
+   (puts the corrected docs online; package ON HOLD).
+   History of the branch: opened off dev b3ea449 to ship the
+   full-sample-nuisance se for reps>1; the E2E of the shipped function FAILED
+   (CV 0.99 vs the scratch 0.20), which exposed a CORNER-EIF WEIGHT BUG:
+   `pa <- function(z) ifelse(z == 1, p1, 1 - p1)` with scalar z returns p1[1] —
+   the first fold row's propensity for every row (same for qa). Shipped in
+   10b41aa (PR #8); also in pmedW_dr (R/wasserstein-pmed.R) and the hopper
+   standalone. All three fixed on the branch. With the fix the ORIGINAL cross-fit
+   analytic se is calibrated (n=800, 250 datasets: Wald 0.936 cont / 0.972 binary
+   at reps=1; 0.936 / 0.968 at reps=10; se CV ≈ oracle), the single-partition
+   empSD is within 10% of the oracle, and the binary "transition regime" is gone
+   — the "fold-split noise" of PR #33 WAS the bug. Full-sample se dropped
+   (.corner_fit_full kept as a test probe). Docs rewritten: se_method/reps
+   roxygen + Rd, GaugePmedResult gate docs (history notes), vignette, NEWS
+   (bug-fix entry; PR #33 section marked superseded), FINDINGS (superseded
+   header). New: inst/sim/se_shipped_check.R, se_candidates{,2,3}.R,
+   se_bootstrap_reps.R, results/se_shipped_postfix.csv. Tests: row-order
+   invariance (fails on old weights), pinned post-fix values. SECOND FIX exposed
+   by the first: incr_pmed's g-score term used per-row a_med/a_dir (IPW noise x
+   (A-g)) — se/empSD 1.40 at delta=2 post-weight-fix; now projected on C
+   (0.94/0.95/0.97); incr_pmed empSD also fell 0.083→0.055 from the weight fix
+   alone. NOT re-measured
+   post-fix: bootstrap arm, weak_id/oe_regular gates (48k grid), the 2000-rep
+   grid, incr_pmed/sobol_pmed coverage. Issues #11/#32 and the manuscript's
+   coverage claims need a correction comment — user's call.
+   ⏮ Earlier (2026-08-22, end of previous session) — NO active worktrees.
+   🧹 Both session worktrees removed (user instruction); local + remote branches deleted.
+   • feature/phi-variance-decomposition — ✅ MERGED 2026-08-22 as PR #33 → dev,
+     squash 76680a1 (8/8 CI green; 161 tests/482 expectations/0 fail; R CMD check
+     --as-cran 0E/0W/2N benign; also fixed the AGENTS.md/gauge_sim_out top-level-files
+     NOTE). Deletion gate verified first: PR head 9fc996a == local tip, merge commit
+     on dev. Remote ref removed via `gh api -X DELETE .../git/refs/heads/...` — gh's
+     --delete-branch had silently not done it, and a direct push --delete is
+     guard-blocked on this harness. FINDINGS now live on dev:
+     docs/specs/FINDINGS-2026-08-22-phi-decomposition.md.
+     Result:
+     the "phi under-dispersion" was a skewness artifact of an UNSTABLE SE, not a
+     biased formula. Two mechanisms, separated by oe_snr: (1) strong-ID cells —
+     oracle nuisances give an exact SE and nominal coverage; the shipped estimator's
+     excess variance is fold-split noise (.corner_fit redraws folds per call), and
+     reps>1 (already shipped) brings the POINT estimate to oracle efficiency for
+     continuous Y, but coverage stays ~0.88 because the SE estimator itself has
+     CV 0.5-0.8 across datasets (oracle 0.17); (2) near-null cells — even the
+     oracle SE explodes (se/sd 591, 333): the ratio is non-regular, exactly A1's
+     regime. Binary tau=0 n=800 is a transition cell (dataset-level
+     near-singularity; reps=10 halves but does not finish). ONE well-posed open
+     problem: an SE estimator for the reps>1 point estimator (candidates ranked in
+     FINDINGS §Open) — RESOLVED later the same day, see FINDINGS §Open item 1:
+     full-sample-nuisance IF variance; not yet shipped. Also delivered in PR #33: the A2/Zhan attribution fix in
+     R/gauge-pmed.R + Rd (31/31 gauge tests), closing the correction sweep.
+   • Follow-up docs commit `4494d79` (2026-08-22, direct to dev, no PR — docs-only,
+     existing files) — landed after PR #33 merged: dropped the "Lin et al. 2026"
+     citation from oe_regular/weak_id docs (weak_id is a scale-only adaptation of
+     Zhan's idea, not his statistic; Lin and Han's bootstrap-consistency result
+     holds nuisances fixed and doesn't cover this package's refit-per-resample
+     bootstrap), reframed se_method coverage as fold-split noise/SE instability
+     rather than a biased formula (NEWS.md, R/gauge-pmed.R roxygen, both .Rd,
+     vignettes/gauge-residual.qmd). Also added pkgdown reference sections for
+     "Modern estimands" and "Sensitivity analysis" (_pkgdown.yml). Pushed to
+     origin/dev.
+   • feature/no-refit-bootstrap — created for SPEC Phase 2, which was REFUTED before
+     any code was written (reweighting a fixed phi reproduces the analytic variance
+     and under-covers at 0.775-0.825). Zero unique commits (tip c264b34 is on dev),
+     never pushed. Worktree removed, local branch deleted 2026-08-22.
+   Pre-existing remote refs NOT touched: origin/feature/review-fixes, origin/feature/rg-pmed.
+🧹 BRANCH/WORKTREE CLEANUP (2026-07-15/16): main checkout is `dev`.
+   ONE leftover: ~/.git-worktrees/probmed/sleepy-kowalevski-43379e (detached HEAD
+   6fd517b, branch claude/sleepy-kowalevski-43379e) — created by a spawned task
+   session that has since ended. It is CLEAN and its work is on dev (squash-merged
+   as f8c3ff4 / PR #26), so it is safe to prune; left in place only because it
+   belongs to another session. Remove with `git worktree remove` when convenient.
+   • feature/wasserstein-pmed — CLOSED OUT (was previously listed active): file-by-file diff vs
+     dev confirmed zero unique content (all wasserstein files byte-identical to dev via PR #16);
+     worktree removed, remote branch deleted. Local ref force-delete blocked by branch-guard
+     (needs live confirm) — run `git branch -D feature/wasserstein-pmed` manually if desired.
+   • feature/incr-se-fix (PR #21, #20 fix), feature/gauge-weakid (PR #22, #11),
+     feature/gauge-weakid-fix (PR #23, review follow-up), feature/example-dontrun-fix
+     (PR #24, CRAN-compliance audit) — all merged to dev this session, worktrees + branches
+     cleaned up (local+remote).
+   The historical per-line detail below is retained for reference but those worktrees/lines
+   (feature/incremental-pmed-p2, feature/my-sensitivity, feature/sobol-pmed,
+   feature/incremental-pmed, feature/gauge-bootstrap-se) no longer exist.
+
 feature/gauge-bootstrap-se — ~/projects/r-packages/active/probmed (THIS checkout)
    Gauge SE + remaining-TODO work (R/gauge-pmed.R, ward_residual). Ahead of dev (held):
    (1) 9a6b853 — `reps` arg + `se_method="bootstrap"` for ward_residual;
@@ -59,11 +496,17 @@ feature/gauge-bootstrap-se — ~/projects/r-packages/active/probmed (THIS checko
      analytic_coverage_nsim1000.csv): W-CI coverage 0.855-0.887 near null, FLAT across
      n=500->4000 (NOT finite-n → ratio-skew shape problem, widening won't fix it); rises to
      ~0.90-0.92 at tau=0.8; P_med-CI 0.90-0.935. Confirms the docstring's ~0.85-0.90.
-     BOOTSTRAP half: CANONICAL run is the user's pre-existing hopper setup
+     BOOTSTRAP half: ✅ COMPLETE (finished 2026-06-23; retrieved into the repo
+     2026-07-16 → inst/sim/results/gauge_boot_coverage_nsim2000.csv + generating
+     scripts under inst/sim/hopper/). Results: analytic W-CI 0.859–0.913 (confirms
+     the anti-conservative ~0.85–0.90 claim on an independent nsim=2000 grid),
+     percentile W-CI 1.000 (over-covers / conservative), P_med analytic 0.899–0.934.
+     Guard PASSED (bootstrap≠analytic in 100% of reps, median seW_bt/seW_an=1.82).
+     CANONICAL run was the user's pre-existing hopper setup
      ~/gauge_boot/ (64-cell array `gaugeboot` 4239663 + collator `gbcollate` 4239664),
-     which uses the REAL installed gauge feature-branch package (R_LIBS=$HOME/Rlib/4.4-gauge),
-     PENDING behind wassgrid/a15grid (QOSMaxCpuPerUserLimit) — starts as CPU frees naturally
-     (user chose not to trim research jobs, 2026-06-21). My duplicate 24-cell standalone array
+     which uses the REAL installed gauge feature-branch package (R_LIBS=$HOME/Rlib/4.4-gauge).
+     [HISTORICAL: was PENDING behind wassgrid/a15grid (QOSMaxCpuPerUserLimit) as of
+     2026-06-21; that queue has long since drained.] My duplicate 24-cell standalone array
      (4239667) was CANCELLED as redundant. The in-repo standalone runner
      (inst/sim/gauge_coverage_standalone.R, verified == ward_residual via
      check_standalone_equiv.R) is kept as an install-free reproduction. COLLECT gaugeboot:
@@ -71,6 +514,19 @@ feature/gauge-bootstrap-se — ~/projects/r-packages/active/probmed (THIS checko
    • vignette → vignettes/gauge-residual.qmd (registered in _pkgdown.yml).
    Full suite green (0 fail; only skip_on_cran g-score sims skipped).
    Companion to the gauge-pmed line merged via PR #8; manuscript 01-gauge-pmed sec-extensions.
+   ➕ RECENTLY DONE (2026-06-25, P2 submission waves via subagent-driven TDD on this branch):
+   • Wave 1 — incr_sensitivity() exported (R/incremental-sensitivity.R, commits 3082801/43f35c7):
+     per-δ M–Y tipping bias over an IncrPmedResult curve (delegates row-wise to pmed_sensitivity();
+     tipping=-med, tipping_threshold=threshold*tot-med). +test-incremental-sensitivity.R (7 assert,
+     incl. non-zero-threshold block). NEWS entry + incr_pmed SE wording corrected (g-score term II).
+   • Wave 2 — vignettes/incremental-pmed.qmd (commit 0f6707a): P_med^δ curve walkthrough
+     (why-a-curve, A*M-interaction worked example, term-II inference, incr_sensitivity). Renders clean.
+   • rforge document+test green: suite 337/0 (up from 326); no tracked-Rd regeneration (docs current).
+   ⚠️ This work logically belongs to the Paper-2 (incremental) line, not gauge SE — it accreted here
+     because this is the active checkout. Split into its own feature branch before integrating to dev
+     if you want a clean per-paper PR history.
+   GATED (needs user decision + cross-repo permission): Wave 3 (issue #6 continuous-exposure extension);
+     pmed-modern manuscript halves of issues #4/#5 + SUBMISSION.md checkbox flips.
 
 feature/sobol-pmed — ~/projects/r-packages/worktrees/probmed-sobol (1edac0b)
 feature/wasserstein-pmed — ~/projects/r-packages/worktrees/probmed-wasserstein-pmed (634e95c)
@@ -175,3 +631,29 @@ vignettes/      # Usage tutorials
 🔗 DEPENDENCIES
 Imports: medfit, methods, S7, stats
 Part of: mediationverse ecosystem
+
+Moved from CLAUDE.md footer (2026-10-21), written 2026-08-22/2026-07-26:
+Active research lines beyond the merged core (see `.STATUS` for worktree detail):
+gauge-calibrated P_med (`ward_residual`/`GaugePmedResult`, PR #8 + bootstrap-SE follow-up),
+incremental P_med^δ (`incr_pmed`, g-score EIF merged via PR #10; per-δ M–Y tipping via
+`incr_sensitivity`, feature/gauge-bootstrap-se), Sobol variance-scale (`sobol_pmed`),
+Wasserstein, and the shared M–Y sensitivity helper (`pmed_sensitivity`).
+
+2026-08-22: the shared corner-EIF engine had weighted every row of a cross-fit fold by
+its first row's propensity since PR #8 (fixed PR #34). Re-measured post-fix: the gauge
+analytic Wald is calibrated (PR #35 dropped the `weak_id` warning), `sobol_pmed`'s
+near-null "bootstrap remedy" story was the bug (PR #37), `pmedW_dr` unchanged in
+conclusions. Manuscript-side corrections are tracked in issue #38; the gauge Table 1
+rerun runs on hopper from `~/gauge_boot_postfix/` (`inst/sim/hopper/README.md`).
+
+Two additions merged 2026-07-26, deliberately **not** P_med variants:
+`rg_flow_contrast()`/`RgFlowResult` (PR #30) — scale-indexed classical proportion
+mediated (NIE/TE) with cluster-robust EIF inference, probmed's first multilevel
+estimator; the data-contract question (raw clustered data vs. extending
+`medfit::MediationData` with a cluster slot) is open, deliberately unresolved.
+`multilevel_designs` (PR #31) — the package's first shipped dataset, cluster-design
+metadata for ECLS-K:1998-99/2011 + `mediation::student`; the naming convention (D1)
+and whether the table grows beyond 3 rows (Q6) are open follow-ups from the PR. Three
+other PR-body questions were resolved at merge, not left open: the R >= 3.5 floor (D7),
+the free-text `sampling_note` schema over structured columns (D2), and keeping the
+`mediation::student` row beside the two NCES cohorts (D6) — all kept as merged.

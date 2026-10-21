@@ -30,6 +30,14 @@ S7::method(print, PmedResult) <- function(x, digits = 3, ...) {
 
   cat("\n")
   cat("Inference:", x@method, "\n")
+  if (length(x@diagnostics$pmed)) {
+    cat("Interval status (P_med / IE):", x@diagnostics$pmed$status,
+        "/", x@diagnostics$ie$status, "\n")
+    if (isTRUE(x@diagnostics$pmed$near_double_null)) {
+      cat("Note: neither path is individually significant (near a = b = 0);",
+          "the MBCO interval is conservative here (coverage near 1 - alpha^2).\n")
+    }
+  }
   if (!is.na(x@n_boot)) {
     cat("Bootstrap samples:", x@n_boot, "\n")
   }

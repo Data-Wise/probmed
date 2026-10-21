@@ -4,7 +4,17 @@
 \alias{.pmed_compute}
 \title{Core P_med Computation Dispatcher}
 \usage{
-.pmed_compute(extract, x_ref, x_value, method, n_boot, ci_level, seed, ...)
+.pmed_compute(
+  extract,
+  x_ref,
+  x_value,
+  method,
+  n_boot,
+  ci_level,
+  seed,
+  n_sim = 10000,
+  ...
+)
 }
 \description{
 Core P_med Computation Dispatcher

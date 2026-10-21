@@ -1,6 +1,6 @@
 Package: probmed
 Title: Probabilistic Effect Sizes for Causal Mediation Analysis
-Version: 0.3.0
+Version: 0.3.0.9000
 Authors@R: person(given = "Davood", family = "Tofighi",
     email = "dtofighi@gmail.com",
     role = c("aut", "cre", "cph"),
@@ -10,16 +10,21 @@ Description: Compute P_med, a scale-free probabilistic effect size for
 License: MIT + file LICENSE
 URL: https://data-wise.github.io/probmed/, https://github.com/data-wise/probmed
 BugReports: https://github.com/data-wise/probmed/issues
+Depends:
+    R (>= 4.1)
 Encoding: UTF-8
 Language: en-US
 Roxygen: list(markdown = TRUE)
+LazyData: true
 Suggests:
     alabama,
     EValue (>= 4.1.0),
     knitr,
     lavaan,
+    lpSolve,
     MASS,
     mediation,
+    nloptr,
     rmarkdown,
     testthat (>= 3.0.0),
     quarto
@@ -28,8 +33,7 @@ Imports:
     medfit (>= 0.3.0),
     methods,
     S7 (>= 0.2.1),
-    stats
-Remotes:
-    data-wise/medfit@v0.3.0
+    stats,
+    utils
 VignetteBuilder: knitr, quarto
 RoxygenNote: 7.3.3

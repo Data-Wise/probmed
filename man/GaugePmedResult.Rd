@@ -13,6 +13,13 @@ GaugePmedResult(
   W_ci = integer(0),
   W_se = integer(0),
   W_p = integer(0),
+  W_ci_wald = numeric(0),
+  weak_id = NA,
+  weak_id_ratio = NA_real_,
+  oe_snr = NA_real_,
+  oe_regular = NA,
+  weak_id_ratio_threshold = 3,
+  oe_snr_threshold = 2,
   OE = integer(0),
   IDE = integer(0),
   IIE = integer(0),
@@ -44,6 +51,76 @@ unbounded, or empty); \code{NA} if not computed.}
 \item{W_se}{Numeric: standard error of \code{W}.}
 
 \item{W_p}{Numeric: two-sided p-value for \code{H0: W = 0}.}
+
+\item{W_ci_wald}{Numeric length-2: symmetric Wald interval for \code{W}, retained
+as the reference for the weak-identification diagnostic even under
+\code{se_method = "bootstrap"} (where \code{W_ci} holds the percentile interval).}
+
+\item{weak_id}{Logical: \code{TRUE} when the percentile CI for \code{W} is at least
+\code{weak_id_ratio_threshold} (default 3) times wider than the symmetric Wald
+interval. \code{NA} unless \code{se_method = "bootstrap"} (both intervals are
+required), and \code{NA} (not \code{FALSE}) when the Wald interval has zero width.
+The ratio is a scale-only adaptation of the bootstrap-vs-asymptotic-
+discrepancy idea in Zhan (2026); it is not Zhan's statistic, which is a
+Kolmogorov-Smirnov distance for linear IV.
+
+\strong{What it measures} (2026-08-22, corrected corner weights;
+\code{docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md}): a
+bootstrap-vs-Wald width discrepancy, a symptom of bootstrap instability
+near \code{OE = 0} -- \strong{not a coverage diagnostic}. Against exact truth (4
+cells x 200 datasets, n = 800) draws flagged at \emph{any} threshold from 1.2
+to 3 have the same Wald coverage as unflagged draws (0.94-0.95 vs
+0.94-0.97). In the regular cells the ratio is 1.02 (median), 1.22 (q95),
+1.49 (q99); near the null it tracks \code{oe_regular = FALSE} (P(flag |
+irregular) 0.82-0.88 at thresholds >= 1.5 vs 0.15-0.40 given regular) and
+at 3x adds 2 of the 98 near-null draws that pass A1. No \code{warning()} is
+issued on it; \code{print()} reports the ratio when it exceeds the threshold.
+\code{oe_regular} is the gate to consult, with the Fieller set.
+
+\strong{History.} The flag shipped with its 3x threshold "calibrated above the
+~2x width gap of the anti-conservative Wald interval" and was validated on a
+48,000-rep grid as a "narrowness proxy" whose coverage separation was
+explained by Wald width (\code{inst/sim/results/weakid_validation_cells.csv}).
+All of that measured the estimator \emph{before} the corner-EIF weight fix
+(NEWS 0.3.0.9000): the ~30\% se shortfall and the 2x gap were the bug. The
+threshold stays at 3 -- with no signal to calibrate to, a new number would
+imply a calibration that does not exist -- and the field is kept because a
+user running the bootstrap may want to see its instability.}
+
+\item{weak_id_ratio}{Numeric: ratio of the percentile \code{W}-interval width to the
+Wald \code{W}-interval width; \code{NA} if not computed.}
+
+\item{oe_snr}{Numeric: signal-to-noise of the denominator, \verb{|OE| / se(OE)}.
+Small values indicate \code{OE} near 0, where \code{W = R/OE} is non-regular.}
+
+\item{oe_regular}{Logical: \code{TRUE} when \code{oe_snr >= 2}; \code{FALSE} flags a
+near-singular \code{OE} -- the denominator of the ratio \code{W = R/OE}, whose
+interval estimation is the classical Fieller (1954) problem. Computed unconditionally from the
+analytic se(OE) regardless of \code{se_method} (only the accompanying
+\code{warning()} is gated on \code{se_method = "bootstrap"}). \code{NA} only in the
+degenerate case \code{se(OE) == 0}.
+
+\strong{What \code{FALSE} means -- width, not under-coverage.} (Re-measured with the
+corrected corner weights, 2026-08-22, same reading: in the near-null cell
+flagged draws cover 0.99 at a median Wald width 8.7x |W|, while the
+near-null draws that \emph{pass} the gate cover 0.90 at 4.1x --
+\code{docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md}.) In the 48,000-rep
+validation grid, draws flagged by this gate did \strong{not} under-cover; they
+\emph{over}-covered (+0.10, in 22/22 qualifying cells, stable across every
+design slice). The mechanism: as \code{OE} approaches 0 the ratio \code{W = R/OE}
+and its intervals blow up -- flagged Wald intervals were a median \strong{21x
+wider than the true |W|} (vs 3x unflagged). Such an interval contains the
+truth and nearly everything else; it is untrustworthy because it is
+\strong{uninformative}, not because it misses. Of the two gates this is the
+stronger diagnostic -- its effect survives controlling for interval width
+(+0.036, SE 0.003), unlike \code{weak_id}'s. Treat \code{oe_regular = FALSE} as
+"the point estimate and CI for \code{W} are numerically meaningless here", not
+as a coverage warning.}
+
+\item{weak_id_ratio_threshold, oe_snr_threshold}{Numeric: the threshold values
+actually used for the \code{weak_id}/\code{oe_regular} gates on this result (see the
+identically-named arguments of \code{\link[=ward_residual]{ward_residual()}}). Stored so \code{print()} can
+report the threshold that was actually applied, not a hardcoded default.}
 
 \item{OE, IDE, IIE, R}{Numeric: overall, interventional direct, interventional
 indirect effects and the remainder.}

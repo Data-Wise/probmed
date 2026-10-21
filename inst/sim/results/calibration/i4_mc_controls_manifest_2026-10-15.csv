@@ -1,0 +1,32 @@
+item,value
+run_date,2026-10-15
+status,pre-submission pilot; no I4 outcomes inspected
+approval,user approved +/-0.01 coverage-equivalence margin on 2026-10-15
+seed_base,20261016
+rng_kind,L-Ecuyer-CMRG; same task-to-chunk mapping and 8-worker mclapply topology as I2
+replications_per_cell,2000
+bootstrap_resamples_per_replication,1000
+cells,"s1,s3,s4,s6,s7,s8 x N=50,250,1000"
+chunks_per_cell,10 x 200 outer reps
+candidates,a=fresh K=5000; b=CRN+control-variate K=50000; c=fresh K=5000 variance correction; d=fresh K=200000 Gaussian / 1000000 binary; e=exact Gaussian I2 reference
+paired_coverage_gate,"90% paired bootstrap CI over 10000 outer-ID resamples wholly inside [-0.01,+0.01]"
+width_gate,"mean candidate/reference interval-width ratio in [0.98,1.02] per cell"
+method_seed_rule,"independent deterministic seed per outer replication, resample, and fresh-draw candidate; bootstrap row indices replayed first"
+local_runner,/private/tmp/probmed_i4_runner.R
+sha256_runner,78c7eb785d3e47252ed8cea37d7bf23db8ae7cf71ff24437bf09859d5acac92d
+sha256_i2_reference,1b027e323bc1e60c9583c6e6f7f0822fef438f90694946b4abe7065bd5115556
+sha256_pmed_config,fc31d5e4c600ad35b9f529c0913d33d3418b68e96b10b2fcfcab1880851c8862
+sha256_pmed_simulation_functions,2739cd05bce804f63d484cae0022cdbe15463f5f4b30df72acafdc95c302ae5d
+sha256_pmed_mbco,e6c1d3cee2b333ba1f64491d7be516b084867475f3949c706822b88d30b0a7d0
+sha256_pmed_run_simulation_chunk,f18a5899587f72c6cd6867a771c1f6fffab26f32d61b6dd9ddf880b9e78f67cd
+preflight,full 200-rep s1 N=50 chunk matched I2 exactly for point estimates and both CI endpoints; max absolute delta=0
+preflight_local,200-rep full chunk exact replay; max point/endpoint delta to I2=0
+preflight_hopper,200-rep full chunk exact replay on R 4.4.0; max point/endpoint delta to I2=9.99e-16
+binary_smoke,"s3 N=50; 2 outer reps x 10 resamples; K_BOOT=100, K_LARGE=1000; 0 failed resamples (smoke only, not inference)"
+slurm_pilot,"job 4339012_1 COMPLETED, exit 0, elapsed 1 second"
+full_results_status,not yet inspected; only bounded smoke/pilot outputs inspected
+planned_task_ids,"1-10,21-30,41-50,101-110,121-130,141-150,151-160,171-180,191-200,251-260,271-280,291-300,301-310,321-330,341-350,351-360,371-380,391-400"
+array_concurrency,16
+slurm_cpus_per_task,8
+slurm_memory,8G
+slurm_walltime,12:00:00

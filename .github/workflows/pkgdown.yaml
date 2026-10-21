@@ -3,10 +3,6 @@
 on:
   push:
     branches: [main, master]
-  pull_request:
-    # dev included for build validation only; deploy step is gated on
-    # github.event_name != 'pull_request', so dev never publishes the site.
-    branches: [main, master, dev]
   release:
     types: [published]
   workflow_dispatch:
@@ -18,9 +14,8 @@ permissions: read-all
 jobs:
   pkgdown:
     runs-on: ubuntu-latest
-    # Only restrict concurrency for non-PR jobs
     concurrency:
-      group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
+      group: pkgdown-deploy
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     permissions:
@@ -41,12 +36,24 @@ jobs:
           extra-packages: any::pkgdown, local::.
           needs: website
 
+      - name: Hide agent-instruction docs from pkgdown
+        run: |
+          # pkgdown renders every root-level *.md into a site page (HTML, plus
+          # an llms.txt-era markdown twin, a sitemap.xml entry, and a
+          # full-text search.json entry — see pkgdown:::package_mds(), which
+          # hardcodes README/LICENSE/NEWS/cran-comments as the only skipped
+          # root .md files). CLAUDE.md and AGENTS.md must stay at the repo
+          # root for Claude Code / Codex discovery, so they can't be moved
+          # like other internal docs. This checkout is a disposable CI copy,
+          # so just remove them here before the build ever sees them; the
+          # tracked files are untouched.
+          rm -f CLAUDE.md AGENTS.md
+
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
 
       - name: Deploy to GitHub pages 🚀
-        if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4.8.0
         with:
           clean: false

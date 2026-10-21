@@ -145,18 +145,11 @@
   for (i in seq_along(starts)) {
     s <- starts[[i]]
     if (!all(is.finite(s))) next
-    o <- try(
-      stats::optim(s, nll,
-        method = "Nelder-Mead",
-        control = list(
-          # reltol 1e-8 is ample for a CI (P_med to ~1e-4) and avoids many extra
-          # iterations chasing negligible log-likelihood gains near the optimum.
-          maxit = if (i == 1L) maxit else maxit_extra, reltol = 1e-8
-        )
-      ),
-      silent = TRUE
-    )
-    if (!inherits(o, "try-error") && o$value < 1e9) {
+    # ftol_rel 1e-8 is ample for a CI (P_med to ~1e-4) and avoids many extra
+    # evaluations chasing negligible log-likelihood gains near the optimum.
+    o <- .mbco_nlopt(s, nll, "NLOPT_LN_SBPLX",
+                     maxeval = if (i == 1L) maxit else maxit_extra, ftol_rel = 1e-8)
+    if (!is.null(o) && is.finite(o$value) && o$value < 1e9) {
       best <- max(best, -o$value, na.rm = TRUE)
     }
   }

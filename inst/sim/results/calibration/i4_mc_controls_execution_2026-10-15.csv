@@ -1,0 +1,9 @@
+item,value
+job_id,4339014
+submitted_at_utc,2026-10-15T21:42:17+00:00
+initial_scheduler_state,10 tasks RUNNING; remaining tasks PENDING for resources
+pilot_job,4339012_1 COMPLETED exit 0
+result_status,full I4 results not yet inspected
+observed_progress,30/180 planned tasks complete across s1 N=50/250/1000; tasks 101-110 (s3 N=50 binary) running 45m49s-52m05s at latest check
+array_mapping,planned sparse IDs map six selected scenarios x N=50,250,1000; gaps 11-20 and others are excluded scenario/N cells, not omitted chunks
+runtime_update,original 3-4 h estimate stale; first binary-cell duration remains unmeasured; total likely exceeds 9 h

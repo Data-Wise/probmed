@@ -10,6 +10,8 @@
 ^\.STATUS\.backup$
 ^\.claude$
 ^CLAUDE\.md$
+^AGENTS\.md$
+^gauge_sim_out$
 ^README_files$
 ^docs$
 ^\.github$
@@ -21,3 +23,11 @@
 ^vignettes/lavaan-integration_files$
 ^vignettes/mediation-integration\.qmd$
 ^vignettes/mediation-integration_files$
+^\.remember$
+^\.superpowers$
+^data-raw$
+^\.git$
+^scripts$
+^tasks$
+^\.token-optimizer$
+^inst/sim/results/calibration$

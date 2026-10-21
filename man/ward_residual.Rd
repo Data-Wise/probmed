@@ -16,6 +16,8 @@ ward_residual(
   B = 200L,
   a0 = 0,
   a1 = 1,
+  weak_id_ratio_threshold = 3,
+  oe_snr_threshold = 2,
   ...
 )
 }
@@ -39,21 +41,50 @@ significant (default \code{TRUE}).}
 the point estimate (default \code{1}). \code{reps > 1} averages the corner influence
 matrix over independent fold assignments, removing the fold-split component
 of the variance; the analytic se then adds the residual fold Monte-Carlo
-variance of the averaged point.}
+variance of the averaged point. With the corrected corner weights (see
+\code{se_method}) that component is small -- n = 800, continuous: empSD 0.063 at
+\code{reps = 1} vs 0.061 at \code{reps = 10}, oracle 0.056 -- so the default is
+usually enough.}
 
-\item{se_method}{Character: \code{"analytic"} (default, influence-function se,
-symmetric Wald CI) or \code{"bootstrap"}. The analytic se for the ratios \code{W} and
-\code{P_med} is right-skewed with a median below the empirical SD, so the
-symmetric Wald CI is mildly \strong{anti-conservative} (sub-nominal coverage
-\eqn{\approx 0.85}-\eqn{0.90}). Under \code{"bootstrap"} the CIs for \code{W} and
-\code{P_med} are the tail-aware \strong{percentile} intervals of the nonparametric
-bootstrap (resample rows, refit) -- the appropriate construction for a
-skewed ratio (widening a symmetric se fails to cover it); \code{W_se}/\code{p_med} se are
-still reported as bootstrap dispersion summaries. \code{reps > 1} and
-\code{se_method = "bootstrap"} compose. Bootstrap validity follows from the
-estimator being a Neyman-orthogonal cross-fit (DML-type) functional
-(Lin et al. 2026); it requires the ratio to be regular, i.e. \code{OE} bounded
-away from 0 -- see the Fieller diagnostic for the near-null case.}
+\item{se_method}{Character: \code{"analytic"} (default) or \code{"bootstrap"}. Under
+\code{"analytic"} the se is the influence-function se of the cross-fit one-step
+estimator and the CI is symmetric Wald. Measured against exact truth with
+the corrected corner weights (\code{inst/sim/se_shipped_check.R}, 250 datasets
+per cell, n = 800): Wald coverage 0.936 (continuous \code{Y}, strong
+identification), 0.972 (binary \code{Y}), 0.912 (intermediate \code{OE}), with the
+se's dispersion across datasets matching an oracle that knows the nuisances
+(CV 0.23 vs 0.18). Under \code{"bootstrap"} the CIs for \code{W} and \code{P_med} are
+\strong{percentile} intervals of a nonparametric bootstrap that resamples rows
+and refits the whole cross-fit (a fresh partition each resample);
+\code{W_se}/\code{p_med} se are then bootstrap dispersion summaries. Re-measured
+with the corrected weights (\code{inst/sim/boot_gates_check.R}, B = 200, 200
+datasets per cell): percentile coverage 0.905 (continuous) / 0.930
+(binary) / 0.920 (intermediate) at the same width as the Wald interval,
+and a bootstrap SD that is unstable for binary \code{Y} (CV 2.2 across
+datasets vs 0.33 analytic) -- an option for users who want a refit
+bootstrap, not a remedy for anything, at \code{B} (x \code{reps}) refits. The
+bootstrap-consistency result of Lin and Han (2026) for cross-fit DML
+functionals holds the nuisances fixed and does \strong{not} cover this
+refit-per-resample scheme. \code{reps > 1} and \code{se_method = "bootstrap"}
+compose. Near the null (\code{OE} not bounded away from 0) the ratio is
+non-regular for every arm -- even an oracle's se explodes -- use the
+Fieller set.
+
+\strong{History.} Every coverage figure this package reported before
+2026-08-22 -- the 2,000-rep coverage grid
+(\code{inst/sim/results/gauge_boot_coverage_nsim2000.csv}: Wald ~0.85-0.90,
+percentile ~1.00), the 48,000-rep gate-validation grid, and the variance
+decomposition (\code{inst/sim/results/phi_decomp_summary.csv};
+\code{docs/specs/FINDINGS-2026-08-22-phi-decomposition.md}) -- was produced
+with a corner-EIF weight bug: \code{ifelse()} on a scalar test returned the
+\strong{first fold row's} propensity (and mediator-density proxy) for every row,
+so the inverse-probability weights were one arbitrary constant per fold
+(NEWS, 0.3.0.9000). The "fold-split noise" those grids diagnosed was this
+bug. They are superseded. The bootstrap arm and both gates were
+re-measured with the fix the same day
+(\code{docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md},
+\code{inst/sim/results/boot_gates_postfix.csv}): see above, and the \code{weak_id} /
+\code{oe_regular} property docs of \link{GaugePmedResult}.}
 
 \item{B}{Integer: number of bootstrap resamples when \code{se_method = "bootstrap"}
 (default \code{200}). Cost is \code{B} (x \code{reps}) refits.}
@@ -66,6 +97,21 @@ two} levels is an error, not a silent subset: restricting to \verb{\{a0,a1\}}
 would shift the covariate-averaging population and estimate a different
 (sub-population) gauge. Filter to the two intended levels first.
 Multi-valued / continuous exposures are future work.}
+
+\item{weak_id_ratio_threshold}{Numeric: the \code{weak_id} flag fires when the
+percentile \code{W}-CI is at least this many times wider than the Wald interval
+(default \code{3}). \strong{Not calibrated to coverage, and cannot be} (2026-08-22,
+corrected weights): flagged and unflagged draws cover alike at every
+threshold from 1.2 to 3 -- see the \code{weak_id} property of \link{GaugePmedResult}.
+Left at 3 so the flag stays rare outside the near-null regime (0\% of
+regular-cell draws, 19\% near the null). Exposed so it can be tuned without
+editing the source.}
+
+\item{oe_snr_threshold}{Numeric: the \code{oe_regular} guard flags a near-singular
+denominator when \verb{|OE|/se(OE)} falls below this (default \code{2}). Validated in
+the same grid as marking \strong{uninformatively wide} (over-covering) intervals,
+not under-coverage -- see the \code{oe_regular} property documentation of
+\link{GaugePmedResult}.}
 
 \item{...}{Unused.}
 }

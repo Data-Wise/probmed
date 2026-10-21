@@ -1,0 +1,379 @@
+#!/usr/bin/env Rscript
+# Decompose the under-dispersion of ward_residual()'s analytic SE for W = R/OE.
+#
+# Purpose ---------------------------------------------------------------------
+# The gauge coverage grid (inst/sim/results/gauge_boot_coverage_nsim2000.csv)
+# shows seW_an_ratio = mean(seW_an)/empSD = 0.65-0.83 in ALL 8 manuscript cells:
+# the influence-function SE the package reports understates the true sampling
+# SD of W-hat by 17-35%. Every interval built from the influence matrix `phi` --
+# the Wald arm, any phi-reweighted bootstrap, and the Fieller set -- inherits
+# that factor. This script measures WHERE the missing variance comes from.
+# Motivation and the refutation that made it the blocking measurement:
+# docs/specs/REVIEW-2026-08-22-adversarial-refutation.md.
+#
+# The identity ----------------------------------------------------------------
+# Across datasets, with the as-shipped single random fold partition:
+#   V_cf  = Var(W_cf)               true sampling variance of the shipped estimator
+#   S_an  = E[seW_an^2]             the analytic variance the package reports
+#   gap G = V_cf - S_an = F + N + R, where
+#   F = E_data[ Var_partition(W_cf | data) ]    FOLD-SPLIT: same data, re-drawn folds.
+#       .corner_fit() draws `folds <- sample(...)` on every call (R/corner.R:29),
+#       so the shipped W carries partition noise the IF SE does not see.
+#   N = (V_cf - F) - V_or                       NUISANCE ESTIMATION: variance of the
+#       partition-averaged cross-fit estimator (law of total variance) minus the
+#       variance of the ORACLE estimator that plugs the true nuisances into the
+#       same corner EIF. No cross-fitting is needed with known nuisances.
+#   R = V_or - S_an                             REMAINDER: the IF/delta-method
+#       variance formula itself, at this n, for a ratio. Sub-split as
+#       (V_or - S_or) + (S_or - S_an): formula inadequacy with oracle nuisances,
+#       plus the effect of plugging estimated nuisances into the formula.
+# F + N + R = G by construction; the shares are reported. BUT G can be ~0 even
+# when V_cf is several times V_or: the IF se is computed from the same phi that
+# produced W, so a damaging fold partition inflates both together and the se
+# "tracks" the partition (E[se^2] ~ Var(W) while coverage still fails, because
+# the error distribution is kurtotic). The informative decomposition is
+# therefore of the VARIANCE ITSELF,  V_cf = V_or + F + N,  reported as shares.
+# And the positive-control ratio must use the published grid's definition,
+# mean(seW_an)/sd(W) -- not the RMS ratio, which is ~1 precisely because
+# seW_an is right-skewed across datasets (CV ~0.7; median ratio ~0.65).
+#
+# Oracle nuisances (closed form from the DGP) ----------------------------------
+#   pi(C)      = plogis(-0.2 + 0.8 C)
+#   M | A=a,C  ~ N(0.6 s a + 0.4 C, 1)          =>  q(M,C) by Bayes' rule
+#   mu(a,M,C)  = lp, or plogis(lp) if binY;  lp = 0.5 s a + 0.7 M + tau s a M + 0.3 C
+#   eta(a,a',C)= E[mu(a,M,C) | A=a', C]: linear in M when continuous; a 1-D
+#                Gaussian expectation under Gauss-Hermite quadrature when binary.
+# With s = 1 and tau in {0, 0.8} this is the manuscript DGP (gauge-pmed.qmd:207)
+# exactly; tau = 0.4 with s < 1 is the weak-ID grid's DGP
+# (inst/sim/hopper/run_weakid_validation.R:58). Exact truth reuses the weak-ID
+# grid's closed form (never Monte Carlo -- see the warning there).
+#
+# Positive controls (the run is wrong if these fail) ---------------------------
+#   * E[phi_oracle[, j]] == theta_exact(a, a')    asserted on a 2e5 sample.
+#   * Gauss-Hermite: E[Z^2] == 1, E[plogis(Z)] == 1/2.
+#   * Manuscript cells must REPRODUCE seW_an_ratio 0.65-0.83 and Wald coverage
+#     0.86-0.91 from the published grid; if they do not, the wiring is wrong.
+#
+# Usage -----------------------------------------------------------------------
+#   Smoke (cells 1,5,9; nrep 20; 4 partitions):  Rscript inst/sim/phi_decomposition.R --smoke
+#   One cell locally:                            Rscript inst/sim/phi_decomposition.R --cell 1 --nrep 250
+#   SLURM array, one cell per task:              $SLURM_ARRAY_TASK_ID selects the cell
+#   Collate all cell files into one table:       Rscript inst/sim/phi_decomposition.R --collate
+#   Remedy check (reps=1 vs reps=R_PART vs oracle):  Rscript inst/sim/phi_decomposition.R --remedy 1
+# Run from the package root. Uses the in-tree package via pkgload when a
+# DESCRIPTION is present, else the installed probmed. Per the hopper rule,
+# pilot with `sbatch --array=1-1` before a full array.
+#
+# Output ----------------------------------------------------------------------
+#   <outdir>/phi_decomp_cell_<id>.rds : list(summary = 1-row data.frame,
+#                                            rows = per-rep data.frame,
+#                                            W_cf = nrep x R_part matrix, ...)
+#   --collate writes <outdir>/phi_decomp_summary.csv and prints the table.
+# outdir = $GAUGE_SIM_OUT/phi_decomp; GAUGE_SIM_OUT defaults to gauge_sim_out,
+# the same scratch location the other gauge sim scripts use (PR #26). Promote a
+# finished run's summary CSV into inst/sim/results/ deliberately, by hand.
+
+## ---- arguments --------------------------------------------------------------
+args <- commandArgs(trailingOnly = TRUE)
+flag <- function(name, default = NULL) {
+  i <- match(paste0("--", name), args)
+  if (is.na(i)) return(default)
+  if (i == length(args) || startsWith(args[i + 1], "--")) return(TRUE)
+  args[i + 1]
+}
+SMOKE   <- isTRUE(flag("smoke", FALSE))
+COLLATE <- isTRUE(flag("collate", FALSE))
+NREP    <- as.integer(flag("nrep",  if (SMOKE) 20L else 250L))
+R_PART  <- as.integer(flag("rpart", if (SMOKE) 4L else 10L))
+K       <- 5L
+OUTDIR  <- file.path(Sys.getenv("GAUGE_SIM_OUT", "gauge_sim_out"), "phi_decomp")
+dir.create(OUTDIR, recursive = TRUE, showWarnings = FALSE)
+
+## ---- package: in-tree if possible, else installed ---------------------------
+if (file.exists("DESCRIPTION") && requireNamespace("pkgload", quietly = TRUE)) {
+  pkgload::load_all(".", quiet = TRUE)
+  corner_fit <- .corner_fit
+} else {
+  suppressMessages(library(probmed))
+  corner_fit <- probmed:::.corner_fit
+}
+
+## ---- DGP ---------------------------------------------------------------------
+gen <- function(n, s, tau, binY) {
+  C <- rnorm(n); A <- rbinom(n, 1, plogis(-0.2 + 0.8 * C))
+  M <- 0.6 * s * A + 0.4 * C + rnorm(n)
+  lp <- 0.5 * s * A + 0.7 * M + tau * s * A * M + 0.3 * C
+  Y <- if (binY) rbinom(n, 1, plogis(lp)) else lp + rnorm(n)
+  data.frame(A = A, M = M, Y = Y, C = C)
+}
+
+## ---- Gauss-Hermite for E[f(Z)], Z ~ N(0,1) (Golub-Welsch) -------------------
+gh_nodes <- function(m) {
+  k <- seq_len(m - 1L)
+  J <- matrix(0, m, m); J[cbind(k, k + 1L)] <- J[cbind(k + 1L, k)] <- sqrt(k / 2)
+  e <- eigen(J, symmetric = TRUE)
+  list(x = sqrt(2) * e$values, w = e$vectors[1, ]^2)   # weights sum to 1
+}
+GH <- gh_nodes(40L)
+stopifnot(abs(sum(GH$w * GH$x^2) - 1) < 1e-10,
+          abs(sum(GH$w * plogis(GH$x)) - 0.5) < 1e-10)
+
+## ---- oracle nuisances + oracle influence matrix ------------------------------
+mu_oracle <- function(a, M, C, s, tau, binY) {
+  lp <- 0.5 * s * a + 0.7 * M + tau * s * a * M + 0.3 * C
+  if (binY) plogis(lp) else lp
+}
+eta_oracle <- function(a, ap, C, s, tau, binY) {
+  b <- 0.7 + tau * s * a
+  base <- 0.5 * s * a + b * (0.6 * s * ap + 0.4 * C) + 0.3 * C   # lp at e_M = 0
+  if (!binY) return(base)
+  as.vector(plogis(outer(base, b * GH$x, "+")) %*% GH$w)          # E over e_M ~ N(0,1)
+}
+phi_oracle <- function(d, s, tau, binY) {
+  n <- nrow(d); A <- d$A; M <- d$M; Y <- d$Y; C <- d$C
+  p1 <- plogis(-0.2 + 0.8 * C)
+  f1 <- dnorm(M, 0.6 * s + 0.4 * C, 1); f0 <- dnorm(M, 0.4 * C, 1)
+  q1 <- p1 * f1 / (p1 * f1 + (1 - p1) * f0)
+  pa <- function(z) if (z == 1) p1 else 1 - p1
+  qa <- function(z) if (z == 1) q1 else 1 - q1
+  nm <- c("11", "10", "01", "00"); cor <- list(c(1, 1), c(1, 0), c(0, 1), c(0, 0))
+  phi <- matrix(0, n, 4, dimnames = list(NULL, nm))
+  for (j in 1:4) {                       # same algebra as R/corner.R:48,55-56
+    a <- cor[[j]][1]; ap <- cor[[j]][2]
+    muAM  <- mu_oracle(a, M, C, s, tau, binY)
+    ratio <- (qa(ap) / qa(a)) * (pa(a) / pa(ap))
+    eta   <- eta_oracle(a, ap, C, s, tau, binY)
+    phi[, j] <- (A == a) / pa(a) * ratio * (Y - muAM) +
+                (A == ap) / pa(ap) * (muAM - eta) + eta
+  }
+  phi
+}
+
+## ---- exact truth (closed form; weak-ID grid's construction, with tau) --------
+theta_exact <- function(a, ap, s, tau, binY) {
+  b  <- 0.7 + tau * s * a
+  mu <- 0.5 * s * a + 0.6 * s * b * ap
+  if (!binY) return(mu)
+  sdv <- sqrt((0.4 * b + 0.3)^2 + b^2)
+  stats::integrate(function(x) plogis(x) * dnorm(x, mu, sdv),
+                   mu - 12 * sdv, mu + 12 * sdv, rel.tol = 1e-10)$value
+}
+truth <- function(s, tau, binY) {
+  th <- c(`11` = theta_exact(1, 1, s, tau, binY), `10` = theta_exact(1, 0, s, tau, binY),
+          `01` = theta_exact(0, 1, s, tau, binY), `00` = theta_exact(0, 0, s, tau, binY))
+  OE <- th["11"] - th["00"]; IDE <- th["10"] - th["00"]; IIE <- th["01"] - th["00"]
+  list(W = unname((OE - IDE - IIE) / OE), OE = unname(OE), theta = th)
+}
+
+## ---- W and its IF SE from any influence matrix (R/gauge-pmed.R:262-272) -----
+gauge_stats <- function(phi, zc = qnorm(0.975)) {
+  n <- nrow(phi); t <- colMeans(phi)
+  OE <- t["11"] - t["00"]; IDE <- t["10"] - t["00"]; IIE <- t["01"] - t["00"]
+  W <- (OE - IDE - IIE) / OE
+  pOE <- phi[, "11"] - phi[, "00"]; pIDE <- phi[, "10"] - phi[, "00"]
+  pIIE <- phi[, "01"] - phi[, "00"]; pR <- pOE - pIDE - pIIE
+  seW <- sd((pR - W * pOE) / OE) / sqrt(n)
+  c(W = unname(W), seW = unname(seW), OE = unname(OE),
+    oe_snr = unname(abs(OE) / (sd(pOE) / sqrt(n))),
+    lo = unname(W - zc * seW), hi = unname(W + zc * seW))
+}
+
+## ---- cells -------------------------------------------------------------------
+cells <- rbind(
+  cbind(expand.grid(n = c(800L, 3000L), tau = c(0, 0.8), binY = c(FALSE, TRUE), s = 1),
+        regime = "manuscript"),
+  cbind(expand.grid(n = 800L, tau = 0.4, binY = c(FALSE, TRUE), s = c(0.2, 0.5)),
+        regime = c("near-null", "near-null", "intermediate", "intermediate")))
+cells$id <- seq_len(nrow(cells))
+
+## ---- oracle wiring check: E[phi_oracle] must equal theta_exact ---------------
+oracle_check <- function(s, tau, binY, n = 2e5L) {
+  set.seed(1); d <- gen(n, s, tau, binY)
+  th_hat <- colMeans(phi_oracle(d, s, tau, binY))
+  th <- truth(s, tau, binY)$theta
+  err <- max(abs(th_hat - th))
+  if (err > 0.01) stop(sprintf("oracle EIF mean off truth by %.4f (s=%g tau=%g binY=%s)",
+                               err, s, tau, binY))
+  err
+}
+
+## ---- summary statistics from the saved per-rep objects --------------------------
+## Kept separate from run_cell so --collate can recompute every summary from the
+## cell files without re-simulating (definitions were corrected after the first
+## full run was launched; the per-rep data is what is stored).
+summarise_cell <- function(rows, W_cf, se_cf, cl, nfail = 0L, elapsed = NA_real_) {
+  R_part <- ncol(W_cf); trW <- rows$trW[1]
+  V_cf  <- var(W_cf[, 1])                               # as shipped: one partition
+  Fv    <- apply(W_cf, 1, var); F <- mean(Fv); F_med <- median(Fv)
+  V_avg <- V_cf - F; V_avg2 <- var(rowMeans(W_cf)) - F / R_part
+  V_or  <- var(rows$W_or)
+  S_an  <- mean(rows$seW_an^2); S_or <- mean(rows$seW_or^2)
+  G <- V_cf - S_an; N <- V_avg - V_or; R <- V_or - S_an
+  e1 <- W_cf[, 1] - mean(W_cf[, 1])
+  data.frame(
+    cell = cl$id, regime = cl$regime, n = cl$n, tau = cl$tau, binY = cl$binY, s = cl$s,
+    nrep = nrow(rows), nfail = nfail, R_part = R_part, trW = trW,
+    oe_snr_med = median(rows$oe_snr), pct_oe_regular = mean(rows$oe_snr >= 2),
+    ## positive controls, on the PUBLISHED GRID's definitions
+    ## (collate_gauge_boot.R: mean(seW_an)/sd(W)). The RMS ratio sqrt(E[se^2]/Var)
+    ## is ~1 even where mean/sd is 0.8, because seW_an is right-skewed (CV ~0.7).
+    se_ratio_an  = mean(rows$seW_an) / sqrt(V_cf),      # expect 0.65-0.83
+    se_ratio_med = median(rows$seW_an) / sqrt(V_cf),
+    se_ratio_rms = sqrt(S_an / V_cf),                   # variance scale: E[se^2] vs Var(W)
+    cv_seW       = sd(rows$seW_an) / mean(rows$seW_an), # SE instability across datasets
+    covW_an = mean(rows$covW_an),                       # expect 0.86-0.91
+    bias_cf = mean(W_cf[, 1]) - trW, bias_or = mean(rows$W_or) - trW,
+    kurt_cf = mean(e1^4) / V_cf^2,                      # 3 = normal
+    ## WHERE THE SHIPPED ESTIMATOR'S VARIANCE COMES FROM:  V_cf = V_or + F + N
+    ## (shares of V_cf; the gap G = V_cf - S_an can be ~0 even when V_cf >> V_or,
+    ## because the IF se computed from the same phi tracks the partition's damage)
+    empSD = sqrt(V_cf), sd_or = sqrt(V_or), seW_an = sqrt(S_an), seW_or = sqrt(S_or),
+    V_cf = V_cf, V_or = V_or, F_fold = F, F_fold_med = F_med, N_nuis = N,
+    frac_irreducible = V_or / V_cf, frac_fold = F / V_cf, frac_fold_med = F_med / V_cf,
+    frac_nuis = N / V_cf, F_tail = F / F_med,           # >>1: partition noise is heavy-tailed
+    ## the SE-gap decomposition as originally specified (F + N + R = G)
+    gap = G, R_rem = R, R_formula = V_or - S_or, R_plugin = S_or - S_an,
+    share_F = F / G, share_N = N / G, share_R = R / G,
+    V_avg_ltv = V_avg, V_avg_direct = V_avg2,           # must agree
+    ## oracle arm: is the IF formula itself right when nuisances are known?
+    se_ratio_or = sqrt(S_or / V_or), covW_or = mean(rows$covW_or),
+    ## SE instability under re-partition of the SAME data
+    cv_seW_fold = mean(apply(se_cf, 1, sd) / rowMeans(se_cf)),
+    ## robust scale, for near-null cells where variances are outlier-driven
+    mad_cf = mad(W_cf[, 1]), mad_or = mad(rows$W_or), seW_an_med = median(rows$seW_an),
+    elapsed_s = round(elapsed, 1), row.names = NULL)
+}
+
+## ---- one cell -----------------------------------------------------------------
+run_cell <- function(ci, nrep = NREP, R_part = R_PART) {
+  cl <- cells[ci, ]; n <- cl$n; s <- cl$s; tau <- cl$tau; binY <- cl$binY
+  tr <- truth(s, tau, binY)
+  W_cf <- se_cf <- matrix(NA_real_, nrep, R_part)
+  rows <- vector("list", nrep); nfail <- 0L; t0 <- proc.time()[["elapsed"]]
+  base <- 1000000L * ci
+  for (r in seq_len(nrep)) {
+    seed <- base + r
+    set.seed(seed); d <- gen(n, s, tau, binY)
+    so <- gauge_stats(phi_oracle(d, s, tau, binY))
+    ok <- TRUE
+    for (p in seq_len(R_part)) {                 # same data, R_part fold partitions
+      set.seed(seed * 100L + p)
+      ph <- tryCatch(corner_fit(d, K, binY, "C")$phi, error = function(e) NULL)
+      if (is.null(ph)) { ok <- FALSE; break }
+      g <- gauge_stats(ph); W_cf[r, p] <- g["W"]; se_cf[r, p] <- g["seW"]
+      if (p == 1L) g1 <- g
+    }
+    if (!ok) { nfail <- nfail + 1L; W_cf[r, ] <- se_cf[r, ] <- NA; next }
+    rows[[r]] <- data.frame(
+      cell = ci, seed = seed, trW = tr$W,
+      W_cf1 = g1["W"], seW_an = g1["seW"], oe_snr = g1["oe_snr"],
+      covW_an = tr$W >= g1["lo"] && tr$W <= g1["hi"],
+      W_or = so["W"], seW_or = so["seW"], oe_snr_or = so["oe_snr"],
+      covW_or = tr$W >= so["lo"] && tr$W <= so["hi"])
+  }
+  rows <- do.call(rbind, rows); keep <- !is.na(W_cf[, 1])
+  W_cf <- W_cf[keep, , drop = FALSE]; se_cf <- se_cf[keep, , drop = FALSE]
+
+  elapsed <- proc.time()[["elapsed"]] - t0
+  summary <- summarise_cell(rows, W_cf, se_cf, cl, nfail, elapsed)
+  out <- list(summary = summary, rows = rows, W_cf = W_cf, se_cf = se_cf, cell = cl,
+              nfail = nfail, elapsed = elapsed)
+  saveRDS(out, file.path(OUTDIR, sprintf("phi_decomp_cell_%02d.rds", ci)))
+  summary
+}
+
+## ---- remedy check: does reps > 1 (the shipped repeated cross-fitting) fix it? ----
+## The decomposition says fold-split noise dominates V_cf and the IF formula is
+## exact under oracle nuisances. If so, averaging phi over `reps` partitions --
+## which ward_residual() already implements -- should pull empSD toward the
+## oracle SD, stabilize the SE (CV down), and restore Wald coverage. Same
+## datasets as the decomposition cell (same seeds), the shipped function as is.
+run_remedy <- function(ci, nrep = NREP, reps = R_PART) {
+  cl <- cells[ci, ]; n <- cl$n; s <- cl$s; tau <- cl$tau; binY <- cl$binY
+  tr <- truth(s, tau, binY); base <- 1000000L * ci
+  out <- vector("list", nrep); t0 <- proc.time()[["elapsed"]]
+  for (r in seq_len(nrep)) {
+    seed <- base + r
+    set.seed(seed); d <- gen(n, s, tau, binY)
+    f1 <- ward_residual(d, seed = seed, reps = 1L)
+    fR <- ward_residual(d, seed = seed, reps = reps)
+    so <- gauge_stats(phi_oracle(d, s, tau, binY))
+    out[[r]] <- data.frame(
+      seed = seed,
+      W1 = f1@W, se1 = f1@W_se, cov1 = tr$W >= f1@W_ci[1] && tr$W <= f1@W_ci[2],
+      WR = fR@W, seR = fR@W_se, covR = tr$W >= fR@W_ci[1] && tr$W <= fR@W_ci[2],
+      W_or = so["W"], se_or = so["seW"], cov_or = tr$W >= so["lo"] && tr$W <= so["hi"])
+  }
+  x <- do.call(rbind, out)
+  summ <- function(W, se, cov) c(
+    empSD = sd(W), se_mean = mean(se), se_rms = sqrt(mean(se^2)),
+    ratio_mean = mean(se) / sd(W), ratio_rms = sqrt(mean(se^2)) / sd(W),
+    cv_se = sd(se) / mean(se), cov = mean(cov),
+    kurt = mean((W - mean(W))^4) / var(W)^2, bias = mean(W) - tr$W)
+  res <- rbind(reps1 = summ(x$W1, x$se1, x$cov1),
+               repsR = summ(x$WR, x$seR, x$covR),
+               oracle = summ(x$W_or, x$se_or, x$cov_or))
+  saveRDS(list(rows = x, res = res, cell = cl, reps = reps,
+               elapsed = proc.time()[["elapsed"]] - t0),
+          file.path(OUTDIR, sprintf("remedy_cell_%02d.rds", ci)))
+  message(sprintf("remedy check cell %d (n=%d tau=%g binY=%s s=%g), reps=%d, nrep=%d, %.0fs",
+                  ci, n, tau, binY, s, reps, nrep, proc.time()[["elapsed"]] - t0))
+  print(round(res, 3)); invisible(res)
+}
+
+## ---- collate --------------------------------------------------------------------
+collate <- function() {
+  fs <- list.files(OUTDIR, "^phi_decomp_cell_\\d+\\.rds$", full.names = TRUE)
+  if (!length(fs)) stop("no cell files in ", OUTDIR)
+  ## recompute from the stored per-rep data, so the table reflects the current
+  ## definitions whichever script version produced each cell file
+  S <- do.call(rbind, lapply(fs, function(f) {
+    x <- readRDS(f)
+    summarise_cell(x$rows, x$W_cf, x$se_cf, x$cell,
+                   if (!is.null(x$nfail)) x$nfail else x$summary$nfail,
+                   if (!is.null(x$elapsed)) x$elapsed else x$summary$elapsed_s)
+  }))
+  S <- S[order(S$cell), ]
+  write.csv(S, file.path(OUTDIR, "phi_decomp_summary.csv"), row.names = FALSE)
+  show <- c("cell", "regime", "n", "tau", "binY", "s", "nrep", "nfail",
+            "se_ratio_an", "se_ratio_med", "se_ratio_rms", "covW_an",
+            "empSD", "sd_or", "seW_or", "se_ratio_or", "covW_or",
+            "frac_irreducible", "frac_fold", "frac_fold_med", "frac_nuis", "F_tail",
+            "cv_seW", "cv_seW_fold", "kurt_cf", "oe_snr_med")
+  num <- vapply(S[show], is.numeric, logical(1))
+  S2 <- S[show]; S2[num] <- lapply(S2[num], function(x) signif(x, 3))
+  print(S2, row.names = FALSE)
+  invisible(S)
+}
+
+## ---- main ------------------------------------------------------------------------
+if (!is.null(rem <- flag("remedy"))) {
+  run_remedy(as.integer(rem))
+} else if (COLLATE) {
+  collate()
+} else {
+  sel <- flag("cell")
+  ids <- if (!is.null(sel)) as.integer(strsplit(sel, ",")[[1]])
+         else if (SMOKE) c(1L, 5L, 9L)
+         else if (nzchar(Sys.getenv("SLURM_ARRAY_TASK_ID")))
+           as.integer(Sys.getenv("SLURM_ARRAY_TASK_ID"))
+         else cells$id
+  ## oracle wiring check once per distinct DGP among the selected cells
+  dg <- unique(cells[ids, c("s", "tau", "binY")])
+  for (i in seq_len(nrow(dg)))
+    message(sprintf("oracle check s=%g tau=%g binY=%s: max|E[phi]-theta| = %.2e",
+                    dg$s[i], dg$tau[i], dg$binY[i],
+                    oracle_check(dg$s[i], dg$tau[i], dg$binY[i])))
+  for (ci in ids) {
+    message(sprintf("cell %d/%d: n=%d tau=%g binY=%s s=%g (%s) nrep=%d R_part=%d",
+                    ci, nrow(cells), cells$n[ci], cells$tau[ci], cells$binY[ci],
+                    cells$s[ci], cells$regime[ci], NREP, R_PART))
+    s <- run_cell(ci)
+    message(sprintf(paste0("   se_ratio_an=%.3f (med %.3f, rms %.3f) covW_an=%.3f | ",
+                           "V_cf: irreducible=%.2f fold=%.2f (med %.2f) nuis=%.2f | %.0fs"),
+                    s$se_ratio_an, s$se_ratio_med, s$se_ratio_rms, s$covW_an,
+                    s$frac_irreducible, s$frac_fold, s$frac_fold_med, s$frac_nuis,
+                    s$elapsed_s))
+  }
+  if (length(ids) > 1L) collate()
+}

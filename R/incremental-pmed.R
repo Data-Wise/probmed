@@ -64,11 +64,27 @@ IncrPmedResult <- S7::new_class(
 #' `q' = g(1 - g) / (delta g + 1 - g)^2` (Kennedy 2019, Corollary 2, Term I).
 #' Standard errors use the full efficient influence function for the ratio
 #' `P_med = med / tot`, which adds the g-score correction
-#' `(dq/dg) * (A - g(C)) * (dir * gamma_med - med * gamma_dir) / tot^2`
-#' with `dq/dg = delta / (delta g + 1 - g)^2` (Term II). Term II is
-#' mean-zero (by `E[A - g(C) | C] = 0`), so it does not shift the point
-#' estimate but restores Neyman orthogonality w.r.t. the propensity score,
-#' ensuring the CI is consistent under nonparametric estimation of `g`.
+#' `(dq/dg) * (A - g(C)) * (dir * E[a_med | C] - med * E[a_dir | C]) / tot^2`,
+#' where `a_med = q' * gamma_med` and `a_dir = q' * gamma_dir` are the same
+#' tilt-weighted corner contrasts used in the point estimate (the g-score
+#' term must carry the `q'` weight to match the units of `dir`/`med`/`tot`)
+#' and `E[. | C]` is a linear projection on the covariates, with
+#' `dq/dg = delta / (delta g + 1 - g)^2` (Term II). Term II is mean-zero (by
+#' `E[A - g(C) | C] = 0`), so it does not shift the point estimate but
+#' restores Neyman orthogonality w.r.t. the propensity score, ensuring the CI
+#' is consistent under nonparametric estimation of `g`. The projection
+#' matters: the per-row `a_med`/`a_dir` carry the corner EIF's
+#' inverse-probability noise, and multiplying that by `A - g(C)` inflated the
+#' se by 1.40x at `delta = 2` (fixed 2026-08-22; se/empSD now 0.94-0.97 across
+#' `delta`).
+#'
+#' **Scope (exposure type).** The incremental intervention is defined only for a
+#' **binary** treatment `A`: the odds-ratio tilt `q = delta g / (delta g + 1 - g)`
+#' requires `g = P(A = 1 | C)` to be a Bernoulli probability. Continuous or
+#' multi-valued exposures are a distinct object requiring a *modified treatment
+#' policy* (shift) intervention with its own estimand and efficient influence
+#' function; they are deliberately out of scope here (deferred to future work --
+#' a separate MTP-mediation paper).
 #'
 #' @param object A data frame with columns `A` (binary treatment), `M`
 #'   (mediator), `Y` (outcome), and the covariates named in `covars`.
@@ -124,11 +140,23 @@ S7::method(incr_pmed, S7::class_data.frame) <-
       a_med <- gamma_med * qp
       dir <- mean(a_dir); med <- mean(a_med); tot <- dir + med; Pmed <- med / tot
       # efficient IF for Pmed (ratio): T1 ratio-IF + T2 g-score correction
-      # T2 enters psi as: dqg*(A-g)*(dir*gamma_med - med*gamma_dir) / tot^2
+      # T2 enters psi as: dqg*(A-g)*(dir*a_med - med*a_dir) / tot^2
+      # (a_med/a_dir carry the q' weight, matching dir/med/tot units — issue #20)
       # This is Neyman-orthogonal w.r.t. g: E[T2] = 0, so point estimate unchanged
       resid <- object$A - g
       psi_base  <- ((a_med - med) - Pmed * (a_dir + a_med - tot)) / tot
-      psi_gscore <- dqg * resid * (dir * gamma_med - med * gamma_dir) / tot^2
+      ## T2 must use E[a_med | C] and E[a_dir | C], not the per-row a_med / a_dir:
+      ## those carry the corner EIF's inverse-probability noise, and multiplying it
+      ## by (A - g) adds variance that is not in the EIF -- se/empSD 1.40 at
+      ## delta = 2 once the corner weights were corrected (2026-08-22; 0.97 with
+      ## the projection; pre-fix the larger weight-bug variance masked it at 1.14).
+      ## Projection: linear in the covariates, as for eta in .corner_phi().
+      ## lm.fit on the covariate model matrix: no response name that a covariate
+      ## could shadow (a covariate called `v` would have made a formula-based
+      ## projection regress the response on itself and return it unchanged).
+      X_proj <- stats::model.matrix(stats::reformulate(covars), data = object)
+      proj <- function(v) stats::lm.fit(X_proj, v)$fitted.values
+      psi_gscore <- dqg * resid * (dir * proj(a_med) - med * proj(a_dir)) / tot^2
       psi <- psi_base + psi_gscore
       se <- stats::sd(psi) / sqrt(n)
       data.frame(delta = del, dir = dir, med = med, tot = tot, Pmed = Pmed,

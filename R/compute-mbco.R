@@ -36,56 +36,87 @@
   c(lower = endpoint(-1), upper = endpoint(+1))
 }
 
-#' Maximized log-likelihood under the constraint `a*b` = ie0.
+#' Gaussian exact-null union likelihood
 #'
-#' Pins b = ie0 / a; Vy is free (its MLE is SSE_Y / n). Optimizes over
-#' (a, log Vm); all linear nuisance terms are profiled by OLS.
+#' Maximize over both reduced models, a = 0 and b = 0, with ML variances.
 #'
 #' @return Maximized joint log-likelihood, or NA_real_ if the fit fails.
 #' @keywords internal
-.mbco_ll_constrained_ie <- function(prep, ie0) {
+.mbco_ll_null <- function(prep) {
   n <- prep$n
-  if (abs(ie0) < 1e-12) { # a*b = 0: take b = 0 (Y ~ Dy, no M)
-    sse_m <- .ols_sse(cbind(prep$Dm, X = prep$X), prep$M)
-    sse_y <- .ols_sse(prep$Dy, prep$Y)
-    return(.mbco_gll(sse_m, sse_m / n, n) + .mbco_gll(sse_y, sse_y / n, n))
-  }
-  nll <- function(p) {
-    a <- p[1]
-    if (abs(a) < 1e-8) {
-      return(1e10)
+  sse_m_full <- .ols_sse(cbind(prep$Dm, X = prep$X), prep$M)
+  sse_y_full <- .ols_sse(cbind(prep$Dy, M = prep$M), prep$Y)
+  sse_m_a0 <- .ols_sse(prep$Dm, prep$M)
+  sse_y_b0 <- .ols_sse(prep$Dy, prep$Y)
+  a0 <- .mbco_gll(sse_m_a0, sse_m_a0 / n, n) +
+    .mbco_gll(sse_y_full, sse_y_full / n, n)
+  b0 <- .mbco_gll(sse_m_full, sse_m_full / n, n) +
+    .mbco_gll(sse_y_b0, sse_y_b0 / n, n)
+  if (!all(is.finite(c(a0, b0)))) return(NA_real_)
+  max(a0, b0)
+}
+
+#' Branch likelihood-ratio statistics for H0: a = 0 and H0: b = 0
+#'
+#' Nested-model LR statistics with ML variances and the linear nuisance terms
+#' profiled, matching `.mbco_ll_null()`. When both are below the interval's
+#' chi-square(1) cutoff, neither path is individually significant: the data sit
+#' near the double null a = b = 0, where the profile LR at p* = 0.5 is the
+#' minimum of these two statistics and the chi-square(1) interval is
+#' conservative (coverage about 1 - alpha^2, 0.9975 at the 95% level).
+#'
+#' @return Named numeric vector `c(a0 = , b0 = )`.
+#' @keywords internal
+.mbco_branch_lr <- function(prep) {
+  n <- prep$n
+  gll <- function(sse) .mbco_gll(sse, sse / n, n)
+  sse_m_full <- .ols_sse(cbind(prep$Dm, X = prep$X), prep$M)
+  sse_y_full <- .ols_sse(cbind(prep$Dy, M = prep$M), prep$Y)
+  c(a0 = 2 * (gll(sse_m_full) - gll(.ols_sse(prep$Dm, prep$M))),
+    b0 = 2 * (gll(sse_y_full) - gll(.ols_sse(prep$Dy, prep$Y))))
+}
+
+#' Profile LR statistic for H0: P_med = p (single-mediator Gaussian MBCO)
+#'
+#' `-2 * (ll_constrained - ll_free)`; the quantity the interval inverts.
+#' `NA` when the constrained profile fails. Used by the composite-null
+#' calibration harness (`inst/sim/calibration/calib_mbco_null.R`).
+#' @keywords internal
+.mbco_lr_at <- function(prep, p) {
+  a_sign <- if (sign(prep$a_hat) == 0) 1 else sign(prep$a_hat)
+  ll0 <- .mbco_ll_constrained_pmed(prep, stats::qnorm(p), a_sign)
+  if (is.na(ll0)) NA_real_ else -2 * (ll0 - prep$ll_free)
+}
+
+#' Maximized log-likelihood under the constraint `a*b` = ie0
+#'
+#' The exact null is the union of a = 0 and b = 0. For nonzero targets,
+#' pins b = ie0 / a and profiles linear nuisance terms by OLS.
+#' @keywords internal
+.mbco_ll_constrained_ie <- function(prep, ie0) {
+  if (ie0 == 0) return(.mbco_ll_null(prep))
+  results <- lapply(c(-1, 1), function(sa) {
+    nll <- function(p) {
+      a <- sa * exp(p[1])
+      b <- ie0 / a
+      if (!all(is.finite(c(a, b))) || a == 0) return(1e100)
+      sm <- .mbco_sse(prep$quad_m, a)
+      sy <- .mbco_sse(prep$quad_y, b)
+      ll <- .mbco_gll(sm, sm / prep$n, prep$n) +
+        .mbco_gll(sy, sy / prep$n, prep$n)
+      if (is.finite(ll)) -ll else 1e100
     }
-    Vm <- exp(p[2])
-    b <- ie0 / a
-    sse_m <- .ols_sse(prep$Dm, prep$M - a * prep$X)
-    sse_y <- .ols_sse(prep$Dy, prep$Y - b * prep$M)
-    -(.mbco_gll(sse_m, Vm, n) + .mbco_gll(sse_y, sse_y / n, n))
-  }
-  # b = ie0/a makes the a-profile bimodal away from the point estimate, so we
-  # warm-start from BOTH basins: a near the free MLE, and a near ie0/b_hat (the
-  # basin where b stays near its free value). Keep the better optimum.
-  starts <- list(c(prep$a_hat, log(prep$Vm_hat)))
-  if (abs(prep$b_hat) > 1e-8) {
-    starts[[length(starts) + 1L]] <- c(ie0 / prep$b_hat, log(prep$Vm_hat))
-  }
-  best <- NA_real_
-  for (s in starts) {
-    if (!all(is.finite(s))) next
-    o <- try(
-      stats::optim(s, nll,
-        method = "Nelder-Mead",
-        control = list(maxit = 3000, reltol = 1e-10)
-      ),
-      silent = TRUE
-    )
-    if (!inherits(o, "try-error") && o$value < 1e9) {
-      best <- max(best, -o$value, na.rm = TRUE)
-    }
-  }
-  if (!is.finite(best)) {
-    return(NA_real_)
-  }
-  best
+    starts <- unique(log(c(max(abs(prep$a_hat), 0.1),
+                          max(abs(ie0 / max(abs(prep$b_hat), 0.1)), 0.01), 1)))
+    fits <- lapply(starts, function(st) .mbco_optim(st, nll))
+    valid <- vapply(fits, function(o) !is.null(o) && o$convergence == 0 &&
+      is.finite(o$value) && o$value < 1e99 &&
+      -nll(o$par) <= prep$ll_free + 1e-6, logical(1))
+    if (!any(valid)) return(NA_real_)
+    max(vapply(fits[valid], function(o) -nll(o$par), numeric(1)))
+  })
+  values <- unlist(results)
+  if (any(!is.finite(values))) NA_real_ else max(values)
 }
 
 #' MBCO Confidence Interval for P_med (Gaussian single-mediator model)
@@ -118,28 +149,37 @@
     ps <- min(max(ps, 1e-5), 1 - 1e-5)
     ll0 <- .mbco_ll_constrained_pmed(prep, stats::qnorm(ps), a_sign)
     if (is.na(ll0)) {
-      return(crit + 1e3)
-    } # infeasible: treat as rejected
+      return(NA_real_)
+    } # failed profiling is not statistical rejection
     -2 * (ll0 - prep$ll_free) - crit
   }
-  ci <- .mbco_invert(est, excess_pmed, domain = c(1e-4, 1 - 1e-4), step = 0.01)
+  pmed_scan <- .mbco_invert_verified(est, excess_pmed,
+    domain = c(1e-4, 1 - 1e-4), step = 0.01, anchors = 0.5)
+  ci <- pmed_scan$bounds
+  # Composite-null diagnostic (Phase 8): the interval is conservative when
+  # neither path is individually significant.
+  pmed_scan$branch_lr <- .mbco_branch_lr(prep)
+  pmed_scan$near_double_null <- all(is.finite(pmed_scan$branch_lr)) &&
+    all(pmed_scan$branch_lr < crit)
 
   if (is.finite(prep$sd_ie) && prep$sd_ie > 0) {
     excess_ie <- function(ie0) {
       ll0 <- .mbco_ll_constrained_ie(prep, ie0)
       if (is.na(ll0)) {
-        return(crit + 1e3)
+        return(NA_real_)
       }
       -2 * (ll0 - prep$ll_free) - crit
     }
     ie_step <- prep$sd_ie / 20
-    ie_ci <- .mbco_invert(
+    ie_scan <- .mbco_invert_verified(
       ie_est, excess_ie,
       domain = c(ie_est - 12 * prep$sd_ie, ie_est + 12 * prep$sd_ie),
-      step = ie_step
+      step = ie_step, anchors = 0
     )
+    ie_ci <- ie_scan$bounds
   } else {
     ie_ci <- c(lower = NA_real_, upper = NA_real_)
+    ie_scan <- list(status = "failed", verified = FALSE)
   }
 
   PmedResult(
@@ -159,7 +199,8 @@
     source_extract = extract,
     # converged tracks the P_med interval only; the IE interval is reported
     # separately and may be NA on a degenerate design.
-    converged = !is.na(ci["lower"]) && !is.na(ci["upper"])
+    converged = pmed_scan$verified,
+    diagnostics = list(pmed = pmed_scan, ie = ie_scan)
   )
 }
 
@@ -218,9 +259,12 @@
   list(
     M = data[[med]], Y = data[[out]], X = data[[tx]],
     Dm = Dm, Dy = Dy, n = nrow(data),
+    quad_m = .mbco_quadratic(Dm, data[[med]], data[[tx]]),
+    quad_y = .mbco_quadratic(Dy, data[[out]], data[[med]]),
     delta = x_value - x_ref,
     a_hat = a_hat, b_hat = b_hat,
-    Vm_hat = stats::sigma(fm)^2, Vy_hat = stats::sigma(fy)^2,
+    Vm_hat = sum(stats::residuals(fm)^2) / stats::nobs(fm),
+    Vy_hat = sum(stats::residuals(fy)^2) / stats::nobs(fy),
     ll_free = as.numeric(stats::logLik(fm)) + as.numeric(stats::logLik(fy)),
     # delta-method SD of a*b, for the IE inversion search scale
     sd_ie = sqrt(b_hat^2 * se_a^2 + a_hat^2 * se_b^2)
@@ -243,54 +287,13 @@
 #' Maximized log-likelihood under the constraint P_med = pnorm(qstar).
 #'
 #' Profiles out intercepts, the direct effect, and covariate coefficients by OLS,
-#' so only (a, log Vm, log|b|) are optimized numerically (b is sign-pinned to the
-#' target branch; Vy is fixed by the P_med constraint). Nelder-Mead is used because
-#' the Vy <= 0 infeasible region is a hard penalty wall that defeats gradient methods.
+#' with both compatible coefficient signs explored. Positive Vm and Vy/b^2
+#' coordinates enforce the original signed constraint; b is profiled by its
+#' quadratic stationary equation. Two numerical coordinates remain.
 #'
 #' @return Maximized joint log-likelihood, or NA_real_ if the fit fails.
 #' @keywords internal
 .mbco_ll_constrained_pmed <- function(prep, qstar, a_sign) {
-  n <- prep$n
-
-  # p* = 0.5: indirect effect is zero (b = 0). Y reduces to its design Dy.
-  if (abs(qstar) < 1e-8) {
-    sse_m <- .ols_sse(cbind(prep$Dm, X = prep$X), prep$M) # full M eq: [1, C, X]
-    sse_y <- .ols_sse(prep$Dy, prep$Y) # Y ~ [1, X, C], no M
-    return(.mbco_gll(sse_m, sse_m / n, n) + .mbco_gll(sse_y, sse_y / n, n))
-  }
-
-  delta <- prep$delta
-  # Constraint requires sign(a*delta*b) = sign(qstar), so sign(a*b) = sign(qstar)*sign(delta).
-  sb <- sign(qstar) * a_sign * sign(delta)
-
-  # Optimize over (a, log Vm, log|b|). |b| is a search coordinate, NOT a profiled
-  # quantity: b enters both the constraint (which fixes Vy) and the Y residual, so
-  # unlike the intercepts / cp / covariate coefficients it cannot be OLS-profiled.
-  start <- c(prep$a_hat, log(prep$Vm_hat), log(abs(prep$b_hat) + 1e-3))
-  nll <- function(p) {
-    a <- p[1]
-    Vm <- exp(p[2])
-    b <- sb * exp(p[3])
-    Vy <- (a * delta * b)^2 / (2 * qstar^2) - b^2 * Vm
-    # 1e10 penalty wall (infeasible Vy) is kept well above any real NLL so the
-    # o$value >= 1e9 check below reliably detects a failed/penalized fit.
-    if (!is.finite(Vy) || Vy <= 1e-8) {
-      return(1e10)
-    }
-    sse_m <- .ols_sse(prep$Dm, prep$M - a * prep$X)
-    sse_y <- .ols_sse(prep$Dy, prep$Y - b * prep$M)
-    -(.mbco_gll(sse_m, Vm, n) + .mbco_gll(sse_y, Vy, n))
-  }
-
-  o <- try(
-    stats::optim(start, nll,
-      method = "Nelder-Mead",
-      control = list(maxit = 3000, reltol = 1e-10)
-    ),
-    silent = TRUE
-  )
-  if (inherits(o, "try-error") || o$value >= 1e9) {
-    return(NA_real_)
-  }
-  -o$value
+  # a_sign is retained for internal compatibility; both signs are now explored.
+  .mbco_fit_pmed(prep, qstar)$ll
 }

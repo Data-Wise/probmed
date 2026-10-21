@@ -44,46 +44,44 @@
 #' `ci_A`) is the legacy *gated* rule: Wald on rejection, one-sided
 #' `[0, Pmed_upper]` otherwise.
 #'
-#' **Coverage near the boundary -- mechanism and remedies (A-15).** Two distinct
-#' issues; the second is now decomposed (reproducible fixed-seed variance
-#' decomposition) into three findings, each with a concrete remedy.
+#' **Coverage near the boundary (A-15).** Two distinct issues.
 #'
 #' *(1) Procedure A is not uniformly valid.* As a pre-test (gating) rule A is only
 #' pointwise valid: near the boundary it routes downward-selected `Delta_m_hat` to
 #' the contracting one-sided bound, a Leeb-Potscher post-selection effect. Prefer B,
-#' which does not gate.
+#' which does not gate. (Measured 2026-08-22: A covers 0.90-0.92 at the
+#' transition, B 0.95-0.97.)
 #'
-#' *(2) The near-null `Delta_m` standard error.* Three pinned facts:
-#' \itemize{
-#'   \item **Fold-split Monte-Carlo variance dominates.** A single cross-fitting
-#'     fold partition contributes ~80% of `Var(Delta_m_hat)` in the near-null regime
-#'     (~45% at ordinary effect sizes), persistent across `n = 2000` to `8000`. This
-#'     is an algorithmic nuisance, not sampling information: it inflates the
-#'     estimator's variance and makes the single-split point estimate seed-dependent.
-#'     *Remedy:* **`reps > 1`** (repeated cross-fitting -- the corner influence matrix
-#'     is averaged over `reps` independent fold draws), which removes it and yields a
-#'     reproducible, lower-variance point estimate (mean DML aggregation).
-#'   \item **`Delta_m_hat` is approximately normal at the null.** Recomputing coverage
-#'     with the oracle Monte-Carlo SD gives ~0.95, so the Wald *shape* is correct for
-#'     the regular contrast `Delta_m`: the under-coverage is a wrong interval *width*,
-#'     not a wrong *shape* (there is no boundary non-normality for `Delta_m` itself).
-#'   \item **A residual analytic-se bias remains.** Even after fold noise is removed,
-#'     the analytic influence-function se for `Delta_m` is ~0.8x its true sampling SD
-#'     near the null (structural; persistent in `n`); it is well calibrated (ratio
-#'     ~1) at ordinary effect sizes. So the *default* analytic near-null interval --
-#'     and its Procedure-B image -- covers only ~0.85. *Remedy:* **`se_method =
-#'     "bootstrap"`** (resample rows, refit the cross-fit estimator), which recovers a
-#'     valid but mildly **conservative** se (~1.25x the true SD, coverage ~0.97 near
-#'     null) and is calibrated off-boundary.
-#' }
+#' *(2) The near-null `Delta_m` standard error -- exact after the corner-weight
+#' fix (2026-08-22).* Against exact truth in six cells (n = 800 and 3000; strong,
+#' intermediate and near-null `Delta_m`; 250 datasets each;
+#' `inst/sim/sobol_shipped_check.R`, `inst/sim/results/sobol_postfix_summary.csv`,
+#' `docs/specs/FINDINGS-2026-08-22-sobol-pmedw-postfix.md`) the analytic
+#' influence-function se of `Delta_m` matches its sampling SD (ratio 0.99, CV
+#' 0.08) from strong effects to the null, with `Delta_m` Wald coverage 0.95-0.96;
+#' the estimator's empirical SD is within 3% of an oracle's with known nuisances;
+#' and `p_med`'s Procedure-B1 interval covers 0.952-0.996 (conservative under a
+#' strong interaction; 0.952 at the boundary with 98% of draws gated). The only
+#' near-null pathology is the symmetric Wald interval for `p_med` itself (0.74 at
+#' the boundary -- the same for the oracle: the square map, not the se), which
+#' Procedure B avoids by construction.
 #'
-#' **Practical guidance.** Off the boundary the analytic default is calibrated and
-#' fast. Near the boundary (the split test does not reject), pass `reps > 1` for a
-#' reproducible point and `se_method = "bootstrap"` for a valid interval (conservative
-#' there -- it trades width for guaranteed coverage). `V_T` is well calibrated
-#' throughout. The full coverage grid across the `Delta_m` transition is validated by
-#' a separate large simulation. Use `procedure = "A"` only to reproduce the legacy
-#' gated behaviour.
+#' *History.* Before the fix this entry reported three "pinned facts": that a
+#' single fold partition was ~80% of `Var(Delta_m_hat)` near the null, that the
+#' analytic se was ~0.8x its sampling SD so Procedure B covered ~0.85, and that a
+#' refit bootstrap (~1.25x, coverage ~0.97) was the remedy. All three measured the
+#' corner-EIF weight bug fixed in PR #34 (`.corner_fit()` weighted every row of a
+#' fold by its first row's propensity; NEWS 0.3.0.9000). Post-fix `reps > 1` has
+#' nothing left to remove, and the bootstrap se is 0.84-1.05x the sampling SD
+#' (slightly *narrower* at the transition); both remain options, not remedies.
+#'
+#' **Practical guidance.** The analytic Procedure-B default is valid across the
+#' measured transition; nothing needs switching near the boundary. `reps > 1`
+#' makes the point estimate reproducible across fold draws (small efficiency
+#' effect). `se_method = "bootstrap"` is an option costing `B` (x `reps`)
+#' refits; post-fix it is not better than the analytic se and slightly
+#' anti-conservative at the transition. `V_T` is well calibrated throughout. Use
+#' `procedure = "A"` only to reproduce the legacy gated behavior.
 #'
 #' @param p_med Numeric: Sobol proportion mediated `V_med / V_T`.
 #' @param se Numeric: standard error of `p_med` (delta-method, ratio identity).
@@ -119,12 +117,13 @@
 #'   otherwise (`NA` when the test was not run).
 #' @param theta Numeric length-4: corner means `theta(a, a')`.
 #' @param method Character: estimation method.
-#' @param se_method Character: `"analytic"` (default, influence-function se) or
-#'   `"bootstrap"` (nonparametric resample-and-refit se; valid but conservative near
-#'   the boundary). See the boundary coverage section.
+#' @param se_method Character: `"analytic"` (default, influence-function se,
+#'   calibrated from strong effects to the null) or `"bootstrap"` (nonparametric
+#'   resample-and-refit se; an option, not a remedy). See the boundary coverage
+#'   section.
 #' @param reps Integer: number of repeated cross-fitting fold draws averaged for the
-#'   point estimate (default `1`); `reps > 1` removes the near-boundary fold-split
-#'   Monte-Carlo variance (mean DML aggregation).
+#'   point estimate (default `1`); `reps > 1` makes the point estimate reproducible
+#'   across fold draws (mean DML aggregation; small efficiency effect).
 #' @param n Integer: sample size.
 #' @param ci_level Numeric: confidence level.
 #' @param call Call: original call.
@@ -217,10 +216,10 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
   set.seed(seed); n <- nrow(d)
   ## repeated cross-fitting (A-15): average the corner influence matrix over `reps`
   ## independent fold draws. reps = 1 reproduces the single-split estimator with the
-  ## identical RNG draw, so the default path is byte-for-byte unchanged. Near the
-  ## V_med = 0 boundary one fold partition contributes ~80% of Var(Delta_m_hat) -- a
-  ## Monte-Carlo nuisance, not sampling information -- so averaging it out gives a
-  ## reproducible, lower-variance point estimate (mean DML aggregation).
+  ## identical RNG draw, so the default path is byte-for-byte unchanged. (The "~80%
+  ## fold-split variance near the boundary" this was added for was the corner-weight
+  ## bug, PR #34; post-fix reps > 1 buys reproducibility across partitions and little
+  ## else -- FINDINGS-2026-08-22-sobol-pmedw-postfix.)
   Dm_reps <- NULL
   if (reps == 1L) {
     phi <- .corner_fit(d, K, binY = FALSE, covars)$phi
@@ -274,14 +273,13 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
   } else {                                                    # "none" (inside the split recursion)
     vmed_split_reject <- NA_integer_; vmed_split_p <- NA_real_
   }
-  ## ---- bootstrap se for the REPORTED interval (A-15, near-boundary remedy) ----
-  ## The analytic IF se for Delta_m is ~0.8x anti-conservative in the near-null regime
-  ## (a structural variance underestimate; Delta_m_hat is itself approximately normal,
-  ## so the Wald *shape* is correct -- only the *width* is wrong). A nonparametric
-  ## bootstrap (resample rows, refit the cross-fit estimator) recovers a valid -- but
-  ## mildly CONSERVATIVE (~1.25x) -- se. Applied only at the top level (the split-test
-  ## recursion above keeps analytic se via its default args), so cost is B (x reps)
-  ## refits per call, not exponential.
+  ## ---- bootstrap se for the REPORTED interval (A-15; an option, not a remedy) ----
+  ## Added when the analytic se_Dm looked ~0.8x anti-conservative near the null; that
+  ## was the corner-weight bug (PR #34). Post-fix the analytic se is exact (0.99) and
+  ## the bootstrap se is 0.84-1.05x the sampling SD (FINDINGS-2026-08-22-sobol-pmedw-
+  ## postfix). Applied only at the top level (the split-test recursion above keeps
+  ## analytic se via its default args), so cost is B (x reps) refits per call, not
+  ## exponential.
   if (se_method == "bootstrap") {
     bsamp <- vapply(seq_len(B), function(b) {
       db <- d[sample.int(n, n, replace = TRUE), , drop = FALSE]
@@ -326,14 +324,9 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
             "(uniformly valid sample-split CI) -- see ?SobolPmedResult 'Coverage caveat'.", call. = FALSE)
   if (warn_boundary && boundary && procedure == "B")
     message("sobol_pmed: near the V_med=0 boundary (split test p=", signif(vmed_split_p, 2),
-            "); reporting Procedure B (image of the Delta_m CI, no gating). ",
-            if (se_method == "bootstrap")
-              "se from nonparametric bootstrap (valid, mildly conservative near the boundary)."
-            else
-              paste0("Note: near-null coverage is approximate -- the analytic se_Dm is ",
-                     "anti-conservative here (a structural near-null variance underestimate); ",
-                     "pass se_method = \"bootstrap\" for a valid (conservative) interval, and/or ",
-                     "reps > 1 for a reproducible point estimate (see ?SobolPmedResult)."))
+            "); reporting Procedure B (image of the Delta_m CI, no gating), which is ",
+            "valid here", if (se_method == "bootstrap") " (se from nonparametric bootstrap)" else "",
+            " -- see ?SobolPmedResult.")
   list(P_med_sobol = unname(P), se = unname(se), ci = unname(ci),
        ci_A = unname(ci_A), ci_B1 = ci_B1, ci_B2 = ci_B2, ci_wald = ci_wald,
        boundary = boundary, Pmed_upper = Pmed_upper, procedure = procedure,
@@ -364,9 +357,10 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
 #' decides the boundary. The default reported interval is **Procedure B**
 #' (`procedure = "B"`): the image of the regular `Delta_m` Wald CI under
 #' `delta -> (c_m/V_T) delta^2` (continuous mapping, no gate). Its validity inherits
-#' that of the input `Delta_m` CI -- so near the boundary use `reps > 1` and
-#' `se_method = "bootstrap"` for a valid interval (the analytic `Delta_m` se is
-#' anti-conservative there; see the boundary coverage section). **Procedure A**
+#' that of the input `Delta_m` CI, which the analytic se delivers: post-fix
+#' (2026-08-22) the `Delta_m` se is exact from strong effects to the null and the
+#' Procedure-B interval covers 0.952-0.996 across six cells (see the boundary
+#' coverage section of [SobolPmedResult]). **Procedure A**
 #' (`procedure = "A"`) is the legacy gated rule (Wald on rejection, one-sided
 #' `[0, Pmed_upper]` otherwise), pointwise- but **not** uniformly-valid across the
 #' near-null transition (Leeb-Potscher pre-test under-coverage). The boundary
@@ -393,11 +387,15 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
 #'   sample-split CI (image of the `Delta_m` CI); `"A"` is the legacy gated interval
 #'   (non-uniform near the boundary). See [SobolPmedResult].
 #' @param reps Integer: repeated cross-fitting draws averaged for the point estimate
-#'   (default `1`). Use `reps > 1` near the boundary for a reproducible, lower-variance
-#'   estimate (it removes the ~80% fold-split variance).
-#' @param se_method Character: `"analytic"` (default) or `"bootstrap"`. The bootstrap
-#'   gives a valid (conservative) se near the non-regular boundary, where the analytic
-#'   se is anti-conservative; off the boundary the analytic se is calibrated.
+#'   (default `1`). `reps > 1` averages the corner influence matrix over
+#'   independent fold draws, making the point estimate reproducible across
+#'   partitions; the efficiency effect is small (post-fix the single-draw
+#'   estimator is already within 3% of oracle efficiency).
+#' @param se_method Character: `"analytic"` (default, influence-function se,
+#'   calibrated from strong effects to the null -- see [SobolPmedResult]) or
+#'   `"bootstrap"` (nonparametric resample-and-refit se, `B` x `reps` refits; an
+#'   option, not a remedy -- post-fix it is no better than the analytic se and
+#'   slightly anti-conservative at the near-null transition).
 #' @param B Integer: bootstrap resamples when `se_method = "bootstrap"` (default `200`).
 #' @param ... Unused.
 #'

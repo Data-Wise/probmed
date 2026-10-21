@@ -1,0 +1,20 @@
+Cell 4 (binary n = 1000), archived d_hat vs fixed-V Gaussian assumptions
+  mean d_hat  : 0.12901 0.12103   true 0.12872 0.11908
+  sd d_hat    : 0.01685 0.03017   sqrt(Vbar diag) 0.01669 0.03085  ratio 1.010 0.978
+  cov d_hat   : -1.718e-04 vs Vbar12 -1.701e-04 (corr -0.338 vs -0.330)
+  skew/ex.kurt: d1 0.253/0.173  d2 0.045/-0.001  (Gaussian 0/0)
+  v_hat cv    : v11 0.123  v22 0.061 ; cor(v11,v22) 0.516
+  studentized (d_hat - true)/se_hat: mean -0.032 0.055  sd 1.016 0.978
+
+Observed SD 0.0770, observed snap rate 0.0190
+                                             variant pred_sd ratio   snap  pass
+                           G0 Gaussian d, fixed Vbar  0.0901  1.17 0.0286 FALSE
+                           G1 archived d, fixed Vbar  0.0788  1.02 0.0203  TRUE
+                       G2 Gaussian d, archived v_hat  0.0904  1.17 0.0288 FALSE
+ G3 Gaussian d with empirical Cov(d_hat), fixed Vbar  0.0867  1.13 0.0261  TRUE
+           G4 archived d, independent archived v_hat  0.0797  1.04 0.0209  TRUE
+
+Variants within the gate: G1 archived d, fixed Vbar; G3 Gaussian d with empirical Cov(d_hat), fixed Vbar; G4 archived d, independent archived v_hat
+
+Sampling noise (G0, 4000 studies of n = 2000): study SD 2.5/50/97.5% = 0.0808 / 0.0901 / 0.0994
+P(study SD <= observed 0.0770) = 0.0032 ; study SD / G0 population SD in [.85,1.15]: 0.995 of studies

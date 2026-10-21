@@ -50,12 +50,16 @@ sample-split CI (image of the \code{Delta_m} CI); \code{"A"} is the legacy gated
 (non-uniform near the boundary). See \link{SobolPmedResult}.}
 
 \item{reps}{Integer: repeated cross-fitting draws averaged for the point estimate
-(default \code{1}). Use \code{reps > 1} near the boundary for a reproducible, lower-variance
-estimate (it removes the ~80\% fold-split variance).}
+(default \code{1}). \code{reps > 1} averages the corner influence matrix over
+independent fold draws, making the point estimate reproducible across
+partitions; the efficiency effect is small (post-fix the single-draw
+estimator is already within 3\% of oracle efficiency).}
 
-\item{se_method}{Character: \code{"analytic"} (default) or \code{"bootstrap"}. The bootstrap
-gives a valid (conservative) se near the non-regular boundary, where the analytic
-se is anti-conservative; off the boundary the analytic se is calibrated.}
+\item{se_method}{Character: \code{"analytic"} (default, influence-function se,
+calibrated from strong effects to the null -- see \link{SobolPmedResult}) or
+\code{"bootstrap"} (nonparametric resample-and-refit se, \code{B} x \code{reps} refits; an
+option, not a remedy -- post-fix it is no better than the analytic se and
+slightly anti-conservative at the near-null transition).}
 
 \item{B}{Integer: bootstrap resamples when \code{se_method = "bootstrap"} (default \code{200}).}
 
@@ -81,9 +85,10 @@ A Williamson et al. (2021) sample-split test on the regular contrast \code{Delta
 decides the boundary. The default reported interval is \strong{Procedure B}
 (\code{procedure = "B"}): the image of the regular \code{Delta_m} Wald CI under
 \verb{delta -> (c_m/V_T) delta^2} (continuous mapping, no gate). Its validity inherits
-that of the input \code{Delta_m} CI -- so near the boundary use \code{reps > 1} and
-\code{se_method = "bootstrap"} for a valid interval (the analytic \code{Delta_m} se is
-anti-conservative there; see the boundary coverage section). \strong{Procedure A}
+that of the input \code{Delta_m} CI, which the analytic se delivers: post-fix
+(2026-08-22) the \code{Delta_m} se is exact from strong effects to the null and the
+Procedure-B interval covers 0.952-0.996 across six cells (see the boundary
+coverage section of \link{SobolPmedResult}). \strong{Procedure A}
 (\code{procedure = "A"}) is the legacy gated rule (Wald on rejection, one-sided
 \verb{[0, Pmed_upper]} otherwise), pointwise- but \strong{not} uniformly-valid across the
 near-null transition (Leeb-Potscher pre-test under-coverage). The boundary

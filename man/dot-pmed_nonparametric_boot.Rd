@@ -4,7 +4,16 @@
 \alias{.pmed_nonparametric_boot}
 \title{Nonparametric Bootstrap for P_med}
 \usage{
-.pmed_nonparametric_boot(extract, x_ref, x_value, n_boot, ci_level, seed, ...)
+.pmed_nonparametric_boot(
+  extract,
+  x_ref,
+  x_value,
+  n_boot,
+  ci_level,
+  seed,
+  n_sim = 10000,
+  ...
+)
 }
 \description{
 Nonparametric Bootstrap for P_med

@@ -16,7 +16,10 @@
   family_y = NULL,
   family_m = NULL,
   i_y = 0,
-  i_m = 0
+  i_m = 0,
+  lp_m0 = NULL,
+  lp_y0 = NULL,
+  u = NULL
 )
 }
 \description{
@@ -27,5 +30,12 @@ treatment is held at \code{x_value} for both outcomes, so the direct effect
 \code{c_prime} cancels and the result reflects mediation only. The intercepts and
 families matter only for non-Gaussian models (they cancel in the Gaussian
 linear contrast); their defaults keep Gaussian behaviour unchanged.
+\code{lp_m0} / \code{lp_y0}, when given, are per-row covariate linear predictors
+(see \code{.std_linear_predictors()}); each pair then draws one analysis row and
+uses it in both arms, standardizing over the observed covariates.
+\code{u}, when given, is an \code{n_sim} x 5 matrix of uniforms (see \code{.crn_uniforms()})
+used in place of fresh RNG draws via the inverse CDF. Reusing one \code{u} across
+bootstrap draws (common random numbers) makes their Monte Carlo error move
+together, so it no longer inflates the bootstrap spread.
 }
 \keyword{internal}

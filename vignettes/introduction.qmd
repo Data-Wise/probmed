@@ -143,7 +143,46 @@ And visualize the bootstrap distribution:
 plot(result)
 ```
 
+### Model-based bootstrap (opt-in)
+
+`method = "model_bootstrap"` simulates complete synthetic datasets from the
+fitted mediator and outcome models, with the observed treatment and covariate
+rows held fixed, refits both equations on the same rows, and recomputes
+$P_{med}$. Unlike the parametric bootstrap, it re-estimates the residual scales
+as well as the coefficients. The estimate is the fitted-model plug-in; the
+percentile interval is reported only when at least 99% of the draws are valid
+(see `result@diagnostics`). It is not the default, and its coverage has not
+yet been calibrated.
+
+```{r}
+#| label: model-bootstrap
+#| eval: false
+result_mb <- pmed(
+  Y ~ X + M + C,
+  formula_m = M ~ X + C,
+  data = data,
+  treatment = "X",
+  mediator = "M",
+  method = "model_bootstrap",
+  n_boot = 1000,
+  seed = 1
+)
+result_mb@diagnostics$interval_status
+```
+
 ### MBCO intervals (deterministic)
+
+At the exact null, the Gaussian procedure compares the reduced models
+`a = 0` and `b = 0` and retains their maximum likelihood. This repair does not
+establish coverage calibration; the expanded validation plan remains pending.
+
+Single-mediator MBCO uses ML SSE/n residual variances consistently in its
+point estimate and likelihood. Inspect `result@diagnostics` for endpoint and
+interval status. Truncated bounds are not verified LR roots; detected
+disconnected sets and numerical failures return missing bounds. A full
+bounded-domain scan checks re-entry at its recorded resolution, but it can
+miss narrower components. The parallel-mediator implementation retains its
+legacy inversion behavior.
 
 For Gaussian models you can use the Model-Based Constrained Optimization (MBCO)
 interval, which inverts a likelihood-ratio test instead of resampling — so it is

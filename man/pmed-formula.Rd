@@ -22,13 +22,21 @@
 
 \item{x_value}{Treatment value (default: 1)}
 
-\item{method}{Inference method: "parametric_bootstrap", "nonparametric_bootstrap", "plugin", "mbco"}
+\item{method}{Inference method: "parametric_bootstrap", "nonparametric_bootstrap",
+"plugin", "mbco", or the opt-in "model_bootstrap" (see Details).}
 
 \item{n_boot}{Number of bootstrap samples (default: 1000)}
 
 \item{ci_level}{Confidence level (default: 0.95)}
 
-\item{seed}{Random seed for reproducibility}
+\item{seed}{Random seed for reproducibility. For single-mediator plug-in
+and bootstrap methods, an explicit seed resets the caller's RNG and the
+computation then advances it. MBCO does not use the seed.}
+
+\item{n_sim}{Number of cross-world pairs drawn per evaluation of the P_med
+core (default 10000). Used by the plug-in and bootstrap methods per
+evaluation. \code{"model_bootstrap"} uses \code{100 * n_sim} pairs for its point
+estimate. Ignored by \code{"mbco"}, which is closed form. Distinct from \code{n_boot}.}
 
 \item{...}{Additional arguments}
 }
@@ -39,6 +47,31 @@ PmedResult object
 Compute P_med from Formula
 }
 \details{
+The Gaussian MBCO exact null is the union of \code{a = 0} and \code{b = 0};
+both reduced-model likelihoods are fitted and their maximum is used.
+Single-mediator MBCO uses ML residual variances (SSE/n) for both its
+point estimate and likelihood. This can change the point estimate relative
+to the earlier residual-df scale convention.
+Numerical statuses and scan resolution are in \code{result@diagnostics}.
+Verified roots use tolerance at most 1e-9. The bounded-domain scan has
+spacing at most half the outward-search step and can miss narrower
+components; it does not prove global connectedness. Detected disconnected
+sets or failed profiles return missing interval bounds. Domain-truncated
+bounds remain diagnostic bounds and are not verified LR endpoints.
+
+\code{method = "model_bootstrap"} (opt-in; not the default) simulates complete
+synthetic datasets from the fitted sequential models with the observed
+treatment and covariate rows held fixed: the mediator from its model, then
+the outcome using the simulated mediator. Both equations are refitted on the
+same rows, so coefficients and residual scales are re-estimated jointly. The
+estimate is the fitted-model plug-in; the percentile interval is reported
+only when at least 99\% of draws are valid (finite, converged, not
+separated), otherwise both bounds are \code{NA} with
+\code{result@diagnostics$interval_status = "bootstrap_incomplete"}. It models
+uncertainty under the specified model; it does not correct misspecification.
+Calibration is limited to the documented simulation cells (see NEWS);
+it does not establish general nominal coverage.
+
 \code{method = "mbco"} returns a Model-Based Constrained Optimization interval
 (Tofighi & Kelley, 2020): a likelihood-ratio interval for P_med and for the
 indirect effect \code{a*b}, obtained by inverting the constrained-likelihood test
@@ -47,10 +80,25 @@ supports a Gaussian outcome and mediator, with covariates, and any treatment
 contrast \code{x_ref != x_value}. For binary or other non-Gaussian models, use the
 bootstrap methods.
 
-For \code{method = "mbco"}, the \code{converged} flag reflects the \strong{P_med} interval
-only. The indirect-effect interval is reported separately and may be \code{NA} on
+For single-mediator \code{method = "mbco"}, \code{converged} requires two verified
+\strong{P_med} LR endpoints and no detected re-entry on the scan. It does not
+establish coverage calibration. The indirect-effect interval is reported
+separately and may be \code{NA} on
 a degenerate design (e.g. a non-finite delta-method scale for \code{a*b}) even when
 the P_med interval converges; check \code{ie_ci_lower} / \code{ie_ci_upper} directly.
+
+\strong{Composite null.} No mediation is the union of a = 0 and b = 0. At the
+double null a = b = 0, the profile LR at P_med = 0.5 is the minimum of the
+two branch statistics, so the chi-square(1) interval is conservative:
+calibration coverage was 0.997 to 0.998 at the 95\% level, and about 0.994
+near the origin. \verb{@diagnostics$pmed$branch_lr} holds the LR statistics for
+a = 0 and b = 0. \verb{@diagnostics$pmed$near_double_null} is \code{TRUE} when both
+are below the cutoff (neither path individually significant), and \code{print()}
+then notes that the interval is conservative. Minimum observed coverage
+on the tested lattice was 0.9415, not a uniform coverage guarantee.
+It stays conservative until one path is about
+4 standard errors from zero, so a single null with a weak other path is
+conservative too, and the flag can be \code{FALSE} there.
 }
 \examples{
 # Toy example: Simple mediation model
