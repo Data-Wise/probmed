@@ -14,7 +14,7 @@
 #' @param pmedW_se Numeric: standard error.
 #' @param NIE_W,NDE_W,TE_W Numeric: Wasserstein NIE, NDE, and total effect.
 #' @param synergy Numeric: triangle gap `NIE^W + NDE^W - TE^W >= 0`.
-#' @param boundary Logical: `TRUE` when the estimator is near the NIE^W = 0 boundary.
+#' @param boundary Logical: `TRUE` when either Wasserstein component is near zero.
 #' @param method Character: estimation method (`"eif"`, `"bootstrap"`, or `"dr"`).
 #' @param n Integer: sample size.
 #' @param ci_level Numeric: confidence level.
@@ -40,12 +40,12 @@ WassersteinPmedResult <- S7::new_class(
   validator = function(self) {
     if (length(self@NIE_W) && self@NIE_W < 1e-4)
       warning("NIE^W near 0: P_med^W is near the non-regular boundary; ",
-              "SE via EIF degenerates. Bootstrap SE is reported instead.")
+              "regular Wald inference may be unreliable.")
     NULL
   }
 )
 
-## ===================== transport + EIF engine (VERIFIED, d=1) =====================
+## ============== transport engine for directly observed corner samples =============
 
 # 1-D quadratic Wasserstein via quantile transport (Brenier monotone rearrangement).
 .w2_1d <- function(y1, y2, ngrid = 4096L) {
@@ -87,30 +87,6 @@ WassersteinPmedResult <- S7::new_class(
     out$se <- sqrt((stats::var(c11) + stats::var(c10) + stats::var(c00)) / n)
   }
   out
-}
-
-## ===================== corner-law estimator: MC g-computation ====================
-
-# Parametric g-computation of the three corner laws via Monte-Carlo.
-# Draws Mstar ~ N(muM(a'), sM) and Ystar ~ N(muY(a, Mstar, C), sY) or Bernoulli.
-.corner_laws_gcomp <- function(d, covars, n_mc = 20000L, binY = FALSE) {
-  cf  <- paste(covars, collapse = " + ")
-  m_M <- stats::lm(stats::as.formula(paste("M ~ A +", cf)), data = d)
-  f_Y <- stats::as.formula(paste("Y ~ A * M +", cf))
-  m_Y <- stats::glm(f_Y, data = d,
-                    family = if (binY) stats::binomial() else stats::gaussian())
-  sM  <- stats::sigma(m_M)
-  sY  <- if (binY) NA_real_ else stats::sigma(m_Y)
-  Cdraw <- d[sample.int(nrow(d), n_mc, replace = TRUE), covars, drop = FALSE]
-  corner <- function(a, ap) {
-    nd_M  <- data.frame(A = ap, Cdraw)
-    muM   <- stats::predict(m_M, newdata = nd_M)
-    Mstar <- muM + stats::rnorm(n_mc, 0, sM)
-    nd_Y  <- data.frame(A = a, M = Mstar, Cdraw)
-    muY   <- stats::predict(m_Y, newdata = nd_Y, type = "response")
-    if (binY) stats::rbinom(n_mc, 1, muY) else muY + stats::rnorm(n_mc, 0, sY)
-  }
-  list(nu11 = corner(1, 1), nu10 = corner(1, 0), nu00 = corner(0, 0))
 }
 
 ## ====================== cross-fit DR corner-CDF estimator =======================
@@ -261,21 +237,35 @@ pmedW_md <- function(NU11, NU10, NU00, eps = 0.1) {
 #'
 #' Three estimation methods are available:
 #' \itemize{
-#'   \item `"eif"` (default): parametric g-computation corner samples + EIF-based SE.
-#'     Valid when the g-comp working models are correct. Fast; d = 1 only.
-#'   \item `"bootstrap"`: parametric g-computation + bootstrap CI. Slower but does not
-#'     require the EIF to be non-degenerate; used automatically near the NIE^W = 0
-#'     boundary.
+#'   \item `"eif"` (default): deterministic parametric g-computation with an
+#'     observed-row influence-function SE. Includes both fitted-model and empirical
+#'     covariate-distribution uncertainty. Requires correct working models, iid
+#'     rows, full-rank fits, and nonzero components; d = 1 only. The legacy name
+#'     does not assert nonparametric efficiency.
+#'   \item `"bootstrap"`: row bootstrap refitting the same deterministic estimator.
+#'     Used automatically near either zero-component boundary. Boundary coverage
+#'     is not guaranteed by this fallback.
 #'   \item `"dr"`: cross-fit DR corner-CDF estimator (multiply robust: consistent when
 #'     either the outcome or propensity model is wrong, mediator model correct) with
 #'     bootstrap SE. Slowest; d = 1 only.
 #' }
 #'
+#' @details
+#' The g-computation methods assume a homoscedastic Gaussian mediator model
+#' `M ~ A + covars` and an outcome model `Y ~ A * M + covars` (homoscedastic
+#' Gaussian, or Bernoulli-logit when `binY = TRUE`). Covariates are standardized
+#' over the observed rows. Residual variances use mean squared residuals, not
+#' degrees-of-freedom corrections. Gaussian outcomes use 128-point quadrature
+#' over mixture quantiles; binary outcomes use 64-point normal quadrature.
+#' These are numerical approximations, not certified error bounds. Wald
+#' inference is model-based and requires regular, nonzero distance components;
+#' it is not a method for clustered observations or unsupported outcome families.
+#'
 #' @param object A `data.frame` with columns `A` (binary 0/1), `M` (mediator),
 #'   `Y` (outcome), and the covariates named in `covars`.
 #' @param covars Character vector of covariate column names. Default `"C"`.
-#' @param n_mc Integer: Monte-Carlo draws for g-comp corner laws (default 20000).
-#'   Ignored when `method = "dr"`.
+#' @param n_mc Legacy compatibility argument (default 20000), now ignored.
+#'   G-computation uses deterministic quadrature instead of simulated corner laws.
 #' @param binY Logical: if `TRUE`, treats `Y` as binary (uses logistic g-comp).
 #' @param method Character: `"eif"` (default), `"bootstrap"`, or `"dr"`.
 #' @param n_boot Integer: bootstrap replications (default 200). Used by
@@ -340,12 +330,12 @@ S7::method(wasserstein_pmed, S7::class_data.frame) <-
       synergy <- NIE + NDE - TEW
       method_out <- "dr"
     } else {
-      ## g-comp path: parametric Monte-Carlo corner laws
-      cl  <- .corner_laws_gcomp(object, covars, n_mc, binY)
-      eng <- .pmedW_engine(cl$nu11, cl$nu10, cl$nu00, eif = (method == "eif"))
+      ## Observed-data inference through shared fitted models and empirical C.
+      eng <- .wasserstein_observed(object, covars, binY,
+                                    influence = (method == "eif"))
       NIE <- eng$NIE_W; NDE <- eng$NDE_W; TEW <- eng$TE_W; D <- NIE + NDE; P <- eng$pmedW
       synergy <- eng$synergy
-      on_boundary <- NIE < 0.05 * D
+      on_boundary <- min(NIE, NDE) < 0.05 * D
 
       if (method == "eif" && !on_boundary) {
         se <- eng$se
@@ -354,11 +344,10 @@ S7::method(wasserstein_pmed, S7::class_data.frame) <-
       } else {
         ## boundary or bootstrap requested: fall back to bootstrap CI
         if (method == "eif" && on_boundary)
-          message("wasserstein_pmed: NIE^W near 0 (boundary); switching to bootstrap CI.")
+          message("wasserstein_pmed: a Wasserstein component is near 0 (boundary); switching to bootstrap CI; boundary coverage is not guaranteed.")
         bs <- vapply(seq_len(n_boot), function(b) {
           db  <- object[sample.int(nrow(object), replace = TRUE), , drop = FALSE]
-          clb <- .corner_laws_gcomp(db, covars, n_mc, binY)
-          .pmedW_engine(clb$nu11, clb$nu10, clb$nu00, eif = FALSE)$pmedW
+          .wasserstein_observed(db, covars, binY, influence = FALSE)$pmedW
         }, numeric(1))
         se <- stats::sd(bs, na.rm = TRUE)
         ci <- stats::quantile(bs, c((1 - ci_level) / 2, 1 - (1 - ci_level) / 2),
@@ -388,7 +377,7 @@ S7::method(print, WassersteinPmedResult) <- function(x, ...) {
   cat(sprintf("  NIE^W=%.3f  NDE^W=%.3f  TE^W=%.3f  G^W(synergy)=%.3f\n",
               x@NIE_W, x@NDE_W, x@TE_W, x@synergy))
   if (x@boundary)
-    cat("  ! Near NIE^W=0 boundary: bootstrap CI reported; inference is conservative.\n")
+    cat("  ! Near a zero-component boundary: bootstrap CI reported; coverage is not guaranteed.\n")
   if (x@synergy > 0.1 * (x@NIE_W + x@NDE_W))
     cat("  ! G^W > 10% of (NIE^W + NDE^W): triangle gap is non-negligible.\n")
   invisible(x)

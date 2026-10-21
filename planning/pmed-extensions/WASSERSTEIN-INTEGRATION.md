@@ -1,5 +1,10 @@
 # wasserstein_pmed() — integration spec (planning → R/ promotion)
 
+**Historical prototype:** the production g-computation path was replaced in the
+2026-10-20 observed-data inference repair. The MC helper below is historical.
+See `docs/reports/PLAN-wasserstein-observed-inference-2026-10-20.md` and current
+`wasserstein_pmed` help; `n_mc` is retained but ignored.
+
 Prototype for **pmed-modern Paper 4** ($P_{med}^{W}$, transport scale). Mirrors the gauge/sobol
 graduation pattern: verified prototype lives here in `planning/pmed-extensions/`; promotion to
 `probmed/R/` (S7 + NAMESPACE + tests + docs) is a **Claude Code** task (per Cowork CLAUDE.md, package

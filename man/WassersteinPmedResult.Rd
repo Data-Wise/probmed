@@ -30,7 +30,7 @@ WassersteinPmedResult(
 
 \item{synergy}{Numeric: triangle gap \code{NIE^W + NDE^W - TE^W >= 0}.}
 
-\item{boundary}{Logical: \code{TRUE} when the estimator is near the NIE^W = 0 boundary.}
+\item{boundary}{Logical: \code{TRUE} when either Wasserstein component is near zero.}
 
 \item{method}{Character: estimation method (\code{"eif"}, \code{"bootstrap"}, or \code{"dr"}).}
 

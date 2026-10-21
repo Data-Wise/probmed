@@ -2,6 +2,15 @@
 
 ## Integration review
 
+* Repair Wasserstein `method = "eif"` uncertainty: use observed-row influence
+  functions through both fitted regressions and empirical covariates, retaining
+  shared-corner covariance. The legacy name does not assert nonparametric
+  efficiency. Gaussian-mixture and logistic-normal corner laws now use
+  deterministic quadrature and maximum-likelihood residual variances; `n_mc`
+  is retained but ignored. Point estimates and RNG consumption therefore change.
+  Row bootstrap refits the same estimator. Either near-zero Wasserstein
+  component triggers a diagnostic fallback, without a boundary-coverage claim.
+
 * Declare the actual R >= 4.1 source requirement (native pipes), independently
   of the older minimum needed to read the format-2 datasets.
 * Qualify the finite-Monte-Carlo and calibration claims: common random numbers

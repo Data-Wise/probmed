@@ -11,8 +11,12 @@ BLOCKER: the new public Wasserstein EIF interval uses simulated-corner
 sample size, omitting fitted-model uncertainty. On the same 500 rows,
 raising n_mc from 2,000 to 200,000 reduces SE from 0.03781 to 0.003726.
 See docs/reports/REVIEW-dev-main-blocker-2026-10-20.md. Full CI was stopped;
-neither PR is merged and protection is unchanged. A scientific inference
-repair/policy decision is needed before integration. No estimator or gate changes.
+neither PR is merged and protection is unchanged. The author selected a proper
+observed-data inference repair. PR #55 now derives a model-based row influence
+function with shared regression/covariate uncertainty and deterministic corner
+integration. Focused tests pass 35 assertions; the existing Wasserstein suite
+passes 42. The omitted-covariate mutation is detected. Repeated-sampling
+validation and full commit-bound CI are pending. No P_med/I6/I7 gate changes.
 GitHub CI transition in progress. `main` still requires `ubuntu-latest (release)`;
 do not disable that check until a real PR head has a verified
 `local-ci/probmed-full` status and branch protection is switched. GitHub Pages

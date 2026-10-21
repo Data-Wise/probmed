@@ -24,8 +24,8 @@ wasserstein_pmed(
 
 \item{covars}{Character vector of covariate column names. Default \code{"C"}.}
 
-\item{n_mc}{Integer: Monte-Carlo draws for g-comp corner laws (default 20000).
-Ignored when \code{method = "dr"}.}
+\item{n_mc}{Legacy compatibility argument (default 20000), now ignored.
+G-computation uses deterministic quadrature instead of simulated corner laws.}
 
 \item{binY}{Logical: if \code{TRUE}, treats \code{Y} as binary (uses logistic g-comp).}
 
@@ -54,15 +54,29 @@ the 2-Wasserstein distances between the corner laws \verb{nu(a, a')}.
 
 Three estimation methods are available:
 \itemize{
-\item \code{"eif"} (default): parametric g-computation corner samples + EIF-based SE.
-Valid when the g-comp working models are correct. Fast; d = 1 only.
-\item \code{"bootstrap"}: parametric g-computation + bootstrap CI. Slower but does not
-require the EIF to be non-degenerate; used automatically near the NIE^W = 0
-boundary.
+\item \code{"eif"} (default): deterministic parametric g-computation with an
+observed-row influence-function SE. Includes both fitted-model and empirical
+covariate-distribution uncertainty. Requires correct working models, iid
+rows, full-rank fits, and nonzero components; d = 1 only. The legacy name
+does not assert nonparametric efficiency.
+\item \code{"bootstrap"}: row bootstrap refitting the same deterministic estimator.
+Used automatically near either zero-component boundary. Boundary coverage
+is not guaranteed by this fallback.
 \item \code{"dr"}: cross-fit DR corner-CDF estimator (multiply robust: consistent when
 either the outcome or propensity model is wrong, mediator model correct) with
 bootstrap SE. Slowest; d = 1 only.
 }
+}
+\details{
+The g-computation methods assume a homoscedastic Gaussian mediator model
+\code{M ~ A + covars} and an outcome model \code{Y ~ A * M + covars} (homoscedastic
+Gaussian, or Bernoulli-logit when \code{binY = TRUE}). Covariates are standardized
+over the observed rows. Residual variances use mean squared residuals, not
+degrees-of-freedom corrections. Gaussian outcomes use 128-point quadrature
+over mixture quantiles; binary outcomes use 64-point normal quadrature.
+These are numerical approximations, not certified error bounds. Wald
+inference is model-based and requires regular, nonzero distance components;
+it is not a method for clustered observations or unsupported outcome families.
 }
 \examples{
 set.seed(1)

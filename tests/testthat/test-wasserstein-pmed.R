@@ -131,7 +131,7 @@ test_that("eif method falls back to bootstrap at the NIE^W=0 boundary", {
   skip_on_cran()
   # No A -> M effect => true NIE^W = 0; a strong direct effect makes NDE^W (hence D)
   # large, so the estimated NIE^W/D ratio sits well under the 0.05 boundary threshold.
-  # n_mc = 20000 keeps the finite-MC upward bias of the empirical W2 small.
+  # Deterministic mixture integration avoids finite-MC corner noise.
   set.seed(9); n <- 1500
   C <- rnorm(n); A <- rbinom(n, 1, 0.5)
   M <- 0.5 * C + rnorm(n)                     # no A -> M effect => NIE^W ~ 0
