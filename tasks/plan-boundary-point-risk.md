@@ -5,7 +5,7 @@ Does not touch the older `tasks/plan.md` / `tasks/todo.md` (superseded Phase 0-6
 
 ## Status (2026-10-21)
 
-Phase A, T3 and Checkpoint A done (2026-10-21); Reviews A, B1 and G triaged; grill ledger Q1-Q6 recorded (Q5 reversed, Q1-Q3 and Q6 provisional). **New Phase G (gate design) added 2026-10-21 and now gates T4/T5**: the frozen bias/SD gate is infeasible in cells 5 and 7 (TV .1404 vs needed .179), so no candidate can be tested until the author registers feasible per-cell gates. Branch `feature/boundary-point-risk` is pushed (0 behind `origin/dev`, 9 ahead). See `docs/specs/` and `.STATUS`.
+Phase A, T3 and Checkpoint A done (2026-10-21); Reviews A, B1 and G triaged; grill ledger Q1-Q6 recorded (Q5 reversed, Q1-Q3 and Q6 provisional). **New Phase G (gate design) added 2026-10-21 and now gates T4/T5**: the frozen bias/SD gate is infeasible in cells 5 and 7 (TV .1404 vs needed .179), so no candidate can be tested until the author registers feasible per-cell gates. G2 (floor and ladder, n = 500 and 1000), the G3 checker and the G4 skeleton are done; branch `feature/boundary-point-risk` is pushed. See `docs/specs/` and `.STATUS`.
 
 ## Overview
 
@@ -69,10 +69,15 @@ with output, frozen design, tests) rather than a layer.
 - Review A triaged; no unresolved high-severity finding.
 
 ### Phase G: Gate design (added 2026-10-21; author-owned)
-- G1 Author writes per-cell gates (the author's input; nothing proceeds without it)
-- G2 Derive the minimax floor and weak-signal ladder from data-law TV (no candidate, no archived estimates)
-- G3 Feasibility pre-check of every proposed gate with the two-point condition
-- G4 Amend the plan with ONE complete gate set (Codex G finding 4): ladder, tolerances per n, boundary flag, between-ladder-point control
+- G1a/G1b Author: max-RMSE tolerances at n = 500 and n = 1000 (independent, not scaled)
+- G2 Minimax floor and weak-signal ladder from data-law TV (done, n = 500 and 1000)
+- G2b Floors for in-between and node-to-node pairs (assistant; feeds G1c)
+- G2c Disjoint seed block, audited (assistant)
+- G1c Author: between-ladder-point control (after G2b)
+- G1d Author: boundary flag (last; depends on G1a-G1c)
+- G3 Feasibility pre-check of the tolerances against the floors (`scripts/check-gate-tolerance.R`)
+- G4 ONE complete gate set (Codex G finding 4), then Review G2 and Checkpoint G
+Order: G2b and G2c now (no author input) -> G1a, G1b -> G1c -> G3 -> G1d -> G4.
 - Rule: gates are registered before any fresh data and never retrofitted to archived results; PRs #54/#55 stay judged by the original gates (Q4).
 
 ### Phase B: Candidate and tests

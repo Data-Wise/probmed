@@ -58,20 +58,38 @@ Research checks: `Rscript scripts/test-wasserstein-boundary-selection.R`,
 
 Source: `docs/specs/GRILL-boundary-gates-2026-10-21.md`, `docs/specs/REVIEW-codex-boundary-point-risk-G-2026-10-21.md`.
 
-- [ ] **G1 Author writes per-cell gates** (author; XS) — HELD on the author
-  - Accept: per-cell risk/bias gates stated on substantive grounds, separate tolerances at n = 500 and n = 1000 (Q5 reversal), no reference to any candidate's archived risk.
+- [ ] **G1a Author: max-RMSE tolerances at n = 500** (direct, indirect; author, XS) — HELD on the author
+  - Accept: two numbers on substantive grounds ("largest error in P defensible in a paper"), no reference to any candidate's archived risk; each at least the G2 floor (.092 / .066), recommended >= 1.5x (about .14 / .10).
   - Deps: none
-- [x] **G2 Floor and ladder derivation** (S, 1 doc + script) — DONE 2026-10-21 at n = 500 only: floor on max RMSE about .09 (direct ladder) and .07 (indirect); `docs/specs/DERIVE-boundary-floor-2026-10-21.md`. n = 1000 and ladder-to-ladder pairs still open.
+- [ ] **G1b Author: max-RMSE tolerances at n = 1000** (author, XS) — stated on their own, not scaled from G1a (floor fell only ~10%: .082 / .059)
+  - Deps: none (independent of G1a)
+- [ ] **G1c Author: between-ladder-point risk control** (author, XS)
+  - Accept: a control that rules out passing only at the nodes; recommended default: max RMSE over a finer interpolation grid at the G1a/G1b tolerances.
+  - Deps: G2b
+- [ ] **G1d Author: boundary flag** (threshold in SE units, tolerable miss rate on the ladder, guard against its own Hodges-type failure; author, S)
+  - Accept: defined before any fresh data; decided last because it depends on G1a-G1c; the assistant proposes no threshold (it would be tuned).
+  - Deps: G1a, G1b, G1c
+- [x] **G2 Floor and ladder derivation** (S, 1 doc + script) — DONE 2026-10-21 at n = 500 and n = 1000: floor on max RMSE about .09 / .07 (n = 500) and .08 / .06 (n = 1000) on the direct / indirect ladders; `docs/specs/DERIVE-boundary-floor-2026-10-21.md` (sections 3, 6). Ladder-to-ladder pairs are G2b.
   - Accept: two-point/minimax floor per ladder point from the DGP laws alone; ladder positions set by data-law TV along the DGP path (not SE units of d2); zero-indirect side (cell 6 analog) included.
   - Verify: script generalizes `scripts/check-gate-feasibility-tv.R`; controls (shift 0, large shift) reproduced; output saved under `docs/specs/data/`.
   - Files: `docs/specs/DERIVE-boundary-floor-<date>.md`, `scripts/check-boundary-floor-ladder.R`
-  - Deps: none (can run before G1; available on request)
+  - Deps: none
+- [ ] **G2b Floor for in-between and ladder-to-ladder pairs** (S, extend script; assistant, runnable now)
+  - Accept: floors at points between the ladder nodes and for node-to-node pairs, n = 500 and 1000, using the law at each point (not only the boundary law); controls as in G2; output under `docs/specs/data/`; says whether the in-between floor exceeds the boundary-to-node floor.
+  - Verify: shift 0 gives TV 0; a node pair reproduces the boundary-pair TV when one end is the boundary.
+  - Files: `scripts/check-boundary-floor-ladder.R` (extend), `docs/specs/DERIVE-boundary-floor-2026-10-21.md`
+  - Deps: G2
+- [ ] **G2c Disjoint seed block** (XS; assistant, runnable now)
+  - Accept: a seed range disjoint from every earlier study (20561020 + cell*10000 + replicate and predecessors), audited by script and quoted; not frozen until T5.
+  - Verify: audit script lists each earlier range and shows no overlap.
+  - Files: `scripts/audit-seed-ranges.R`, a line in the gate-set draft
+  - Deps: none
 - [ ] **G3 Feasibility pre-check of the author's gates** (S) — TOOL READY 2026-10-21: `Rscript scripts/check-gate-tolerance.R <n> <tol_direct> [<tol_indirect>]` (controls pass; verdict INFEASIBLE / NEAR-FLOOR / ROOM against the G2 floor). Left unchecked: needs the author's tolerances (G1). The 1.5x NEAR-FLOOR cut is a reporting convention, not derived.
   - Accept: each proposed gate is tested against the G2 floor; any infeasible gate is reported as a finding, not retuned.
-  - Deps: G1, G2
+  - Deps: G1a, G1b, G1c, G2, G2b
 - [ ] **G4 One complete gate set** (S, plan amendment) — SKELETON DRAFTED 2026-10-21 (`docs/specs/SPEC-boundary-gate-set-DRAFT-2026-10-21.md`); all AUTHOR cells blank, not registered
   - Accept: ladder, tolerances per n, boundary flag definition and miss-rate gate, between-ladder-point risk control, and which of bias/SD, SE/SD, coverage are kept; Q1-Q3, Q6 promoted from PROVISIONAL or reversed in the ledger.
-  - Deps: G3
+  - Deps: G3, G1d, G2c
 - [ ] **Review G2 (Codex)** on the complete gate set, before any freeze (this is the Review B focus for gates; run once, record verbatim, triage)
   - Deps: G4
 
