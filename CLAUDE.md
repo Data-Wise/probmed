@@ -83,6 +83,6 @@ probmed is an application package in the mediationverse (medfit foundation, RMed
 
 - `main` protected (PR required, no force-push/deletion; required check `ubuntu-latest (release)`; admin override available). `dev` = integration. `gh-pages` = pkgdown. `feature/*` = worktrees.
 - **CI policy (2026-10-20):** hosted R-CMD-check runs on PRs to `main` only. Commit-bound local CI (PR #53, `local-ci/probmed-full`) is being staged; do not disable the hosted required check until a real PR head has a verified local status (`tasks/PLAN-local-ci-transition-2026-10-20.md`).
-- **Holds (author, 2026-10-20/21):** PRs #54/#55 stay unmerged until the frozen boundary diagnostics pass; passing checks do not authorize release, submission, or deployment.
+- **Holds:** PRs #54/#55 were merged on 2026-10-21 at the author's instruction; the scientific hold on the boundary diagnostics is NOT cleared (the frozen bias gate was shown infeasible; see `docs/reports/REPORT-boundary-point-risk-2026-10-21.md`). v0.4.0 is a GitHub release only: no CRAN or manuscript submission is authorized.
 
-**Version**: 0.3.0.9000 (dev; release on hold pending manuscript submission) · **Last Updated**: 2026-10-21
+**Version**: 0.4.0 (GitHub release 2026-10-21; not on CRAN) · **Last Updated**: 2026-10-21

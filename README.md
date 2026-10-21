@@ -66,7 +66,7 @@ Beyond the core `pmed()`, the package ships cross-fitted, influence-function-bas
 
 ## Status and known limitations
 
-The development version is `0.3.0.9000`; a release is on hold pending manuscript submission. For the binary Wasserstein proportion mediated, estimation near an exactly zero mediation path is hard: the plug-in bias is of order $n^{-1/4}$, none of the point estimators tested met the frozen bias gate (\|bias\|/SD \< .10) there, and that gate was shown to be infeasible for any estimator with values in \[0, 1\] in the zero-direct and weak-direct cells at n = 500, and the Fieller interval is the supported uncertainty statement. See the [boundary article section](https://data-wise.github.io/probmed/articles/modern-estimands.html#boundary-behavior) and `docs/reports/REPORT-boundary-point-risk-2026-10-21.md`.
+Version `0.4.0` (GitHub release only; not submitted to CRAN). For the binary Wasserstein proportion mediated, estimation near an exactly zero mediation path is hard: the plug-in bias is of order $n^{-1/4}$, none of the point estimators tested met the frozen bias gate (\|bias\|/SD \< .10) there, and that gate was shown to be infeasible for any estimator with values in \[0, 1\] in the zero-direct and weak-direct cells at n = 500, and the Fieller interval is the supported uncertainty statement. See the [boundary article section](https://data-wise.github.io/probmed/articles/modern-estimands.html#boundary-behavior) and `docs/reports/REPORT-boundary-point-risk-2026-10-21.md`.
 
 ## Mediationverse Ecosystem
 

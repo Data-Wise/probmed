@@ -75,6 +75,8 @@ new candidate and validating it with disjoint fresh simulations. Do not advance
 I7 or change any frozen diagnostic. Private teaching artifacts remain local;
 no book source, PDF, backup, or local registration belongs in this commit.
 
+2026-10-21 RELEASE v0.4.0 (author instruction: "release to github"): version bumped from 0.3.0.9000, NEWS heading dated, Rd/R cross-references updated. 827 tests pass (0 failed, 0 skipped). GitHub release only; no CRAN or manuscript submission authorized. The scientific hold on the boundary diagnostics is NOT cleared by the release; PRs #54/#55 were merged earlier the same day at the author's instruction.
+
 2026-10-21 boundary point-risk (branch `feature/boundary-point-risk`, from `dev`; plan
 `tasks/plan-boundary-point-risk.md`, list `tasks/todo-boundary-point-risk.md`): Phase A and
 T3 done. CLOSED 2026-10-21 (author: negative-result endpoint): the G8 pilot of five reference

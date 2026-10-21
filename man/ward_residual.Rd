@@ -79,7 +79,7 @@ decomposition (\code{inst/sim/results/phi_decomp_summary.csv};
 with a corner-EIF weight bug: \code{ifelse()} on a scalar test returned the
 \strong{first fold row's} propensity (and mediator-density proxy) for every row,
 so the inverse-probability weights were one arbitrary constant per fold
-(NEWS, 0.3.0.9000). The "fold-split noise" those grids diagnosed was this
+(NEWS, 0.4.0). The "fold-split noise" those grids diagnosed was this
 bug. They are superseded. The bootstrap arm and both gates were
 re-measured with the fix the same day
 (\code{docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md},

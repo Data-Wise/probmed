@@ -47,7 +47,7 @@
 #'   48,000-rep grid as a "narrowness proxy" whose coverage separation was
 #'   explained by Wald width (`inst/sim/results/weakid_validation_cells.csv`).
 #'   All of that measured the estimator *before* the corner-EIF weight fix
-#'   (NEWS 0.3.0.9000): the ~30% se shortfall and the 2x gap were the bug. The
+#'   (NEWS 0.4.0): the ~30% se shortfall and the 2x gap were the bug. The
 #'   threshold stays at 3 -- with no signal to calibrate to, a new number would
 #'   imply a calibration that does not exist -- and the field is kept because a
 #'   user running the bootstrap may want to see its instability.
@@ -183,7 +183,7 @@ GaugePmedResult <- S7::new_class(
 #'   with a corner-EIF weight bug: `ifelse()` on a scalar test returned the
 #'   **first fold row's** propensity (and mediator-density proxy) for every row,
 #'   so the inverse-probability weights were one arbitrary constant per fold
-#'   (NEWS, 0.3.0.9000). The "fold-split noise" those grids diagnosed was this
+#'   (NEWS, 0.4.0). The "fold-split noise" those grids diagnosed was this
 #'   bug. They are superseded. The bootstrap arm and both gates were
 #'   re-measured with the fix the same day
 #'   (`docs/specs/FINDINGS-2026-08-22-postfix-bootstrap-gates.md`,

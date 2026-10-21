@@ -1,4 +1,14 @@
-# probmed 0.3.0.9000 (development)
+# probmed 0.4.0 (2026-10-21)
+
+GitHub release (not submitted to CRAN). Highlights since 0.3.0: the gauge-calibrated
+(`ward_residual()`), incremental (`incr_pmed()`, `incr_sensitivity()`), Sobol
+(`sobol_pmed()`), Wasserstein (`wasserstein_pmed()`) and rg-flow
+(`rg_flow_contrast()`) estimators and `pmed_sensitivity()`; the observed-data
+Wasserstein inference repair; MBCO diagnostics; `method = "model_bootstrap"`;
+the `multilevel_designs` dataset; and the website and README corrections. Known
+limitation: near an exactly zero mediation path the binary Wasserstein point
+estimator has no accepted solution (see the boundary report in `docs/reports/`);
+the Fieller interval is the supported uncertainty statement there.
 
 ## Integration review
 
