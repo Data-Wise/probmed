@@ -27,3 +27,4 @@ gauge_sim_out/
 tests/testthat/testthat-problems.rds
 # Author-requested local-only teaching book; never stage its sources or outputs.
 /docs/tutorials/wasserstein-inference/
+.codex/
