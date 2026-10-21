@@ -6,8 +6,13 @@ cran_state: unblocked
 next: Phase 7 I6 COMPLETE — FAIL (2026-10-19). Hopper job 4341753 completed 300/300 tasks and 60,000 rows; Gaussian candidate d failed the frozen s6/N=1000 coverage-equivalence and width gates (paired difference +0.0090, 90% CI [0.0055, 0.0125], width ratio 1.029588). Stop before I7; see docs/reports/I6-GATE-2026-10-19.md. A separate pmed exact-Gaussian 6,000-per-cell run (job 4342657, seed 20261021) passed its original prespecified six-cell rule: each two-sided 90% exact-binomial coverage interval inside 93%-97%; see pmed's docs/reports/EDIT-REPORT-pmed-exact-gaussian-2026-10-19.md. Author decision (2026-10-20): keep that original gate and withdraw the later 94% minimum proposal. No new exact-Gaussian run is planned. Its 600 chunk hashes, 120,000 rows, six counts/bounds, and original gate independently reconcile; see docs/reports/AUDIT-exact-gaussian-hopper-2026-10-20.md. The independent Gaussian oracle and selected retained-stream replay of I2/I6/e also passed within 1e-12; see docs/reports/VERIFY-exact-gaussian-kernel-replay-2026-10-20.md. Report width and out-of-gate cells separately. medfit's generic bootstrap and RMediation's path-product CI/MBCO do not validate P_med. Phase 8 remains closed. Open: I5, #47, #50 (blocked on its script), medfit#213. Package/release and pmed submission holds remain active; passing checks do not authorize submission, merge, release, or deployment.
 
 2026-10-20 dev-to-main integration PR #54 is open. PR #53 (local CI) is merged
-into `dev`. Integration review corrects the R >= 4.1 requirement and qualifies
-finite-Monte-Carlo and coverage claims; no estimator or gate changes.
+into `dev`. Review fixes are in PR #55: R >= 4.1 and qualified inference docs.
+BLOCKER: the new public Wasserstein EIF interval uses simulated-corner
+sample size, omitting fitted-model uncertainty. On the same 500 rows,
+raising n_mc from 2,000 to 200,000 reduces SE from 0.03781 to 0.003726.
+See docs/reports/REVIEW-dev-main-blocker-2026-10-20.md. Full CI was stopped;
+neither PR is merged and protection is unchanged. A scientific inference
+repair/policy decision is needed before integration. No estimator or gate changes.
 GitHub CI transition in progress. `main` still requires `ubuntu-latest (release)`;
 do not disable that check until a real PR head has a verified
 `local-ci/probmed-full` status and branch protection is switched. GitHub Pages
