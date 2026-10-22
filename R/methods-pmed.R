@@ -139,6 +139,7 @@ S7::method(pmed, S7::class_formula) <- function(object,  # formula_y
   method <- match.arg(method)
   .check_controls(x_ref, x_value, n_boot, ci_level, seed, n_sim, method)
   .check_supported_formulas(object, formula_m, treatment, mediator)
+  .check_formula_data_complete(object, formula_m, data)
 
   # Store call
   call <- match.call()
