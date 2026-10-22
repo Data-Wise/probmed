@@ -82,8 +82,8 @@ probmed is an application package in the mediationverse (medfit foundation, RMed
 ## Git workflow
 
 - `main` protected (PR required, no force-push/deletion; required check `ubuntu-latest (release)`; admin override available). `dev` = integration. `gh-pages` = pkgdown. `feature/*` = worktrees.
-- **CI policy (2026-10-20):** hosted R-CMD-check runs on PRs to `main` only. Commit-bound local CI (PR #53, `local-ci/probmed-full`) is being staged; do not disable the hosted required check until a real PR head has a verified local status (`tasks/PLAN-local-ci-transition-2026-10-20.md`).
-- **Local Linux gate:** `scripts/check-container-local.sh [--pr N]` runs `R CMD check` in Docker for R release, oldrel-1 and devel on the exact `HEAD` export and can post `local-ci/probmed-container`. Windows and macOS stay on the hosted workflow. Needs Docker running; images are cached per R version.
+- **CI policy (2026-10-21):** hosted R-CMD-check (macOS, Windows, Ubuntu release/devel/oldrel-1) runs on PRs to `main` and stays the required gate. The local gates (`scripts/check-full-local.sh`, `scripts/check-container-local.sh`) are optional pre-flight tools, not required checks; the author judged them too slow to replace hosted CI. Branch protection is unchanged.
+- **Local Linux gate (optional):** `scripts/check-container-local.sh [--pr N]` runs `R CMD check` in Docker for R release, oldrel-1 and devel on the exact `HEAD` export. It is not required; hosted CI is. Needs Docker running.
 - **Holds:** PRs #54/#55 were merged on 2026-10-21 at the author's instruction; the scientific hold on the boundary diagnostics is NOT cleared (the frozen bias gate was shown infeasible; see `docs/reports/REPORT-boundary-point-risk-2026-10-21.md`). v0.4.0 and v0.4.1 are GitHub releases only: no CRAN or manuscript submission is authorized.
 
 **Version**: 0.4.1 (GitHub release 2026-10-21; not on CRAN) · **Last Updated**: 2026-10-21
