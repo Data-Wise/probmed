@@ -75,6 +75,8 @@ new candidate and validating it with disjoint fresh simulations. Do not advance
 I7 or change any frozen diagnostic. Private teaching artifacts remain local;
 no book source, PDF, backup, or local registration belongs in this commit.
 
+2026-10-21 mediationverse compatibility (plan `tasks/plan-mediationverse-compat.md`): full suite against medfit 0.3.2 (CRAN) 827 pass; against 0.10.0 and 0.12.0 (r-universe) one guard test failed, because medfit >= 0.10 keeps only complete rows and the missing-value check on `extract@data` never fired, so `pmed()` fitted the two models to different rows. Fixed in PR #60 (ca9b6bf, on `dev` only; not yet on `main`): the check now runs on the caller's data before fitting. Suite 832 pass on 0.3.2 and 0.12.0. probmed uses only `extract_mediation()`, `MediationData` and `ParallelMediationData` from medfit; the `medfit (>= 0.3.0)` floor is unchanged. medsim is not used by probmed code.
+
 2026-10-21 RELEASED v0.4.0 (PR #58 merged as 9fac315, tag v0.4.0, GitHub release live; author instruction: "release to github"): version bumped from 0.3.0.9000, NEWS heading dated, Rd/R cross-references updated. 827 tests pass (0 failed, 0 skipped). GitHub release only; no CRAN or manuscript submission authorized. The scientific hold on the boundary diagnostics is NOT cleared by the release; PRs #54/#55 were merged earlier the same day at the author's instruction.
 
 2026-10-21 boundary point-risk (branch `feature/boundary-point-risk`, from `dev`; plan
