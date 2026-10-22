@@ -11,7 +11,7 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       libcurl4-openssl-dev libssl-dev libxml2-dev libglpk-dev libnlopt-dev \
       libfontconfig1-dev libfreetype6-dev libharfbuzz-dev libfribidi-dev \
-      libpng-dev libtiff5-dev libjpeg-dev qpdf \
+      libpng-dev libtiff5-dev libjpeg-dev qpdf libuv1-dev cmake \
  && rm -rf /var/lib/apt/lists/*
 
 # rocker/r-ver pins CRAN to the date of the R release, which predates medfit.
