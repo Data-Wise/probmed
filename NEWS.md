@@ -1,3 +1,5 @@
+# probmed (development version)
+
 # probmed 0.4.0 (2026-10-21)
 
 GitHub release (not submitted to CRAN). Highlights since 0.3.0: the gauge-calibrated
