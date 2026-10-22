@@ -62,3 +62,7 @@ This is a reduction in independent platform coverage and automated execution.
 The status is posted with a user's GitHub credentials, not by a trusted hosted
 runner; branch protection should restrict who may write the status where
 possible. Keep that tradeoff explicit in release and submission review.
+
+## Addendum (2026-10-21): Linux container tier
+
+`scripts/check-container-local.sh` (Dockerfile in `scripts/docker/`) runs `rcmdcheck --no-manual` in `rocker/r-ver` images for R 4.5, 4.4 and devel on a `git archive` of `HEAD`, failing on errors or warnings, and can post `local-ci/probmed-container`. It replaces the three hosted Ubuntu jobs; Windows and macOS remain on the hosted workflow (author decision 2026-10-21). Dry runs passed on all three versions. `check-full-local.sh` now resolves its temp directory to a real path: on macOS `$TMPDIR` is a symlink and quarto aborted with "Source and destination cannot be the same". The protection switch (steps 2-4 above) is still pending a real `dev` to `main` PR with both statuses verified on its head.
