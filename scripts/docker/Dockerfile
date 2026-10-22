@@ -14,6 +14,10 @@ RUN apt-get update \
       libpng-dev libtiff5-dev libjpeg-dev qpdf \
  && rm -rf /var/lib/apt/lists/*
 
+# rocker/r-ver pins CRAN to the date of the R release, which predates medfit.
+# Use the current binary snapshot so the check sees what a CRAN user installs.
+RUN echo 'options(repos = c(CRAN = "https://p3m.dev/cran/__linux__/noble/latest"))' >> "$(R RHOME)/etc/Rprofile.site"
+
 COPY DESCRIPTION /tmp/DESCRIPTION
 RUN Rscript -e 'install.packages(c("remotes", "rcmdcheck"))' \
  && Rscript -e 'remotes::install_deps("/tmp", dependencies = TRUE)'
