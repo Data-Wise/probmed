@@ -86,6 +86,31 @@ test_that("interactions and transformed treatment/mediator terms are rejected", 
   expect_true(is.finite(r@estimate))
 })
 
+test_that("missing values are rejected before fitting, whichever equation uses them", {
+  d <- guard_data()
+  d_y <- d
+  d_y$Y[3] <- NA
+  expect_rng_untouched(expect_error(
+    pmed(Y ~ X + M + C, formula_m = M ~ X + C, data = d_y,
+         treatment = "X", mediator = "M", method = "plugin"),
+    "missing values.*`Y`"
+  ))
+  d_m <- d
+  d_m$M[5] <- NA
+  expect_rng_untouched(expect_error(
+    pmed(Y ~ X + M + C, formula_m = M ~ X + C, data = d_m,
+         treatment = "X", mediator = "M", method = "plugin"),
+    "missing values.*`M`"
+  ))
+  # A column neither formula uses may contain missing values.
+  d_unused <- d
+  d_unused$Ycount[1] <- NA
+  r <- pmed(Y ~ X + M + C, formula_m = M ~ X + C, data = d_unused,
+            treatment = "X", mediator = "M", method = "plugin",
+            n_sim = 2000, seed = 1)
+  expect_true(is.finite(r@estimate))
+})
+
 test_that("offsets, missing rows, non-numeric mediators and non-0/1 responses are rejected", {
   d <- guard_data()
   expect_rng_untouched(expect_error(

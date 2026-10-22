@@ -41,6 +41,27 @@ NULL
   labels[bad]
 }
 
+#' Reject missing values in the user's data before any model is fitted
+#'
+#' Newer medfit extractions keep only the rows a fit used, so a later check on
+#' the extracted data cannot see the missing rows (and the two models can be
+#' fitted to different samples). The check therefore runs on the data the
+#' caller passed, using the variables named in either formula.
+#' @keywords internal
+.check_formula_data_complete <- function(formula_y, formula_m, data) {
+  if (!is.data.frame(data)) return(invisible(TRUE))
+  used <- intersect(unique(c(all.vars(formula_y), all.vars(formula_m))),
+                    names(data))
+  incomplete <- used[vapply(data[used], anyNA, logical(1))]
+  if (length(incomplete)) {
+    stop("pmed() found missing values in the model variables (",
+         paste0("`", incomplete, "`", collapse = ", "),
+         "). Use complete cases before fitting; the bootstrap would ",
+         "otherwise resample rows the fit dropped.", call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
 #' Reject structures a formula would fit but the core cannot represent
 #'
 #' Called by the formula method before any model is fitted.
