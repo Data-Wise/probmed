@@ -64,6 +64,13 @@ Beyond the core `pmed()`, the package ships cross-fitted, influence-function-bas
 | `rg_flow_contrast()` | `RgFlowResult` | Scale-indexed NIE/TE with cluster-robust inference |
 | `pmed_sensitivity()` | `PmedSensitivity` | Unmeasured mediator-outcome confounding (tipping point) |
 
+## Learn more
+
+- [Cookbook](https://data-wise.github.io/probmed/articles/cookbook.html): short recipes for common tasks
+- [Choosing a confidence interval](https://data-wise.github.io/probmed/articles/confidence-intervals.html): what each `method` supports, from the calibration study
+- [Sensitivity analysis](https://data-wise.github.io/probmed/articles/sensitivity-analysis.html): tipping-point analysis for M-Y confounding
+- Technical notes: [the P_med estimand](https://data-wise.github.io/probmed/articles/technical-note-estimand.html) and the [validation record](https://data-wise.github.io/probmed/articles/technical-note-validation.html)
+
 ## Status and known limitations
 
 Version `0.4.0` (GitHub release only; not submitted to CRAN). For the binary Wasserstein proportion mediated, estimation near an exactly zero mediation path is hard: the plug-in bias is of order $n^{-1/4}$, none of the point estimators tested met the frozen bias gate (\|bias\|/SD \< .10) there, and that gate was shown to be infeasible for any estimator with values in \[0, 1\] in the zero-direct and weak-direct cells at n = 500, and the Fieller interval is the supported uncertainty statement. See the [boundary article section](https://data-wise.github.io/probmed/articles/modern-estimands.html#boundary-behavior) and `docs/reports/REPORT-boundary-point-risk-2026-10-21.md`.

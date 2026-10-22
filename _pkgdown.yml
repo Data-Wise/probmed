@@ -65,6 +65,19 @@ navbar:
         href: articles/incremental-pmed.html
       - text: "Modern estimands and boundary behavior"
         href: articles/modern-estimands.html
+      - text: "Choosing a confidence interval"
+        href: articles/confidence-intervals.html
+      - text: "Sensitivity analysis"
+        href: articles/sensitivity-analysis.html
+      - text: "─────────────"
+      - text: "Cookbook"
+        href: articles/cookbook.html
+      - text: "─────────────"
+      - text: "Technical notes"
+      - text: "The P_med estimand"
+        href: articles/technical-note-estimand.html
+      - text: "Validation record"
+        href: articles/technical-note-validation.html
       - text: "─────────────"
       - text: "Integration Guides"
       - text: "lavaan Integration"
@@ -184,6 +197,17 @@ articles:
       - gauge-residual
       - incremental-pmed
       - modern-estimands
+      - confidence-intervals
+      - sensitivity-analysis
+  - title: "Cookbook"
+    navbar: ~
+    contents:
+      - cookbook
+  - title: "Technical notes"
+    navbar: ~
+    contents:
+      - technical-note-estimand
+      - technical-note-validation
   - title: "Integration Guides"
     navbar: ~
     contents:
