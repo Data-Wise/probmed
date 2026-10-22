@@ -1,8 +1,9 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
-  # Transitional required check for main PRs. Remove this trigger only after
-  # main protection requires local-ci/probmed-full instead.
+  # Windows-only hosted check for main PRs. Linux is covered by the local
+  # container gate (local-ci/probmed-container) and macOS by the local full
+  # gate (local-ci/probmed-full); see tasks/PLAN-local-ci-transition-2026-10-20.md.
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -21,11 +22,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: macos-latest,   r: 'release'}
           - {os: windows-latest, r: 'release'}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
-          - {os: ubuntu-latest,   r: 'release'}
-          - {os: ubuntu-latest,   r: 'oldrel-1'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
