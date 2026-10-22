@@ -206,6 +206,9 @@ transparency but are not intended for direct use by end users.
 - [`.check_controls()`](https://data-wise.github.io/probmed/reference/dot-check_controls.md)
   : Validate the numerical controls shared by every method
 
+- [`.check_formula_data_complete()`](https://data-wise.github.io/probmed/reference/dot-check_formula_data_complete.md)
+  : Reject missing values in the user's data before any model is fitted
+
 - [`.check_original_separation()`](https://data-wise.github.io/probmed/reference/dot-check_original_separation.md)
   : Stop if the original fit of a binary equation is separated
 
