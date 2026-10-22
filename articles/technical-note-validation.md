@@ -1,0 +1,41 @@
+# Technical note: validation record
+
+This note indexes the validation evidence kept in the repository under
+`docs/reports/`, and states what each item supports and does not
+support.
+
+| Topic | Report | Supports |
+|----|----|----|
+| Calibration of MBCO and model bootstrap | `CALIBRATION-2026-10-14.md` | Nominal MBCO coverage off the double null; conservative at it; model bootstrap by design |
+| MBCO near the double null | `MBCO-NULL-T5-FEASIBILITY-2026-10-14.md` | A calibrated cutoff was not found; the interval stays conservative |
+| MBCO optimizer | `MBCO-OPTIMIZER-REVIEW-2026-10-14.md` | Exact constraint elimination; optimizers agree to about 1e-11 |
+| Coverage claims in the manuscript | `PMED-COVERAGE-CLAIMS-CHECK-2026-10-14.md` | Percentile intervals carry Monte Carlo inflation |
+| Exact Gaussian reference | `I2-EXACT-REFERENCE-2026-10-15.md`, `AUDIT-exact-gaussian-hopper-2026-10-20.md` | Exact-Gaussian run passed its original six-cell rule |
+| Gaussian candidate gate | `I6-GATE-2026-10-19.md` | Candidate d failed the frozen coverage-equivalence and width gates |
+| Wasserstein repairs | `VALIDATE-wasserstein-*-2026-10-20.md` | Boundary correction, selection, joint contrast and observed inference checks |
+| Boundary point risk | `REPORT-boundary-point-risk-2026-10-21.md` | Negative result; see below |
+
+## Boundary behavior in one paragraph
+
+For the binary-outcome Wasserstein proportion mediated, the plug-in bias
+at an exactly zero path is of order $`n^{-1/4}`$. The frozen bias gate
+(\|bias\|/SD below .10) cannot be met by any estimator with values in
+\[0, 1\] in the zero-direct and weak-direct cells at n = 500. A
+two-point floor on maximum RMSE is about .09 (direct) and .07 (indirect)
+at n = 500. Five reference estimators failed the author’s RMSE
+tolerances. The supported uncertainty statement is the Fieller interval,
+which passed coverage in every archived binary cell.
+
+## What this record does not show
+
+It does not show that no estimator could meet the tolerances; the floor
+lies below them. It does not clear the author’s scientific hold on the
+boundary diagnostics, and it does not authorize a CRAN or manuscript
+submission.
+
+## Reproducing
+
+Scripts live in `scripts/` (`check-boundary-*.R`, `check-gate-*.R`,
+`pilot-reference-estimators.R`). Set `VECLIB_MAXIMUM_THREADS=1` and
+`OPENBLAS_NUM_THREADS=1` before running forked simulations, or the
+workers stall on BLAS threads.

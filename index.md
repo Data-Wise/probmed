@@ -89,6 +89,21 @@ for details and caveats.
 | [`rg_flow_contrast()`](https://data-wise.github.io/probmed/reference/rg_flow_contrast.md) | `RgFlowResult` | Scale-indexed NIE/TE with cluster-robust inference |
 | [`pmed_sensitivity()`](https://data-wise.github.io/probmed/reference/pmed_sensitivity.md) | `PmedSensitivity` | Unmeasured mediator-outcome confounding (tipping point) |
 
+## Learn more
+
+- [Cookbook](https://data-wise.github.io/probmed/articles/cookbook.html):
+  short recipes for common tasks
+- [Choosing a confidence
+  interval](https://data-wise.github.io/probmed/articles/confidence-intervals.html):
+  what each `method` supports, from the calibration study
+- [Sensitivity
+  analysis](https://data-wise.github.io/probmed/articles/sensitivity-analysis.html):
+  tipping-point analysis for M-Y confounding
+- Technical notes: [the P_med
+  estimand](https://data-wise.github.io/probmed/articles/technical-note-estimand.html)
+  and the [validation
+  record](https://data-wise.github.io/probmed/articles/technical-note-validation.html)
+
 ## Status and known limitations
 
 Version `0.4.0` (GitHub release only; not submitted to CRAN). For the

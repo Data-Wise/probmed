@@ -1,0 +1,57 @@
+# Technical note: the P_med estimand
+
+## Definition
+
+For treatment contrast $`x`$ (treated) versus $`x^*`$ (control),
+mediator $`M`$ and outcome $`Y`$:
+
+``` math
+P_{med} = P\{Y(x, M(x)) > Y(x, M(x^*))\} + \tfrac12 P\{Y(x, M(x)) = Y(x, M(x^*))\}.
+```
+
+Treatment is held at $`x`$ in both potential outcomes. Only the mediator
+is varied, and its two draws are independent. This matches Definition 1
+of the manuscript and is implemented in
+[`.pmed_core_simple()`](https://data-wise.github.io/probmed/reference/dot-pmed_core_simple.md)
+(`R/compute-core.R`).
+
+## Consequences
+
+- **Mediation only.** The direct effect $`c'`$ cancels, because $`x`$ is
+  the same in both potential outcomes. A test, `test-pmed-estimand.R`,
+  checks invariance to $`c'`$.
+- **Null value.** $`P_{med} = 0.5`$ when the mediator shift has no
+  effect, so values above 0.5 indicate positive mediation.
+- **Ties.** The half weight for ties makes the estimand well defined for
+  discrete outcomes.
+- **Scale free and bounded.** It is a probability, so it lies in \[0,
+  1\] regardless of units.
+
+## Gaussian closed form
+
+For a Gaussian mediator with path $`a`$, outcome path $`b`$, mediator
+error SD $`\sigma_m`$ and outcome error SD $`\sigma_y`$, and a unit
+treatment contrast,
+
+``` math
+P_{med} = \Phi\!\left(\frac{a b}{\sqrt{2\,(b^2 \sigma_m^2 + \sigma_y^2)}}\right),
+```
+
+which is about 0.563 at $`a = b = 0.5`$, $`\sigma_m = \sigma_y = 1`$.
+`test-pmed-estimand.R` checks the implementation against this formula,
+checks invariance to $`c'`$, and checks that the indirect effect equals
+$`a b`$.
+
+## Identification
+
+Identification of the mediated shift requires the usual sequential
+ignorability conditions, including no unmeasured mediator-outcome
+confounding. That assumption is not testable; use [sensitivity
+analysis](https://data-wise.github.io/probmed/articles/sensitivity-analysis.md).
+
+## Relation to other estimands
+
+The modern estimands (gauge, incremental, Sobol, Wasserstein, rg-flow)
+change the scale or the functional, not the identification conditions.
+See [Modern
+estimands](https://data-wise.github.io/probmed/articles/modern-estimands.md).

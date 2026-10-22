@@ -11,26 +11,26 @@ $`P_{med}`$ offers a clear probabilistic interpretation.
 
 ### What is $`P_{med}`$?
 
-$`P_{med}`$ is defined as the probability that the outcome for an
-individual in the treatment group ($`Y(1)`$) is superior to the outcome
-for an individual in the control group ($`Y(0)`$), specifically due to
-the indirect effect transmitted through the mediator ($`M`$).
+$`P_{med}`$ is defined with treatment held at its treated level $`x`$
+for both potential outcomes, so only the mediator varies. It is the
+probability that the outcome under the mediator’s treated level exceeds
+the outcome under its control level, with ties counted as one half.
 
-Mathematically, for a treatment $`X`$, mediator $`M`$, and outcome
-$`Y`$:
+Mathematically, for a treatment $`X`$ (treated $`x`$, control $`x^*`$),
+mediator $`M`$, and outcome $`Y`$:
 
 ``` math
- P_{med} = P(Y(1, M(1)) > Y(0, M(0))) 
+ P_{med} = P(Y(x, M(x)) > Y(x, M(x^*))) + \tfrac{1}{2} P(Y(x, M(x)) = Y(x, M(x^*))) 
 ```
 
-where the direct effect of $`X`$ on $`Y`$ is held constant or accounted
-for, focusing purely on the mediation path.
+The direct effect of $`X`$ on $`Y`$ cancels, because $`X`$ is the same
+in both potential outcomes, so $`P_{med}`$ is mediation-only.
 
 Key advantages:
 
 1.  **Scale-Free**: It does not depend on the units of $`Y`$ or $`M`$.
-2.  **Bounded**: It ranges from 0 to 1 (or 0.5 for no effect in some
-    contexts).
+2.  **Bounded**: It ranges from 0 to 1, with 0.5 meaning no mediation
+    effect.
 3.  **Robust**: It works well for both linear and generalized linear
     models (GLMs).
 
