@@ -23,6 +23,9 @@ if [ -n "$(git status --porcelain --untracked-files=normal)" ]; then
 fi
 sha=$(git rev-parse HEAD)
 work=$(mktemp -d "${TMPDIR:-/tmp}/probmed-full-local.XXXXXX")
+# Resolve symlinks (macOS $TMPDIR is /var -> /private/var): quarto aborts with
+# "Source and destination cannot be the same" when one directory has two names.
+work=$(cd "$work" && pwd -P)
 echo "Local CI for $sha; logs: $work"
 
 post_status() {
