@@ -1,0 +1,63 @@
+---
+title: "Choosing a confidence interval for P_med"
+format: html
+vignette: >
+  %\VignetteIndexEntry{Choosing a confidence interval}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+```
+
+`pmed(method = )` offers five inference modes. This article states what each does and what the
+calibration study supports. The numbers come from the frozen calibration run of 2026-10-14
+(36 cells, 2000 replications each; `docs/reports/CALIBRATION-2026-10-14.md` in the repository).
+
+## Decision guide
+
+| Situation | Use | Why |
+|-----------|-----|-----|
+| Quick look, no interval | `"plugin"` | Point estimate only |
+| Gaussian M and Y, default | `"parametric_bootstrap"` | Fast; samples from N(theta, Sigma) |
+| Normality questionable | `"nonparametric_bootstrap"` | Resamples rows and refits |
+| Gaussian with covariates, want a deterministic interval | `"mbco"` | Likelihood-ratio inversion; never undercovers |
+| Binary M or Y with covariates | `"model_bootstrap"` | Re-estimates residual scales on simulated data |
+
+## MBCO
+
+MBCO (model-based constrained optimization; Tofighi and Kelley, 2020) inverts a
+likelihood-ratio test for the product of the two paths. The result is deterministic.
+
+- **Coverage.** Every nominal cell with a well identified nonzero path passes (coverage
+  .944 to .958 across N = 50, 250, 1000).
+- **Conservative at the double null.** At a = b = 0 coverage is about .997, and next to it
+  (a = b = 0.05) about .994 at N = 50 and 250. Every failure in the study is over-coverage.
+  The flag `@diagnostics$pmed$near_double_null` marks this region.
+- **A calibrated cutoff was rejected.** The conservativeness is not confined to the null
+  test, and the candidate recalibrations failed (`MBCO-NULL-T5-FEASIBILITY-2026-10-14.md`).
+- **Numerical status.** Only verified endpoints set `converged = TRUE`. A disconnected
+  confidence set or a failed profile returns missing bounds.
+
+## Model bootstrap
+
+Opt-in, for binary designs. Coverage varies by design. Of the 15 cells, only Gaussian-Gaussian and
+Gaussian M with a 50% binary Y at N = 250 pass outright. A 5% binary outcome at small N is a
+fit-failure regime: at N = 250, 77% of replications return no interval, and coverage among the
+complete ones is .981. Do not quote 95% coverage for this method in general.
+
+## Percentile bootstrap
+
+Percentile intervals from the parametric and nonparametric bootstraps carry Monte Carlo
+inflation at the stated number of draws. Use at least 1000 draws and report the seed.
+
+## Reporting checklist
+
+1. State the method and `n_boot` or the seed.
+2. For MBCO, report the interval status and whether `near_double_null` is set.
+3. For `model_bootstrap`, report the share of incomplete replications.
+4. Do not claim nominal coverage outside the calibrated design: single mediator, binary
+   treatment, with or without one binary covariate.
