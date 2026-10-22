@@ -31,7 +31,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">probmed</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,7 +107,7 @@
 
 
 
-    <p>Short recipes for common tasks. Every recipe uses the simulated data below (continuous treatment <code>X</code>, mediator <code>M</code>, outcome <code>Y</code>, covariate <code>C</code>). Chunks are not evaluated when the site is built; the code was run against version 0.4.0.</p>
+    <p>Short recipes for common tasks. Every recipe uses the simulated data below (continuous treatment <code>X</code>, mediator <code>M</code>, outcome <code>Y</code>, covariate <code>C</code>). Chunks are not evaluated when the site is built; the code was run against version 0.4.1.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://data-wise.github.io/probmed/">probmed</a></span><span class="op">)</span></span>
@@ -177,6 +177,14 @@
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/ward_residual.html">ward_residual</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>A <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">X</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span>, M <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">M</span>, Y <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">Y</span>, C <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">C</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p><code><a href="../reference/ward_residual.html">ward_residual()</a></code> expects a binary 0/1 treatment <code>A</code> and covariates named in <code>covars</code> (default <code>"C"</code>). It reports gates for weak identification; see <a href="gauge-residual.html">Gauge residual</a>.</p>
+</section><section class="level2"><h2 id="missing-values">Missing values<a class="anchor" aria-label="anchor" href="#missing-values"></a>
+</h2>
+<p><code><a href="../reference/pmed.html">pmed()</a></code> stops if any variable named in either formula has a missing value, before fitting anything. Drop incomplete rows first so both models use the same sample.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">d_complete</span> <span class="op">&lt;-</span> <span class="va">d</span><span class="op">[</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/complete.cases.html" class="external-link">complete.cases</a></span><span class="op">(</span><span class="va">d</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"X"</span>, <span class="st">"M"</span>, <span class="st">"Y"</span>, <span class="st">"C"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, <span class="op">]</span></span></code></pre></div>
+</div>
+<p>Columns that neither formula uses may contain missing values. Since 0.4.1 this check runs on the data you pass, so it also holds with medfit 0.10 and later.</p>
 </section><section class="level2"><h2 id="reproducibility">Reproducibility<a class="anchor" aria-label="anchor" href="#reproducibility"></a>
 </h2>
 <p>Pass <code>seed</code> to every call. Plug-in calls honor it, MBCO is deterministic, and bootstrap methods draw from <code>seed</code>.</p>

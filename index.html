@@ -33,7 +33,7 @@
 
     <a class="navbar-brand me-2" href="index.html">probmed</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,13 +101,191 @@
 </div>
 <!-- badges: start -->
 
-<p>PR validation uses the <a href="https://github.com/Data-Wise/probmed/blob/dev/tasks/PLAN-local-ci-transition-2026-10-20.md" class="external-link">full local gate</a>, which posts a commit-specific required status after passing. GitHub Actions still publishes the website on <code>main</code>; R-CMD-check remains required on <code>main</code> PRs until branch protection is switched, while coverage is manual.</p>
-<p><strong>probmed</strong> provides a robust framework for computing <strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math></strong>, a scale-free probabilistic effect size for causal mediation analysis.</p>
+<p><strong>probmed</strong> computes <strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math></strong>, a probabilistic effect size for mediation: the chance that shifting the mediator from its control to its treated level leaves a person better off. It is scale-free, lies between 0 and 1, and is 0.5 when there is no mediation.</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr>
+<th>I want to…</th>
+<th>Go to</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Install and run a first example</td>
+<td>
+<a href="#installation">Install</a> and <a href="#quick-example">Quick example</a>
+</td>
+</tr>
+<tr>
+<td>Do a specific task (intervals, binary models, sensitivity)</td>
+<td><a href="https://data-wise.github.io/probmed/articles/cookbook.html">Cookbook</a></td>
+</tr>
+<tr>
+<td>Pick a confidence interval method</td>
+<td><a href="https://data-wise.github.io/probmed/articles/confidence-intervals.html">Choosing a confidence interval</a></td>
+</tr>
+<tr>
+<td>Understand the other estimands</td>
+<td><a href="https://data-wise.github.io/probmed/articles/modern-estimands.html">Modern estimands</a></td>
+</tr>
+<tr>
+<td>Check how much to trust a result</td>
+<td><a href="#status-and-known-limitations">Status and known limitations</a></td>
+</tr>
+<tr>
+<td>Look up a function</td>
+<td><a href="https://data-wise.github.io/probmed/reference/index.html">Reference</a></td>
+</tr>
+</tbody>
+</table>
 <div class="section level2">
 <h2 id="what-is-p_med">What is <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math>?<a class="anchor" aria-label="anchor" href="#what-is-p_med"></a>
 </h2>
 <p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> offers an intuitive alternative to traditional mediation effect sizes. With treatment held at its treated level <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math> for both potential outcomes, it is the probability that the outcome when the mediator takes its treated level <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">M(x)</annotation></semantics></math> exceeds the outcome when it takes its control level <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mo>*</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">M(x^*)</annotation></semantics></math>, with ties counted as one half: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>M</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo>&gt;</mo><mi>Y</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>M</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mo>*</mo></msup><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mstyle displaystyle="false"><mfrac><mn>1</mn><mn>2</mn></mfrac></mstyle><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>M</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>Y</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>M</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>x</mi><mo>*</mo></msup><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(Y(x, M(x)) &gt; Y(x, M(x^*))) + \tfrac12 P(Y(x, M(x)) = Y(x, M(x^*)))</annotation></semantics></math>. The direct effect cancels, so <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> is mediation-only.</p>
 <p>Unlike the “Proportion Mediated” or simple indirect effect coefficients, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math>: * <strong>Is Scale-Free</strong>: Interpretable regardless of the units of measurement for <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>, or <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>. * <strong>Is Bounded</strong>: Always falls between 0 and 1, with 0.5 meaning no mediation effect, making it comparable across studies. * <strong>Handles Non-Linearity</strong>: Can be extended to Generalized Linear Models (GLMs) where coefficients are not directly comparable.</p>
+</div>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>Install from the <a href="https://data-wise.r-universe.dev" class="external-link">Data-Wise r-universe</a> — no compiler needed, and dependencies (e.g. <code>medfit</code>) resolve automatically:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"probmed"</span>, repos <span class="op">=</span> <span class="st">"https://data-wise.r-universe.dev"</span><span class="op">)</span></span></code></pre></div>
+<p>Or install the development version from <a href="https://github.com/data-wise/probmed" class="external-link">GitHub</a>:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"data-wise/probmed"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="quick-example">Quick Example<a class="anchor" aria-label="anchor" href="#quick-example"></a>
+</h2>
+<p>Here is a basic example showing how to simulate data and compute <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> using a parametric bootstrap approach.</p>
+<div class="section level3">
+<h3 id="id_1-simulate-data">1. Simulate Data<a class="anchor" aria-label="anchor" href="#id_1-simulate-data"></a>
+</h3>
+<p>First, we generate a dataset with a continuous treatment (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>), mediator (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>), and outcome (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>), along with a covariate (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>).</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://data-wise.github.io/probmed/">probmed</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">300</span></span>
+<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, C <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Mediator model: M ~ X + C</span></span>
+<span><span class="va">data</span><span class="op">$</span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">data</span><span class="op">$</span><span class="va">X</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">data</span><span class="op">$</span><span class="va">C</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Outcome model: Y ~ M + X + C</span></span>
+<span><span class="va">data</span><span class="op">$</span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fl">0.4</span> <span class="op">*</span> <span class="va">data</span><span class="op">$</span><span class="va">M</span> <span class="op">+</span> <span class="fl">0.2</span> <span class="op">*</span> <span class="va">data</span><span class="op">$</span><span class="va">X</span> <span class="op">+</span> <span class="fl">0.2</span> <span class="op">*</span> <span class="va">data</span><span class="op">$</span><span class="va">C</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="id_2-compute-p_med">2. Compute <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math><a class="anchor" aria-label="anchor" href="#id_2-compute-p_med"></a>
+</h3>
+<p>We use the <code><a href="reference/pmed.html">pmed()</a></code> function to estimate the effect size. We specify the models for the outcome and mediator, and select the bootstrap method.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pmed.html">pmed</a></span><span class="op">(</span></span>
+<span>  <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>,             <span class="co"># Outcome model formula</span></span>
+<span>  formula_m <span class="op">=</span> <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,     <span class="co"># Mediator model formula</span></span>
+<span>  data <span class="op">=</span> <span class="va">data</span>,</span>
+<span>  treatment <span class="op">=</span> <span class="st">"X"</span>,</span>
+<span>  mediator <span class="op">=</span> <span class="st">"M"</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"parametric_bootstrap"</span>,</span>
+<span>  n_boot <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  seed <span class="op">=</span> <span class="fl">42</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="id_3-view-results">3. View Results<a class="anchor" aria-label="anchor" href="#id_3-view-results"></a>
+</h3>
+<p>The results object provides a clear summary of both <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> and the Indirect Effect with confidence intervals.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; P_med: Probability of Mediated Shift</span></span>
+<span><span class="co">#&gt; ====================================</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; Estimate: 0.55</span></span>
+<span><span class="co">#&gt; 95% CI: [0.53, 0.572]</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; Indirect Effect (Product of Coefficients):</span></span>
+<span><span class="co">#&gt; Estimate: 0.2</span></span>
+<span><span class="co">#&gt; 95% CI: [0.129, 0.283]</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; Inference: parametric_bootstrap</span></span>
+<span><span class="co">#&gt; Bootstrap samples: 1000</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; Treatment contrast: X = 1 vs. X* = 0</span></span>
+<span><span class="co">#&gt;</span></span>
+<span><span class="co">#&gt; Interpretation:</span></span>
+<span><span class="co">#&gt;   P(Y(1, M(1)) &gt; Y(1, M(0))) = 0.55</span></span>
+<span><span class="co">#&gt;   P that the mediator shift (M(0) -&gt; M(1)) leaves a random individual better off, holding X = 1.</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
+<p><strong>Interpretation</strong>: - <strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> = 0.55</strong>: Holding treatment at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">X = 1</annotation></semantics></math>, there is a 55% probability that the outcome under the treated mediator level exceeds the outcome under the control mediator level. Since 0.50 represents “no mediation effect”, this indicates a modest positive mediation effect. - <strong>Indirect Effect = 0.2</strong>: The traditional product-of-coefficients indirect effect (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>×</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">a \times b</annotation></semantics></math>) quantifies the average change in outcome due to the mediated path.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="which-function-do-i-need">Which function do I need?<a class="anchor" aria-label="anchor" href="#which-function-do-i-need"></a>
+</h2>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr>
+<th>Question</th>
+<th>Function</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>How large is the mediated effect, as a probability?</td>
+<td><code><a href="reference/pmed.html">pmed()</a></code></td>
+</tr>
+<tr>
+<td>Is the effect identified well enough to interpret?</td>
+<td><code><a href="reference/ward_residual.html">ward_residual()</a></code></td>
+</tr>
+<tr>
+<td>What if the mediator is shifted by a factor, not switched?</td>
+<td><code><a href="reference/incr_pmed.html">incr_pmed()</a></code></td>
+</tr>
+<tr>
+<td>What share of outcome variance is mediated?</td>
+<td><code><a href="reference/sobol_pmed.html">sobol_pmed()</a></code></td>
+</tr>
+<tr>
+<td>Proportion mediated on a distance scale (binary outcome)?</td>
+<td><code><a href="reference/wasserstein_pmed.html">wasserstein_pmed()</a></code></td>
+</tr>
+<tr>
+<td>Clustered or multilevel data?</td>
+<td><code><a href="reference/rg_flow_contrast.html">rg_flow_contrast()</a></code></td>
+</tr>
+<tr>
+<td>How much unmeasured confounding would overturn it?</td>
+<td><code><a href="reference/pmed_sensitivity.html">pmed_sensitivity()</a></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="learn-more">Learn more<a class="anchor" aria-label="anchor" href="#learn-more"></a>
+</h2>
+<ul>
+<li>
+<a href="https://data-wise.github.io/probmed/articles/cookbook.html">Cookbook</a>: short recipes for common tasks</li>
+<li>
+<a href="https://data-wise.github.io/probmed/articles/confidence-intervals.html">Choosing a confidence interval</a>: what each <code>method</code> supports, from the calibration study</li>
+<li>
+<a href="https://data-wise.github.io/probmed/articles/sensitivity-analysis.html">Sensitivity analysis</a>: tipping-point analysis for M-Y confounding</li>
+<li>Technical notes: <a href="https://data-wise.github.io/probmed/articles/technical-note-estimand.html">the P_med estimand</a> and the <a href="https://data-wise.github.io/probmed/articles/technical-note-validation.html">validation record</a>
+</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="status-and-known-limitations">Status and known limitations<a class="anchor" aria-label="anchor" href="#status-and-known-limitations"></a>
+</h2>
+<p>Version <code>0.4.1</code> (GitHub release only; not submitted to CRAN). Tested against medfit 0.3.2 (CRAN) and 0.12.0; the missing-value guard needs 0.4.1 with medfit 0.10.0 or later. For the binary Wasserstein proportion mediated, estimation near an exactly zero mediation path is hard: the plug-in bias is of order <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>n</mi><mrow><mi>−</mi><mn>1</mn><mi>/</mi><mn>4</mn></mrow></msup><annotation encoding="application/x-tex">n^{-1/4}</annotation></semantics></math>, none of the point estimators tested met the frozen bias gate (|bias|/SD &lt; .10) there, and that gate was shown to be infeasible for any estimator with values in [0, 1] in the zero-direct and weak-direct cells at n = 500, and the Fieller interval is the supported uncertainty statement. See the <a href="https://data-wise.github.io/probmed/articles/modern-estimands.html#boundary-behavior">boundary article section</a> and <code>docs/reports/REPORT-boundary-point-risk-2026-10-21.md</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
@@ -199,149 +377,6 @@
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section level2">
-<h2 id="learn-more">Learn more<a class="anchor" aria-label="anchor" href="#learn-more"></a>
-</h2>
-<ul>
-<li>
-<a href="https://data-wise.github.io/probmed/articles/cookbook.html">Cookbook</a>: short recipes for common tasks</li>
-<li>
-<a href="https://data-wise.github.io/probmed/articles/confidence-intervals.html">Choosing a confidence interval</a>: what each <code>method</code> supports, from the calibration study</li>
-<li>
-<a href="https://data-wise.github.io/probmed/articles/sensitivity-analysis.html">Sensitivity analysis</a>: tipping-point analysis for M-Y confounding</li>
-<li>Technical notes: <a href="https://data-wise.github.io/probmed/articles/technical-note-estimand.html">the P_med estimand</a> and the <a href="https://data-wise.github.io/probmed/articles/technical-note-validation.html">validation record</a>
-</li>
-</ul>
-</div>
-<div class="section level2">
-<h2 id="status-and-known-limitations">Status and known limitations<a class="anchor" aria-label="anchor" href="#status-and-known-limitations"></a>
-</h2>
-<p>Version <code>0.4.0</code> (GitHub release only; not submitted to CRAN). For the binary Wasserstein proportion mediated, estimation near an exactly zero mediation path is hard: the plug-in bias is of order <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>n</mi><mrow><mi>−</mi><mn>1</mn><mi>/</mi><mn>4</mn></mrow></msup><annotation encoding="application/x-tex">n^{-1/4}</annotation></semantics></math>, none of the point estimators tested met the frozen bias gate (|bias|/SD &lt; .10) there, and that gate was shown to be infeasible for any estimator with values in [0, 1] in the zero-direct and weak-direct cells at n = 500, and the Fieller interval is the supported uncertainty statement. See the <a href="https://data-wise.github.io/probmed/articles/modern-estimands.html#boundary-behavior">boundary article section</a> and <code>docs/reports/REPORT-boundary-point-risk-2026-10-21.md</code>.</p>
-</div>
-<div class="section level2">
-<h2 id="mediationverse-ecosystem">Mediationverse Ecosystem<a class="anchor" aria-label="anchor" href="#mediationverse-ecosystem"></a>
-</h2>
-<p><strong>probmed</strong> is part of the <strong>mediationverse</strong> ecosystem for mediation analysis in R:</p>
-<table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
-<thead><tr>
-<th>Package</th>
-<th>Purpose</th>
-<th>Role</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><a href="https://github.com/data-wise/medfit" class="external-link"><strong>medfit</strong></a></td>
-<td>Model fitting, extraction, bootstrap</td>
-<td>Foundation</td>
-</tr>
-<tr>
-<td>
-<strong>probmed</strong> (this)</td>
-<td>Probabilistic effect size (P_med)</td>
-<td>Application</td>
-</tr>
-<tr>
-<td><a href="https://github.com/data-wise/rmediation" class="external-link"><strong>RMediation</strong></a></td>
-<td>Confidence intervals (DOP, MBCO)</td>
-<td>Application</td>
-</tr>
-<tr>
-<td><a href="https://github.com/data-wise/medrobust" class="external-link"><strong>medrobust</strong></a></td>
-<td>Sensitivity analysis</td>
-<td>Application</td>
-</tr>
-<tr>
-<td><a href="https://github.com/data-wise/medsim" class="external-link"><strong>medsim</strong></a></td>
-<td>Simulation infrastructure</td>
-<td>Support</td>
-</tr>
-</tbody>
-</table>
-<p>See <a href="https://github.com/data-wise/medfit/blob/main/planning/ECOSYSTEM.md" class="external-link">Ecosystem Coordination</a> for version compatibility and development guidelines.</p>
-</div>
-<div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
-</h2>
-<p>Install from the <a href="https://data-wise.r-universe.dev" class="external-link">Data-Wise r-universe</a> — no compiler needed, and dependencies (e.g. <code>medfit</code>) resolve automatically:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"probmed"</span>, repos <span class="op">=</span> <span class="st">"https://data-wise.r-universe.dev"</span><span class="op">)</span></span></code></pre></div>
-<p>Or install the development version from <a href="https://github.com/data-wise/probmed" class="external-link">GitHub</a>:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"data-wise/probmed"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="quick-example">Quick Example<a class="anchor" aria-label="anchor" href="#quick-example"></a>
-</h2>
-<p>Here is a basic example showing how to simulate data and compute <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> using a parametric bootstrap approach.</p>
-<div class="section level3">
-<h3 id="id_1-simulate-data">1. Simulate Data<a class="anchor" aria-label="anchor" href="#id_1-simulate-data"></a>
-</h3>
-<p>First, we generate a dataset with a continuous treatment (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>), mediator (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>), and outcome (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>), along with a covariate (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>).</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://data-wise.github.io/probmed/">probmed</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
-<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">300</span></span>
-<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, C <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Mediator model: M ~ X + C</span></span>
-<span><span class="va">data</span><span class="op">$</span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">data</span><span class="op">$</span><span class="va">X</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">data</span><span class="op">$</span><span class="va">C</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Outcome model: Y ~ M + X + C</span></span>
-<span><span class="va">data</span><span class="op">$</span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fl">0.4</span> <span class="op">*</span> <span class="va">data</span><span class="op">$</span><span class="va">M</span> <span class="op">+</span> <span class="fl">0.2</span> <span class="op">*</span> <span class="va">data</span><span class="op">$</span><span class="va">X</span> <span class="op">+</span> <span class="fl">0.2</span> <span class="op">*</span> <span class="va">data</span><span class="op">$</span><span class="va">C</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="id_2-compute-p_med">2. Compute <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math><a class="anchor" aria-label="anchor" href="#id_2-compute-p_med"></a>
-</h3>
-<p>We use the <code><a href="reference/pmed.html">pmed()</a></code> function to estimate the effect size. We specify the models for the outcome and mediator, and select the bootstrap method.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pmed.html">pmed</a></span><span class="op">(</span></span>
-<span>  <span class="va">Y</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">M</span> <span class="op">+</span> <span class="va">C</span>,             <span class="co"># Outcome model formula</span></span>
-<span>  formula_m <span class="op">=</span> <span class="va">M</span> <span class="op">~</span> <span class="va">X</span> <span class="op">+</span> <span class="va">C</span>,     <span class="co"># Mediator model formula</span></span>
-<span>  data <span class="op">=</span> <span class="va">data</span>,</span>
-<span>  treatment <span class="op">=</span> <span class="st">"X"</span>,</span>
-<span>  mediator <span class="op">=</span> <span class="st">"M"</span>,</span>
-<span>  method <span class="op">=</span> <span class="st">"parametric_bootstrap"</span>,</span>
-<span>  n_boot <span class="op">=</span> <span class="fl">1000</span>,</span>
-<span>  seed <span class="op">=</span> <span class="fl">42</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="id_3-view-results">3. View Results<a class="anchor" aria-label="anchor" href="#id_3-view-results"></a>
-</h3>
-<p>The results object provides a clear summary of both <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> and the Indirect Effect with confidence intervals.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; P_med: Probability of Mediated Shift</span></span>
-<span><span class="co">#&gt; ====================================</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; Estimate: 0.55</span></span>
-<span><span class="co">#&gt; 95% CI: [0.53, 0.572]</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; Indirect Effect (Product of Coefficients):</span></span>
-<span><span class="co">#&gt; Estimate: 0.2</span></span>
-<span><span class="co">#&gt; 95% CI: [0.129, 0.283]</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; Inference: parametric_bootstrap</span></span>
-<span><span class="co">#&gt; Bootstrap samples: 1000</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; Treatment contrast: X = 1 vs. X* = 0</span></span>
-<span><span class="co">#&gt;</span></span>
-<span><span class="co">#&gt; Interpretation:</span></span>
-<span><span class="co">#&gt;   P(Y(1, M(1)) &gt; Y(1, M(0))) = 0.55</span></span>
-<span><span class="co">#&gt;   P that the mediator shift (M(0) -&gt; M(1)) leaves a random individual better off, holding X = 1.</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
-<p><strong>Interpretation</strong>: - <strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mrow><mi>m</mi><mi>e</mi><mi>d</mi></mrow></msub><annotation encoding="application/x-tex">P_{med}</annotation></semantics></math> = 0.55</strong>: Holding treatment at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">X = 1</annotation></semantics></math>, there is a 55% probability that the outcome under the treated mediator level exceeds the outcome under the control mediator level. Since 0.50 represents “no mediation effect”, this indicates a modest positive mediation effect. - <strong>Indirect Effect = 0.2</strong>: The traditional product-of-coefficients indirect effect (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>×</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">a \times b</annotation></semantics></math>) quantifies the average change in outcome due to the mediated path.</p>
-</div>
 </div>
 <div class="section level2">
 <h2 id="workflow-options">Workflow Options<a class="anchor" aria-label="anchor" href="#workflow-options"></a>
@@ -456,6 +491,52 @@
 </div>
 </div>
 <div class="section level2">
+<h2 id="mediationverse-ecosystem">Mediationverse Ecosystem<a class="anchor" aria-label="anchor" href="#mediationverse-ecosystem"></a>
+</h2>
+<p><strong>probmed</strong> is part of the <strong>mediationverse</strong> ecosystem for mediation analysis in R:</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr>
+<th>Package</th>
+<th>Purpose</th>
+<th>Role</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/data-wise/medfit" class="external-link"><strong>medfit</strong></a></td>
+<td>Model fitting, extraction, bootstrap</td>
+<td>Foundation</td>
+</tr>
+<tr>
+<td>
+<strong>probmed</strong> (this)</td>
+<td>Probabilistic effect size (P_med)</td>
+<td>Application</td>
+</tr>
+<tr>
+<td><a href="https://github.com/data-wise/rmediation" class="external-link"><strong>RMediation</strong></a></td>
+<td>Confidence intervals (DOP, MBCO)</td>
+<td>Application</td>
+</tr>
+<tr>
+<td><a href="https://github.com/data-wise/medrobust" class="external-link"><strong>medrobust</strong></a></td>
+<td>Sensitivity analysis</td>
+<td>Application</td>
+</tr>
+<tr>
+<td><a href="https://github.com/data-wise/medsim" class="external-link"><strong>medsim</strong></a></td>
+<td>Simulation infrastructure</td>
+<td>Support</td>
+</tr>
+</tbody>
+</table>
+<p>See <a href="https://github.com/data-wise/medfit/blob/main/planning/ECOSYSTEM.md" class="external-link">Ecosystem Coordination</a> for version compatibility and development guidelines.</p>
+</div>
+<div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <ul>
@@ -467,6 +548,11 @@
 <h2 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>
 </h2>
 <p>We welcome contributions! Please see the <a href="https://github.com/data-wise/probmed/issues" class="external-link">Issue Tracker</a> for potential features or bug reports.</p>
+</div>
+<div class="section level2">
+<h2 id="development-notes">Development notes<a class="anchor" aria-label="anchor" href="#development-notes"></a>
+</h2>
+<p>PR validation uses the <a href="https://github.com/Data-Wise/probmed/blob/dev/tasks/PLAN-local-ci-transition-2026-10-20.md" class="external-link">full local gate</a>, which posts a commit-specific required status after passing. GitHub Actions still publishes the website on <code>main</code>; R-CMD-check remains required on <code>main</code> PRs until branch protection is switched, while coverage is manual.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

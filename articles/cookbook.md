@@ -3,7 +3,7 @@
 Short recipes for common tasks. Every recipe uses the simulated data
 below (continuous treatment `X`, mediator `M`, outcome `Y`, covariate
 `C`). Chunks are not evaluated when the site is built; the code was run
-against version 0.4.0.
+against version 0.4.1.
 
 ``` r
 
@@ -110,6 +110,22 @@ ward_residual(data.frame(A = as.integer(d$X > 0), M = d$M, Y = d$Y, C = d$C))
 expects a binary 0/1 treatment `A` and covariates named in `covars`
 (default `"C"`). It reports gates for weak identification; see [Gauge
 residual](https://data-wise.github.io/probmed/articles/gauge-residual.md).
+
+## Missing values
+
+[`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md) stops
+if any variable named in either formula has a missing value, before
+fitting anything. Drop incomplete rows first so both models use the same
+sample.
+
+``` r
+
+d_complete <- d[stats::complete.cases(d[, c("X", "M", "Y", "C")]), ]
+```
+
+Columns that neither formula uses may contain missing values. Since
+0.4.1 this check runs on the data you pass, so it also holds with medfit
+0.10 and later.
 
 ## Reproducibility
 

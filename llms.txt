@@ -1,14 +1,18 @@
 # probmed
 
-PR validation uses the [full local
-gate](https://github.com/Data-Wise/probmed/blob/dev/tasks/PLAN-local-ci-transition-2026-10-20.md),
-which posts a commit-specific required status after passing. GitHub
-Actions still publishes the website on `main`; R-CMD-check remains
-required on `main` PRs until branch protection is switched, while
-coverage is manual.
+**probmed** computes **$`P_{med}`$**, a probabilistic effect size for
+mediation: the chance that shifting the mediator from its control to its
+treated level leaves a person better off. It is scale-free, lies between
+0 and 1, and is 0.5 when there is no mediation.
 
-**probmed** provides a robust framework for computing **$`P_{med}`$**, a
-scale-free probabilistic effect size for causal mediation analysis.
+| I want to… | Go to |
+|----|----|
+| Install and run a first example | [Install](#installation) and [Quick example](#quick-example) |
+| Do a specific task (intervals, binary models, sensitivity) | [Cookbook](https://data-wise.github.io/probmed/articles/cookbook.html) |
+| Pick a confidence interval method | [Choosing a confidence interval](https://data-wise.github.io/probmed/articles/confidence-intervals.html) |
+| Understand the other estimands | [Modern estimands](https://data-wise.github.io/probmed/articles/modern-estimands.html) |
+| Check how much to trust a result | [Status and known limitations](#status-and-known-limitations) |
+| Look up a function | [Reference](https://data-wise.github.io/probmed/reference/index.html) |
 
 ## What is $`P_{med}`$?
 
@@ -27,112 +31,6 @@ falls between 0 and 1, with 0.5 meaning no mediation effect, making it
 comparable across studies. \* **Handles Non-Linearity**: Can be extended
 to Generalized Linear Models (GLMs) where coefficients are not directly
 comparable.
-
-## Features
-
-Single-mediator plug-in calls honor an explicit `seed`. MBCO is
-deterministic and reports numerical statuses in `result@diagnostics`;
-only verified likelihood-ratio endpoints set `converged = TRUE`, and
-detected disconnected sets or failed profiles return missing interval
-bounds. Parallel mediation keeps its legacy inversion path.
-
-- **Flexible Modeling**: Gaussian (identity link) and binary (logit or
-  probit link) mediators and outcomes, with covariates. Binary models
-  are standardized over the observed covariate rows. Other families
-  (Poisson, ordinal, …), interactions and transformed treatment/mediator
-  terms are rejected with an informative error rather than simulated
-  incorrectly.
-- **Comprehensive Effect Reporting**: Provides both $`P_{med}`$
-  (probabilistic effect size) and the traditional Indirect Effect
-  ($`a \times b`$) with bootstrap confidence intervals.
-- **Robust Inference**: Implements multiple methods for constructing
-  confidence intervals:
-  - **Parametric Bootstrap**: Efficient and accurate for large samples
-    with known distributions.
-  - **Nonparametric Bootstrap**: Robust to distributional assumptions
-    (resampling-based).
-  - **Plug-in Estimator**: Fast point estimation.
-  - **MBCO** (Gaussian): deterministic likelihood-ratio interval with
-    verified endpoints. It never undercovers but is conservative near
-    the double null, flagged by `@diagnostics$pmed$near_double_null`.
-  - **Model-based bootstrap** (opt-in, `method = "model_bootstrap"`):
-    refits both equations on data simulated from the fitted models, so
-    residual scales are re-estimated too. Coverage varies by design; see
-    `docs/reports/CALIBRATION-2026-10-14.md` in the repository.
-- **Modern Architecture**: Built on the **S7** object-oriented system,
-  ensuring type safety, stability, and easy extensibility.
-- **Ecosystem Integration**: Works seamlessly with popular R packages:
-  - **lavaan**: Extract from Structural Equation Models with FIML and
-    robust estimators
-  - **mediation**: Direct integration with
-    [`mediate()`](https://rdrr.io/pkg/mediation/man/mediate.html)
-    objects
-  - Standard **lm/glm**: Native support for regression models
-- **User-Friendly Interface**: Designed to work with standard R
-  `formula` interfaces and `data.frame` inputs.
-
-## Modern estimands
-
-Beyond the core
-[`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md), the
-package ships cross-fitted, influence-function-based estimators, each
-with its own S7 result class. See the [Modern estimands
-article](https://data-wise.github.io/probmed/articles/modern-estimands.html)
-for details and caveats.
-
-| Function | Result class | What it estimates |
-|----|----|----|
-| [`ward_residual()`](https://data-wise.github.io/probmed/reference/ward_residual.md) | `GaugePmedResult` | Gauge-calibrated P_med (residual over observed effect) with weak-identification gates |
-| [`incr_pmed()`](https://data-wise.github.io/probmed/reference/incr_pmed.md), [`incr_sensitivity()`](https://data-wise.github.io/probmed/reference/incr_sensitivity.md) | `IncrPmedResult` | Incremental P_med and its per-delta tipping analysis |
-| [`sobol_pmed()`](https://data-wise.github.io/probmed/reference/sobol_pmed.md) | `SobolPmedResult` | Sobol variance-scale P_med |
-| [`wasserstein_pmed()`](https://data-wise.github.io/probmed/reference/wasserstein_pmed.md) | `WassersteinPmedResult` | Wasserstein proportion mediated |
-| [`rg_flow_contrast()`](https://data-wise.github.io/probmed/reference/rg_flow_contrast.md) | `RgFlowResult` | Scale-indexed NIE/TE with cluster-robust inference |
-| [`pmed_sensitivity()`](https://data-wise.github.io/probmed/reference/pmed_sensitivity.md) | `PmedSensitivity` | Unmeasured mediator-outcome confounding (tipping point) |
-
-## Learn more
-
-- [Cookbook](https://data-wise.github.io/probmed/articles/cookbook.html):
-  short recipes for common tasks
-- [Choosing a confidence
-  interval](https://data-wise.github.io/probmed/articles/confidence-intervals.html):
-  what each `method` supports, from the calibration study
-- [Sensitivity
-  analysis](https://data-wise.github.io/probmed/articles/sensitivity-analysis.html):
-  tipping-point analysis for M-Y confounding
-- Technical notes: [the P_med
-  estimand](https://data-wise.github.io/probmed/articles/technical-note-estimand.html)
-  and the [validation
-  record](https://data-wise.github.io/probmed/articles/technical-note-validation.html)
-
-## Status and known limitations
-
-Version `0.4.0` (GitHub release only; not submitted to CRAN). For the
-binary Wasserstein proportion mediated, estimation near an exactly zero
-mediation path is hard: the plug-in bias is of order $`n^{-1/4}`$, none
-of the point estimators tested met the frozen bias gate (\|bias\|/SD \<
-.10) there, and that gate was shown to be infeasible for any estimator
-with values in \[0, 1\] in the zero-direct and weak-direct cells at n =
-500, and the Fieller interval is the supported uncertainty statement.
-See the [boundary article
-section](https://data-wise.github.io/probmed/articles/modern-estimands.html#boundary-behavior)
-and `docs/reports/REPORT-boundary-point-risk-2026-10-21.md`.
-
-## Mediationverse Ecosystem
-
-**probmed** is part of the **mediationverse** ecosystem for mediation
-analysis in R:
-
-| Package | Purpose | Role |
-|----|----|----|
-| [**medfit**](https://github.com/data-wise/medfit) | Model fitting, extraction, bootstrap | Foundation |
-| **probmed** (this) | Probabilistic effect size (P_med) | Application |
-| [**RMediation**](https://github.com/data-wise/rmediation) | Confidence intervals (DOP, MBCO) | Application |
-| [**medrobust**](https://github.com/data-wise/medrobust) | Sensitivity analysis | Application |
-| [**medsim**](https://github.com/data-wise/medsim) | Simulation infrastructure | Support |
-
-See [Ecosystem
-Coordination](https://github.com/data-wise/medfit/blob/main/planning/ECOSYSTEM.md)
-for version compatibility and development guidelines.
 
 ## Installation
 
@@ -238,6 +136,109 @@ Since 0.50 represents “no mediation effect”, this indicates a modest
 positive mediation effect. - **Indirect Effect = 0.2**: The traditional
 product-of-coefficients indirect effect ($`a \times b`$) quantifies the
 average change in outcome due to the mediated path.
+
+## Which function do I need?
+
+| Question | Function |
+|----|----|
+| How large is the mediated effect, as a probability? | [`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md) |
+| Is the effect identified well enough to interpret? | [`ward_residual()`](https://data-wise.github.io/probmed/reference/ward_residual.md) |
+| What if the mediator is shifted by a factor, not switched? | [`incr_pmed()`](https://data-wise.github.io/probmed/reference/incr_pmed.md) |
+| What share of outcome variance is mediated? | [`sobol_pmed()`](https://data-wise.github.io/probmed/reference/sobol_pmed.md) |
+| Proportion mediated on a distance scale (binary outcome)? | [`wasserstein_pmed()`](https://data-wise.github.io/probmed/reference/wasserstein_pmed.md) |
+| Clustered or multilevel data? | [`rg_flow_contrast()`](https://data-wise.github.io/probmed/reference/rg_flow_contrast.md) |
+| How much unmeasured confounding would overturn it? | [`pmed_sensitivity()`](https://data-wise.github.io/probmed/reference/pmed_sensitivity.md) |
+
+## Learn more
+
+- [Cookbook](https://data-wise.github.io/probmed/articles/cookbook.html):
+  short recipes for common tasks
+- [Choosing a confidence
+  interval](https://data-wise.github.io/probmed/articles/confidence-intervals.html):
+  what each `method` supports, from the calibration study
+- [Sensitivity
+  analysis](https://data-wise.github.io/probmed/articles/sensitivity-analysis.html):
+  tipping-point analysis for M-Y confounding
+- Technical notes: [the P_med
+  estimand](https://data-wise.github.io/probmed/articles/technical-note-estimand.html)
+  and the [validation
+  record](https://data-wise.github.io/probmed/articles/technical-note-validation.html)
+
+## Status and known limitations
+
+Version `0.4.1` (GitHub release only; not submitted to CRAN). Tested
+against medfit 0.3.2 (CRAN) and 0.12.0; the missing-value guard needs
+0.4.1 with medfit 0.10.0 or later. For the binary Wasserstein proportion
+mediated, estimation near an exactly zero mediation path is hard: the
+plug-in bias is of order $`n^{-1/4}`$, none of the point estimators
+tested met the frozen bias gate (\|bias\|/SD \< .10) there, and that
+gate was shown to be infeasible for any estimator with values in \[0,
+1\] in the zero-direct and weak-direct cells at n = 500, and the Fieller
+interval is the supported uncertainty statement. See the [boundary
+article
+section](https://data-wise.github.io/probmed/articles/modern-estimands.html#boundary-behavior)
+and `docs/reports/REPORT-boundary-point-risk-2026-10-21.md`.
+
+## Features
+
+Single-mediator plug-in calls honor an explicit `seed`. MBCO is
+deterministic and reports numerical statuses in `result@diagnostics`;
+only verified likelihood-ratio endpoints set `converged = TRUE`, and
+detected disconnected sets or failed profiles return missing interval
+bounds. Parallel mediation keeps its legacy inversion path.
+
+- **Flexible Modeling**: Gaussian (identity link) and binary (logit or
+  probit link) mediators and outcomes, with covariates. Binary models
+  are standardized over the observed covariate rows. Other families
+  (Poisson, ordinal, …), interactions and transformed treatment/mediator
+  terms are rejected with an informative error rather than simulated
+  incorrectly.
+- **Comprehensive Effect Reporting**: Provides both $`P_{med}`$
+  (probabilistic effect size) and the traditional Indirect Effect
+  ($`a \times b`$) with bootstrap confidence intervals.
+- **Robust Inference**: Implements multiple methods for constructing
+  confidence intervals:
+  - **Parametric Bootstrap**: Efficient and accurate for large samples
+    with known distributions.
+  - **Nonparametric Bootstrap**: Robust to distributional assumptions
+    (resampling-based).
+  - **Plug-in Estimator**: Fast point estimation.
+  - **MBCO** (Gaussian): deterministic likelihood-ratio interval with
+    verified endpoints. It never undercovers but is conservative near
+    the double null, flagged by `@diagnostics$pmed$near_double_null`.
+  - **Model-based bootstrap** (opt-in, `method = "model_bootstrap"`):
+    refits both equations on data simulated from the fitted models, so
+    residual scales are re-estimated too. Coverage varies by design; see
+    `docs/reports/CALIBRATION-2026-10-14.md` in the repository.
+- **Modern Architecture**: Built on the **S7** object-oriented system,
+  ensuring type safety, stability, and easy extensibility.
+- **Ecosystem Integration**: Works seamlessly with popular R packages:
+  - **lavaan**: Extract from Structural Equation Models with FIML and
+    robust estimators
+  - **mediation**: Direct integration with
+    [`mediate()`](https://rdrr.io/pkg/mediation/man/mediate.html)
+    objects
+  - Standard **lm/glm**: Native support for regression models
+- **User-Friendly Interface**: Designed to work with standard R
+  `formula` interfaces and `data.frame` inputs.
+
+## Modern estimands
+
+Beyond the core
+[`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md), the
+package ships cross-fitted, influence-function-based estimators, each
+with its own S7 result class. See the [Modern estimands
+article](https://data-wise.github.io/probmed/articles/modern-estimands.html)
+for details and caveats.
+
+| Function | Result class | What it estimates |
+|----|----|----|
+| [`ward_residual()`](https://data-wise.github.io/probmed/reference/ward_residual.md) | `GaugePmedResult` | Gauge-calibrated P_med (residual over observed effect) with weak-identification gates |
+| [`incr_pmed()`](https://data-wise.github.io/probmed/reference/incr_pmed.md), [`incr_sensitivity()`](https://data-wise.github.io/probmed/reference/incr_sensitivity.md) | `IncrPmedResult` | Incremental P_med and its per-delta tipping analysis |
+| [`sobol_pmed()`](https://data-wise.github.io/probmed/reference/sobol_pmed.md) | `SobolPmedResult` | Sobol variance-scale P_med |
+| [`wasserstein_pmed()`](https://data-wise.github.io/probmed/reference/wasserstein_pmed.md) | `WassersteinPmedResult` | Wasserstein proportion mediated |
+| [`rg_flow_contrast()`](https://data-wise.github.io/probmed/reference/rg_flow_contrast.md) | `RgFlowResult` | Scale-indexed NIE/TE with cluster-robust inference |
+| [`pmed_sensitivity()`](https://data-wise.github.io/probmed/reference/pmed_sensitivity.md) | `PmedSensitivity` | Unmeasured mediator-outcome confounding (tipping point) |
 
 ## Workflow Options
 
@@ -365,6 +366,23 @@ result_nonparam <- pmed(Y ~ X + M, formula_m = M ~ X, data = data,
                         method = "nonparametric_bootstrap", n_boot = 1000)
 ```
 
+## Mediationverse Ecosystem
+
+**probmed** is part of the **mediationverse** ecosystem for mediation
+analysis in R:
+
+| Package | Purpose | Role |
+|----|----|----|
+| [**medfit**](https://github.com/data-wise/medfit) | Model fitting, extraction, bootstrap | Foundation |
+| **probmed** (this) | Probabilistic effect size (P_med) | Application |
+| [**RMediation**](https://github.com/data-wise/rmediation) | Confidence intervals (DOP, MBCO) | Application |
+| [**medrobust**](https://github.com/data-wise/medrobust) | Sensitivity analysis | Application |
+| [**medsim**](https://github.com/data-wise/medsim) | Simulation infrastructure | Support |
+
+See [Ecosystem
+Coordination](https://github.com/data-wise/medfit/blob/main/planning/ECOSYSTEM.md)
+for version compatibility and development guidelines.
+
 ## References
 
 - Tofighi, D. (In Press). *Probabilistic Effect Sizes for Mediation
@@ -377,6 +395,15 @@ result_nonparam <- pmed(Y ~ X + M, formula_m = M ~ X, data = data,
 We welcome contributions! Please see the [Issue
 Tracker](https://github.com/data-wise/probmed/issues) for potential
 features or bug reports.
+
+## Development notes
+
+PR validation uses the [full local
+gate](https://github.com/Data-Wise/probmed/blob/dev/tasks/PLAN-local-ci-transition-2026-10-20.md),
+which posts a commit-specific required status after passing. GitHub
+Actions still publishes the website on `main`; R-CMD-check remains
+required on `main` PRs until branch protection is switched, while
+coverage is manual.
 
 # Package index
 

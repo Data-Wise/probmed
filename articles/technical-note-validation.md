@@ -13,6 +13,7 @@ support.
 | Exact Gaussian reference | `I2-EXACT-REFERENCE-2026-10-15.md`, `AUDIT-exact-gaussian-hopper-2026-10-20.md` | Exact-Gaussian run passed its original six-cell rule |
 | Gaussian candidate gate | `I6-GATE-2026-10-19.md` | Candidate d failed the frozen coverage-equivalence and width gates |
 | Wasserstein repairs | `VALIDATE-wasserstein-*-2026-10-20.md` | Boundary correction, selection, joint contrast and observed inference checks |
+| Ecosystem compatibility | `tasks/plan-mediationverse-compat.md` | Suite passes on medfit 0.3.2 (CRAN) and 0.12.0 (r-universe), 832 tests each; 0.4.1 fixed a missing-value guard that medfit 0.10+ bypassed |
 | Boundary point risk | `REPORT-boundary-point-risk-2026-10-21.md` | Negative result; see below |
 
 ## Boundary behavior in one paragraph

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">probmed</a>
 
-    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
+    <small class="nav-text text-default me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,6 +64,12 @@
       <small>Source: <a href="https://github.com/data-wise/probmed/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.1" id="probmed-041-2026-10-21">probmed 0.4.1 (2026-10-21)<a class="anchor" aria-label="anchor" href="#probmed-041-2026-10-21"></a></h2>
+<p>GitHub release (not submitted to CRAN). Bug fix release.</p>
+<ul><li>
+<code><a href="../reference/pmed.html">pmed()</a></code> now rejects missing values in the model variables before any model is fitted. With medfit 0.10.0 and later the extraction keeps only complete rows, so the previous check on the extracted data never fired and the mediator and outcome models could be fitted to different samples.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.0" id="probmed-040-2026-10-21">probmed 0.4.0 (2026-10-21)<a class="anchor" aria-label="anchor" href="#probmed-040-2026-10-21"></a></h2>
 <p>GitHub release (not submitted to CRAN). Highlights since 0.3.0: the gauge-calibrated (<code><a href="../reference/ward_residual.html">ward_residual()</a></code>), incremental (<code><a href="../reference/incr_pmed.html">incr_pmed()</a></code>, <code><a href="../reference/incr_sensitivity.html">incr_sensitivity()</a></code>), Sobol (<code><a href="../reference/sobol_pmed.html">sobol_pmed()</a></code>), Wasserstein (<code><a href="../reference/wasserstein_pmed.html">wasserstein_pmed()</a></code>) and rg-flow (<code><a href="../reference/rg_flow_contrast.html">rg_flow_contrast()</a></code>) estimators and <code><a href="../reference/pmed_sensitivity.html">pmed_sensitivity()</a></code>; the observed-data Wasserstein inference repair; MBCO diagnostics; <code>method = "model_bootstrap"</code>; the <code>multilevel_designs</code> dataset; and the website and README corrections. Known limitation: near an exactly zero mediation path the binary Wasserstein point estimator has no accepted solution (see the boundary report in <code>docs/reports/</code>); the Fieller interval is the supported uncertainty statement there.</p>

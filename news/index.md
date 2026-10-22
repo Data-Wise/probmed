@@ -1,5 +1,16 @@
 # Changelog
 
+## probmed 0.4.1 (2026-10-21)
+
+GitHub release (not submitted to CRAN). Bug fix release.
+
+- [`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md) now
+  rejects missing values in the model variables before any model is
+  fitted. With medfit 0.10.0 and later the extraction keeps only
+  complete rows, so the previous check on the extracted data never fired
+  and the mediator and outcome models could be fitted to different
+  samples.
+
 ## probmed 0.4.0 (2026-10-21)
 
 GitHub release (not submitted to CRAN). Highlights since 0.3.0: the
