@@ -1,3 +1,10 @@
+# Development version
+
+* Limit the website and confidence-interval guide's MBCO coverage statement to the
+  reported finite calibration design. The study's absence of an undercoverage
+  failure is not a uniform coverage guarantee; `near_double_null` flags only the
+  core of the conservative region. No computation or calibration result changes.
+
 # probmed 0.4.1 (2026-10-21)
 
 GitHub release (not submitted to CRAN). Bug fix release.
