@@ -1,3 +1,4 @@
+coverage_docs_2026_10_24: Corrected README website source/generated Markdown and confidence-interval guide: no detected undercoverage failure in the reported finite design is not a uniform coverage guarantee; near_double_null marks only the core of the conservative region. Targeted README/home/article rendering and check_pkgdown pass; actual HTML checked for corrected text and absence of the old guarantee. No R source, simulation result, calibration decision or release/submission hold changed. Publication verification tracked in pmed preflight.
 status: on-hold
 priority: P1
 progress: 90
