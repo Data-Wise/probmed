@@ -204,8 +204,11 @@ bounds. Parallel mediation keeps its legacy inversion path.
     (resampling-based).
   - **Plug-in Estimator**: Fast point estimation.
   - **MBCO** (Gaussian): deterministic likelihood-ratio interval with
-    verified endpoints. It never undercovers but is conservative near
-    the double null, flagged by `@diagnostics$pmed$near_double_null`.
+    verified endpoints. No undercoverage failure was detected under the
+    study’s decision rule in the reported finite calibration design;
+    this is not a uniform coverage guarantee. It can be conservative
+    near the double null; `@diagnostics$pmed$near_double_null` flags the
+    core of this region.
   - **Model-based bootstrap** (opt-in, `method = "model_bootstrap"`):
     refits both equations on data simulated from the fitted models, so
     residual scales are re-estimated too. Coverage varies by design; see

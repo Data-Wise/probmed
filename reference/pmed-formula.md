@@ -192,11 +192,11 @@ print(result_boot)
 #> ====================================
 #> 
 #> Estimate: 0.574 
-#> 95% CI: [ 0.532 ,  0.618 ]
+#> 95% CI: [ 0.533 ,  0.618 ]
 #> 
 #> Indirect Effect (Product of Coefficients):
 #> Estimate: 0.147 
-#> 95% CI: [ 0.0629 ,  0.248 ]
+#> 95% CI: [ 0.065 ,  0.248 ]
 #> 
 #> Inference: parametric_bootstrap 
 #> Bootstrap samples: 200 

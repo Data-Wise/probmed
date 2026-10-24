@@ -12,7 +12,7 @@ each; `docs/reports/CALIBRATION-2026-10-14.md` in the repository).
 | Quick look, no interval | `"plugin"` | Point estimate only |
 | Gaussian M and Y, default | `"parametric_bootstrap"` | Fast; samples from N(theta, Sigma) |
 | Normality questionable | `"nonparametric_bootstrap"` | Resamples rows and refits |
-| Gaussian with covariates, want a deterministic interval | `"mbco"` | Likelihood-ratio inversion; never undercovers |
+| Gaussian with covariates, want a deterministic interval | `"mbco"` | Likelihood-ratio inversion; evaluated on a finite calibration design |
 | Binary M or Y with covariates | `"model_bootstrap"` | Re-estimates residual scales on simulated data |
 
 ## MBCO
@@ -20,6 +20,12 @@ each; `docs/reports/CALIBRATION-2026-10-14.md` in the repository).
 MBCO (model-based constrained optimization; Tofighi and Kelley, 2020)
 inverts a likelihood-ratio test for the product of the two paths. The
 result is deterministic.
+
+No undercoverage failure was detected under the study’s decision rule in
+the reported finite calibration design. This does not establish a
+uniform coverage guarantee. The coverage statements below apply only to
+the tested configurations; the `near_double_null` flag marks the core of
+the conservative region, not all of it.
 
 - **Coverage.** Every nominal cell with a well identified nonzero path
   passes (coverage .944 to .958 across N = 50, 250, 1000).
