@@ -1,3 +1,7 @@
+# Development version
+
+* The Gaussian plug-in accepts an extracted latent mediator without an observed mediator column; nonparametric refitting still requires observed variables.
+
 # probmed 0.4.1 (2026-10-21)
 
 GitHub release (not submitted to CRAN). Bug fix release.
