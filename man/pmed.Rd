@@ -40,6 +40,11 @@ outcomes hold treatment at \eqn{x}, so the direct effect cancels and
 \eqn{P_{med}} reflects mediation only; values \eqn{> 0.5} indicate positive
 mediation.
 }
+\details{
+For additive Gaussian extracted models, the plug-in may use a latent
+mediator without an observed mediator column. The nonparametric bootstrap
+requires observed variables for refitting.
+}
 \section{Methods}{
 
 Available inference methods via \code{method} argument:

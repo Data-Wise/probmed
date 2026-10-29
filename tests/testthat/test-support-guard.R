@@ -226,3 +226,30 @@ test_that("the extracted-model guard catches what the formula guard cannot reach
   chr@data <- dd
   expect_error(.check_supported_extract(chr), "numeric `M`")
 })
+
+
+test_that("plug-in accepts an unobserved mediator without weakening other guards", {
+  d <- guard_data()
+  ex <- extract_mediation(stats::glm(M ~ X, data = d), treatment = "X",
+                          mediator = "M", model_y = stats::glm(Y ~ X + M, data = d),
+                          data = d)
+  latent <- ex
+  latent@data <- d[, setdiff(names(d), "M"), drop = FALSE]
+  no_data <- latent
+  no_data@data <- NULL
+  with_data <- pmed(latent, method = "plugin", n_sim = 2000, seed = 1)
+  without_data <- pmed(no_data, method = "plugin", n_sim = 2000, seed = 1)
+  expect_identical(with_data@estimate, without_data@estimate)
+  oracle_sd <- sqrt(2 * (ex@b_path^2 * ex@sigma_m^2 + ex@sigma_y^2))
+  oracle <- stats::pnorm(ex@a_path * ex@b_path / oracle_sd)
+  expect_lt(abs(with_data@estimate - oracle), 0.04)
+  expect_error(pmed(latent, method = "nonparametric_bootstrap", n_boot = 10), "numeric `M`")
+  binary <- latent
+  binary@family_y <- stats::binomial()
+  expect_error(pmed(binary, method = "plugin"), "numeric `M`")
+  bad <- ex
+  bad@data <- transform(d, M = as.character(M))
+  expect_error(pmed(bad, method = "plugin"), "numeric `M`")
+  bad@data <- d[, setdiff(names(d), "X"), drop = FALSE]
+  expect_error(pmed(bad, method = "plugin"), "numeric `X`")
+})

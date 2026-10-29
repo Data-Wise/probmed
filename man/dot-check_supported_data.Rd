@@ -4,7 +4,7 @@
 \alias{.check_supported_data}
 \title{Data-level checks: missing rows, variable types, binary responses}
 \usage{
-.check_supported_data(extract)
+.check_supported_data(extract, method = NULL)
 }
 \description{
 The nonparametric bootstrap resamples \code{extract@data}, so rows a model fit
