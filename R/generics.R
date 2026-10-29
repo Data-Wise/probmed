@@ -58,6 +58,11 @@ NULL
 #'   \item \code{"plugin"}: Point estimate only, no CI
 #' }
 #'
+#' @details
+#' For additive Gaussian extracted models, the plug-in may use a latent
+#' mediator without an observed mediator column. The nonparametric bootstrap
+#' requires observed variables for refitting.
+#'
 #' @examples
 #' # Basic example with formula interface
 #' set.seed(123)
