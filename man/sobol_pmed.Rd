@@ -38,8 +38,9 @@ sobol_pmed(
 \item{ci_level}{Numeric: confidence level (default \code{0.95}).}
 
 \item{warn_boundary}{Logical: warn when the boundary test does not reject and
-the reported interval falls back to the Procedure-A upper bound
-(default \code{TRUE}).}
+the reported interval falls back to the Procedure-A upper bound, and note
+when the estimate is near either boundary of Procedure B (\code{V_med = 0}, or
+full mediation, \code{P_med >= 0.9}) (default \code{TRUE}).}
 
 \item{boundary_test}{Character: boundary test for \code{H0: V_med = 0}. \code{"split"}
 (default) is the Williamson sample-split test on \code{Delta_m}; \code{"plugin"} is the
@@ -83,12 +84,11 @@ At the null \code{V_med = 0} (equivalently \code{Delta_m = 0}) the squared-varia
 influence function degenerates and the symmetric Wald interval is non-regular.
 A Williamson et al. (2021) sample-split test on the regular contrast \code{Delta_m}
 decides the boundary. The default reported interval is \strong{Procedure B}
-(\code{procedure = "B"}): the image of the regular \code{Delta_m} Wald CI under
-\verb{delta -> (c_m/V_T) delta^2} (continuous mapping, no gate). Its validity inherits
-that of the input \code{Delta_m} CI, which the analytic se delivers: post-fix
-(2026-08-22) the \code{Delta_m} se is exact from strong effects to the null and the
-Procedure-B interval covers 0.952-0.996 across six cells (see the boundary
-coverage section of \link{SobolPmedResult}). \strong{Procedure A}
+(\code{procedure = "B"}): the image of the Wald CI for \code{psi = Delta_m / sqrt(V_T)}
+under \verb{psi -> c_m psi^2} (no gate), computed as \verb{Delta_m +/- z * se_B} mapped
+through \verb{delta -> (c_m/V_T) delta^2} and capped at 1. \code{se_B} is the se of the
+\code{psi} pivot on the \code{Delta_m} scale, so the interval accounts for the error in
+\code{V_T} (#67); see the boundary coverage section of \link{SobolPmedResult}. \strong{Procedure A}
 (\code{procedure = "A"}) is the legacy gated rule (Wald on rejection, one-sided
 \verb{[0, Pmed_upper]} otherwise), pointwise- but \strong{not} uniformly-valid across the
 near-null transition (Leeb-Potscher pre-test under-coverage). The boundary

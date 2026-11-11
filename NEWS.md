@@ -7,6 +7,10 @@
 
 * The Gaussian plug-in accepts an extracted latent mediator without an observed mediator column; nonparametric refitting still requires observed variables.
 
+* `sobol_pmed()`: the Procedure-B interval (`ci_B1`, the default `ci`, and `ci_B2`) is now Studentized by `se_B`, the standard error of the pivot `Delta_m / sqrt(V_T)` on the `Delta_m` scale, instead of the `Delta_m` standard error, which ignored the sampling error of `V_T`. Away from the null the old interval's coverage converged to `2 Phi(z rho) - 1` with `rho = se_Dm / se_B` (0.67 at nominal 0.95 in a binary-mediator example) rather than to the nominal level. `se_B` is reported in the result, is carried through `reps > 1` and the bootstrap, and `ci_B1`, `ci_B2` and `Pmed_upper` are capped at 1. The boundary test still uses `se_Dm` (#67).
+
+* `sobol_pmed()`: new message when Procedure B is reported near full mediation (`P_med >= 0.9`). At `Delta_d = R = 0` the pivot's influence function vanishes, and the corrected interval under-covers nearby (about 0.89 at nominal 0.95 in simulation). At the exact null `Delta_m = 0` the corrected interval is conservative (#67).
+
 # probmed 0.4.1 (2026-10-21)
 
 GitHub release (not submitted to CRAN). Bug fix release.

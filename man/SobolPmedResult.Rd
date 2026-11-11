@@ -23,6 +23,7 @@ SobolPmedResult(
   VT = integer(0),
   Dm = integer(0),
   se_Dm = integer(0),
+  se_B = NA_real_,
   vmed_split_p = NA_real_,
   vmed_split_reject = NA_integer_,
   theta = integer(0),
@@ -50,11 +51,12 @@ interval off-boundary, or \verb{[0, Pmed_upper]} at the boundary. Pointwise- but
 \strong{not} uniformly-valid (see Coverage caveat).}
 
 \item{ci_B1}{Numeric length-2: Procedure-B interval from the \strong{same-sample}
-\code{Delta_m} Wald CI mapped through \verb{delta -> (c_m/V_T) delta^2} (efficient).}
+\verb{Delta_m +/- z * se_B} mapped through \verb{delta -> (c_m/V_T) delta^2}
+(efficient), intersected with \verb{[0, 1]}.}
 
 \item{ci_B2}{Numeric length-2: \strong{experimental} Procedure-B variant from a
-single decorrelated split (\code{Delta_m} point on one half, se on the independent
-half) mapped through the same square. Intended to break \code{Delta_m}/se coupling,
+single decorrelated split (\code{Delta_m} point on one half, \code{se_B} on the
+independent half) mapped through the same square. Intended to break \code{Delta_m}/se coupling,
 but the half-sample centre makes it high-variance and it did \strong{not} improve
 near-null coverage in simulation -- a K-fold-decorrelated se keeping the
 full-sample point is the open fix. Not recommended; use \code{ci} (B1).}
@@ -76,7 +78,13 @@ components.}
 
 \item{Dm}{Numeric: mediated antecedent contrast \code{Delta_m}.}
 
-\item{se_Dm}{Numeric: standard error of \code{Delta_m}.}
+\item{se_Dm}{Numeric: standard error of \code{Delta_m} (used by the boundary test).}
+
+\item{se_B}{Numeric: standard error Studentizing the Procedure-B intervals: the
+se of \code{psi = Delta_m / sqrt(V_T)} rescaled to the \code{Delta_m} scale,
+\code{sqrt(V_T) * se(psi_hat)}. It accounts for the sampling error of \code{V_T}; equals
+\code{se_Dm} asymptotically at \code{Delta_m = 0}. The ratio \code{se_Dm / se_B} is the
+factor by which the pre-#67 interval was mis-scaled.}
 
 \item{vmed_split_p}{Numeric: p-value of the sample-split boundary test of
 \code{H0: V_med = 0}.}
@@ -136,11 +144,16 @@ estimates \code{Delta_m} on one half and its standard error on the independent o
 half (so \code{z ~ N(0, 1)} even at the boundary).
 
 \strong{Two interval procedures.} The default reported \code{ci} is \strong{Procedure B}: the
-image of the regular two-sided \code{Delta_m} Wald CI under the map
-\verb{delta -> (c_m/V_T) delta^2} (\code{ci_B1}/\code{ci_B2}). Because it is the continuous
-image of a uniformly-valid CI for the \emph{regular} parameter \code{Delta_m}, it is
-uniformly valid in \code{Delta_m} -- there is no pre-test, hence no boundary
-pathology (subject to the near-null se caveat below). The reported \code{ci} is
+image of the regular two-sided Wald CI for \code{psi = Delta_m / sqrt(V_T)} under
+\verb{psi -> c_m psi^2}, written on the \code{Delta_m} scale as
+\verb{Delta_m +/- z * se_B} mapped through \verb{delta -> (c_m/V_T) delta^2}
+(\code{ci_B1}/\code{ci_B2}). \code{se_B = sqrt(V_T) * se(psi)} uses the influence function of
+\code{psi}, \verb{(phi_Delta - Delta_m phi_VT / (2 V_T)) / sqrt(V_T)}, so it accounts for
+the sampling error of \code{V_T}; it equals the \code{Delta_m} se only at \code{Delta_m = 0}
+(#67: Studentizing by \code{se_Dm} instead gave limiting coverage
+\verb{2 Phi(z rho) - 1}, \code{rho = se_Dm / se_B}, e.g. 0.67 at nominal 0.95). There is
+no pre-test, hence no boundary pathology (subject to the near-null se caveat
+below). The reported \code{ci} is
 \code{ci_B1}, the same-sample image (centered at the full \code{Delta_m}, so it always
 brackets \code{p_med}); \code{ci_B2} is an \emph{experimental} single-split variant that did
 not improve coverage (see its note). \strong{Procedure A} (\code{procedure = "A"},
@@ -164,7 +177,21 @@ influence-function se of \code{Delta_m} matches its sampling SD (ratio 0.99, CV
 0.08) from strong effects to the null, with \code{Delta_m} Wald coverage 0.95-0.96;
 the estimator's empirical SD is within 3\% of an oracle's with known nuisances;
 and \code{p_med}'s Procedure-B1 interval covers 0.952-0.996 (conservative under a
-strong interaction; 0.952 at the boundary with 98\% of draws gated). The only
+strong interaction; 0.952 at the boundary with 98\% of draws gated). Those
+figures predate #67 and used the \code{Delta_m} se; away from the boundary they
+reflect cells with \code{rho >= 1} and do not generalize (a binary-mediator cell with
+\code{rho = 0.5} covered 0.67; with \code{se_B} it covers 0.87 at n = 2000 and 0.92 at
+n = 10000, alongside \code{ci_wald}'s 0.84 and 0.92). With \code{se_B} (n = 2000, 400
+draws each): at the exact null \code{Delta_m = 0} the interval is conservative
+(0.998, about 20\% wider than with \code{se_Dm}, because \code{se_B} carries the estimated
+\code{Delta_m} and so grows with \verb{|Delta_m|}; the boundary test is unaffected); near
+the null (\code{p_med = 0.027}) it covers 0.925 (\code{se_Dm}: 0.853). \strong{Full-mediation
+caveat:} \code{Delta_d = R = 0} is a second degenerate point -- there
+\verb{V_T = c_m Delta_m^2}, \code{psi} is constant and its influence function vanishes --
+so Procedure B under-covers in its neighborhood (0.887 at \code{Delta_d = 3/sqrt(n)},
+0.920 at \code{Delta_d = 0.05}, \code{p_med} about 0.97-0.98); a message flags
+\code{P_med >= 0.9}. The \code{se_Dm} interval over-covered there (1.000) only because it
+was too wide. The only
 near-null pathology is the symmetric Wald interval for \code{p_med} itself (0.74 at
 the boundary -- the same for the oracle: the square map, not the se), which
 Procedure B avoids by construction.

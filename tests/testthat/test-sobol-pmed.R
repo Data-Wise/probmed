@@ -211,3 +211,67 @@ test_that("boundary message (Procedure B) says the interval is valid and no long
     succeed("seed not at boundary; message path covered elsewhere")
   }
 })
+
+## -----------------------------------------------------------------------------------------------
+## #67: Procedure B must be Studentized by the psi = Delta_m / sqrt(V_T) pivot, not by se(Delta_m).
+## Binary-M DGP with a closed-form truth where the two ses differ by ~2x (rho = se_Dm/se_B ~ 0.5):
+## pre-fix ci_B1 covered ~0.67 at nominal 0.95 and did not improve with n.
+.b67_gen <- function(n, ta = .3, tm = 1, ka = 0, b0 = .4, ba = .2, s = 3) {
+  C <- rnorm(n); A <- rbinom(n, 1, .5); M <- rbinom(n, 1, b0 + ba * A)
+  Y <- ta * A + (tm + ka * A) * M + rnorm(n, 0, s); data.frame(A, M, Y, C)
+}
+.b67_truth <- function(ta = .3, tm = 1, ka = 0, b0 = .4, ba = .2) {
+  th <- c("11" = ta + (tm + ka) * (b0 + ba), "10" = ta + (tm + ka) * b0,
+          "01" = tm * (b0 + ba),             "00" = tm * b0)
+  unname(sobol_from_theta(th, .5, .5)["Pmed_sobol"])
+}
+
+test_that("#67 ci_B1 is the image of Dm +/- z*se_B (psi pivot), capped at 1", {
+  set.seed(67)
+  f <- sobol_pmed(.b67_gen(4000), seed = 1L, warn_boundary = FALSE)
+  expect_true(is.finite(f@se_B) && f@se_B > 0)
+  z <- stats::qnorm(0.975); sc <- 0.25 / f@VT
+  lo <- f@Dm - z * f@se_B; hi <- f@Dm + z * f@se_B
+  img <- if (lo <= 0 && hi >= 0) c(0, sc * max(lo^2, hi^2)) else sc * sort(c(lo^2, hi^2))
+  expect_equal(f@ci_B1, pmin(1, img), tolerance = 1e-10)
+  ## known answer: in this DGP se_Dm / se_B -> 0.50 (the pre-fix mis-scaling factor)
+  expect_gt(f@se_Dm / f@se_B, 0.35); expect_lt(f@se_Dm / f@se_B, 0.65)
+})
+
+test_that("#67 ci_B1 covers at nominal level where the Delta_m-se interval covered ~0.67", {
+  skip_on_cran()
+  P0 <- .b67_truth(); set.seed(20261110)
+  hit <- vapply(seq_len(200), function(r) {
+    ci <- sobol_pmed(.b67_gen(2000), seed = r, warn_boundary = FALSE)@ci_B1
+    ci[1] <= P0 && P0 <= ci[2]
+  }, logical(1))
+  expect_gt(mean(hit), 0.78)   # pre-fix 0.676; post-fix 0.867 (R = 1000); MCSE ~0.024 at R = 200
+})
+
+test_that("#67 se_B is finite under reps > 1 and the bootstrap, and all bounds lie in [0, 1]", {
+  set.seed(7)
+  d <- .b67_gen(1500)
+  fr <- sobol_pmed(d, seed = 1L, reps = 3L, warn_boundary = FALSE)
+  fb <- sobol_pmed(d, seed = 1L, se_method = "bootstrap", B = 40L, warn_boundary = FALSE)
+  for (f in list(fr, fb)) {
+    expect_true(is.finite(f@se_B) && f@se_B > 0)
+    expect_true(all(f@ci_B1 >= 0 & f@ci_B1 <= 1))
+  }
+  ## full mediation at small n: |Dm| + q*se can push the unbounded map past 1
+  for (s in 1:20) {
+    set.seed(s)
+    f <- sobol_pmed(.b67_gen(300, ta = 0, ba = .4, s = 1), seed = s, warn_boundary = FALSE)
+    expect_lte(f@Pmed_upper, 1)
+    expect_true(all(f@ci_B1 <= 1))
+    if (all(is.finite(f@ci_B2))) expect_true(all(f@ci_B2 <= 1))
+  }
+})
+
+test_that("#67 a message flags Procedure B near full mediation (second degenerate point)", {
+  set.seed(3)
+  d <- .b67_gen(2000, ta = 0, ba = .4, s = 1)
+  expect_message(sobol_pmed(d, seed = 1L), "near full mediation")
+  set.seed(4)   # P_med = 0.64: P_hat >= 0.9 in 0/150 draws at n = 2000
+  expect_no_message(sobol_pmed(.b67_gen(2000, ba = .4, s = 1), seed = 1L),
+                    message = "near full mediation")
+})
