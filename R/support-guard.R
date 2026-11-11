@@ -94,7 +94,7 @@ NULL
 #' Checks the response families and links, the term structure, and that every
 #' coefficient was estimated (rank deficiency leaves aliased coefficients `NA`).
 #' @keywords internal
-.check_supported_extract <- function(extract) {
+.check_supported_extract <- function(extract, method = NULL) {
   for (side in c("mediator", "outcome")) {
     family <- if (side == "mediator") extract@family_m else extract@family_y
     if (!.supported_family(family)) {
@@ -133,7 +133,7 @@ NULL
       call. = FALSE
     )
   }
-  .check_supported_data(extract)
+  .check_supported_data(extract, method = method)
   est <- extract@estimates
   model_coefs <- est[grepl("^(m|y)_", names(est))]
   if (anyNA(model_coefs)) {
@@ -188,7 +188,7 @@ NULL
 #' dropped for missingness would come back; and a binomial response that is not
 #' coded 0/1 (proportions, successes/failures) cannot be simulated as Bernoulli.
 #' @keywords internal
-.check_supported_data <- function(extract) {
+.check_supported_data <- function(extract, method = NULL) {
   data <- extract@data
   if (is.null(data)) return(invisible(TRUE))
   labels <- c(extract@mediator_predictors, extract@outcome_predictors)
@@ -204,6 +204,10 @@ NULL
          "otherwise resample rows the fit dropped.", call. = FALSE)
   }
   for (v in c(extract@treatment, extract@mediator)) {
+    # A latent mediator has no observed column; the plug-in uses fitted paths.
+    if (identical(method, "plugin") && identical(v, extract@mediator) &&
+          .is_gaussian(extract@family_m) && .is_gaussian(extract@family_y) &&
+          !v %in% names(data)) next
     if (!is.numeric(data[[v]]) && !is.logical(data[[v]])) {
       stop("pmed() needs a numeric `", v, "` (code a binary variable as 0/1).",
            call. = FALSE)

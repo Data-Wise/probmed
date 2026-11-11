@@ -4,7 +4,7 @@
 .pmed_compute <- function(extract, x_ref, x_value, method, n_boot, ci_level, seed,
                           n_sim = 10000, ...) {
   # Reject unsupported families/structures before any random draw.
-  .check_supported_extract(extract)
+  .check_supported_extract(extract, method = method)
   # A separated binary fit has no MLE; stop rather than simulate from it.
   separation <- .check_original_separation(extract)
   result <- switch(method,

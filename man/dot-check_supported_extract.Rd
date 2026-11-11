@@ -4,7 +4,7 @@
 \alias{.check_supported_extract}
 \title{Validate an extracted single-mediator model before computation}
 \usage{
-.check_supported_extract(extract)
+.check_supported_extract(extract, method = NULL)
 }
 \description{
 Checks the response families and links, the term structure, and that every

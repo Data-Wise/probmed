@@ -1,4 +1,11 @@
-# probmed (development version)
+# Development version
+
+* Limit the website and confidence-interval guide's MBCO coverage statement to the
+  reported finite calibration design. The study's absence of an undercoverage
+  failure is not a uniform coverage guarantee; `near_double_null` flags only the
+  core of the conservative region. No computation or calibration result changes.
+
+* The Gaussian plug-in accepts an extracted latent mediator without an observed mediator column; nonparametric refitting still requires observed variables.
 
 * `sobol_pmed()`: the Procedure-B interval (`ci_B1`, the default `ci`, and `ci_B2`) is now Studentized by `se_B`, the standard error of the pivot `Delta_m / sqrt(V_T)` on the `Delta_m` scale, instead of the `Delta_m` standard error, which ignored the sampling error of `V_T`. Away from the null the old interval's coverage converged to `2 Phi(z rho) - 1` with `rho = se_Dm / se_B` (0.67 at nominal 0.95 in a binary-mediator example) rather than to the nominal level. `se_B` is reported in the result, is carried through `reps > 1` and the bootstrap, and `ci_B1`, `ci_B2` and `Pmed_upper` are capped at 1. The boundary test still uses `se_Dm` (#67).
 
