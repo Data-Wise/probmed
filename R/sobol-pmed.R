@@ -33,11 +33,16 @@
 #' half (so `z ~ N(0, 1)` even at the boundary).
 #'
 #' **Two interval procedures.** The default reported `ci` is **Procedure B**: the
-#' image of the regular two-sided `Delta_m` Wald CI under the map
-#' `delta -> (c_m/V_T) delta^2` (`ci_B1`/`ci_B2`). Because it is the continuous
-#' image of a uniformly-valid CI for the *regular* parameter `Delta_m`, it is
-#' uniformly valid in `Delta_m` -- there is no pre-test, hence no boundary
-#' pathology (subject to the near-null se caveat below). The reported `ci` is
+#' image of the regular two-sided Wald CI for `psi = Delta_m / sqrt(V_T)` under
+#' `psi -> c_m psi^2`, written on the `Delta_m` scale as
+#' `Delta_m +/- z * se_B` mapped through `delta -> (c_m/V_T) delta^2`
+#' (`ci_B1`/`ci_B2`). `se_B = sqrt(V_T) * se(psi)` uses the influence function of
+#' `psi`, `(phi_Delta - Delta_m phi_VT / (2 V_T)) / sqrt(V_T)`, so it accounts for
+#' the sampling error of `V_T`; it equals the `Delta_m` se only at `Delta_m = 0`
+#' (#67: Studentizing by `se_Dm` instead gave limiting coverage
+#' `2 Phi(z rho) - 1`, `rho = se_Dm / se_B`, e.g. 0.67 at nominal 0.95). There is
+#' no pre-test, hence no boundary pathology (subject to the near-null se caveat
+#' below). The reported `ci` is
 #' `ci_B1`, the same-sample image (centered at the full `Delta_m`, so it always
 #' brackets `p_med`); `ci_B2` is an *experimental* single-split variant that did
 #' not improve coverage (see its note). **Procedure A** (`procedure = "A"`,
@@ -61,7 +66,21 @@
 #' 0.08) from strong effects to the null, with `Delta_m` Wald coverage 0.95-0.96;
 #' the estimator's empirical SD is within 3% of an oracle's with known nuisances;
 #' and `p_med`'s Procedure-B1 interval covers 0.952-0.996 (conservative under a
-#' strong interaction; 0.952 at the boundary with 98% of draws gated). The only
+#' strong interaction; 0.952 at the boundary with 98% of draws gated). Those
+#' figures predate #67 and used the `Delta_m` se; away from the boundary they
+#' reflect cells with `rho >= 1` and do not generalize (a binary-mediator cell with
+#' `rho = 0.5` covered 0.67; with `se_B` it covers 0.87 at n = 2000 and 0.92 at
+#' n = 10000, alongside `ci_wald`'s 0.84 and 0.92). With `se_B` (n = 2000, 400
+#' draws each): at the exact null `Delta_m = 0` the interval is conservative
+#' (0.998, about 20% wider than with `se_Dm`, because `se_B` carries the estimated
+#' `Delta_m` and so grows with `|Delta_m|`; the boundary test is unaffected); near
+#' the null (`p_med = 0.027`) it covers 0.925 (`se_Dm`: 0.853). **Full-mediation
+#' caveat:** `Delta_d = R = 0` is a second degenerate point -- there
+#' `V_T = c_m Delta_m^2`, `psi` is constant and its influence function vanishes --
+#' so Procedure B under-covers in its neighborhood (0.887 at `Delta_d = 3/sqrt(n)`,
+#' 0.920 at `Delta_d = 0.05`, `p_med` about 0.97-0.98); a message flags
+#' `P_med >= 0.9`. The `se_Dm` interval over-covered there (1.000) only because it
+#' was too wide. The only
 #' near-null pathology is the symmetric Wald interval for `p_med` itself (0.74 at
 #' the boundary -- the same for the oracle: the square map, not the se), which
 #' Procedure B avoids by construction.
@@ -91,10 +110,11 @@
 #'   interval off-boundary, or `[0, Pmed_upper]` at the boundary. Pointwise- but
 #'   **not** uniformly-valid (see Coverage caveat).
 #' @param ci_B1 Numeric length-2: Procedure-B interval from the **same-sample**
-#'   `Delta_m` Wald CI mapped through `delta -> (c_m/V_T) delta^2` (efficient).
+#'   `Delta_m +/- z * se_B` mapped through `delta -> (c_m/V_T) delta^2`
+#'   (efficient), intersected with `[0, 1]`.
 #' @param ci_B2 Numeric length-2: **experimental** Procedure-B variant from a
-#'   single decorrelated split (`Delta_m` point on one half, se on the independent
-#'   half) mapped through the same square. Intended to break `Delta_m`/se coupling,
+#'   single decorrelated split (`Delta_m` point on one half, `se_B` on the
+#'   independent half) mapped through the same square. Intended to break `Delta_m`/se coupling,
 #'   but the half-sample centre makes it high-variance and it did **not** improve
 #'   near-null coverage in simulation -- a K-fold-decorrelated se keeping the
 #'   full-sample point is the open fix. Not recommended; use `ci` (B1).
@@ -110,7 +130,12 @@
 #' @param Vd,Vm,Vdm,VT Numeric: direct, mediated, interaction, and total variance
 #'   components.
 #' @param Dm Numeric: mediated antecedent contrast `Delta_m`.
-#' @param se_Dm Numeric: standard error of `Delta_m`.
+#' @param se_Dm Numeric: standard error of `Delta_m` (used by the boundary test).
+#' @param se_B Numeric: standard error Studentizing the Procedure-B intervals: the
+#'   se of `psi = Delta_m / sqrt(V_T)` rescaled to the `Delta_m` scale,
+#'   `sqrt(V_T) * se(psi_hat)`. It accounts for the sampling error of `V_T`; equals
+#'   `se_Dm` asymptotically at `Delta_m = 0`. The ratio `se_Dm / se_B` is the
+#'   factor by which the pre-#67 interval was mis-scaled.
 #' @param vmed_split_p Numeric: p-value of the sample-split boundary test of
 #'   `H0: V_med = 0`.
 #' @param vmed_split_reject Integer: `1L` if the boundary test rejects, `0L`
@@ -148,6 +173,7 @@ SobolPmedResult <- S7::new_class(
     Vd = S7::class_numeric, Vm = S7::class_numeric,
     Vdm = S7::class_numeric, VT = S7::class_numeric,
     Dm = S7::class_numeric, se_Dm = S7::class_numeric,
+    se_B = S7::new_property(class = S7::class_numeric, default = NA_real_),
     vmed_split_p = S7::new_property(class = S7::class_numeric, default = NA_real_),
     vmed_split_reject = S7::new_property(class = S7::class_integer, default = NA_integer_),
     theta = S7::class_numeric, method = S7::class_character,
@@ -224,11 +250,15 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
   if (reps == 1L) {
     phi <- .corner_fit(d, K, binY = FALSE, covars)$phi
   } else {
-    phis <- vector("list", reps); Dm_reps <- numeric(reps)
+    phis <- vector("list", reps); Dm_reps <- psi_reps <- numeric(reps)
     for (r in seq_len(reps)) {
       pr <- .corner_fit(d, K, binY = FALSE, covars)$phi; phis[[r]] <- pr
       tr <- colMeans(pr)
       Dm_reps[r] <- (1 - pd) * (tr["01"] - tr["00"]) + pd * (tr["11"] - tr["10"])
+      Dd_r <- (1 - pm) * (tr["10"] - tr["00"]) + pm * (tr["11"] - tr["01"])
+      Rg_r <- tr["11"] - tr["10"] - tr["01"] + tr["00"]
+      psi_reps[r] <- Dm_reps[r] / sqrt(pd * (1 - pd) * Dd_r^2 + pm * (1 - pm) * Dm_reps[r]^2 +
+                                        pd * (1 - pd) * pm * (1 - pm) * Rg_r^2)
     }
     phi <- Reduce(`+`, phis) / reps
   }
@@ -255,16 +285,23 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
   ## reps aggregation: add the residual fold Monte-Carlo variance of the averaged
   ## point (var_r(Dm)/R) so the analytic se matches the reps-averaged estimator.
   if (reps > 1L) se_Dm <- sqrt(se_Dm^2 + stats::var(Dm_reps) / reps)
+  ## Procedure-B pivot se (#67). P_med = c_m psi^2 with psi = Delta_m / sqrt(V_T), so
+  ## the mapped interval must be Studentized by se(psi_hat), whose IF is
+  ## (pDm - Dm * pVT / (2 V_T)) / sqrt(V_T) -- NOT pDm / sqrt(V_T). se_B is that se
+  ## rescaled to the Delta scale (sqrt(V_T) * se_psi) so .img_sq() is unchanged.
+  ## At Delta_m = 0 the two coincide, so the boundary test keeps se_Dm.
+  se_B <- stats::sd(pDm - as.numeric(Dm) * pVT / (2 * as.numeric(VT))) / sqrt(n)
+  if (reps > 1L) se_B <- sqrt(se_B^2 + as.numeric(VT) * stats::var(psi_reps) / reps)
   z_Dm  <- as.numeric(Dm) / se_Dm
   p_plugin <- 2 * stats::pnorm(-abs(z_Dm))                   # plug-in test (DIAGNOSTIC ONLY)
-  Dm1 <- se1 <- Dm2 <- se2 <- NA_real_                       # independent-half Delta_m / se (for B2)
+  Dm1 <- se1 <- Dm2 <- se2 <- se2B <- NA_real_                       # independent-half Delta_m / se (for B2)
   if (boundary_test == "split" && n >= 8L) {
     ## sample-split decorrelation: estimate Delta_m on one half, its SE on the
     ## INDEPENDENT other half, so z ~ N(0, 1) exactly even at the boundary.
     h  <- sample.int(n, n %/% 2L)
     f1 <- .sobol_fit(d[h, , drop = FALSE],  pd, pm, covars, K, seed = seed + 1L, level, FALSE, "none")
     f2 <- .sobol_fit(d[-h, , drop = FALSE], pd, pm, covars, K, seed = seed + 2L, level, FALSE, "none")
-    Dm1 <- f1$Dm; se1 <- f1$se_Dm; Dm2 <- f2$Dm; se2 <- f2$se_Dm
+    Dm1 <- f1$Dm; se1 <- f1$se_Dm; Dm2 <- f2$Dm; se2 <- f2$se_Dm; se2B <- f2$se_B
     z1 <- Dm1 / se2; z2 <- Dm2 / se1                         # decorrelated (independent halves)
     vmed_split_reject <- as.integer(abs(z1) > zc && abs(z2) > zc)  # both orderings (conservative)
     vmed_split_p <- max(2 * stats::pnorm(-abs(z1)), 2 * stats::pnorm(-abs(z2)))
@@ -291,9 +328,10 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
       Ddb <- (1 - pm) * (tb["10"] - tb["00"]) + pm * (tb["11"] - tb["01"])
       Rgb <- tb["11"] - tb["10"] - tb["01"] + tb["00"]
       VTb <- cd * Ddb^2 + cm * Dmb^2 + cdm * Rgb^2
-      c(unname(Dmb), unname(cm * Dmb^2 / VTb))
-    }, numeric(2))
+      c(unname(Dmb), unname(cm * Dmb^2 / VTb), unname(Dmb / sqrt(VTb)))
+    }, numeric(3))
     se_Dm <- stats::sd(bsamp[1, ]); se <- stats::sd(bsamp[2, ])
+    se_B <- sqrt(as.numeric(VT)) * stats::sd(bsamp[3, ])     # psi-pivot se, Delta scale
   }
   ## ---- interval constructions on the regular Delta_m scale, then mapped ----
   ## P_med = c_m Delta_m^2 / V_T, so the CI for P_med is the image of a Delta_m CI
@@ -303,13 +341,14 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
     if (a <= 0 && b >= 0) c(0, scale * max(a^2, b^2)) else scale * c(min(a^2, b^2), max(a^2, b^2))
   ## Procedure B1 (same-sample se_Dm): the literal regular-Wald-CI image. Efficient,
   ## but se_Dm couples to Dm on the heavy-tailed cross-world ratio (A-13 Rec2).
-  ci_B1 <- unname(.img_sq(as.numeric(Dm) - zc * se_Dm, as.numeric(Dm) + zc * se_Dm))
+  ## Studentized by se_B (psi pivot, #67) and intersected with [0, 1].
+  ci_B1 <- pmin(1, unname(.img_sq(as.numeric(Dm) - zc * se_B, as.numeric(Dm) + zc * se_B)))
   ## Procedure B2 (decorrelated split): point on D1, se on the INDEPENDENT D2 (the
   ## same pivot z1 the test inverts), so no Dm/se coupling. ~sqrt(2) wider (K-fold-recoverable).
-  ci_B2 <- if (is.finite(Dm1)) unname(.img_sq(Dm1 - zc * se2, Dm1 + zc * se2)) else c(NA_real_, NA_real_)
+  ci_B2 <- if (is.finite(Dm1)) pmin(1, unname(.img_sq(Dm1 - zc * se2B, Dm1 + zc * se2B))) else c(NA_real_, NA_real_)
   ## ---- Procedure A: gate the CI; at the boundary report a one-sided upper bound ----
   boundary <- isTRUE(vmed_split_reject == 0L)
-  Pmed_upper <- as.numeric(cm * (abs(as.numeric(Dm)) + stats::qnorm(level) * se_Dm)^2 / as.numeric(VT))
+  Pmed_upper <- min(1, as.numeric(cm * (abs(as.numeric(Dm)) + stats::qnorm(level) * se_Dm)^2 / as.numeric(VT)))
   ci_wald <- unname(c(P - zc * se, P + zc * se))
   ci_A <- if (boundary) c(0, Pmed_upper) else ci_wald        # gated (pre-test) interval
   ci <- switch(procedure,                                    # REPORTED interval
@@ -324,15 +363,19 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
             "(uniformly valid sample-split CI) -- see ?SobolPmedResult 'Coverage caveat'.", call. = FALSE)
   if (warn_boundary && boundary && procedure == "B")
     message("sobol_pmed: near the V_med=0 boundary (split test p=", signif(vmed_split_p, 2),
-            "); reporting Procedure B (image of the Delta_m CI, no gating), which is ",
+            "); reporting Procedure B (image of the psi = Delta_m/sqrt(V_T) CI, no gating), which is ",
             "valid here", if (se_method == "bootstrap") " (se from nonparametric bootstrap)" else "",
             " -- see ?SobolPmedResult.")
+  if (warn_boundary && procedure == "B" && is.finite(P) && P >= 0.9)
+    message("sobol_pmed: near full mediation (P_med = ", signif(P, 3), "); at Delta_d = R = 0 the ",
+            "psi pivot is degenerate (its influence function vanishes), so Procedure B can ",
+            "under-cover here (about 0.89 at nominal 0.95 in simulation, #67) -- see ?SobolPmedResult.")
   list(P_med_sobol = unname(P), se = unname(se), ci = unname(ci),
        ci_A = unname(ci_A), ci_B1 = ci_B1, ci_B2 = ci_B2, ci_wald = ci_wald,
        boundary = boundary, Pmed_upper = Pmed_upper, procedure = procedure,
        S1_med = unname(Vm / VT), ST_med = unname((Vm + Vdm) / VT),
        Vd = unname(Vd), Vm = unname(Vm), Vdm = unname(Vdm), VT = unname(VT),
-       Dm = unname(Dm), se_Dm = unname(se_Dm),
+       Dm = unname(Dm), se_Dm = unname(se_Dm), se_B = unname(se_B),
        vmed_split_p = unname(vmed_split_p), vmed_split_reject = unname(vmed_split_reject),
        p_plugin = unname(p_plugin), theta = round(th, 4), n = n,
        se_method = se_method, reps = reps)
@@ -355,12 +398,11 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
 #' influence function degenerates and the symmetric Wald interval is non-regular.
 #' A Williamson et al. (2021) sample-split test on the regular contrast `Delta_m`
 #' decides the boundary. The default reported interval is **Procedure B**
-#' (`procedure = "B"`): the image of the regular `Delta_m` Wald CI under
-#' `delta -> (c_m/V_T) delta^2` (continuous mapping, no gate). Its validity inherits
-#' that of the input `Delta_m` CI, which the analytic se delivers: post-fix
-#' (2026-08-22) the `Delta_m` se is exact from strong effects to the null and the
-#' Procedure-B interval covers 0.952-0.996 across six cells (see the boundary
-#' coverage section of [SobolPmedResult]). **Procedure A**
+#' (`procedure = "B"`): the image of the Wald CI for `psi = Delta_m / sqrt(V_T)`
+#' under `psi -> c_m psi^2` (no gate), computed as `Delta_m +/- z * se_B` mapped
+#' through `delta -> (c_m/V_T) delta^2` and capped at 1. `se_B` is the se of the
+#' `psi` pivot on the `Delta_m` scale, so the interval accounts for the error in
+#' `V_T` (#67); see the boundary coverage section of [SobolPmedResult]. **Procedure A**
 #' (`procedure = "A"`) is the legacy gated rule (Wald on rejection, one-sided
 #' `[0, Pmed_upper]` otherwise), pointwise- but **not** uniformly-valid across the
 #' near-null transition (Leeb-Potscher pre-test under-coverage). The boundary
@@ -378,8 +420,9 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
 #'   (default `1`).
 #' @param ci_level Numeric: confidence level (default `0.95`).
 #' @param warn_boundary Logical: warn when the boundary test does not reject and
-#'   the reported interval falls back to the Procedure-A upper bound
-#'   (default `TRUE`).
+#'   the reported interval falls back to the Procedure-A upper bound, and note
+#'   when the estimate is near either boundary of Procedure B (`V_med = 0`, or
+#'   full mediation, `P_med >= 0.9`) (default `TRUE`).
 #' @param boundary_test Character: boundary test for `H0: V_med = 0`. `"split"`
 #'   (default) is the Williamson sample-split test on `Delta_m`; `"plugin"` is the
 #'   (over-rejecting) plug-in Wald test, diagnostic only.
@@ -446,7 +489,7 @@ S7::method(sobol_pmed, S7::class_data.frame) <-
       boundary = f$boundary, Pmed_upper = f$Pmed_upper,
       S1_med = f$S1_med, ST_med = f$ST_med,
       Vd = f$Vd, Vm = f$Vm, Vdm = f$Vdm, VT = f$VT,
-      Dm = f$Dm, se_Dm = f$se_Dm,
+      Dm = f$Dm, se_Dm = f$se_Dm, se_B = f$se_B,
       vmed_split_p = f$vmed_split_p,
       vmed_split_reject = if (is.na(f$vmed_split_reject)) NA_integer_ else as.integer(f$vmed_split_reject),
       theta = f$theta, method = "onestep-crossfit",
