@@ -7,6 +7,17 @@ kind: package
 cran_state: unblocked
 next: Phase 7 I6 COMPLETE — FAIL (2026-10-19). Hopper job 4341753 completed 300/300 tasks and 60,000 rows; Gaussian candidate d failed the frozen s6/N=1000 coverage-equivalence and width gates (paired difference +0.0090, 90% CI [0.0055, 0.0125], width ratio 1.029588). Stop before I7; see docs/reports/I6-GATE-2026-10-19.md. A separate pmed exact-Gaussian 6,000-per-cell run (job 4342657, seed 20261021) passed its original prespecified six-cell rule: each two-sided 90% exact-binomial coverage interval inside 93%-97%; see pmed's docs/reports/EDIT-REPORT-pmed-exact-gaussian-2026-10-19.md. Author decision (2026-10-20): keep that original gate and withdraw the later 94% minimum proposal. No new exact-Gaussian run is planned. Its 600 chunk hashes, 120,000 rows, six counts/bounds, and original gate independently reconcile; see docs/reports/AUDIT-exact-gaussian-hopper-2026-10-20.md. The independent Gaussian oracle and selected retained-stream replay of I2/I6/e also passed within 1e-12; see docs/reports/VERIFY-exact-gaussian-kernel-replay-2026-10-20.md. Report width and out-of-gate cells separately. medfit's generic bootstrap and RMediation's path-product CI/MBCO do not validate P_med. Phase 8 remains closed. Open: I5, #47, #50 (blocked on its script), medfit#213. Package/release and pmed submission holds remain active; passing checks do not authorize submission, merge, release, or deployment.
 
+2026-11-23 status reconciliation: GitHub confirms PR #55 (Wasserstein inference
+repair) and PR #54 (dev-to-main integration) both merged on 2026-10-21. The
+Wasserstein boundary point-risk study closed at its negative-result endpoint;
+its frozen diagnostics and remaining scientific holds still apply. Phase 7 I7
+remains stopped after I6 failed. Package/release and pmed submission holds remain.
+Hosted R-CMD-check remains the merge gate. GitHub confirms `main` requires
+`ubuntu-latest (release)` in strict mode. The local CI transition was abandoned
+on 2026-10-21; local check scripts are optional preflight tools.
+
+Historical 2026-10-20 checkpoints (PR and CI states below are as recorded then):
+
 2026-10-20 dev-to-main integration PR #54 is open. PR #53 (local CI) is merged
 into `dev`. Review fixes are in PR #55: R >= 4.1 and qualified inference docs.
 BLOCKER: the new public Wasserstein EIF interval uses simulated-corner
@@ -79,7 +90,7 @@ no book source, PDF, backup, or local registration belongs in this commit.
 
 2026-10-21 RELEASED v0.4.1 (GitHub release only; author instruction "ship it"): bug-fix release carrying PR #60, the pre-fit missing-value guard. Version bumped off 0.4.0.9000. Boundary hold NOT cleared; no CRAN or manuscript submission authorized.
 
-2026-10-21 local CI: abandoned at the author's instruction (the local gates take too long). Hosted CI stays required; `main` protection and the full R-CMD-check matrix are unchanged. `scripts/check-container-local.sh` (Docker, R release/oldrel-1/devel; passed on all three) and the `check-full-local.sh` temp-dir symlink fix (PRs #62, #63) stay as optional tools. v0.4.1 is the current GitHub release; dev matches main. Open: I5, #47, #50, medfit#213; boundary hold and submission holds unchanged.
+2026-10-21 local CI: abandoned at the author's instruction (the local gates take too long). Hosted CI stayed required; `main` protection and the full R-CMD-check matrix stayed in place. `scripts/check-container-local.sh` (Docker, R release/oldrel-1/devel; passed on all three) and the `check-full-local.sh` temp-dir symlink fix (PRs #62, #63) stayed as optional tools.
 
 2026-10-21 mediationverse compatibility (plan `tasks/plan-mediationverse-compat.md`): full suite against medfit 0.3.2 (CRAN) 827 pass; against 0.10.0 and 0.12.0 (r-universe) one guard test failed, because medfit >= 0.10 keeps only complete rows and the missing-value check on `extract@data` never fired, so `pmed()` fitted the two models to different rows. Fixed in PR #60 (ca9b6bf, on `dev` only; not yet on `main`): the check now runs on the caller's data before fitting. Suite 832 pass on 0.3.2 and 0.12.0. probmed uses only `extract_mediation()`, `MediationData` and `ParallelMediationData` from medfit; the `medfit (>= 0.3.0)` floor is unchanged. medsim is not used by probmed code.
 
@@ -93,17 +104,14 @@ estimators failed the author's RMSE tolerances, so T4-T7 are not run; report
 family. Result: the
 frozen bias/SD < .10 gate cannot be passed by any [0,1]-valued estimator in cells 5 and 7 at
 n = 500 (population TV .1404 vs needed .179; empirical-pass probability <= 8.3e-5). No gate is
-changed, registered or frozen; PRs #54/#55 stay held under the original gates. Evidence and
+changed, registered or frozen; the scientific hold on boundary diagnostics remains. Evidence and
 reviews: `docs/specs/` (DERIVE, SPEC-...-T3, GRILL, REVIEW-codex A/B1/G, AUDIT-math, LIT).
 Known failures kept on record: T2 SD gate 17/20, T2b C1 8/10. Teaching copy drafted in
 pmed-modern `teaching/foundation/F7-*` (uncommitted there).
 
-2026-10-20 local CI transition: PR #53 integrated into `dev` as 5e3d1a3.
-GitHub CI transition remains staged. Last recorded `main` protection required
-`ubuntu-latest (release)`; recheck live settings before changing it;
-do not disable that check until a real PR head has a verified
-`local-ci/probmed-full` status and branch protection is switched. GitHub Pages
-deployment stays active. No package release or submission decision changes.
+2026-10-20 local CI transition (historical; abandoned on 2026-10-21): PR #53
+integrated into `dev` as 5e3d1a3. The proposal would have required verifying
+`local-ci/probmed-full` on a real PR head before switching branch protection.
 PR #53 review hardened the exact-commit publication guard and
 requires measured core expressions (not an empty coverage result); six isolated
 publication scenarios cover success and failure paths.
