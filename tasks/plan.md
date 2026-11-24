@@ -21,7 +21,7 @@ which stay authoritative for the technical content:
 This file adds three things: the steps needed to land the existing batches 1–2,
 the gaps the 2026-10-13 review found, and the unrelated items that are still open.
 
-### Current state (verified 2026-10-13)
+### State at the 2026-10-13 review
 
 | Item | State |
 |---|---|
@@ -112,7 +112,7 @@ Full acceptance criteria and verification steps for each task are in `tasks/todo
 - [ ] T17: Collate PASS/FAIL/INCONCLUSIVE per cell; restrict claims where needed
 
 ### Independent track
-- [ ] T18: #38: collate the post-fix gauge rerun from hopper, diff against Table 1, draft the issue comment (posting needs a yes)
+- [x] T18 completed. The saved Gauge rerun was reconciled with Table 1. The Gauge and Sobol manuscript fixes landed in pmed-modern draft as `d29215f` and `dc8b25b`. [Issue #38 closed as completed](https://github.com/Data-Wise/probmed/issues/38#issuecomment-7123978507).
 - [ ] T19: Housekeeping: `.STATUS` stale item (1) and repair status on the next real `.STATUS` edit; the `AGENTS.md` decision
 
 ### Checkpoint: Complete
@@ -144,4 +144,4 @@ Full acceptance criteria and verification steps for each task are in `tasks/todo
 5. **`AGENTS.md`:** keep `4901862` as committed (matches medfit `b2c3c4a`).
 
 Still needs the user's explicit yes: merging any PR, the full hopper calibration array
-(after the pilot and cost projection), and posting to #38.
+(after the pilot and cost projection).

@@ -7,6 +7,13 @@ kind: package
 cran_state: unblocked
 next: Phase 7 I6 COMPLETE — FAIL (2026-10-19). Hopper job 4341753 completed 300/300 tasks and 60,000 rows; Gaussian candidate d failed the frozen s6/N=1000 coverage-equivalence and width gates (paired difference +0.0090, 90% CI [0.0055, 0.0125], width ratio 1.029588). Stop before I7; see docs/reports/I6-GATE-2026-10-19.md. A separate pmed exact-Gaussian 6,000-per-cell run (job 4342657, seed 20261021) passed its original prespecified six-cell rule: each two-sided 90% exact-binomial coverage interval inside 93%-97%; see pmed's docs/reports/EDIT-REPORT-pmed-exact-gaussian-2026-10-19.md. Author decision (2026-10-20): keep that original gate and withdraw the later 94% minimum proposal. No new exact-Gaussian run is planned. Its 600 chunk hashes, 120,000 rows, six counts/bounds, and original gate independently reconcile; see docs/reports/AUDIT-exact-gaussian-hopper-2026-10-20.md. The independent Gaussian oracle and selected retained-stream replay of I2/I6/e also passed within 1e-12; see docs/reports/VERIFY-exact-gaussian-kernel-replay-2026-10-20.md. Report width and out-of-gate cells separately. medfit's generic bootstrap and RMediation's path-product CI/MBCO do not validate P_med. Phase 8 remains NO-GO. T5 reproducibility follow-up #50 is closed. #47 remains held with I7. Package/release and pmed submission holds remain active; passing checks do not authorize submission, merge, release, or deployment.
 
+2026-11-23 manuscript follow-up complete. probmed #38 closed as completed
+(https://github.com/Data-Wise/probmed/issues/38#issuecomment-7123978507).
+pmed-modern draft includes d29215f (Gauge Results and packet from the saved
+eight-cell rerun, plus the Sobol Procedure B comparator) and dc8b25b
+(Sobol coverage wording and verified PDFs). No new simulations.
+Phase 8 remains NO-GO. I7, the package release, and pmed submission remain on hold.
+
 2026-11-23 T5 follow-up complete: probmed #50 closed as completed after PR #70
 was squash-merged into dev as dbb4292. The offline audit reproduced 1,500
 scores from saved replications. MC21_t_05 was inconclusive, MC21_t_all was
@@ -396,9 +403,8 @@ cran-comments + bump version).
    ~/Rlib/4.4-postfix (known-answer probe matches local dev to 1e-10; old libs give the
    pre-fix W = 0.2096 — positive control). Grid scripts now take GAUGE_BOOT_DIR/GAUGE_R_LIBS;
    collate stale-guard relaxed to exact equality (post-fix se_bt ~= se_an is expected).
-   NEXT: when the watcher reports all COMPLETED -> sbatch submit_collate.sh (same env) ->
-   scp gauge_boot_grid.csv to inst/sim/results/gauge_boot_coverage_nsim2000_postfix.csv
-   -> compare with the committed CSV -> post to #38.
+   Closeout (2026-11-23): the saved post-fix CSV and manuscript Table 1 were verified.
+   The manuscript follow-up is complete and #38 is closed. See the closeout above.
    docs online (package ON HOLD). Issue #11 CLOSED 2026-08-22 (resolved by PR #34 +
    #35: A2 uninformative, A1 stands); #32 CLOSED not-planned 2026-08-22 (BCa: nothing
    left for it to fix post-fix; reopen only on a post-fix miscalibration in a regular
@@ -669,8 +675,8 @@ Wasserstein, and the shared M–Y sensitivity helper (`pmed_sensitivity`).
 its first row's propensity since PR #8 (fixed PR #34). Re-measured post-fix: the gauge
 analytic Wald is calibrated (PR #35 dropped the `weak_id` warning), `sobol_pmed`'s
 near-null "bootstrap remedy" story was the bug (PR #37), `pmedW_dr` unchanged in
-conclusions. Manuscript-side corrections are tracked in issue #38; the gauge Table 1
-rerun runs on hopper from `~/gauge_boot_postfix/` (`inst/sim/hopper/README.md`).
+conclusions. The Gauge Table 1 rerun was saved, and the manuscript corrections for
+#38 are complete in pmed-modern draft (d29215f and dc8b25b).
 
 Two additions merged 2026-07-26, deliberately **not** P_med variants:
 `rg_flow_contrast()`/`RgFlowResult` (PR #30) — scale-indexed classical proportion

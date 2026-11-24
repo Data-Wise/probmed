@@ -17,7 +17,7 @@ Quick local gate: `scripts/check-local.sh`.
 | 3 | T9–T11 | PR #43 → dev `7847db5` | merged |
 | 4 | T12–T14 | PR #44 → dev `0fb9e81` | merged |
 | 5 | T15–T17 | PR #45 → dev `1d412bb` | merged; 17 PASS / 15 FAIL / 4 INCONCLUSIVE (`docs/reports/CALIBRATION-2026-10-14.md`) |
-| side | T18 | dev `ecffb97` | done; #38 comment posted |
+| side | T18 | dev `ecffb97` | done. [#38 closed 2026-11-23](https://github.com/Data-Wise/probmed/issues/38#issuecomment-7123978507) |
 
 Checkpoints B and C: user review done 2026-10-14 (SSE/n accepted; standardization kept as default).
 Stacked PRs: after each merge, rebase the next with
@@ -226,7 +226,8 @@ Stacked PRs: after each merge, rebase the next with
 **Acceptance criteria:**
 - [x] `ssh hopper ls ~/gauge_boot_postfix/` confirms the outputs exist (or the run is re-queued)
 - [x] Collated CSV committed to `inst/sim/results/`; diff against the old Table 1 numbers
-- [x] Draft comment for #38 written (`docs/reports/ISSUE-38-comment-DRAFT-2026-10-14.md`; posting needs a yes)
+- [x] Gauge and Sobol manuscript corrections verified from saved results and pushed to pmed-modern draft as `d29215f` and `dc8b25b`.
+- [x] [Closeout note posted and #38 closed as completed](https://github.com/Data-Wise/probmed/issues/38#issuecomment-7123978507).
 **Dependencies:** None · **Scope:** S
 
 ### T19: Housekeeping

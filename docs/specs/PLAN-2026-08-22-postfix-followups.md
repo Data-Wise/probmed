@@ -5,7 +5,16 @@
 and gates. Three estimators and two documents still rest on pre-fix numbers.
 Ordered by what can be done from this repo without a decision from the user.
 
-**Status (2026-08-22, night):** 1 and 2 DONE — `FINDINGS-2026-08-22-sobol-pmedw-postfix.md`
+**Closeout (2026-11-23).** [Issue #38 closed as completed](https://github.com/Data-Wise/probmed/issues/38#issuecomment-7123978507).
+The Gauge Results, Table 1, supplement, and anonymized packet agree with the saved
+eight-cell rerun. The Sobol comparison uses the Wald interval for the standardized
+mediated contrast. The follow-up clarifies that input coverage is sufficient for
+mapped coverage and reports exact-null Wald coverage of 0.999 at a sample size of 64,000.
+The rebuilt PDFs were verified from saved results. [Gauge and Sobol corrections](https://github.com/Data-Wise/pmed-modern/commit/d29215f70c3e15079a9ac8e7aa7c08718a1cb7e3) · [Sobol wording follow-up](https://github.com/Data-Wise/pmed-modern/commit/dc8b25b32d6d43ab5428dd53b6db71a69577cfc1)
+
+Phase 8 remains **NO-GO**. I7, the package release, and pmed submission remain on hold.
+
+**Historical status (2026-08-22, night):** 1 and 2 DONE — `FINDINGS-2026-08-22-sobol-pmedw-postfix.md`
 (sobol: oracle efficiency, Δ_m se exact, Procedure B valid everywhere; pmedW_dr: empSD −25%,
 no bias, dr bootstrap calibrated — nothing to change); the sobol doc consequence shipped
 as PR #37 (`c28c31e`, via `PLAN-2026-08-22-sobol-doc-disposition.md`). 3: handoff written
@@ -56,7 +65,7 @@ bootstrap (`n_boot`) for the se.
 - **Deliverable:** section in the same FINDINGS doc; `wasserstein_pmed` docs
   touched only if the bootstrap arm misbehaves.
 
-## 3. Gauge manuscript correction — cross-repo (`~/projects/research/pmed-modern`), needs go-ahead
+## 3. Gauge manuscript correction — completed in pmed-modern
 
 Every coverage number, the fold-split explanation, and the weak-identification
 argument in `01-gauge-pmed/manuscript/gauge-pmed.qmd` come from the pre-fix
@@ -84,7 +93,7 @@ that updates them (pkgdown deploys on push to main). Version bump off `.9000`,
 NEWS already written, `cran-comments.md` resync, `R CMD check --as-cran` against
 CRAN medfit. ~1 h mechanical once the hold is lifted.
 
-## Order
+## Original execution order
 
 1 -> 2 in this session (no decisions needed). 3's handoff can be written now;
 its rerun and the edit wait for the user. 4 waits for the hold.
