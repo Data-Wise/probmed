@@ -1,15 +1,9 @@
 # P_med Sensitivity Result (M–Y Confounding)
 
-S7 class holding a one-row sensitivity analysis for a
-proportion-mediated estimand under violation of assumption **A4** (no
-exposure-induced mediator–outcome confounding). Every estimand in the
-`P_med` family shares the ratio form `P_med = indirect / total`. A4
-failure biases the **cross-world** corner mean that enters the
-*indirect* (numerator) component, while the *total* (denominator) effect
-is identified from observable corner means and is robust to A4. The
-object therefore reports how `P_med` moves as the numerator bias `b`
-ranges over a stated set, plus the **tipping bias** that drives the
-indirect component (or `P_med`) through a threshold.
+S7 result for the sensitivity of an indirect-to-total effect ratio to an
+additive bias in its numerator. It stores the original ratio, the ratio
+on the bias grid, and the bias needed to make the indirect effect zero
+or to reach a specified ratio threshold.
 
 ## Usage
 
@@ -63,7 +57,7 @@ PmedSensitivity(
 
 - threshold:
 
-  Numeric: the `P_med` target used for `tipping_threshold` (`NA` if not
+  Numeric: the ratio target used for `tipping_threshold` (`NA` if not
   requested).
 
 - evalue:
@@ -73,8 +67,8 @@ PmedSensitivity(
 
 - scale:
 
-  Character: label of the `P_med` scale (e.g. `"Delta"`,
-  `"incremental"`); free text supplied by the caller.
+  Character: label of the ratio scale (e.g. `"Delta"`, `"incremental"`);
+  free text supplied by the caller.
 
 - call:
 

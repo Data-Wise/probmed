@@ -147,7 +147,7 @@ average change in outcome due to the mediated path.
 | What share of outcome variance is mediated? | [`sobol_pmed()`](https://data-wise.github.io/probmed/reference/sobol_pmed.md) |
 | Proportion mediated on a distance scale (binary outcome)? | [`wasserstein_pmed()`](https://data-wise.github.io/probmed/reference/wasserstein_pmed.md) |
 | Clustered or multilevel data? | [`rg_flow_contrast()`](https://data-wise.github.io/probmed/reference/rg_flow_contrast.md) |
-| How much unmeasured confounding would overturn it? | [`pmed_sensitivity()`](https://data-wise.github.io/probmed/reference/pmed_sensitivity.md) |
+| What numerator bias would bring a mean-based mediated share to a threshold? | [`pmed_sensitivity()`](https://data-wise.github.io/probmed/reference/pmed_sensitivity.md) |
 
 ## Learn more
 
@@ -241,7 +241,7 @@ for details and caveats.
 | [`sobol_pmed()`](https://data-wise.github.io/probmed/reference/sobol_pmed.md) | `SobolPmedResult` | Sobol variance-scale P_med |
 | [`wasserstein_pmed()`](https://data-wise.github.io/probmed/reference/wasserstein_pmed.md) | `WassersteinPmedResult` | Wasserstein proportion mediated |
 | [`rg_flow_contrast()`](https://data-wise.github.io/probmed/reference/rg_flow_contrast.md) | `RgFlowResult` | Scale-indexed NIE/TE with cluster-robust inference |
-| [`pmed_sensitivity()`](https://data-wise.github.io/probmed/reference/pmed_sensitivity.md) | `PmedSensitivity` | Unmeasured mediator-outcome confounding (tipping point) |
+| [`pmed_sensitivity()`](https://data-wise.github.io/probmed/reference/pmed_sensitivity.md) | `PmedSensitivity` | Tipping bias for a mean-based indirect-to-total effect ratio |
 
 ## Workflow Options
 

@@ -2,22 +2,18 @@
 
 Randomizing the treatment does not remove mediator-outcome confounding.
 [`pmed_sensitivity()`](https://data-wise.github.io/probmed/reference/pmed_sensitivity.md)
-tracks one assumption, **A4** (no exposure-induced mediator-outcome
-confounding). It biases the cross-world mean in the *indirect* component
-and leaves the *total* effect, which is identified from observable
-means, unaffected. The function adds a stated numerator bias $`b`$ and
-reports the resulting share $`(\text{indirect} + b) / \text{total}`$
-over a grid.
+reports how a specified additive bias $`b`$ in the mean-based indirect
+effect changes the share $`(\text{indirect} + b) / \text{total}`$,
+holding the total effect fixed. In the gauge and incremental frameworks,
+this perturbation represents bias in the cross-world mean when their
+assumption A4 (no exposure-induced mediator-outcome confounding) fails.
 
-**Scope.** The additive-offset model is exact for the mean-based shares:
-the gauge
-([`ward_residual()`](https://data-wise.github.io/probmed/reference/ward_residual.md))
-and incremental
-([`incr_pmed()`](https://data-wise.github.io/probmed/reference/incr_pmed.md))
-estimands. It is not the right object for the Sobol variance share, and
-it is not applied to the core
-[`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md)
-probability. Do not read its grid as a corrected estimate.
+**Scope.** The bias grid is a sensitivity analysis for the gauge and
+incremental shares. The tie-adjusted probability from
+[`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md) and
+the manuscript’s A2/A5 sensitivity analyses are outside its scope. A
+Sobol variance share would require a separately specified perturbation
+of its variance component.
 
 ## From components
 

@@ -18,7 +18,7 @@ function’s help page for runnable examples.
 | [`sobol_pmed()`](https://data-wise.github.io/probmed/reference/sobol_pmed.md) | `SobolPmedResult` | Variance-scale P_med | [`sobol_pmed()`](https://data-wise.github.io/probmed/reference/sobol_pmed.md) |
 | [`wasserstein_pmed()`](https://data-wise.github.io/probmed/reference/wasserstein_pmed.md) | `WassersteinPmedResult` | $`P^W_{med} = NIE^W / (NIE^W + NDE^W)`$ from 2-Wasserstein distances between corner laws | [`wasserstein_pmed()`](https://data-wise.github.io/probmed/reference/wasserstein_pmed.md) |
 | [`rg_flow_contrast()`](https://data-wise.github.io/probmed/reference/rg_flow_contrast.md) | `RgFlowResult` | Scale-indexed NIE/TE with cluster-robust influence-function inference | [`rg_flow_contrast()`](https://data-wise.github.io/probmed/reference/rg_flow_contrast.md) |
-| [`pmed_sensitivity()`](https://data-wise.github.io/probmed/reference/pmed_sensitivity.md) | `PmedSensitivity` | Unmeasured mediator-outcome confounding (tipping point) shared across estimands | [`pmed_sensitivity()`](https://data-wise.github.io/probmed/reference/pmed_sensitivity.md) |
+| [`pmed_sensitivity()`](https://data-wise.github.io/probmed/reference/pmed_sensitivity.md) | `PmedSensitivity` | Tipping bias for a mean-based indirect-to-total effect ratio | [`pmed_sensitivity()`](https://data-wise.github.io/probmed/reference/pmed_sensitivity.md) |
 
 [`rg_flow_contrast()`](https://data-wise.github.io/probmed/reference/rg_flow_contrast.md)
 and the `multilevel_designs` dataset are deliberately not P_med

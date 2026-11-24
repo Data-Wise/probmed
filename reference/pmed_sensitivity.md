@@ -1,17 +1,10 @@
 # M–Y Confounding Sensitivity for a Proportion-Mediated Estimand
 
-A shared, minimal sensitivity helper for the `P_med` program (Papers
-1–3). All three estimands have the ratio form
-`P_med = indirect / total`. The single shared point of failure is
-assumption **A4** (no exposure-induced mediator–outcome confounding): it
-biases the cross-world corner mean that enters the *indirect*
-(numerator) component, leaving the *total* effect (denominator),
-identified from observable corner means, robust. This function
-propagates a stated numerator bias `b` to `P_med`, reporting
-`P_med(b) = (indirect + b) / total` over a grid, the **tipping bias**
-that zeroes the indirect effect, and (optionally) the bias that pushes
-`P_med` to a user threshold. Gives each paper one honest sensitivity
-row.
+For a mean-based proportion mediated, this function adds a specified
+bias `b` to the indirect effect while holding the total effect fixed. It
+reports `(indirect + b) / total` over the bias grid and the bias needed
+to make the indirect effect zero or bring the ratio to a user-specified
+threshold.
 
 ## Usage
 
@@ -33,10 +26,10 @@ pmed_sensitivity(
 
 - object:
 
-  A `P_med`-family result (e.g.
-  [GaugePmedResult](https://data-wise.github.io/probmed/reference/GaugePmedResult.md))
-  or any object exposing indirect/total components. Ignored if both
-  `indirect` and `total` are supplied directly.
+  A
+  [GaugePmedResult](https://data-wise.github.io/probmed/reference/GaugePmedResult.md)
+  or another object exposing indirect and total effect components.
+  Ignored if both `indirect` and `total` are supplied directly.
 
 - indirect, total:
 
@@ -50,9 +43,8 @@ pmed_sensitivity(
 
 - threshold:
 
-  Numeric or `NA`: a `P_med` value whose tipping bias to report (e.g.
-  `0` to ask "how much bias makes the share vanish"). Default `NA`
-  (skip).
+  Numeric or `NA`: a ratio value whose tipping bias to report (e.g. `0`
+  to ask "how much bias makes the share vanish"). Default `NA` (skip).
 
 - evalue:
 
@@ -80,16 +72,20 @@ object.
 
 ## Details
 
-The bias model is an additive offset on the *mean-based* indirect
-component. This is exact for the difference-scale (Paper 1) and
-incremental (Paper 2) shares, whose numerators are differences of
-(cross-world) means. For variance-share estimands (Paper 3, Sobol
-`P_med^{sigma^2}`) the numerator is a variance component, not a mean;
-the additive-offset model is **not** the right object there. Use this
-helper for mean-based shares; for Paper 3, supply a pre-computed
-numerator perturbation if you have one, and prefer the fuller
-Cinelli–Hazlett-style contour (planned) for a principled
-variance-component bias map.
+The additive bias model applies to the mean-based gauge and incremental
+shares from
+[`ward_residual()`](https://data-wise.github.io/probmed/reference/ward_residual.md)
+and
+[`incr_pmed()`](https://data-wise.github.io/probmed/reference/incr_pmed.md).
+In those frameworks the bias represents a shift in the cross-world mean
+when their assumption A4 (no exposure-induced mediator–outcome
+confounding) fails.
+
+The tie-adjusted stochastic-superiority probability from
+[`pmed()`](https://data-wise.github.io/probmed/reference/pmed.md) and
+the manuscript's A2/A5 sensitivity analyses are outside the scope of
+this helper. For a Sobol variance share, callers would need to supply a
+separately justified perturbation of the variance component.
 
 The optional E-value summary (`evalue = TRUE`) is a coarse RR-oriented
 robustness number; it is reported only as a familiar single figure and
@@ -98,7 +94,7 @@ is guarded behind the EValue package (Suggests).
 ## Examples
 
 ``` r
-## From components (any paper):
+## From mean-based effect components:
 pmed_sensitivity(indirect = 0.30, total = 0.50, threshold = 0)
 #> P_med M-Y confounding sensitivity (A4)
 #>   P_med = 0.600  (indirect=0.300 / total=0.500)
