@@ -33,7 +33,7 @@ After the v0.4.0 release, confirm probmed still works against the current medfit
 
 ### Phase 3: Act on findings (only if needed)
 - [ ] T5: If probmed breaks, fix on `feature/*` and open a PR to `dev`; if the floor is wrong, raise or document it. Acceptance: suite green on both medfit versions.
-- [ ] T6: Update `.STATUS` and the ecosystem table in README if versions or roles changed.
+- [x] T6: Record the verified compatibility scope in `.STATUS` and README.
 
 ## Risks and mitigations
 | Risk | Impact | Mitigation |
@@ -61,3 +61,9 @@ Failure (one test, `test-support-guard.R:98`, missing-rows case): with medfit >=
 Proposed fix (T5, feature branch, not started): run the missing-value check on the user's `data` in the formula method, before fitting, so it does not depend on what `extract@data` retains.
 
 T5 done on `feature/guard-missing-rows`: `.check_formula_data_complete()` runs on the caller's data before fitting. Full suite after the fix: 832 passed, 0 failed on medfit 0.3.2 and on 0.12.0 (0.10.0 failed only on the guard test, which now passes: guard file run on all three versions).
+
+T6 closed 2026-11-24. [PR #60](https://github.com/Data-Wise/probmed/pull/60)
+merged as `ca9b6bf`, and the `v0.4.1` tag contains the pre-fit check. The
+declared medfit floor remains `>= 0.3.0`. The README distinguishes that floor
+from the versions covered by the saved tests. No tests or simulations were
+rerun for T6.

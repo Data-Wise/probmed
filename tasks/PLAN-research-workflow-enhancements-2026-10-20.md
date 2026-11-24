@@ -2,9 +2,8 @@
 
 Filed 2026-10-20 after explicit user authorization to file the
 research-workflow plans.
-Status: parity audit complete and package documentation corrections merged
-to dev. Verification of the published corrections is pending an authorized
-site deployment.
+Status: parity audit complete. Package documentation corrections merged to
+dev and verified on the live pkgdown site.
 
 **Owner:** probmed package maintainer; pmed owns manuscript wording.
 **Observed local identity:** `dev` at `a692a43b97a4`. This is a dated
@@ -84,8 +83,15 @@ disabled. No new simulations ran.
 
 - [x] Reconcile the claims audit, package documentation fixes, and existing
       I6 decision in [`.STATUS`](../.STATUS).
-- [ ] Verify the corrected vignettes and sensitivity help on the public
+- [x] Verify the corrected vignettes and sensitivity help on the public
       pkgdown site after a separately authorized deployment.
+
+**Live verification (rechecked 2026-11-24).** [GitHub Pages deployment
+45344559819](https://github.com/Data-Wise/probmed/actions/runs/45344559819)
+published `gh-pages` commit `9d4ba50`. All 16 changed files returned HTTP 200
+and matched the deployment commit byte for byte. The four affected vignettes,
+both reference pages, and the homepage showed the corrected text. The
+deployment reused the existing example output.
 
 ## Coordination
 

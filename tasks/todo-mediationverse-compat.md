@@ -7,4 +7,5 @@
 - [x] T4 triage failures against the 0.7.0 baseline
 - [x] Checkpoint: compatibility
 - [x] T5 fix or document the floor (only if needed; PR to dev)
-- [ ] T6 update `.STATUS` / README ecosystem table
+- [x] T6 update `.STATUS` and the README ecosystem table and compatibility
+  wording using the [saved checks](plan-mediationverse-compat.md#results-2026-10-21).

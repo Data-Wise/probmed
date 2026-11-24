@@ -10,9 +10,15 @@ next: Phase 7 I6 COMPLETE — FAIL (2026-10-19). Hopper job 4341753 completed 30
 2026-11-23 package claims audit follow-up: probmed PR #71 was squash-merged
 into dev as bc16bfd. It corrected the two vignette descriptions of the
 fixed-treatment comparison and clarified the scope of pmed_sensitivity().
-See tasks/PLAN-research-workflow-enhancements-2026-10-20.md for the audit
-evidence and the pending live-site check. Phase 8 remains NO-GO. I7, the
+The corrected docs are live from gh-pages commit 9d4ba50. See
+tasks/PLAN-research-workflow-enhancements-2026-10-20.md for verification.
+Phase 8 remains NO-GO. I7, the
 package release, and pmed submission remain on hold.
+
+2026-11-24 mediationverse compatibility T6 closed. The README distinguishes
+the declared medfit floor (>= 0.3.0) from the versions tested and identifies
+probmed 0.4.1 as the release containing the pre-fit missing-value guard.
+See tasks/plan-mediationverse-compat.md for the saved checks.
 
 2026-11-23 manuscript follow-up complete. probmed #38 closed as completed
 (https://github.com/Data-Wise/probmed/issues/38#issuecomment-7123978507).

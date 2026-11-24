@@ -1,6 +1,6 @@
 # probmed roadmap
 
-**Reviewed 2026-11-23.** This roadmap records the package's current priorities.
+**Reviewed 2026-11-24.** This roadmap records the package's current priorities.
 [.STATUS](../.STATUS) owns the current state, and the [task checklist](todo.md)
 links to the acceptance rules and evidence for each phase.
 
@@ -30,16 +30,11 @@ links to the acceptance rules and evidence for each phase.
 | Item | Disposition |
 | --- | --- |
 | [#38](https://github.com/Data-Wise/probmed/issues/38) | Closed after the Gauge and Sobol manuscript fixes and PDF verification in pmed-modern at `d29215f` and `dc8b25b`. |
-| [PR #71](https://github.com/Data-Wise/probmed/pull/71) | Merged into `dev` as `bc16bfd`. The fixed-treatment wording and scope of `pmed_sensitivity()` were verified locally. See the [claims audit plan](PLAN-research-workflow-enhancements-2026-10-20.md). |
+| [PR #71](https://github.com/Data-Wise/probmed/pull/71) | Merged into `dev` as `bc16bfd`. The vignette and sensitivity help corrections are live and verified from `gh-pages` commit `9d4ba50`. See the [claims audit plan](PLAN-research-workflow-enhancements-2026-10-20.md). |
+| [mediationverse compatibility T6](todo-mediationverse-compat.md) | Closed using the saved test evidence. The README records the existing medfit floor and the missing-value guard's release. |
 
 ## Next work and holds
 
-1. **Available now.** Reconcile the remaining [mediationverse compatibility
-   documentation item](todo-mediationverse-compat.md)
-   against the README ecosystem table and `.STATUS`, using the existing
-   compatibility evidence.
-2. **After an authorized site deployment.** Verify the corrected vignettes
-   and sensitivity help on the public pkgdown site.
-3. **Held.** Keep I7 and #47 stopped under the I6 decision. Keep Phase 8 at
-   NO-GO and the package release and pmed submission on hold. The available
-   documentation work uses existing evidence and requires no new simulations.
+The documentation closeouts above are complete. I7 and #47 remain stopped
+under the I6 decision. Phase 8 remains NO-GO, and the package release and
+pmed submission are on hold.
