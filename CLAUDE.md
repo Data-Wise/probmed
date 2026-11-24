@@ -86,4 +86,4 @@ probmed is an application package in the mediationverse (medfit foundation, RMed
 - **Local Linux gate (optional):** `scripts/check-container-local.sh [--pr N]` runs `R CMD check` in Docker for R release, oldrel-1 and devel on the exact `HEAD` export. It is not required; hosted CI is. Needs Docker running.
 - **Holds:** PRs #54/#55 were merged on 2026-10-21 at the author's instruction; the scientific hold on the boundary diagnostics is NOT cleared (the frozen bias gate was shown infeasible; see `docs/reports/REPORT-boundary-point-risk-2026-10-21.md`). v0.4.0 and v0.4.1 are GitHub releases only: no CRAN or manuscript submission is authorized.
 
-**Version**: 0.4.1 (GitHub release 2026-10-21; not on CRAN) · **Last Updated**: 2026-10-21
+**Version**: 0.4.2 candidate. The latest published GitHub release is 0.4.1.

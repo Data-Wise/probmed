@@ -1,4 +1,6 @@
-# Development version
+# probmed 0.4.2
+
+GitHub-only bug-fix release candidate.
 
 * Clarify the fixed-treatment, tie-adjusted comparison in two `pmed()`
   vignettes and explain the mean-based ratio targeted by `pmed_sensitivity()`.

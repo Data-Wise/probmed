@@ -8,7 +8,9 @@ links to the acceptance rules and evidence for each phase.
 
 - **Package.** `dev` integrates through `main` for releases. Version
   [0.4.1](https://github.com/Data-Wise/probmed/releases/tag/v0.4.1) is the
-  latest GitHub release. Subsequent changes on `dev` are development work.
+  latest GitHub release. The 0.4.2 candidate covers the Sobol Procedure B
+  correction, latent Gaussian plug-in support, and the accompanying
+  documentation updates. Publishing remains on hold.
   medfit provides model extraction, and probmed owns its P_med computation
   and bootstrap. The package release and pmed submission are on hold.
 - **Phase 7.** I5 is complete and the revised pmed Results wording was
