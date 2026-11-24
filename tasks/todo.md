@@ -284,10 +284,10 @@ new base seed.
 - [x] Checkpoint: review I1–I3 with the user — directed “do next” 2026-10-15
 - [x] I4: Head-to-head of MC controls (fresh, CRN, variance-corrected, large K, exact) · M–L, hopper — 180/180 tasks; no candidate passed every applicable cell; current b retained by the frozen rule
 - [x] Checkpoint: user picks the I6 control — d (fresh K=200k) for Gaussian cells; b for report-only binary cells, 2026-10-19
-- [ ] I5: MBCO side check (s5 misspecification) · S
+- [x] I5: MBCO side check (s5 misspecification), analysis complete 2026-11-23. Revised pmed Results wording applied and approved. [Audit and replication records](../docs/reports/I5-S5-MISSPECIFICATION-2026-11-23.md).
 - [x] I6: Authoritative rerun, prespecified gate · M, hopper — job 4341753 completed 300/300 tasks; FAIL at s6/N=1000 (19/20 Gaussian cells passed); `docs/reports/I6-GATE-2026-10-19.md`
 - [ ] I7: Manuscript + probmed #47 updates · M — STOPPED because I6 failed; no manuscript or package change authorized
-- [ ] Post-I6 decision: review the exact-Gaussian follow-up proposal and frozen claim gate; the resource pilot does not authorize a full Hopper run
+- [x] Post-I6 decision: retain the original exact-Gaussian six-cell rule. The completed follow-up passed that rule; I6 stays failed and I7 stays stopped. See the [Phase 7 plan](plan-mc-bootstrap.md).
 
 ## Phase 8: MBCO composite null + T22 claim (plan: `tasks/plan-mbco-null.md`, from the Codex review)
 
