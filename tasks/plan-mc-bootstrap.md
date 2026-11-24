@@ -20,7 +20,7 @@ probmed issue #47; one method decision serves both.
 2. Is the CRN failure the slope noise as derived? Its prediction can fail: per-dataset width sd (CRN vs exact) should scale like 1/√(K/√N).
 3. Which Monte Carlo control is valid everywhere, including binary outcomes with no closed form?
 4. Are the reported coverages computed over all attempted replications? `analyze.R` uses `na.rm = TRUE`, which drops failures instead of counting them as misses.
-5. Does MBCO itself have issues the bootstrap comparison hid (s5 bias 0.004 → 0.92 at N = 1000)?
+5. How does s5 coverage at N = 1000 change when the same intervals are scored against the Gaussian working-model target? Answered in I5.
 
 ## Tasks
 
@@ -65,10 +65,10 @@ Cells: s1, s3, s4, s6, s7, s8 × N ∈ {50, 250, 1000}, 2000 reps.
 
 **Result:** Hopper job 4339014 completed 180/180 tasks with no missing active intervals or failed resamples. No candidate passed every applicable cell: b and c passed 16/18, d passed 11/12 Gaussian cells, and a passed 2/18. The frozen rule therefore returned no-go and retained current b. See `docs/reports/I4-MC-CONTROLS-2026-10-19.md`.
 
-### I5: MBCO side check (S, local, ~30 min)
-- [ ] s5 at N = 1000: confirm the 0.92 is the 0.004 misspecification bias (bias/SE vs coverage shortfall), for both methods
-- [ ] Note in the manuscript as a misspecification result, not an MC one
-**Answers Q5.**
+### I5: MBCO side check (analysis complete 2026-11-23)
+- [x] Compare s5/N=1000 MBCO and exact Gaussian percentile bootstrap on 2,000 matched datasets. The Gaussian target is +0.003792 above the mixture target (0.424 sampling SDs). Coverage rises from 92.6% to 94.7% for MBCO and 92.7% to 94.8% for the bootstrap when scoring the same intervals against the Gaussian target.
+- [x] Revised I5 Results wording applied in pmed (`9cd3346`) and approved by the author in both review PDFs. See pmed `.STATUS`, `i5_pdf_author_approval_2026_11_23`.
+**Answers Q5.** See `docs/reports/I5-S5-MISSPECIFICATION-2026-11-23.md`. I7 remains stopped.
 
 ### I6: Authoritative rerun with the chosen control (M, hopper) — complete; FAIL 2026-10-19
 I4 ended in a no-go, so I6 did not run "the I4 winner". The user selected fresh K=200,000 candidate d for Gaussian cells and current b for report-only binary cells. The committed manifest is `inst/sim/results/calibration/i6_authoritative_manifest_2026-10-19.csv`.
