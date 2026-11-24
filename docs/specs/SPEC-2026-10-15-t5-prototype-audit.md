@@ -11,7 +11,7 @@
 
 Audit the 16 Gemini T5 prototype rules against the frozen lattice of 100 cells with 2,000 replications per cell (200,000 rows total). Reconstruct the finite-sample branch t statistics from the stored branch likelihood ratios, verify the MC21 branch/df mapping, and report results and theorem scope precisely enough to support the existing NO-GO decision.
 
-Success means the scoring script reproduces all 400 baseline rows from the committed T4 score table, emits the expected 1,600 rule-by-cell rows with exact binomial intervals, and exposes whether any prototype passes the existing frozen decision rule. The prototypes remain research diagnostics; this work does not ship an adaptive interval or claim uniform validity.
+Success means the scoring script reproduces all 400 baseline rows from the committed T4 score table, emits 1,600 rule-by-cell rows (1,500 if `MC21_t_all` is excluded) with exact binomial intervals, and exposes whether any prototype passes the existing frozen decision rule. The prototypes remain research diagnostics; this work does not ship an adaptive interval or claim uniform validity.
 
 ## Assumptions
 
@@ -58,7 +58,7 @@ Do not alter the raw replication data or baseline score table.
 ### Capability: reproducible-scoring
 
 - The T5 CLI sources/reuses `calib_mbco_null_score.R` and accepts the frozen compressed replication CSV and an output path.
-- It writes exactly 1,600 rows: 16 named rules × 100 lattice cells, with 2,000 replications per cell, accepted count, coverage, and exact 95% Clopper–Pearson intervals.
+- It writes 100 lattice cells per named rule (1,600 rows, or 1,500 if `MC21_t_all` is excluded), with 2,000 replications per cell, accepted count, coverage, and exact 95% Clopper–Pearson intervals.
 - For `chi2`, `switch_crit`, `switch_logN`, and `smooth`, accepted counts and valid replication counts match the 400 baseline rows exactly; coverage is derived from those counts, and interval columns match within absolute tolerance `1e-12`.
 - The report identifies the input data, output table, command, rule definitions, and summary method.
 - The script and output are present in version control; no dependency on the user's pasted attachment or temporary files remains.
@@ -99,7 +99,7 @@ Tests must include a stored-data case where LR and reconstructed t order the bra
 ## Testing Strategy
 
 - Extend `tests/testthat/test-mbco-null-score.R` with synthetic cases that verify the reconstruction formula, branch selection, and cutoff mapping.
-- Add a frozen-data regression check for the 1,600 output rows, 100 unique cells × 16 rules, exactly 2,000 replications per cell, baseline accepted-count/replication-count equality, interval tolerance `1e-12`, and the reproduced 157 ordering disagreements.
+- Add a frozen-data regression check for 100 unique cells per retained rule (16 rules, or 15 if `MC21_t_all` is excluded), exactly 2,000 replications per cell, baseline accepted-count/replication-count equality, interval tolerance `1e-12`, and the reproduced 157 ordering disagreements.
 - Check deterministic output and no missing or duplicate rule-cell keys.
 - Review the report against computed output and source theorem statements; a successful test run does not establish theorem applicability or full-interval validity.
 - Run the focused test first, then the package check required by repository policy. No full simulation is part of this work.
