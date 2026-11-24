@@ -2,8 +2,9 @@
 
 Filed 2026-10-20 after explicit user authorization to file the
 research-workflow plans.
-Status: proposed follow-up; filing only, not implementation or acceptance
-evidence.
+Status: parity audit complete and package documentation corrections merged
+to dev. Verification of the published corrections is pending an authorized
+site deployment.
 
 **Owner:** probmed package maintainer; pmed owns manuscript wording.
 **Observed local identity:** `dev` at `a692a43b97a4`. This is a dated
@@ -12,7 +13,8 @@ before execution.
 
 ## Scope and holds
 
-Package on hold; preserve I6 stop before I7 and all release/submission holds.
+Phase 8 remains NO-GO. Preserve the I6 stop before I7 and the holds on the
+package release and pmed submission.
 Preserve unrelated work, current scientific rules, active plans and
 per-instance external-action gates.
 No simulation, installation, manuscript revision, submission, release or
@@ -24,7 +26,7 @@ certify completion.
 
 ### 1. Pin the existing parity evidence
 
-- [ ] Reuse the pmed feature-parity report and record checkout SHA,
+- [x] Reuse the pmed feature-parity report and record checkout SHA,
       DESCRIPTION, installed version/library if inspected, and release/site
       evidence with dates. Read the existing I6 gate before proposing more
       work.
@@ -36,12 +38,17 @@ certify completion.
 - **Scope:** one evidence record or bounded correction; split implementation
   if it exceeds five files.
 
+**2026-11-23 audit:** Compared probmed dev `767f623` (DESCRIPTION version
+`0.4.1`) with pmed draft `29af925`. The installed package reported `0.4.1`
+from `505e331`. R-universe served `0.4.1` from `ab411df`, and the live
+pkgdown site displayed `0.4.1`. The manuscript's Stage 1 and the live
+homepage already scoped count models correctly. The two vignette
+descriptions and the sensitivity helper's scope still needed correction.
+
 ### 2. Scope documentation corrections
 
-- [ ] Plan correction of Poisson/count claims and treated-person versus
-      control-person wording identified by the existing audit. Disambiguate
-      pmed_sensitivity() ratio behavior from manuscript P_med and A2/A5
-      sensitivity.
+- [x] Correct the remaining treatment-contrast wording and disambiguate the
+      `pmed_sensitivity()` ratio from manuscript P_med and A2/A5 sensitivity.
 - **Acceptance:** Website/help claims match supported Gaussian/Bernoulli
   additive models; ordinal/count and manuscript-local methods are not
   advertised as implemented.
@@ -51,11 +58,19 @@ certify completion.
 - **Scope:** one evidence record or bounded correction; split implementation
   if it exceeds five files.
 
+**2026-11-23 merge:** [PR #71](https://github.com/Data-Wise/probmed/pull/71)
+squash-merged reviewed head `bb37e2a` into dev as `bc16bfd`. The squash tree
+matched the reviewed head. The four edited vignettes and both pkgdown
+reference pages were rendered and inspected locally. R CMD check reported
+zero errors, warnings, and notes with tests, examples, and vignette execution
+disabled. No new simulations ran.
+
 ### 3. Preserve numerical stop and release gates
 
-- [ ] Record which I6 reports/decision files are tracked and which still need
-      integration. Keep s6/N=1000 failure under its prespecified rule; do not
-      advance I7 from a different run or manuscript gate.
+- [x] Confirm the [I6 report](../docs/reports/I6-GATE-2026-10-19.md) and
+      [decision CSV](../docs/reports/I6-GATE-DECISIONS-2026-10-19.csv) are
+      tracked. The prespecified rule still fails at s6/N=1,000. I7 remains
+      stopped.
 - **Acceptance:** Evidence is traceable to the frozen run; incomplete results
   cannot pass; no hold is lifted by planning.
 - **Verification:** Use the owning gate/report, exact IDs and source
@@ -65,19 +80,12 @@ certify completion.
 - **Scope:** one evidence record or bounded correction; split implementation
   if it exceeds five files.
 
-## Checkpoint and first action
+## Checkpoint
 
-- [ ] After tasks 1–2, reconcile evidence and unresolved decisions before
-      beginning task 3.
-- [ ] Record actual verification and remaining owner decisions; do not tick
-      future execution from this filing.
-
-**First action:** the named maintainer reads the existing evidence in task 1
-and reconciles its
-residual scope with the current owning plan. Stop if evidence conflicts or a
-scientific/author
-decision is unresolved; name that decision rather than silently changing the
-plan.
+- [x] Reconcile the claims audit, package documentation fixes, and existing
+      I6 decision in [`.STATUS`](../.STATUS).
+- [ ] Verify the corrected vignettes and sensitivity help on the public
+      pkgdown site after a separately authorized deployment.
 
 ## Coordination
 
