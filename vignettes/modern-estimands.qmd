@@ -29,7 +29,7 @@ function's help page for runnable examples.
 | `sobol_pmed()` | `SobolPmedResult` | Variance-scale P_med | [`sobol_pmed()`](../reference/sobol_pmed.html) |
 | `wasserstein_pmed()` | `WassersteinPmedResult` | $P^W_{med} = NIE^W / (NIE^W + NDE^W)$ from 2-Wasserstein distances between corner laws | [`wasserstein_pmed()`](../reference/wasserstein_pmed.html) |
 | `rg_flow_contrast()` | `RgFlowResult` | Scale-indexed NIE/TE with cluster-robust influence-function inference | [`rg_flow_contrast()`](../reference/rg_flow_contrast.html) |
-| `pmed_sensitivity()` | `PmedSensitivity` | Unmeasured mediator-outcome confounding (tipping point) shared across estimands | [`pmed_sensitivity()`](../reference/pmed_sensitivity.html) |
+| `pmed_sensitivity()` | `PmedSensitivity` | Tipping bias for a mean-based indirect-to-total effect ratio | [`pmed_sensitivity()`](../reference/pmed_sensitivity.html) |
 
 `rg_flow_contrast()` and the `multilevel_designs` dataset are deliberately not P_med
 variants: they estimate the classical proportion mediated and describe cluster designs.

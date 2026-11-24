@@ -107,7 +107,7 @@ The output shows both the estimated $P_{med}$ and the traditional Indirect Effec
 
 **Understanding the Output:**
 
-*   **$P_{med}$ Estimate**: A value significantly greater than 0.50 indicates a positive mediation effect. For example, $P_{med} = 0.56$ means there's a 56% probability that a treated individual has a higher outcome than a control individual through the indirect path.
+*   **$P_{med}$ estimate.** A value of 0.56 means that, with treatment held fixed, the probability of a higher outcome under the treated mediator value plus half the probability of a tie is 0.56.
 *   **Indirect Effect (IE)**: The traditional product-of-coefficients ($a \times b$) measure, useful for comparing with other mediation analyses.
 *   **Confidence Intervals**: If the $P_{med}$ CI excludes 0.50, or if the IE CI excludes 0, the mediation effect is statistically significant.
 

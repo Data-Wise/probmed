@@ -35,28 +35,22 @@ PmedSensitivity(
 \item{tipping_threshold}{Numeric: bias \code{b} at which \code{P_med} hits
 \code{threshold}; \code{NA} if not requested.}
 
-\item{threshold}{Numeric: the \code{P_med} target used for \code{tipping_threshold}
+\item{threshold}{Numeric: the ratio target used for \code{tipping_threshold}
 (\code{NA} if not requested).}
 
 \item{evalue}{Numeric: optional E-value summary (length-2: estimate and CI
 bound) from the \pkg{EValue} package; \code{numeric(0)} if not computed.}
 
-\item{scale}{Character: label of the \code{P_med} scale (e.g. \code{"Delta"},
+\item{scale}{Character: label of the ratio scale (e.g. \code{"Delta"},
 \code{"incremental"}); free text supplied by the caller.}
 
 \item{call}{Call: the originating call.}
 }
 \description{
-S7 class holding a one-row sensitivity analysis for a proportion-mediated
-estimand under violation of assumption \strong{A4} (no exposure-induced
-mediator--outcome confounding). Every estimand in the \code{P_med} family shares
-the ratio form \code{P_med = indirect / total}. A4 failure biases the
-\strong{cross-world} corner mean that enters the \emph{indirect} (numerator)
-component, while the \emph{total} (denominator) effect is identified from
-observable corner means and is robust to A4. The object therefore reports how
-\code{P_med} moves as the numerator bias \code{b} ranges over a stated set, plus the
-\strong{tipping bias} that drives the indirect component (or \code{P_med}) through a
-threshold.
+S7 result for the sensitivity of an indirect-to-total effect ratio to an
+additive bias in its numerator. It stores the original ratio, the ratio on
+the bias grid, and the bias needed to make the indirect effect zero or to
+reach a specified ratio threshold.
 }
 \seealso{
 \code{\link[=pmed_sensitivity]{pmed_sensitivity()}}

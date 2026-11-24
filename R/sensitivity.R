@@ -1,16 +1,10 @@
 #' P_med Sensitivity Result (M--Y Confounding)
 #'
 #' @description
-#' S7 class holding a one-row sensitivity analysis for a proportion-mediated
-#' estimand under violation of assumption **A4** (no exposure-induced
-#' mediator--outcome confounding). Every estimand in the `P_med` family shares
-#' the ratio form `P_med = indirect / total`. A4 failure biases the
-#' **cross-world** corner mean that enters the *indirect* (numerator)
-#' component, while the *total* (denominator) effect is identified from
-#' observable corner means and is robust to A4. The object therefore reports how
-#' `P_med` moves as the numerator bias `b` ranges over a stated set, plus the
-#' **tipping bias** that drives the indirect component (or `P_med`) through a
-#' threshold.
+#' S7 result for the sensitivity of an indirect-to-total effect ratio to an
+#' additive bias in its numerator. It stores the original ratio, the ratio on
+#' the bias grid, and the bias needed to make the indirect effect zero or to
+#' reach a specified ratio threshold.
 #'
 #' @param p_med Numeric: the point estimate `indirect / total` (b = 0).
 #' @param indirect Numeric: the indirect (mediated) component, the numerator.
@@ -21,11 +15,11 @@
 #'   (the indirect effect vanishes). `NA` if `total == 0`.
 #' @param tipping_threshold Numeric: bias `b` at which `P_med` hits
 #'   `threshold`; `NA` if not requested.
-#' @param threshold Numeric: the `P_med` target used for `tipping_threshold`
+#' @param threshold Numeric: the ratio target used for `tipping_threshold`
 #'   (`NA` if not requested).
 #' @param evalue Numeric: optional E-value summary (length-2: estimate and CI
 #'   bound) from the \pkg{EValue} package; `numeric(0)` if not computed.
-#' @param scale Character: label of the `P_med` scale (e.g. `"Delta"`,
+#' @param scale Character: label of the ratio scale (e.g. `"Delta"`,
 #'   `"incremental"`); free text supplied by the caller.
 #' @param call Call: the originating call.
 #'
@@ -90,40 +84,34 @@ PmedSensitivity <- S7::new_class(
 #' M--Y Confounding Sensitivity for a Proportion-Mediated Estimand
 #'
 #' @description
-#' A shared, minimal sensitivity helper for the `P_med` program (Papers 1--3).
-#' All three estimands have the ratio form `P_med = indirect / total`. The
-#' single shared point of failure is assumption **A4** (no exposure-induced
-#' mediator--outcome confounding): it biases the cross-world corner mean that
-#' enters the *indirect* (numerator) component, leaving the *total* effect
-#' (denominator), identified from observable corner means, robust. This function
-#' propagates a stated numerator bias `b` to `P_med`, reporting
-#' `P_med(b) = (indirect + b) / total` over a grid, the **tipping bias** that
-#' zeroes the indirect effect, and (optionally) the bias that pushes `P_med` to
-#' a user threshold. Gives each paper one honest sensitivity row.
+#' For a mean-based proportion mediated, this function adds a specified bias
+#' `b` to the indirect effect while holding the total effect fixed. It reports
+#' `(indirect + b) / total` over the bias grid and the bias needed to make the
+#' indirect effect zero or bring the ratio to a user-specified threshold.
 #'
 #' @details
-#' The bias model is an additive offset on the *mean-based* indirect component.
-#' This is exact for the difference-scale (Paper 1) and incremental
-#' (Paper 2) shares, whose numerators are differences of (cross-world) means.
-#' For variance-share estimands (Paper 3, Sobol `P_med^{sigma^2}`) the numerator
-#' is a variance component, not a mean; the additive-offset model is **not**
-#' the right object there. Use this helper for mean-based shares; for Paper 3,
-#' supply a pre-computed numerator perturbation if you have one, and prefer the
-#' fuller Cinelli--Hazlett-style contour (planned) for a principled
-#' variance-component bias map.
+#' The additive bias model applies to the mean-based gauge and incremental
+#' shares from [ward_residual()] and [incr_pmed()]. In those frameworks the bias
+#' represents a shift in the cross-world mean when their assumption A4 (no
+#' exposure-induced mediator--outcome confounding) fails.
+#'
+#' The tie-adjusted stochastic-superiority probability from [pmed()] and the
+#' manuscript's A2/A5 sensitivity analyses are outside the scope of this helper.
+#' For a Sobol variance share, callers would need to supply a separately
+#' justified perturbation of the variance component.
 #'
 #' The optional E-value summary (`evalue = TRUE`) is a coarse RR-oriented
 #' robustness number; it is reported only as a familiar single figure and is
 #' guarded behind the \pkg{EValue} package (Suggests).
 #'
-#' @param object A `P_med`-family result (e.g. [GaugePmedResult]) or any object
-#'   exposing indirect/total components. Ignored if both `indirect` and `total`
+#' @param object A [GaugePmedResult] or another object exposing indirect and
+#'   total effect components. Ignored if both `indirect` and `total`
 #'   are supplied directly.
 #' @param indirect,total Numeric: supply the components directly instead of (or
 #'   to override) extraction from `object`.
 #' @param bias_grid Numeric: numerator biases `b` to evaluate. Default spans
 #'   `+/- |indirect|` on an 11-point grid.
-#' @param threshold Numeric or `NA`: a `P_med` value whose tipping bias to
+#' @param threshold Numeric or `NA`: a ratio value whose tipping bias to
 #'   report (e.g. `0` to ask "how much bias makes the share vanish"). Default
 #'   `NA` (skip).
 #' @param evalue Logical: also compute an \pkg{EValue} E-value summary if the
@@ -136,7 +124,7 @@ PmedSensitivity <- S7::new_class(
 #' @return A [PmedSensitivity] object.
 #'
 #' @examples
-#' ## From components (any paper):
+#' ## From mean-based effect components:
 #' pmed_sensitivity(indirect = 0.30, total = 0.50, threshold = 0)
 #'
 #' \donttest{
