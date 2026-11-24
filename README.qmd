@@ -146,7 +146,7 @@ summary(result)
 | What share of outcome variance is mediated? | `sobol_pmed()` |
 | Proportion mediated on a distance scale (binary outcome)? | `wasserstein_pmed()` |
 | Clustered or multilevel data? | `rg_flow_contrast()` |
-| How much unmeasured confounding would overturn it? | `pmed_sensitivity()` |
+| What numerator bias would bring a mean-based mediated share to a threshold? | `pmed_sensitivity()` |
 
 
 ## Learn more
@@ -193,7 +193,7 @@ Beyond the core `pmed()`, the package ships cross-fitted, influence-function-bas
 | `sobol_pmed()` | `SobolPmedResult` | Sobol variance-scale P_med |
 | `wasserstein_pmed()` | `WassersteinPmedResult` | Wasserstein proportion mediated |
 | `rg_flow_contrast()` | `RgFlowResult` | Scale-indexed NIE/TE with cluster-robust inference |
-| `pmed_sensitivity()` | `PmedSensitivity` | Unmeasured mediator-outcome confounding (tipping point) |
+| `pmed_sensitivity()` | `PmedSensitivity` | Tipping bias for a mean-based indirect-to-total effect ratio |
 
 ## Workflow Options
 

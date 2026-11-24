@@ -1,5 +1,8 @@
 # Development version
 
+* Clarify the fixed-treatment, tie-adjusted comparison in two `pmed()`
+  vignettes and explain the mean-based ratio targeted by `pmed_sensitivity()`.
+
 * Limit the website and confidence-interval guide's MBCO coverage statement to the
   reported finite calibration design. The study's absence of an undercoverage
   failure is not a uniform coverage guarantee; `near_double_null` flags only the
