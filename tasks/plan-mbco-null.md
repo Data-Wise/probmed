@@ -88,6 +88,10 @@ not only 0.5. It would be a new research task, not a reopening of T5.
 A `null_calibration = c("none", "adaptive")` argument, default "none", with tests that
 reproduce the T4 coverage on a fixed seed. The calibration report gets an addendum.
 
+**Offline reproducibility follow-up (2026-11-23).** [Issue #50 closed as completed](https://github.com/Data-Wise/probmed/issues/50#issuecomment-7123567442) after
+[PR #70](https://github.com/Data-Wise/probmed/pull/70) merged into `dev` as [`dbb4292`](https://github.com/Data-Wise/probmed/commit/dbb429292bbf5bc633906840f19076e2dedc57d5). See the
+[feasibility report](../docs/reports/MBCO-NULL-T5-FEASIBILITY-2026-10-14.md#offline-prototype-scores-2026-11-23) for the frozen scoring results. Checkpoint B remains NO-GO.
+
 ## Risks
 | Risk | Mitigation |
 |---|---|

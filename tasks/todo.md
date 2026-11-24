@@ -298,3 +298,4 @@ new base seed.
 - [x] T4: Offline evaluation of cutoff calibrations (prespecified acceptance) · M — all candidates FAIL; chi2 kept (min 0.9415/0.944, origin 0.997)
 - [x] Checkpoint B: user decides — 2026-10-14: stop at labeling (keep chi2 + near_double_null)
 - [x] ~~T5: Opt-in `null_calibration = "adaptive"` (only if T4 passes) · M~~ — closed, not pursued: T4 failed
+- [x] T5 offline reproducibility follow-up: #50 closed after squash merge `dbb4292`. See the [Phase 8 plan](plan-mbco-null.md).

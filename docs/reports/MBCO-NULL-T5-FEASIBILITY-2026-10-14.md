@@ -100,7 +100,7 @@ signed z values added to `calib_mbco_null.R`.
 
 ## Offline reproducibility checkpoint (2026-11-23)
 
-[Issue #50](https://github.com/Data-Wise/probmed/issues/50) remains open.
+[Issue #50](https://github.com/Data-Wise/probmed/issues/50#issuecomment-7123567442) closed after [PR #70](https://github.com/Data-Wise/probmed/pull/70) merged as [`dbb4292`](https://github.com/Data-Wise/probmed/commit/dbb429292bbf5bc633906840f19076e2dedc57d5).
 The [audit spec](../specs/SPEC-2026-10-15-t5-prototype-audit.md) defines the
 prototype scoring and the frozen pointwise Monte Carlo gates. The first
 checkpoint uses the committed 100-cell lattice and its T4 score table.

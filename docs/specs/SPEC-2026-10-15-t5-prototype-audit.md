@@ -1,7 +1,8 @@
 # SPEC — Reproducible audit of Gemini T5 composite-null prototypes
 
 - **Date:** 2026-10-15
-- **Tracker:** [probmed #50](https://github.com/Data-Wise/probmed/issues/50)
+- **Tracker:** [probmed #50](https://github.com/Data-Wise/probmed/issues/50) closed as completed on 2026-11-23.
+- **Implementation:** [PR #70](https://github.com/Data-Wise/probmed/pull/70) merged into `dev` as [`dbb4292`](https://github.com/Data-Wise/probmed/commit/dbb429292bbf5bc633906840f19076e2dedc57d5).
 - **Capability map:** `reproducible-scoring` → `mc21-finite-sample` → `evidence-disposition`
 - **Target:** `dev` via a feature branch and PR, following package branch policy
 - **Current decision:** NO-GO; retain the chi-square(1) MBCO interval and `near_double_null` label
