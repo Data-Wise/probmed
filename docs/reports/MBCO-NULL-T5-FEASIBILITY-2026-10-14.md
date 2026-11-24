@@ -98,6 +98,49 @@ signed z values added to `calib_mbco_null.R`.
    `inst/sim/results/calibration/mbco_null/replications.csv.gz`.
 5. **Added** §1, the lattice evidence, as the main argument.
 
+## Offline reproducibility checkpoint (2026-11-23)
+
+[Issue #50](https://github.com/Data-Wise/probmed/issues/50) remains open.
+The [audit spec](../specs/SPEC-2026-10-15-t5-prototype-audit.md) defines the
+prototype scoring and the frozen pointwise Monte Carlo gates. The first
+checkpoint uses the committed 100-cell lattice and its T4 score table.
+
+```sh
+lattice=inst/sim/results/calibration/mbco_null
+Rscript inst/sim/calibration/calib_mbco_null_t5_baseline.R \
+  "$lattice/replications.csv.gz" "$lattice/scores.csv" /tmp/t5-baseline.csv
+```
+
+All 400 baseline rows reproduce, with identical acceptance and replication
+counts and exact 95% binomial interval endpoints within `1e-12` of the saved
+values. Each cell has 2,000 replications. The chi-square rule's minimum
+coverage at N = 1,000 without the covariate is 0.9440.
+
+| Baseline rule | Minimum coverage gate | Origin ceiling | Overall |
+|---|---|---|---|
+| `chi2` | INCONCLUSIVE | FAIL | FAIL |
+| `switch_crit` | FAIL | INCONCLUSIVE | FAIL |
+| `switch_logN` | FAIL | PASS | FAIL |
+| `smooth` | FAIL | FAIL | FAIL |
+
+Branch-specific reconstruction gives 157 LR-versus-absolute-t ordering
+disagreements among 200,000 rows. In task 1, replication 558, LR selects
+the mediator branch and absolute t selects the outcome branch. An offline
+mapping that uses the t order must therefore take its degrees of freedom
+from the outcome regression for that row.
+
+Exclude `MC21_t_all` from interval evidence. Section 3.1 of
+[Miles and Chambaz (v4)](https://arxiv.org/html/2107.07575v4) defines
+the rejection region for a fixed composite null in a normal experiment.
+The result supplies no finite-sample inversion over candidate P_med
+values. Reconstruction of the absolute t statistics resolves the branch
+mapping and leaves that theoretical gap open. The separately defined
+`MC21_t_05` rejection indicator and the remaining prototypes still need
+offline scoring and source verification.
+
+The Phase 8 NO-GO stays in force. I7, the package release, and pmed
+submission remain on hold.
+
 ## Sources
 
 - Miles, C. H., & Chambaz, A. (2021). Optimal tests of the composite null hypothesis arising in mediation analysis. arXiv:2107.07575.
