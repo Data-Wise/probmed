@@ -7,7 +7,7 @@ reconstruct_t5_branches <- function(d) {
   t_b <- sqrt(df_y * expm1(d$lr_b0 / d$N))
   a_first <- t_a <= t_b
   data.frame(
-    t_a = t_a, t_b = t_b, a_first = a_first,
+    t_a = t_a, t_b = t_b, df_m = df_m, df_y = df_y, a_first = a_first,
     branch_df = ifelse(a_first, df_m, df_y),
     lr_disagrees = a_first != (d$lr_a0 <= d$lr_b0)
   )
@@ -17,6 +17,31 @@ t5_disposition <- function(cells) {
   if ("FAIL" %in% cells) return("FAIL")
   if (all(cells == "PASS")) return("PASS")
   "INCONCLUSIVE"
+}
+
+t5_cell_gates <- function(observed) {
+  observed$accepted <- as.integer(round(observed$reps * observed$coverage))
+  observed$minimum_gate <- ifelse(
+    observed$ci_lower >= 0.94, "PASS",
+    ifelse(observed$ci_upper < 0.94, "FAIL", "INCONCLUSIVE")
+  )
+  origin <- observed$h_a == 0 & observed$h_b == 0
+  observed$origin_gate <- NA_character_
+  observed$origin_gate[origin] <- ifelse(
+    observed$ci_upper[origin] <= 0.97, "PASS",
+    ifelse(observed$ci_lower[origin] > 0.97, "FAIL", "INCONCLUSIVE")
+  )
+  observed
+}
+
+summarize_t5_gates <- function(observed) {
+  do.call(rbind, lapply(split(observed, observed$rule), function(cell) {
+    minimum <- t5_disposition(cell$minimum_gate)
+    origin <- t5_disposition(cell$origin_gate[!is.na(cell$origin_gate)])
+    data.frame(rule = cell$rule[1], minimum, origin,
+               overall = t5_disposition(c(minimum, origin)))
+  }))
+
 }
 
 audit_t5_baseline <- function(d, baseline, score_rules) {
@@ -49,26 +74,10 @@ audit_t5_baseline <- function(d, baseline, score_rules) {
     all(abs(comparison$ci_upper.observed - comparison$ci_upper.saved) <= 1e-12)
   )
 
-  observed$accepted <- as.integer(round(observed$reps * observed$coverage))
-  observed$minimum_gate <- ifelse(
-    observed$ci_lower >= 0.94, "PASS",
-    ifelse(observed$ci_upper < 0.94, "FAIL", "INCONCLUSIVE")
-  )
-  origin <- observed$h_a == 0 & observed$h_b == 0
-  observed$origin_gate <- NA_character_
-  observed$origin_gate[origin] <- ifelse(
-    observed$ci_upper[origin] <= 0.97, "PASS",
-    ifelse(observed$ci_lower[origin] > 0.97, "FAIL", "INCONCLUSIVE")
-  )
-  gates <- do.call(rbind, lapply(split(observed, observed$rule), function(cell) {
-    minimum <- t5_disposition(cell$minimum_gate)
-    origin <- t5_disposition(cell$origin_gate[!is.na(cell$origin_gate)])
-    data.frame(rule = cell$rule[1], minimum, origin,
-               overall = t5_disposition(c(minimum, origin)))
-  }))
+  observed <- t5_cell_gates(observed)
 
   list(
-    scores = observed, gates = gates,
+    scores = observed, gates = summarize_t5_gates(observed),
     branch_disagreements = sum(reconstruct_t5_branches(d)$lr_disagrees)
   )
 }

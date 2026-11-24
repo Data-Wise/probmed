@@ -134,12 +134,89 @@ Exclude `MC21_t_all` from interval evidence. Section 3.1 of
 the rejection region for a fixed composite null in a normal experiment.
 The result supplies no finite-sample inversion over candidate P_med
 values. Reconstruction of the absolute t statistics resolves the branch
-mapping and leaves that theoretical gap open. The separately defined
-`MC21_t_05` rejection indicator and the remaining prototypes still need
-offline scoring and source verification.
+mapping and leaves that theoretical gap open.
 
-The Phase 8 NO-GO stays in force. I7, the package release, and pmed
-submission remain on hold.
+## Offline prototype scores (2026-11-23)
+
+The original October 15 pasted scorer was recovered and rerun on the frozen
+replications. The committed scorer reproduced the acceptance counts and
+replication counts for all 1,500 retained rule-cell rows, including all 400
+T4 baseline rows. Exact 95% Clopper–Pearson endpoints matched within
+`1e-12`. The saved table has 15 rules × 100 cells, with 2,000 replications
+per cell. It omits `MC21_t_all` under the spec's exclusion clause.
+
+```sh
+lattice=inst/sim/results/calibration/mbco_null
+Rscript inst/sim/calibration/calib_mbco_null_t5_score.R \
+  "$lattice/replications.csv.gz" /tmp/t5_prototype_scores.csv
+cmp /tmp/t5_prototype_scores.csv "$lattice/t5_prototype_scores.csv"
+```
+
+The `_05` rules use the prototype decision when the true P_med is 0.5
+and the baseline χ²₁ decision at the 64 alternative cells. Their null-cell
+values are nonrejection rates. The alternative-cell values for these
+rules describe inclusion of the true P_med under the baseline decision.
+The `_all` rules apply their cutoff to the profile LR at the true P_med
+throughout the lattice. These are research diagnostics. The two gates
+use the pointwise exact binomial intervals in the score table.
+
+| Rule | Null min | Alternative min | Origin range | Minimum gate | Origin gate | Overall |
+|---|---:|---:|---:|---|---|---|
+| `chi2` | 0.9470 | 0.9415 | 0.9960–0.9985 | Inconclusive | Fail | Fail |
+| `switch_crit` | 0.9190 | 0.8630 | 0.9625–0.9655 | Fail | Inconclusive | Fail |
+| `switch_logN` | 0.8600 | 0.8355 | 0.9510–0.9575 | Fail | Pass | Fail |
+| `smooth` | 0.9470 | 0.9080 | 0.9960–0.9985 | Fail | Fail | Fail |
+| `MC21_t_05` | 0.9380 | 0.9415 | 0.9440–0.9560 | Inconclusive | Pass | Inconclusive |
+| `MC21_LR_05` | 0.9390 | 0.9415 | 0.9415–0.9565 | Inconclusive | Pass | Inconclusive |
+| `MC21_LR_all` | 0.9390 | 0.7900 | 0.9415–0.9565 | Fail | Pass | Fail |
+| `vGvG_strip_05` | 0.9415 | 0.9415 | 0.9435–0.9520 | Inconclusive | Pass | Inconclusive |
+| `vGvG_strip_all` | 0.9415 | 0.7990 | 0.9435–0.9520 | Fail | Pass | Fail |
+| `HSX24_logN_05` | 0.8200 | 0.9415 | 0.9435–0.9515 | Fail | Pass | Fail |
+| `HSX24_logN_all` | 0.8200 | 0.7835 | 0.9435–0.9515 | Fail | Pass | Fail |
+| `HSX24_2logN_05` | 0.7965 | 0.9415 | 0.9420–0.9515 | Fail | Pass | Fail |
+| `HSX24_2logN_all` | 0.7965 | 0.7625 | 0.9420–0.9515 | Fail | Pass | Fail |
+| `HSX24_plugin_05` | 0.9430 | 0.9415 | 0.9915–0.9955 | Inconclusive | Fail | Fail |
+| `HSX24_plugin_all` | 0.9430 | 0.9005 | 0.9915–0.9955 | Fail | Fail | Fail |
+
+`MC21_t_05` directly compares the folded Student-t probability bands
+using each branch's own residual degrees of freedom. Its worst null
+cell was (h_a, h_b) = (2, 0), N = 1,000, without a covariate. It accepted
+1,876 of 2,000 replications (0.9380, exact 95% CI [0.9265, 0.9482]).
+The interval crosses the 0.94 floor, so the gate is inconclusive.
+The LR analogue substitutes folded normal probabilities evaluated at
+the square roots of the branch LRs. `MC21_LR_all` uses the squared normal
+quantile at the lower edge of the larger branch's probability band as
+the profile LR cutoff. Theorem 1 and Corollary 1 apply to the independent
+normal experiment at a unit-fraction level. Theorem 3 concerns rejection
+regions approaching the composite-null set. Interval inversion and the
+finite-sample Student-t substitution fall outside those results.
+[Miles and Chambaz, arXiv v4, §3.1](https://arxiv.org/html/2107.07575v4).
+
+The `vGvG_strip` prototype sets the strip width so that its added rejection
+probability at the independent standard-normal origin is 0.05 − 0.05²,
+with the larger absolute statistic restricted to [0.25, 1.96), using the
+unrounded normal quantile as the upper endpoint. The authors' nearly
+similar test uses an optimized boundary. Their separate LR optimality
+theorem restricts the comparison to the coherent invariant class.
+[Nearly similar test, §4](https://arxiv.org/pdf/2012.11342)
+[LR optimality, Theorem 1](https://www.mdpi.com/2073-8994/14/1/178).
+
+The `HSX24_*` rules are analytical joint-significance analogues. They use
+the squared 95th quantile of the smaller of two independent absolute
+normal variables, one centered and the other shifted. The threshold
+variants set the shift to zero until the larger square-root branch LR
+exceeds √(2 log N) or 2√(log N), respectively. The plug-in variant uses that
+larger value directly. The scorer interpolates the squared quantiles on
+the original 0 to 8 grid with spacing 0.01. The authors' Theorem 2 treats
+product-of-coefficients bootstrap consistency under the assumptions of
+Theorem 1, fixed targets with local perturbations, and a diverging
+threshold smaller in order than √N. Appendix B treats the resampled
+joint-significance statistic. The lattice results here apply to the
+analytical analogues. [He, Song, and Xu, §3.2 and Appendix B](https://arxiv.org/html/2310.11630).
+
+No rule passed both gates. Phase 8 remains NO-GO with the χ²₁ interval
+and `near_double_null` label. I7, the package release, and pmed
+submission remain on hold. All scoring used saved replications.
 
 ## Sources
 

@@ -42,3 +42,44 @@ test_that("T5 reproduces the frozen T4 baselines and branch-order discrepancy", 
   saved$ci_lower[1] <- saved$ci_lower[1] - 1e-6
   expect_error(env$audit_t5_baseline(reps, saved, env$score_rules), "ci_lower")
 })
+
+test_that("MC21 t uses the direct checkerboard test only on the null", {
+  env <- new.env()
+  sys.source(file.path(t5_baseline_dir, "calibration", "calib_mbco_null_t5_baseline.R"), env)
+  sys.source(file.path(t5_baseline_dir, "calibration", "calib_mbco_null_t5_score.R"), env)
+  # Folded t probabilities 0.01 and 0.08 are in different bands.
+  lr <- function(u, df) 100 * log1p(stats::qt((1 + u) / 2, df)^2 / df)
+  fixture <- data.frame(
+    N = 100L, cov = FALSE, h_a = c(0, 0, 1, 1), h_b = 1,
+    lr_a0 = lr(0.01, 98), lr_b0 = lr(c(0.01, 0.08, 0.01, 0.08), 97),
+    lr_true = c(lr(0.01, 98), lr(0.01, 98), 1, 4)
+  )
+  accept <- env$t5_prototype_acceptance(fixture)
+
+  expect_identical(accept[["MC21_t_05"]], c(FALSE, TRUE, TRUE, FALSE))
+  expect_false("MC21_t_all" %in% names(accept))
+})
+
+test_that("T5 prototype scores regenerate from the frozen lattice", {
+  lattice <- file.path(t5_baseline_dir, "results", "calibration", "mbco_null")
+  skip_if_not(file.exists(file.path(lattice, "replications.csv.gz")))
+  env <- new.env()
+  for (script in c("calib_mbco_null_score.R", "calib_mbco_null_t5_baseline.R",
+                   "calib_mbco_null_t5_score.R")) {
+    sys.source(file.path(t5_baseline_dir, "calibration", script), env)
+  }
+  reps <- utils::read.csv(file.path(lattice, "replications.csv.gz"))
+  baseline <- utils::read.csv(file.path(lattice, "scores.csv"))
+  saved <- utils::read.csv(file.path(lattice, "t5_prototype_scores.csv"))
+  audit <- env$audit_t5_prototypes(reps, baseline, env$score_rules)
+
+  expect_equal(audit$scores, saved, tolerance = 1e-12)
+  expect_equal(nrow(saved), 1500)
+  expect_true(all(table(saved$rule) == 100L))
+  expect_true(all(saved$reps == 2000L))
+  expect_false("MC21_t_all" %in% saved$rule)
+  expect_false("PASS" %in% audit$gates$overall)
+  mc21 <- subset(saved, rule == "MC21_t_05" & h_a == 2 & h_b == 0 & N == 1000 & !cov)
+  expect_equal(mc21$accepted, 1876)
+  expect_identical(mc21$minimum_gate, "INCONCLUSIVE")
+})
