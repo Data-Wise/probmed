@@ -82,6 +82,16 @@ audit_t5_baseline <- function(d, baseline, score_rules) {
   )
 }
 
+write_t5_scores <- function(scores, output_path) {
+  staged <- tempfile(".t5-scores-", tmpdir = dirname(output_path))
+  on.exit(unlink(staged), add = TRUE)
+  utils::write.csv(scores, staged, row.names = FALSE)
+  # Replace the directory entry so existing hard links keep their original data.
+  if (!file.rename(staged, output_path)) {
+    stop("Could not replace T5 score output: ", output_path)
+  }
+}
+
 if (sys.nframe() == 0L) {
   args <- commandArgs(trailingOnly = TRUE)
   if (length(args) != 3L) {
@@ -92,7 +102,7 @@ if (sys.nframe() == 0L) {
   paths <- normalizePath(args, mustWork = FALSE)
   if (paths[3L] %in% paths[1:2]) stop("Use a separate output path for the baseline audit.")
   result <- audit_t5_baseline(utils::read.csv(args[1L]), utils::read.csv(args[2L]), score_rules)
-  utils::write.csv(result$scores, args[3L], row.names = FALSE)
+  write_t5_scores(result$scores, args[3L])
   print(result$gates, row.names = FALSE)
   cat("LR vs |t| branch-order disagreements:", result$branch_disagreements, "\n")
 }

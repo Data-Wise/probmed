@@ -114,7 +114,7 @@ if (sys.nframe() == 0L) {
     stop("Use a separate output path for the prototype audit.")
   }
   result <- audit_t5_prototypes(utils::read.csv(args[1L]), utils::read.csv(baseline), score_rules)
-  utils::write.csv(result$scores, output_path, row.names = FALSE)
+  write_t5_scores(result$scores, output_path)
   print(result$gates, row.names = FALSE)
   cat("LR vs |t| branch-order disagreements:", result$branch_disagreements, "\n")
 }

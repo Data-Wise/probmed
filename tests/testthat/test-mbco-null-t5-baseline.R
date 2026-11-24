@@ -83,3 +83,34 @@ test_that("T5 prototype scores regenerate from the frozen lattice", {
   expect_equal(mc21$accepted, 1876)
   expect_identical(mc21$minimum_gate, "INCONCLUSIVE")
 })
+
+test_that("both T5 CLIs preserve frozen inputs when output is a hard link", {
+  lattice <- file.path(t5_baseline_dir, "results", "calibration", "mbco_null")
+  inputs <- file.path(lattice, c("replications.csv.gz", "scores.csv"))
+  skip_if_not(all(file.exists(inputs)))
+  rscript <- file.path(R.home("bin"), "Rscript")
+  scripts <- file.path(t5_baseline_dir, "calibration",
+                       c("calib_mbco_null_t5_baseline.R", "calib_mbco_null_t5_score.R"))
+  scratch <- tempfile("t5-hardlink-")
+  dir.create(scratch)
+  on.exit(unlink(scratch, recursive = TRUE), add = TRUE)
+
+  for (i in seq_along(scripts)) {
+    run_dir <- file.path(scratch, as.character(i))
+    dir.create(run_dir)
+    stopifnot(all(file.copy(inputs, run_dir)))
+    copies <- file.path(run_dir, basename(inputs))
+    output <- file.path(run_dir, "output.csv")
+    skip_if_not(suppressWarnings(file.link(copies[2L], output)), "Hard links unavailable")
+    before <- tools::md5sum(copies)
+    args <- if (i == 1L) c(copies, output) else c(copies[1L], output)
+    log <- suppressWarnings(system2(
+      rscript, c("--vanilla", shQuote(scripts[i]), shQuote(args)),
+      stdout = TRUE, stderr = TRUE
+    ))
+
+    expect_null(attr(log, "status"), info = paste(log, collapse = "\n"))
+    expect_identical(tools::md5sum(copies), before)
+    expect_equal(nrow(utils::read.csv(output)), c(400L, 1500L)[i])
+  }
+})
