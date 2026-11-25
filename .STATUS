@@ -1,11 +1,14 @@
-2026-11-24 release preflight: 0.4.2 candidate d8d7e9c is on origin's
-codex/release-0.4.2 branch. The local preflight passed with medfit 0.7.0
-and S7 0.2.2. All five jobs in hosted R-CMD-check run 45563290371 failed
-before probmed tests because medfit 0.3.2 and S7 1.0.0 could not load
-together. The failure reproduced locally. The candidate installed and
-completed a deterministic pmed() plug-in fit with medfit 0.20.0 and
-S7 1.0.0. See tasks/plan-mediationverse-compat.md for the dependency checks
-and tasks/ROADMAP.md for the release gate. v0.4.1 is the latest release.
+2026-11-25 v0.4.2 candidate 1e6c488 on origin/codex/release-0.4.2 passed
+all five jobs in GitHub R-CMD-check run 45678345492
+(https://github.com/Data-Wise/probmed/actions/runs/45678345492). R 4.6.2
+passed on Ubuntu, macOS, and Windows. Ubuntu also passed with R 4.5.3
+(oldrel-1) and R 4.7.0 (devel). Each job used medfit 0.20.0 (GitHub commit
+4739e8e) and S7 1.0.0 and reported R CMD check status OK, with 914 passing
+test expectations, 4 skips, and zero failures or warnings. The candidate
+passed a clean local install and a deterministic fit on R 4.6.2.
+This clears the hosted dependency blocker from run 45563290371, where
+CRAN medfit 0.3.2 failed to load with S7 1.0.0. See tasks/ROADMAP.md for
+the release hold. v0.4.1 remains the latest GitHub release.
 Phase 8 remains NO-GO. I7, package publishing, and pmed submission remain
 on hold. No new research simulations ran.
 
