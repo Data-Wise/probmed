@@ -9,6 +9,9 @@ by bounding each parameter box.
   shift experiment with known unit variances.
 - [Fitted-model result](fitted-model.md) for the exact Gaussian profile
   LR on bounded local path regions.
+- [Radial rejection pilot](test-family.md) for every Gaussian product
+  target, with a deterministic check and bounds on the cost of meeting
+  the ideal-origin coverage target.
 
 ## Reproduce the certificate
 

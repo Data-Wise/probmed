@@ -53,6 +53,15 @@ docs/reports/phase8-gaussian-benchmark/README.md and
 tasks/plan-phase8-follow-up.md. Phase 8 remains NO-GO. I7, package
 publishing, and pmed submission remain on hold. No new simulations ran.
 
+2026-11-25 Phase 8 test-family research started. The radial rejection
+rule has at least 95% coverage for every product in the ideal Gaussian
+experiment. Reaching 97% ideal-origin coverage with this rule causes at
+least 2.978% empty sets there and 24.41% wider intervals in the
+strong-path limit. The rule stays a research benchmark. See
+docs/reports/phase8-gaussian-benchmark/test-family.md and
+tasks/plan-phase8-follow-up.md. Phase 8 remains NO-GO. I7, package
+publishing, and pmed submission remain on hold. No new simulations ran.
+
 2026-11-23 I5 complete: the s5/N=1000 paired audit found a +0.003792 Gaussian working-model target shift. Scoring the same intervals against that target raised coverage by 2.1 percentage points for each method. See docs/reports/I5-S5-MISSPECIFICATION-2026-11-23.md. The revised I5 Results wording was approved in pmed; see pmed .STATUS. medfit#213 is closed.
 
 2026-11-23 status reconciliation: GitHub confirms PR #55 (Wasserstein inference

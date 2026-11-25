@@ -92,8 +92,8 @@ reproduce the T4 coverage on a fixed seed. The calibration report gets an addend
 [PR #70](https://github.com/Data-Wise/probmed/pull/70) merged into `dev` as [`dbb4292`](https://github.com/Data-Wise/probmed/commit/dbb429292bbf5bc633906840f19076e2dedc57d5). See the
 [feasibility report](../docs/reports/MBCO-NULL-T5-FEASIBILITY-2026-10-14.md#offline-prototype-scores-2026-11-23) for the frozen scoring results. Checkpoint B remains NO-GO.
 
-The [proposed research follow-up](plan-phase8-follow-up.md) lays out the
-proof and evidence needed for a future Phase 8 decision. T5 remains closed.
+The [Phase 8 research follow-up](plan-phase8-follow-up.md) has started
+with an ideal Gaussian benchmark and an all-target pilot. T5 remains closed.
 
 ## Risks
 | Risk | Mitigation |

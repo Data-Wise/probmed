@@ -25,8 +25,10 @@ links to the acceptance rules and evidence for each phase.
   closed [#50](https://github.com/Data-Wise/probmed/issues/50) after
   [PR #70](https://github.com/Data-Wise/probmed/pull/70) (`dbb4292`).
   No candidate passed both gates. `MC21_t_05` was inconclusive, and
-  `MC21_t_all` was excluded from interval evidence. See the
-  [Phase 8 plan](plan-mbco-null.md).
+  `MC21_t_all` was excluded from interval evidence. The
+  [Phase 8 research follow-up](plan-phase8-follow-up.md) has started.
+  The first all-target Gaussian rule controls size, but reaching the
+  ideal-origin target gives empty sets and wider strong-path intervals.
 
 ## Recent closeouts
 

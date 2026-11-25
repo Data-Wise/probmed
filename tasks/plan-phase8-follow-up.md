@@ -1,6 +1,6 @@
 # Phase 8 research plan for the MBCO interval
 
-**Proposed 2026-11-25. Phase 8 remains NO-GO.** Retain the χ²₁ interval
+**Research started 2026-11-25. Phase 8 remains NO-GO.** Retain the χ²₁ interval
 and `near_double_null`. T5 is closed. I7, package publishing, and pmed
 submission remain on hold.
 
@@ -30,16 +30,18 @@ The benchmark is ready for the test-family comparison. Check the exact
 
 ## 2. Develop a test family and check its inversion
 
-- [ ] Start from the fixed-target proof in `probmed-fixed-target.faEUcc`.
-  Use deterministic integration to measure where its data-dependent rule
-  gains or loses against χ²₁. Check balanced weak paths, unequal paths,
-  both signs, and the strong-path limits. Use the χ²₂ projection as a
-  conservative reference.
-- [ ] Specify one rule for the axes and for each nonzero product target
-  in the proposed range, including its transition to the regular regime.
-  Prove a size bound of 0.05 over each full nuisance curve. Check whether
-  the inversion is a single interval and account for any gaps or empty
-  sets before comparing widths.
+- [x] Extend the fixed-target rule to the axes and both product signs.
+  Prove the uniform 0.05 size bound for every target. Its inversion is
+  a single interval when nonempty, with exact origin empty-set
+  probability equal to its radial rejection budget.
+- [x] Compare the rule to χ²₁ and χ²₂ by deterministic integration and
+  derive its strong-path limit. Reaching 97% coverage at the ideal
+  origin costs at least 2.978% empty inversions there and 24.41% wider
+  intervals in the strong-path limit. [Proof and checks](../docs/reports/phase8-gaussian-benchmark/test-family.md)
+- [ ] Investigate whether the χ²₁ rule's local size slack can reduce
+  origin coverage while keeping the inversion nonempty and preserving
+  χ²₁ strong-path widths. Establish a uniform size bound and verify the
+  inversion before moving a revised candidate to fitted-model work.
 
 Advance when there is a full test family with a uniform size argument
 and a practically useful gain over χ²₁. Define the gain before screening.
