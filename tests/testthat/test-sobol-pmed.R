@@ -197,16 +197,16 @@ test_that("sobol_from_theta matches the variance decomposition identities", {
 })
 
 ## -----------------------------------------------------------------------------------------------
-test_that("boundary message (Procedure B) says the interval is valid and no longer recommends the bootstrap", {
+test_that("Procedure B boundary message describes coverage near zero mediation", {
   set.seed(61)
   d <- .sp_gen(1500, cell_null)
   silent <- sobol_pmed(d, seed = 1L, warn_boundary = FALSE)
   if (isTRUE(silent@boundary)) {
     expect_message(sobol_pmed(d, seed = 1L, warn_boundary = TRUE, procedure = "B"),
-                   "Procedure B.*valid here")
+                   "Procedure B.*Coverage can vary near zero mediation\\.")
     msg <- capture.output(sobol_pmed(d, seed = 1L, warn_boundary = TRUE, procedure = "B"),
                           type = "message")
-    expect_no_match(paste(msg, collapse = " "), "anti-conservative|pass se_method")
+    expect_no_match(paste(msg, collapse = " "), "valid here|anti-conservative|pass se_method")
   } else {
     succeed("seed not at boundary; message path covered elsewhere")
   }
