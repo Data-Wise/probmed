@@ -3,6 +3,7 @@
 #' @description
 #' S7 wrappers for S3 classes used in method dispatch
 #'
+#' @format An internal S7 wrapper for the \code{lm} class.
 #' @keywords internal
 lm_class <- S7::new_S3_class("lm")
 

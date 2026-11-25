@@ -67,6 +67,8 @@ Or install the development version from [GitHub](https://github.com/data-wise/pr
 devtools::install_github("data-wise/probmed")
 ```
 
+GitHub installs use `medfit` v0.20.0, which loads with S7 1.0.0.
+
 ## Quick Example
 
 Here is a basic example showing how to simulate data and compute $P_{med}$ using a parametric bootstrap approach.

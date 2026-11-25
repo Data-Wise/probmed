@@ -11,7 +11,13 @@ R CMD check passed with zero errors, warnings, or notes. The installed
 test suite passed 914 assertions and skipped four checks that need
 saved audit files. Those checks ran in the source checkout.
 Coverage was 96.76% overall and 63/63 expressions in R/compute-core.R.
-The candidate is local. Hosted release CI and publishing are pending.
+The initial hosted R-CMD-check run (45563290371) for d8d7e9c failed
+in all five jobs because medfit 0.3.2 could not load with S7 1.0.0.
+This candidate pins medfit v0.20.0 in DESCRIPTION for GitHub installs
+and CI. See tasks/plan-mediationverse-compat.md for verification.
+Phase 8 research has started with an ideal Gaussian study. Phase 8
+remains NO-GO for package changes. I7, package publishing, and pmed
+submission remain on hold.
 
 # 2026-10-29 compatibility: PR #66 merged into dev as c58e23e; latent Gaussian plug-in validation tests passed on R 4.1.3 and 4.6.2; full R 4.6.2 package check OK. No dev PR-triggered CI; prepared R 4.1 stats4 warning remains. Existing holds remain.
 coverage_docs_2026_10_24: Corrected README website source/generated Markdown and confidence-interval guide: no detected undercoverage failure in the reported finite design is not a uniform coverage guarantee; near_double_null marks only the core of the conservative region. Targeted README/home/article rendering and check_pkgdown pass; actual HTML checked for corrected text and absence of the old guarantee. No R source, simulation result, calibration decision or release/submission hold changed. Publication verification tracked in pmed preflight.

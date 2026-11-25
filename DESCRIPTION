@@ -35,5 +35,7 @@ Imports:
     S7 (>= 0.2.1),
     stats,
     utils
+Remotes:
+    Data-Wise/medfit@v0.20.0
 VignetteBuilder: knitr, quarto
 RoxygenNote: 7.3.3

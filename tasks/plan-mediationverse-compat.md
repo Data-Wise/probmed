@@ -67,3 +67,20 @@ merged as `ca9b6bf`, and the `v0.4.1` tag contains the pre-fit check. The
 declared medfit floor remains `>= 0.3.0`. The README distinguishes that floor
 from the versions covered by the saved tests. No tests or simulations were
 rerun for T6.
+
+## 2026-11-25 dependency fix
+
+The v0.4.2 candidate pins [medfit v0.20.0](https://github.com/Data-Wise/medfit/releases/tag/v0.20.0)
+in `DESCRIPTION` so GitHub installers and CI use the same source. The
+declared R, medfit, and S7 minimums stay unchanged. The S7 wrapper help
+no longer reports an object length that varies by S7 version.
+
+From an empty R library, pak resolved medfit at commit `4739e8e` and
+installed probmed 0.4.2 with medfit 0.20.0 and S7 1.0.0 on R 4.6.2.
+The installed package loaded and a deterministic `pmed()` plug-in fit
+on `mtcars` returned 0.3217.
+
+The candidate's [full GitHub matrix](https://github.com/Data-Wise/probmed/actions/workflows/R-CMD-check.yaml?query=branch%3Acodex%2Frelease-0.4.2)
+is the hosted check for this dependency pair. Phase 8 remains NO-GO.
+I7, package publishing, and pmed submission remain on hold. No new
+research simulations ran.

@@ -2,6 +2,9 @@
 
 GitHub-only bug-fix release candidate.
 
+* GitHub installs and CI resolve `medfit` from its v0.20.0 tag
+  for compatibility with S7 1.0.0.
+
 * Clarify the fixed-treatment, tie-adjusted comparison in two `pmed()`
   vignettes and explain the mean-based ratio targeted by `pmed_sensitivity()`.
 

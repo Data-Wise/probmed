@@ -10,7 +10,10 @@ links to the acceptance rules and evidence for each phase.
   [0.4.1](https://github.com/Data-Wise/probmed/releases/tag/v0.4.1) is the
   latest GitHub release. The 0.4.2 candidate covers the Sobol Procedure B
   correction, latent Gaussian plug-in support, and the accompanying
-  documentation updates. Publishing remains on hold.
+  documentation updates. GitHub installs and CI use medfit v0.20.0
+  to resolve the S7 1.0.0 compatibility failure. The full check
+  matrix is required before the candidate advances. See the
+  [compatibility plan](plan-mediationverse-compat.md#2026-11-25-dependency-fix).
   medfit provides model extraction, and probmed owns its P_med computation
   and bootstrap. The package release and pmed submission are on hold.
 - **Phase 7.** I5 is complete and the revised pmed Results wording was
