@@ -74,6 +74,9 @@ The v0.4.2 candidate pins [medfit v0.20.0](https://github.com/Data-Wise/medfit/r
 in `DESCRIPTION` so GitHub installers and CI use the same source. The
 declared R, medfit, and S7 minimums stay unchanged. The S7 wrapper help
 no longer reports an object length that varies by S7 version.
+The package imports `methods::initialize` for S7's S4 registration.
+An installed namespace load with only base packages enabled passed
+with warnings treated as errors after adding the import.
 
 From an empty R library, pak resolved medfit at commit `4739e8e` and
 installed probmed 0.4.2 with medfit 0.20.0 and S7 1.0.0 on R 4.6.2.
