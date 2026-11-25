@@ -44,6 +44,15 @@ scores from saved replications. MC21_t_05 was inconclusive, MC21_t_all was
 excluded from interval evidence, and no rule passed both frozen gates. See
 docs/reports/MBCO-NULL-T5-FEASIBILITY-2026-10-14.md.
 
+2026-11-25 Phase 8 theory follow-up: archived the Gaussian product LR
+proof and exact certificate. The fitted-model note carries the 95% bound
+to exact likelihood inversion over bounded local path regions under the
+common-design Gaussian model. Stronger-path sequences and verification
+of numerical inversion remain open. See
+docs/reports/phase8-gaussian-benchmark/README.md and
+tasks/plan-phase8-follow-up.md. Phase 8 remains NO-GO. I7, package
+publishing, and pmed submission remain on hold. No new simulations ran.
+
 2026-11-23 I5 complete: the s5/N=1000 paired audit found a +0.003792 Gaussian working-model target shift. Scoring the same intervals against that target raised coverage by 2.1 percentage points for each method. See docs/reports/I5-S5-MISSPECIFICATION-2026-11-23.md. The revised I5 Results wording was approved in pmed; see pmed .STATUS. medfit#213 is closed.
 
 2026-11-23 status reconciliation: GitHub confirms PR #55 (Wasserstein inference
