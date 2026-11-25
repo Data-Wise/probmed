@@ -8,9 +8,12 @@ links to the acceptance rules and evidence for each phase.
 
 - **Package.** `dev` integrates through `main` for releases. Version
   [0.4.1](https://github.com/Data-Wise/probmed/releases/tag/v0.4.1) is the
-  latest GitHub release. Subsequent changes on `dev` are development work.
+  latest GitHub release. The 0.4.2 candidate (`d8d7e9c`) passed local
+  preflight. All five hosted jobs failed before probmed tests could run
+  because `medfit 0.3.2` failed to load with `S7 1.0.0`.
+  [Hosted run](https://github.com/Data-Wise/probmed/actions/runs/45563290371)
   medfit provides model extraction, and probmed owns its P_med computation
-  and bootstrap. The package release and pmed submission are on hold.
+  and bootstrap.
 - **Phase 7.** I5 is complete and the revised pmed Results wording was
   approved. I6 failed the prespecified coverage and width gates at s6,
   N = 1,000, so **I7 is stopped**. The separate pmed exact-Gaussian follow-up
@@ -35,6 +38,12 @@ links to the acceptance rules and evidence for each phase.
 
 ## Next work and holds
 
-The documentation closeouts above are complete. I7 and #47 remain stopped
-under the I6 decision. Phase 8 remains NO-GO, and the package release and
-pmed submission are on hold.
+For the next package task, choose and document a compatible medfit source
+for hosted CI and for GitHub installs. The local `medfit 0.20.0` and
+`S7 1.0.0` install and plug-in fit passed. Verify the chosen dependency
+setup with a clean install and the full package checks, then run the
+hosted matrix on the updated candidate. See the
+[compatibility plan](plan-mediationverse-compat.md#2026-11-24-release-preflight-follow-up).
+
+I7 and #47 remain stopped under the I6 decision. Phase 8 remains NO-GO.
+Package publishing and pmed submission remain on hold.

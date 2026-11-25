@@ -67,3 +67,30 @@ merged as `ca9b6bf`, and the `v0.4.1` tag contains the pre-fit check. The
 declared medfit floor remains `>= 0.3.0`. The README distinguishes that floor
 from the versions covered by the saved tests. No tests or simulations were
 rerun for T6.
+
+## 2026-11-24 release preflight follow-up
+
+The 0.4.2 candidate `d8d7e9c` passed local package checks on R 4.6.2
+with `medfit 0.7.0` and `S7 0.2.2`. Hosted CI resolved `medfit 0.3.2`
+and `S7 1.0.0`. All five jobs failed before probmed tests could start
+because medfit could not register an S4 class union. Ubuntu R-devel
+failed while building medfit from source. Ubuntu release and oldrel-1,
+Windows, and macOS failed when the probmed build tried to load medfit.
+[Hosted run](https://github.com/Data-Wise/probmed/actions/runs/45563290371)
+
+Separate local libraries isolated the dependency failure.
+
+| medfit | S7 | Result |
+| --- | --- | --- |
+| 0.3.2 | 0.2.2 | medfit loaded. |
+| 0.3.2 | 1.0.0 | medfit failed to load with the same S4 registration error. |
+| 0.7.0 | 1.0.0 | medfit failed to load with the same error. |
+| 0.20.0 | 1.0.0 | probmed installed and `pmed()` fit `mtcars`. |
+
+Data-Wise r-universe also reported `medfit 0.20.0` with a successful build.
+Choose and document the dependency source for hosted CI and GitHub installs,
+then confirm clean installation and full checks on the updated candidate.
+The declared floor remains `medfit (>= 0.3.0)`. The plug-in fit is an
+installation smoke check. Phase 8 remains NO-GO, and I7, package publishing,
+and pmed submission remain on hold. No new research simulations ran.
+[medfit v0.20.0](https://github.com/Data-Wise/medfit/releases/tag/v0.20.0)
