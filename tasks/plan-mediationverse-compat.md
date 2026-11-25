@@ -77,8 +77,9 @@ no longer reports an object length that varies by S7 version.
 
 From an empty R library, pak resolved medfit at commit `4739e8e` and
 installed probmed 0.4.2 with medfit 0.20.0 and S7 1.0.0 on R 4.6.2.
-The installed package loaded and a deterministic `pmed()` plug-in fit
-on `mtcars` returned 0.3217.
+The installed package loaded and `pmed(method = "mbco")` on the built-in
+`mtcars` data returned 0.316323 with an interval of [0.193987, 0.499470].
+The check confirmed that the random-number state stayed the same.
 
 The candidate's [full GitHub matrix](https://github.com/Data-Wise/probmed/actions/workflows/R-CMD-check.yaml?query=branch%3Acodex%2Frelease-0.4.2)
 is the hosted check for this dependency pair. Phase 8 remains NO-GO.
