@@ -50,6 +50,10 @@ Or install the development version from [GitHub](https://github.com/data-wise/pr
 devtools::install_github("data-wise/probmed")
 ```
 
+GitHub installs use `medfit` v0.20.0, which loads with S7 1.0.0.
+S7 1.0.0 requires R 4.2 or later. On R 4.1.3 we verified the install
+with S7 0.2.2.
+
 ## Quick Example
 
 Here is a basic example showing how to simulate data and compute $P_{med}$ using a parametric bootstrap approach.
@@ -143,7 +147,7 @@ summary(result)
 
 ## Status and known limitations
 
-Version `0.4.1` (GitHub release only; not submitted to CRAN). The full suite passed with medfit 0.3.2 and 0.12.0 after the missing-value fix in probmed 0.4.1. The guard also passed its focused check with medfit 0.10.0. It checks the input before medfit can omit rows with missing values. For the binary Wasserstein proportion mediated, estimation near an exactly zero mediation path is hard: the plug-in bias is of order $n^{-1/4}$, none of the point estimators tested met the frozen bias gate (\|bias\|/SD \< .10) there, and that gate was shown to be infeasible for any estimator with values in \[0, 1\] in the zero-direct and weak-direct cells at n = 500, and the Fieller interval is the supported uncertainty statement. See the [boundary article section](https://data-wise.github.io/probmed/articles/modern-estimands.html#boundary-behavior) and `docs/reports/REPORT-boundary-point-risk-2026-10-21.md`.
+Install a published version from [GitHub releases](https://github.com/Data-Wise/probmed/releases). The full suite passed with medfit 0.3.2 and 0.12.0 after the missing-value fix in probmed 0.4.1. The guard also passed its focused check with medfit 0.10.0. It checks the input before medfit can omit rows with missing values. For the binary Wasserstein proportion mediated, estimation near an exactly zero mediation path is hard: the plug-in bias is of order $n^{-1/4}$, none of the point estimators tested met the frozen bias gate (\|bias\|/SD \< .10) there, and that gate was shown to be infeasible for any estimator with values in \[0, 1\] in the zero-direct and weak-direct cells at n = 500, and the Fieller interval is the supported uncertainty statement. See the [boundary article section](https://data-wise.github.io/probmed/articles/modern-estimands.html#boundary-behavior) and `docs/reports/REPORT-boundary-point-risk-2026-10-21.md`.
 
 ## Features
 

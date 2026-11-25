@@ -1,6 +1,6 @@
 #' @import S7
 #' @importFrom stats coef vcov nobs glm predict rnorm quantile sd formula terms
-#' @importFrom methods is
+#' @importFrom methods initialize is
 #' @keywords internal
 "_PACKAGE"
 

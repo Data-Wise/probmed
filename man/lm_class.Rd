@@ -5,7 +5,7 @@
 \alias{lm_class}
 \title{S3 Class Wrappers for S7}
 \format{
-An object of class \code{S7_S3_class} of length 3.
+An internal S7 wrapper for the \code{lm} class.
 }
 \usage{
 lm_class

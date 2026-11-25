@@ -41,7 +41,7 @@ SobolPmedResult(
 \item{se}{Numeric: standard error of \code{p_med} (delta-method, ratio identity).}
 
 \item{ci}{Numeric length-2: \strong{reported} confidence interval, selected by
-\code{procedure} -- Procedure B (default, uniformly valid) or Procedure A (gated).}
+\code{procedure} -- Procedure B (default, ungated) or Procedure A (gated).}
 
 \item{ci_wald}{Numeric length-2: ungated symmetric Wald interval (always the
 Wald interval, even at the boundary).}
@@ -61,7 +61,7 @@ but the half-sample centre makes it high-variance and it did \strong{not} improv
 near-null coverage in simulation -- a K-fold-decorrelated se keeping the
 full-sample point is the open fix. Not recommended; use \code{ci} (B1).}
 
-\item{procedure}{Character: \code{"B"} (default, uniform sample-split CI) or \code{"A"}
+\item{procedure}{Character: \code{"B"} (default, same-sample \code{ci_B1}) or \code{"A"}
 (legacy gated). Controls which interval is returned in \code{ci}.}
 
 \item{boundary}{Logical: \code{TRUE} when the split test does not reject
@@ -151,9 +151,9 @@ image of the regular two-sided Wald CI for \code{psi = Delta_m / sqrt(V_T)} unde
 \code{psi}, \verb{(phi_Delta - Delta_m phi_VT / (2 V_T)) / sqrt(V_T)}, so it accounts for
 the sampling error of \code{V_T}; it equals the \code{Delta_m} se only at \code{Delta_m = 0}
 (#67: Studentizing by \code{se_Dm} instead gave limiting coverage
-\verb{2 Phi(z rho) - 1}, \code{rho = se_Dm / se_B}, e.g. 0.67 at nominal 0.95). There is
-no pre-test, hence no boundary pathology (subject to the near-null se caveat
-below). The reported \code{ci} is
+\verb{2 Phi(z rho) - 1}, \code{rho = se_Dm / se_B}, e.g. 0.67 at nominal 0.95).
+Procedure B avoids pre-test selection. See below for coverage near zero and
+full mediation. The reported \code{ci} is
 \code{ci_B1}, the same-sample image (centered at the full \code{Delta_m}, so it always
 brackets \code{p_med}); \code{ci_B2} is an \emph{experimental} single-split variant that did
 not improve coverage (see its note). \strong{Procedure A} (\code{procedure = "A"},
@@ -191,8 +191,7 @@ caveat:} \code{Delta_d = R = 0} is a second degenerate point -- there
 so Procedure B under-covers in its neighborhood (0.887 at \code{Delta_d = 3/sqrt(n)},
 0.920 at \code{Delta_d = 0.05}, \code{p_med} about 0.97-0.98); a message flags
 \code{P_med >= 0.9}. The \code{se_Dm} interval over-covered there (1.000) only because it
-was too wide. The only
-near-null pathology is the symmetric Wald interval for \code{p_med} itself (0.74 at
+was too wide. The symmetric Wald interval for \code{p_med} under-covers near zero (0.74 at
 the boundary -- the same for the oracle: the square map, not the se), which
 Procedure B avoids by construction.
 
@@ -205,8 +204,9 @@ fold by its first row's propensity; NEWS 0.4.0). Post-fix \code{reps > 1} has
 nothing left to remove, and the bootstrap se is 0.84-1.05x the sampling SD
 (slightly \emph{narrower} at the transition); both remain options, not remedies.
 
-\strong{Practical guidance.} The analytic Procedure-B default is valid across the
-measured transition; nothing needs switching near the boundary. \code{reps > 1}
+\strong{Practical guidance.} The analytic Procedure-B interval is the default.
+See the coverage results above for the near-zero and full-mediation cases.
+\code{reps > 1}
 makes the point estimate reproducible across fold draws (small efficiency
 effect). \code{se_method = "bootstrap"} is an option costing \code{B} (x \code{reps})
 refits; post-fix it is not better than the analytic se and slightly

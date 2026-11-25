@@ -40,9 +40,9 @@
 #' `psi`, `(phi_Delta - Delta_m phi_VT / (2 V_T)) / sqrt(V_T)`, so it accounts for
 #' the sampling error of `V_T`; it equals the `Delta_m` se only at `Delta_m = 0`
 #' (#67: Studentizing by `se_Dm` instead gave limiting coverage
-#' `2 Phi(z rho) - 1`, `rho = se_Dm / se_B`, e.g. 0.67 at nominal 0.95). There is
-#' no pre-test, hence no boundary pathology (subject to the near-null se caveat
-#' below). The reported `ci` is
+#' `2 Phi(z rho) - 1`, `rho = se_Dm / se_B`, e.g. 0.67 at nominal 0.95).
+#' Procedure B avoids pre-test selection. See below for coverage near zero and
+#' full mediation. The reported `ci` is
 #' `ci_B1`, the same-sample image (centered at the full `Delta_m`, so it always
 #' brackets `p_med`); `ci_B2` is an *experimental* single-split variant that did
 #' not improve coverage (see its note). **Procedure A** (`procedure = "A"`,
@@ -80,8 +80,7 @@
 #' so Procedure B under-covers in its neighborhood (0.887 at `Delta_d = 3/sqrt(n)`,
 #' 0.920 at `Delta_d = 0.05`, `p_med` about 0.97-0.98); a message flags
 #' `P_med >= 0.9`. The `se_Dm` interval over-covered there (1.000) only because it
-#' was too wide. The only
-#' near-null pathology is the symmetric Wald interval for `p_med` itself (0.74 at
+#' was too wide. The symmetric Wald interval for `p_med` under-covers near zero (0.74 at
 #' the boundary -- the same for the oracle: the square map, not the se), which
 #' Procedure B avoids by construction.
 #'
@@ -94,8 +93,9 @@
 #' nothing left to remove, and the bootstrap se is 0.84-1.05x the sampling SD
 #' (slightly *narrower* at the transition); both remain options, not remedies.
 #'
-#' **Practical guidance.** The analytic Procedure-B default is valid across the
-#' measured transition; nothing needs switching near the boundary. `reps > 1`
+#' **Practical guidance.** The analytic Procedure-B interval is the default.
+#' See the coverage results above for the near-zero and full-mediation cases.
+#' `reps > 1`
 #' makes the point estimate reproducible across fold draws (small efficiency
 #' effect). `se_method = "bootstrap"` is an option costing `B` (x `reps`)
 #' refits; post-fix it is not better than the analytic se and slightly
@@ -105,7 +105,7 @@
 #' @param p_med Numeric: Sobol proportion mediated `V_med / V_T`.
 #' @param se Numeric: standard error of `p_med` (delta-method, ratio identity).
 #' @param ci Numeric length-2: **reported** confidence interval, selected by
-#'   `procedure` -- Procedure B (default, uniformly valid) or Procedure A (gated).
+#'   `procedure` -- Procedure B (default, ungated) or Procedure A (gated).
 #' @param ci_A Numeric length-2: Procedure-A (gated, pre-test) interval -- the Wald
 #'   interval off-boundary, or `[0, Pmed_upper]` at the boundary. Pointwise- but
 #'   **not** uniformly-valid (see Coverage caveat).
@@ -118,7 +118,7 @@
 #'   but the half-sample centre makes it high-variance and it did **not** improve
 #'   near-null coverage in simulation -- a K-fold-decorrelated se keeping the
 #'   full-sample point is the open fix. Not recommended; use `ci` (B1).
-#' @param procedure Character: `"B"` (default, uniform sample-split CI) or `"A"`
+#' @param procedure Character: `"B"` (default, same-sample `ci_B1`) or `"A"`
 #'   (legacy gated). Controls which interval is returned in `ci`.
 #' @param ci_wald Numeric length-2: ungated symmetric Wald interval (always the
 #'   Wald interval, even at the boundary).
@@ -360,12 +360,12 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
             "upper bound [0, ", signif(Pmed_upper, 3), "] (Procedure A) instead. ",
             "Note: this gated bound is NOT uniformly valid across the near-null transition ",
             "(pre-test under-coverage at intermediate-to-large n); prefer procedure = \"B\" ",
-            "(uniformly valid sample-split CI) -- see ?SobolPmedResult 'Coverage caveat'.", call. = FALSE)
+            "(ungated interval). See ?SobolPmedResult for coverage near zero mediation.", call. = FALSE)
   if (warn_boundary && boundary && procedure == "B")
     message("sobol_pmed: near the V_med=0 boundary (split test p=", signif(vmed_split_p, 2),
-            "); reporting Procedure B (image of the psi = Delta_m/sqrt(V_T) CI, no gating), which is ",
-            "valid here", if (se_method == "bootstrap") " (se from nonparametric bootstrap)" else "",
-            " -- see ?SobolPmedResult.")
+            "); reporting Procedure B (image of the psi = Delta_m/sqrt(V_T) CI, no gating)",
+            if (se_method == "bootstrap") " with a nonparametric bootstrap SE" else "",
+            ". Coverage can vary near zero mediation. See ?SobolPmedResult.")
   if (warn_boundary && procedure == "B" && is.finite(P) && P >= 0.9)
     message("sobol_pmed: near full mediation (P_med = ", signif(P, 3), "); at Delta_d = R = 0 the ",
             "psi pivot is degenerate (its influence function vanishes), so Procedure B can ",
@@ -426,9 +426,9 @@ sobol_from_theta <- function(theta, pd = 0.5, pm = 0.5) {
 #' @param boundary_test Character: boundary test for `H0: V_med = 0`. `"split"`
 #'   (default) is the Williamson sample-split test on `Delta_m`; `"plugin"` is the
 #'   (over-rejecting) plug-in Wald test, diagnostic only.
-#' @param procedure Character: interval procedure for `ci`. `"B"` (default) is the
-#'   sample-split CI (image of the `Delta_m` CI); `"A"` is the legacy gated interval
-#'   (non-uniform near the boundary). See [SobolPmedResult].
+#' @param procedure Character: interval procedure for `ci`. `"B"` (default) maps
+#'   the same-sample Wald CI for `psi = Delta_m / sqrt(V_T)`; `"A"` is the legacy
+#'   gated interval (non-uniform near the boundary). See [SobolPmedResult].
 #' @param reps Integer: repeated cross-fitting draws averaged for the point estimate
 #'   (default `1`). `reps > 1` averages the corner influence matrix over
 #'   independent fold draws, making the point estimate reproducible across

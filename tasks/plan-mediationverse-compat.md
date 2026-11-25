@@ -94,3 +94,28 @@ The declared floor remains `medfit (>= 0.3.0)`. The plug-in fit is an
 installation smoke check. Phase 8 remains NO-GO, and I7, package publishing,
 and pmed submission remain on hold. No new research simulations ran.
 [medfit v0.20.0](https://github.com/Data-Wise/medfit/releases/tag/v0.20.0)
+
+## 2026-11-25 v0.4.2 integration
+
+Local `dev` incorporates the fixes from `1e6c488`. GitHub installs pin
+`medfit v0.20.0` (`4739e8e`), and probmed imports `methods::initialize`
+explicitly. The declared floors remain R 4.1, medfit 0.3.0, and S7 0.2.1.
+The Sobol messages and help now describe Procedure B as an ungated interval
+whose coverage can vary near zero mediation.
+
+| R | medfit | S7 | Local verification |
+| --- | --- | --- | --- |
+| 4.1.3 | 0.20.0 | 0.2.2 | Clean install, deterministic MBCO fit, and both Sobol message checks passed. |
+| 4.6.2 | 0.20.0 | 1.0.0 | Clean install, deterministic MBCO fit, and both Sobol message checks passed. |
+
+S7 1.0.0 requires R 4.2 or later. The R 4.1.3 check used the archived
+S7 0.2.2 source package. The reduced package checks skipped tests, examples,
+and vignette execution. On R 4.1.3 there were zero errors and warnings and
+two notes also present at `511f002` (missing suggested packages and static
+binding diagnostics). On R 4.6.2 there were zero errors, warnings, and notes.
+No new research simulations ran.
+
+The five-job hosted pass applies to `1e6c488`. The integrated revision
+still needs its own hosted matrix if release PR work resumes. Phase 8
+remains NO-GO. I7, package publishing, and pmed submission remain on hold.
+[Hosted run](https://github.com/Data-Wise/probmed/actions/runs/45678345492)

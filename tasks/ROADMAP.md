@@ -39,10 +39,13 @@ links to the acceptance rules and evidence for each phase.
 
 ## Next work and holds
 
-The clean-install and hosted CI checks are complete for `1e6c488`. If
-release work resumes, verify the commit proposed for release before tagging.
-See the [compatibility plan](plan-mediationverse-compat.md#2026-11-24-release-preflight-follow-up)
-for the original dependency failure.
+Local `dev` incorporates the dependency fixes from `1e6c488` and the Sobol
+message corrections. The integrated package passed a clean install and
+deterministic checks on R 4.1.3 and R 4.6.2. The five-job hosted pass covers
+`1e6c488`. If release work resumes, run the hosted matrix on the integrated
+revision before opening the release PR.
+See the [compatibility plan](plan-mediationverse-compat.md#2026-11-25-v042-integration)
+for the dependency versions and verification scope.
 
 I7 and #47 remain stopped under the I6 decision. Phase 8 remains NO-GO.
 Package publishing and pmed submission remain on hold.

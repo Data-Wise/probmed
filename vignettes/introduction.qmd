@@ -36,6 +36,10 @@ You can install the development version of `probmed` from GitHub:
 devtools::install_github("data-wise/probmed")
 ```
 
+GitHub installs use `medfit` v0.20.0, which loads with S7 1.0.0.
+S7 1.0.0 requires R 4.2 or later. On R 4.1.3 we verified the install
+with S7 0.2.2.
+
 ## Basic Example: Linear Mediation
 
 Let's demonstrate `probmed` with a simple linear mediation model. We will simulate data where $X$ affects $M$, and both $X$ and $M$ affect $Y$.

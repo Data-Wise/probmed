@@ -46,9 +46,9 @@ full mediation, \code{P_med >= 0.9}) (default \code{TRUE}).}
 (default) is the Williamson sample-split test on \code{Delta_m}; \code{"plugin"} is the
 (over-rejecting) plug-in Wald test, diagnostic only.}
 
-\item{procedure}{Character: interval procedure for \code{ci}. \code{"B"} (default) is the
-sample-split CI (image of the \code{Delta_m} CI); \code{"A"} is the legacy gated interval
-(non-uniform near the boundary). See \link{SobolPmedResult}.}
+\item{procedure}{Character: interval procedure for \code{ci}. \code{"B"} (default) maps
+the same-sample Wald CI for \code{psi = Delta_m / sqrt(V_T)}; \code{"A"} is the legacy
+gated interval (non-uniform near the boundary). See \link{SobolPmedResult}.}
 
 \item{reps}{Integer: repeated cross-fitting draws averaged for the point estimate
 (default \code{1}). \code{reps > 1} averages the corner influence matrix over
